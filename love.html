@@ -1,1009 +1,815 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thi Huynh & Huu Phuoc - Happy 1st Anniversary</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#10084;&#65039;</text></svg>">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #0c0015, #1a0a2e, #2d1b4e);
-            color: #fff;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Floating Hearts */
-        .hearts-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .floating-heart {
-            position: absolute;
-            bottom: -50px;
-            font-size: 20px;
-            animation: floatUp linear infinite;
-            opacity: 0.6;
-        }
-
-        @keyframes floatUp {
-            0% {
-                transform: translateY(0) rotate(0deg) scale(1);
-                opacity: 0.6;
-            }
-            50% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(-110vh) rotate(720deg) scale(0.3);
-                opacity: 0;
-            }
-        }
-
-        /* Stars */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: #fff;
-            border-radius: 50%;
-            animation: twinkle ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
-        }
-
-        /* Main Content */
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 80px 20px 60px;
-            position: relative;
-        }
-
-        .hero-heart {
-            font-size: 80px;
-            animation: heartbeat 1.2s ease-in-out infinite;
-            display: inline-block;
-            filter: drop-shadow(0 0 20px rgba(255, 100, 150, 0.6));
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            15% { transform: scale(1.15); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.1); }
-        }
-
-        .hero h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 3.5em;
-            margin: 20px 0 10px;
-            background: linear-gradient(135deg, #ff6b9d, #ffa8c5, #ff6b9d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: none;
-        }
-
-        .hero .names {
-            font-family: 'Nunito', sans-serif;
-            font-size: 1.2em;
-            font-weight: 300;
-            margin: 15px 0;
-            color: rgba(255, 255, 255, 0.75);
-            letter-spacing: 4px;
-        }
-
-        .hero .names .heart-sep {
-            color: #ff6b9d;
-            margin: 0 10px;
-            font-size: 0.9em;
-        }
-
-        .hero .subtitle {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5em;
-            font-style: italic;
-            color: #c9a0dc;
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
-
-        .hero .date-badge {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 30px;
-            border: 2px solid rgba(255, 107, 157, 0.5);
-            border-radius: 50px;
-            font-size: 1.1em;
-            color: #ffa8c5;
-            letter-spacing: 3px;
-            background: rgba(255, 107, 157, 0.1);
-        }
-
-        /* Countdown Section */
-        .countdown-section {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .countdown-section h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2em;
-            color: #ffa8c5;
-            margin-bottom: 10px;
-        }
-
-        .countdown-section .countdown-label {
-            color: #c9a0dc;
-            font-size: 1em;
-            margin-bottom: 30px;
-        }
-
-        .countdown {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .countdown-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 107, 157, 0.3);
-            border-radius: 20px;
-            padding: 25px 20px;
-            min-width: 110px;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .countdown-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
-        }
-
-        .countdown-number {
-            font-size: 3em;
-            font-weight: 700;
-            color: #ff6b9d;
-            line-height: 1;
-        }
-
-        .countdown-unit {
-            font-size: 0.85em;
-            color: #c9a0dc;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Together Stats */
-        .together-stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            margin-top: 30px;
-            padding: 20px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #ff6b9d;
-        }
-
-        .stat-label {
-            font-size: 0.8em;
-            color: #a78bba;
-            margin-top: 4px;
-        }
-
-        /* Timeline Section */
-        .timeline-section {
-            padding: 60px 20px;
-        }
-
-        .timeline-section h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5em;
-            color: #ffa8c5;
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .timeline {
-            position: relative;
-            padding: 20px 0;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 3px;
-            height: 100%;
-            background: linear-gradient(to bottom, #ff6b9d, #c9a0dc, #ff6b9d);
-            border-radius: 3px;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 50px;
-            display: flex;
-            align-items: center;
-        }
-
-        .timeline-item:nth-child(odd) {
-            flex-direction: row;
-        }
-
-        .timeline-item:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-
-        .timeline-content {
-            width: 45%;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 107, 157, 0.2);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .timeline-content:hover {
-            transform: scale(1.03);
-            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.15);
-        }
-
-        .timeline-item:nth-child(odd) .timeline-content {
-            margin-right: auto;
-        }
-
-        .timeline-item:nth-child(even) .timeline-content {
-            margin-left: auto;
-        }
-
-        .timeline-dot {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 18px;
-            height: 18px;
-            background: #ff6b9d;
-            border-radius: 50%;
-            border: 3px solid #1a0a2e;
-            z-index: 2;
-            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
-        }
-
-        .timeline-item.upcoming .timeline-dot {
-            background: #c9a0dc;
-            box-shadow: 0 0 15px rgba(201, 160, 220, 0.5);
-        }
-
-        .timeline-item.upcoming .timeline-content {
-            border-color: rgba(201, 160, 220, 0.3);
-            opacity: 0.85;
-        }
-
-        .timeline-date {
-            font-size: 0.85em;
-            color: #ff6b9d;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-
-        .timeline-item.upcoming .timeline-date {
-            color: #c9a0dc;
-        }
-
-        .timeline-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .timeline-desc {
-            font-size: 0.9em;
-            color: #b8a0cc;
-            line-height: 1.6;
-        }
-
-        .timeline-icon {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        .timeline-tag {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        .tag-past {
-            background: rgba(255, 107, 157, 0.2);
-            color: #ff6b9d;
-        }
-
-        .tag-upcoming {
-            background: rgba(201, 160, 220, 0.2);
-            color: #c9a0dc;
-        }
-
-        /* Love Letter Section */
-        .love-letter {
-            text-align: center;
-            padding: 60px 20px;
-            max-width: 650px;
-            margin: 0 auto;
-        }
-
-        .love-letter .envelope {
-            font-size: 50px;
-            margin-bottom: 20px;
-            display: inline-block;
-            animation: gentleFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes gentleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .love-letter h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2em;
-            color: #ffa8c5;
-            margin-bottom: 20px;
-        }
-
-        .love-letter p {
-            font-size: 1.05em;
-            color: #c9a0dc;
-            line-height: 1.9;
-            font-style: italic;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px 20px 60px;
-            color: #a78bba;
-            font-size: 0.9em;
-        }
-
-        .footer .forever {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8em;
-            color: #ff6b9d;
-            margin-bottom: 10px;
-        }
-
-        /* Music Toggle */
-        .music-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 107, 157, 0.2);
-            border: 2px solid rgba(255, 107, 157, 0.4);
-            color: #ff6b9d;
-            font-size: 1.5em;
-            cursor: pointer;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .music-toggle:hover {
-            background: rgba(255, 107, 157, 0.4);
-            transform: scale(1.1);
-        }
-
-        /* Responsive - Tablet */
-        @media (max-width: 768px) {
-            .hero {
-                padding: 50px 15px 40px;
-            }
-
-            .hero-heart {
-                font-size: 60px;
-            }
-
-            .hero h1 {
-                font-size: 2.2em;
-            }
-
-            .hero .names {
-                font-size: 1.05em;
-                letter-spacing: 3px;
-            }
-
-            .hero .subtitle {
-                font-size: 1.2em;
-            }
-
-            .hero .date-badge {
-                font-size: 0.95em;
-                padding: 8px 20px;
-                letter-spacing: 2px;
-            }
-
-            .countdown-section h2 {
-                font-size: 1.8em;
-            }
-
-            .countdown-item {
-                min-width: 80px;
-                padding: 18px 14px;
-            }
-
-            .countdown-number {
-                font-size: 2.2em;
-            }
-
-            .countdown-unit {
-                font-size: 0.75em;
-            }
-
-            .timeline::before {
-                left: 20px;
-            }
-
-            .timeline-item,
-            .timeline-item:nth-child(odd),
-            .timeline-item:nth-child(even) {
-                flex-direction: row;
-            }
-
-            .timeline-content,
-            .timeline-item:nth-child(odd) .timeline-content,
-            .timeline-item:nth-child(even) .timeline-content {
-                width: calc(100% - 50px);
-                margin-left: 50px;
-                margin-right: 0;
-            }
-
-            .timeline-dot {
-                left: 20px;
-            }
-
-            .timeline-section h2 {
-                font-size: 2em;
-            }
-
-            .together-stats {
-                gap: 15px;
-            }
-
-            .love-letter h2 {
-                font-size: 1.8em;
-            }
-
-            .love-letter p {
-                font-size: 0.95em;
-            }
-        }
-
-        /* Responsive - Mobile small */
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-
-            .hero {
-                padding: 40px 10px 30px;
-            }
-
-            .hero-heart {
-                font-size: 50px;
-            }
-
-            .hero h1 {
-                font-size: 1.8em;
-            }
-
-            .hero .names {
-                font-size: 0.95em;
-                letter-spacing: 2px;
-            }
-
-            .hero .subtitle {
-                font-size: 1.1em;
-            }
-
-            .hero .date-badge {
-                font-size: 0.85em;
-                padding: 7px 16px;
-                letter-spacing: 1px;
-            }
-
-            .countdown-section {
-                padding: 30px 10px;
-            }
-
-            .countdown-section h2 {
-                font-size: 1.5em;
-            }
-
-            .countdown {
-                gap: 8px;
-            }
-
-            .countdown-item {
-                min-width: 70px;
-                padding: 14px 10px;
-                border-radius: 14px;
-            }
-
-            .countdown-number {
-                font-size: 1.8em;
-            }
-
-            .countdown-unit {
-                font-size: 0.65em;
-                letter-spacing: 1px;
-            }
-
-            .together-stats {
-                gap: 10px;
-                padding: 15px 5px;
-            }
-
-            .stat-number {
-                font-size: 1.4em;
-            }
-
-            .stat-label {
-                font-size: 0.7em;
-            }
-
-            .timeline-section {
-                padding: 40px 10px;
-            }
-
-            .timeline-section h2 {
-                font-size: 1.7em;
-                margin-bottom: 30px;
-            }
-
-            .timeline::before {
-                left: 15px;
-            }
-
-            .timeline-dot {
-                left: 15px;
-                width: 14px;
-                height: 14px;
-            }
-
-            .timeline-content,
-            .timeline-item:nth-child(odd) .timeline-content,
-            .timeline-item:nth-child(even) .timeline-content {
-                width: calc(100% - 40px);
-                margin-left: 40px;
-                padding: 18px 15px;
-                border-radius: 14px;
-            }
-
-            .timeline-title {
-                font-size: 1.05em;
-            }
-
-            .timeline-desc {
-                font-size: 0.82em;
-            }
-
-            .timeline-item {
-                margin-bottom: 30px;
-            }
-
-            .love-letter {
-                padding: 40px 15px;
-            }
-
-            .love-letter .envelope {
-                font-size: 40px;
-            }
-
-            .love-letter h2 {
-                font-size: 1.5em;
-            }
-
-            .love-letter p {
-                font-size: 0.9em;
-                line-height: 1.7;
-            }
-
-            .footer .forever {
-                font-size: 1.4em;
-            }
-        }
-
-        /* Scroll animations */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tình Yêu Của Chúng Mình 💕</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:    #ff6b8a;
+      --rose2:   #ff4d73;
+      --pink:    #ffb3c6;
+      --gold:    #f5c842;
+      --gold2:   #fde68a;
+      --deep:    #1a0a14;
+      --deep2:   #2d1525;
+      --deep3:   #3d1f33;
+      --white:   #fff;
+      --soft:    rgba(255,255,255,0.08);
+      --border:  rgba(255,255,255,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(ellipse at 20% 30%, #3d1525 0%, #1a0a14 40%, #0d0610 100%);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── CANVAS stars ─────────────────────────────────────── */
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── FLOATING HEARTS ──────────────────────────────────── */
+    .heart-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .fheart {
+      position: absolute;
+      bottom: -60px;
+      opacity: 0;
+      font-size: 20px;
+      animation: floatUp linear infinite;
+      filter: blur(0.5px);
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 0; }
+      10%  { opacity: 1; }
+      80%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh) translateX(var(--tx)) rotate(var(--rot)) scale(var(--sc)); opacity: 0; }
+    }
+
+    /* ── PETALS ────────────────────────────────────────────── */
+    .petal {
+      position: absolute;
+      width: 10px; height: 14px;
+      border-radius: 50% 0 50% 0;
+      opacity: 0;
+      animation: petalFall linear infinite;
+    }
+    @keyframes petalFall {
+      0%   { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(110vh) translateX(var(--px)) rotate(var(--pr)); opacity: 0; }
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 40px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+
+    /* ── HEADER ───────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      padding-top: 24px;
+    }
+    .header .eyebrow {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.5rem;
+      color: var(--pink);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.2s ease forwards;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 40%, var(--rose) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.5s ease forwards;
+    }
+    .header .sub {
+      margin-top: 12px;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.5px;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.8s ease forwards;
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── HEART DIVIDER ───────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    }
+    .divider-heart {
+      font-size: 1.2rem;
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      25%      { transform: scale(1.35); }
+      50%      { transform: scale(1); }
+      75%      { transform: scale(1.2); }
+    }
+
+    /* ── DATE BADGE ──────────────────────────────────────── */
+    .date-badge {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .badge {
+      padding: 8px 22px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--soft);
+      backdrop-filter: blur(10px);
+      font-size: 0.82rem;
+      color: var(--pink);
+      letter-spacing: 1px;
+    }
+    .badge strong { color: var(--gold2); }
+
+    /* ── MAIN STATS GRID ─────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      max-width: 700px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(255,107,138,0.2); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--rose), var(--gold), var(--rose));
+    }
+    .stat-card .stat-icon { font-size: 2rem; margin-bottom: 10px; }
+    .stat-card .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--white) 0%, var(--gold2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .stat-card .stat-sub {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: var(--pink);
+      font-style: italic;
+    }
+    .stat-card.big {
+      grid-column: 1 / -1;
+    }
+
+    /* ── COUNTDOWN SECTION ───────────────────────────────── */
+    .countdown-card {
+      width: 100%;
+      max-width: 700px;
+      background: linear-gradient(135deg, rgba(255,77,115,0.12) 0%, rgba(255,107,138,0.06) 100%);
+      border: 1px solid rgba(255,107,138,0.3);
+      border-radius: 28px;
+      padding: 40px 32px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+    .countdown-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,107,138,0.15) 0%, transparent 70%);
+    }
+    .countdown-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: var(--pink);
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .countdown-sub {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 1px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+    .countdown-blocks {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .cb {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cb-val {
+      width: 100px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,107,138,0.35);
+      border-radius: 18px;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.1s ease;
+    }
+    .cb-val.pop { transform: scale(1.08); }
+    .cb-val::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    }
+    .cb-dot {
+      font-size: 2rem;
+      color: rgba(255,107,138,0.5);
+      align-self: center;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+    .cb-lbl {
+      margin-top: 8px;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+    }
+
+    /* ── PROGRESS ────────────────────────────────────────── */
+    .progress-card {
+      width: 100%;
+      max-width: 700px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 32px;
+      backdrop-filter: blur(12px);
+    }
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .progress-head span {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+    }
+    .progress-head strong { color: var(--gold2); font-size: 1rem; }
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--rose2), var(--gold), var(--rose));
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+      transition: width 1s ease;
+      position: relative;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 12px var(--gold);
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── QUOTE ───────────────────────────────────────────── */
+    .quote-card {
+      width: 100%;
+      max-width: 580px;
+      text-align: center;
+      padding: 36px 40px;
+      background: linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(255,107,138,0.08) 100%);
+      border: 1px solid rgba(245,200,66,0.25);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      position: relative;
+    }
+    .quote-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      color: var(--rose);
+      opacity: 0.3;
+      line-height: 0.6;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .quote-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: rgba(255,255,255,0.9);
+      line-height: 1.7;
+      min-height: 60px;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .quote-text.fade-out { opacity: 0; transform: translateY(10px); }
+    .quote-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .qdot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .qdot.active { background: var(--rose); transform: scale(1.4); }
+
+    /* ── MILESTONES ──────────────────────────────────────── */
+    .milestones {
+      width: 100%;
+      max-width: 700px;
+    }
+    .section-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.8rem;
+      color: var(--pink);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .milestone-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .milestone {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .milestone:hover { transform: translateX(6px); border-color: rgba(255,107,138,0.4); }
+    .milestone.reached { border-color: rgba(245,200,66,0.4); background: rgba(245,200,66,0.06); }
+    .milestone .ms-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .milestone .ms-info { flex: 1; }
+    .milestone .ms-name { font-size: 0.95rem; font-weight: 500; color: var(--white); }
+    .milestone .ms-date { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .milestone .ms-badge {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(255,107,138,0.2);
+      color: var(--pink);
+      border: 1px solid rgba(255,107,138,0.3);
+      white-space: nowrap;
+    }
+    .milestone.reached .ms-badge { background: rgba(245,200,66,0.2); color: var(--gold2); border-color: rgba(245,200,66,0.3); }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.25);
+      padding-bottom: 12px;
+    }
+    .footer .heart { color: var(--rose); animation: heartbeat 1.5s ease-in-out infinite; display: inline-block; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 520px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .stat-card.big { grid-column: auto; }
+      .cb-val { width: 68px; height: 68px; font-size: 1.8rem; border-radius: 14px; }
+      .countdown-blocks { gap: 6px; }
+      .cb-dot { font-size: 1.4rem; margin-bottom: 12px; }
+      .countdown-card { padding: 28px 16px; }
+      .quote-card { padding: 28px 20px; }
+      .progress-card { padding: 20px 20px; }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Stars Background -->
-    <div class="stars" id="stars"></div>
+<canvas id="starCanvas"></canvas>
+<div class="heart-layer" id="heartLayer"></div>
 
-    <!-- Floating Hearts -->
-    <div class="hearts-bg" id="hearts-bg"></div>
+<div class="wrapper">
 
-    <div class="container">
-        <!-- Hero -->
-        <section class="hero">
-            <div class="hero-heart">&#10084;&#65039;</div>
-            <h1>Happy 1st Anniversary</h1>
-            <div class="names">thihuywn <span class="heart-sep">&#10084;&#65039;</span> huuphuoc</div>
-            <p class="subtitle">M&#7897;t n&#259;m y&#234;u th&#432;&#417;ng, ng&#224;n n&#259;m h&#7841;nh ph&#250;c</p>
-            <div class="date-badge">18 . 10 . 2025 &#8212; 18 . 10 . 2026</div>
-        </section>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="eyebrow">✦ Câu chuyện tình yêu của chúng mình ✦</div>
+    <h1>Yêu Mãi Mãi</h1>
+    <p class="sub">Từ ngày đầu tiên — mỗi khoảnh khắc đều quý giá</p>
+  </div>
 
-        <!-- Together Counter (counting UP) -->
-        <section class="countdown-section fade-in">
-            <h2 id="together-title">Ch&#250;ng m&#236;nh &#273;&#227; b&#234;n nhau</h2>
-            <p class="countdown-label">T&#237;nh t&#7915; 18/10/2025</p>
-            <div class="countdown">
-                <div class="countdown-item">
-                    <div class="countdown-number" id="up-days">--</div>
-                    <div class="countdown-unit">Ng&#224;y</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="up-hours">--</div>
-                    <div class="countdown-unit">Gi&#7901;</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="up-minutes">--</div>
-                    <div class="countdown-unit">Ph&#250;t</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="up-seconds">--</div>
-                    <div class="countdown-unit">Gi&#226;y</div>
-                </div>
-            </div>
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-heart">❤️</div>
+    <div class="divider-line"></div>
+  </div>
 
-            <div class="together-stats">
-                <div class="stat">
-                    <div class="stat-number" id="stat-hours">--</div>
-                    <div class="stat-label">gi&#7901; y&#234;u th&#432;&#417;ng</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="stat-heartbeats">--</div>
-                    <div class="stat-label">nh&#7883;p tim</div>
-                </div>
-            </div>
-        </section>
+  <!-- DATE BADGES -->
+  <div class="date-badge">
+    <div class="badge">Bắt đầu: <strong>18/10/2025</strong></div>
+    <div class="badge">Kỷ niệm 1 năm: <strong>18/10/2026</strong></div>
+  </div>
 
-        <!-- Countdown to Anniversary (counting DOWN) -->
-        <section class="countdown-section fade-in">
-            <h2 id="countdown-title">&#272;&#7871;m ng&#432;&#7907;c &#273;&#7871;n k&#7927; ni&#7879;m 1 n&#259;m</h2>
-            <p class="countdown-label" id="countdown-label">18/10/2026 - Tr&#242;n 1 n&#259;m b&#234;n nhau</p>
-            <div class="countdown" id="countdown">
-                <div class="countdown-item">
-                    <div class="countdown-number" id="days">--</div>
-                    <div class="countdown-unit">Ng&#224;y</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="hours">--</div>
-                    <div class="countdown-unit">Gi&#7901;</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="minutes">--</div>
-                    <div class="countdown-unit">Ph&#250;t</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="seconds">--</div>
-                    <div class="countdown-unit">Gi&#226;y</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Timeline -->
-        <section class="timeline-section">
-            <h2 class="fade-in">H&#224;nh tr&#236;nh c&#7911;a ch&#250;ng m&#236;nh</h2>
-            <div class="timeline" id="timeline"></div>
-        </section>
-
-        <!-- Love Letter -->
-        <section class="love-letter fade-in">
-            <div class="envelope">&#128140;</div>
-            <h2>G&#7917;i ng&#432;&#7901;i anh/em y&#234;u</h2>
-            <p>
-                M&#7897;t n&#259;m qua, c&#7843;m &#417;n em/anh &#273;&#227; &#273;&#7871;n b&#234;n c&#7841;nh v&#224; l&#224;m cu&#7897;c s&#7889;ng th&#234;m nhi&#7873;u m&#224;u s&#7855;c.
-                M&#7895;i ng&#224;y b&#234;n nhau l&#224; m&#7897;t ng&#224;y &#273;&#7863;c bi&#7879;t, m&#7895;i kho&#7843;nh kh&#7855;c l&#224; m&#7897;t k&#7927; ni&#7879;m &#273;&#7865;p.
-                Ch&#250;ng m&#236;nh &#273;&#227; c&#249;ng nhau &#273;i qua bao nhi&#234;u ni&#7873;m vui, n&#7895;i bu&#7891;n,
-                v&#224; anh/em bi&#7871;t r&#7857;ng &mdash; ch&#7881; c&#7847;n c&#243; nhau, m&#7885;i th&#7913; s&#7869; &#7893;n th&#244;i.
-                <br><br>
-                Y&#234;u em/anh nhi&#7873;u l&#7855;m! &#10084;&#65039;
-            </p>
-        </section>
-
-        <!-- Footer -->
-        <div class="footer fade-in">
-            <div class="forever">M&#227;i y&#234;u nhau &#10084;&#65039;</div>
-            <p>Made with love</p>
-        </div>
+  <!-- MAIN STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🌸</div>
+      <div class="stat-number" id="daysElapsed">0</div>
+      <div class="stat-label">Ngày đã bên nhau</div>
+      <div class="stat-sub">ngày hạnh phúc</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon">🌙</div>
+      <div class="stat-number" id="nightsElapsed">0</div>
+      <div class="stat-label">Đêm nhớ nhau</div>
+      <div class="stat-sub">đêm thương nhớ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-number" id="hoursElapsed">0</div>
+      <div class="stat-label">Giờ trôi qua</div>
+      <div class="stat-sub">khoảnh khắc bên nhau</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💌</div>
+      <div class="stat-number" id="minutesElapsed">0</div>
+      <div class="stat-label">Phút yêu thương</div>
+      <div class="stat-sub">không thể đếm hết</div>
+    </div>
+  </div>
 
-    <script>
-        // ============ CONFIG ============
-        const ANNIVERSARY_DATE = new Date('2026-10-18T00:00:00');
-        const START_DATE = new Date('2025-10-18T00:00:00');
+  <!-- COUNTDOWN -->
+  <div class="countdown-card">
+    <div class="countdown-title">Đếm ngược đến kỷ niệm 1 năm 💍</div>
+    <div class="countdown-sub">18 / 10 / 2026 &nbsp;—&nbsp; Một năm trọn vẹn yêu thương</div>
+    <div class="countdown-blocks">
+      <div class="cb"><div class="cb-val" id="cdDays">000</div><div class="cb-lbl">Ngày</div></div>
+      <div class="cb-dot">:</div>
+      <div class="cb"><div class="cb-val" id="cdHours">00</div><div class="cb-lbl">Giờ</div></div>
+      <div class="cb-dot">:</div>
+      <div class="cb"><div class="cb-val" id="cdMins">00</div><div class="cb-lbl">Phút</div></div>
+      <div class="cb-dot">:</div>
+      <div class="cb"><div class="cb-val" id="cdSecs">00</div><div class="cb-lbl">Giây</div></div>
+    </div>
+    <div id="anniversaryMsg" style="display:none; margin-top:24px; font-family:'Dancing Script',cursive; font-size:1.8rem; color:var(--gold2);">
+      🎉 Chúc mừng kỷ niệm 1 năm yêu nhau! 🎉
+    </div>
+  </div>
 
-        // ============ TIMELINE EVENTS ============
-        const events = [
-            {
-                date: '18/10/2025',
-                sort: new Date('2025-10-18'),
-                icon: '&#128151;',
-                title: 'Ng&#224;y b&#7855;t &#273;&#7847;u y&#234;u nhau',
-                desc: 'Ng&#224;y &#273;&#7863;c bi&#7879;t nh&#7845;t &#8212; khi ch&#250;ng m&#236;nh ch&#237;nh th&#7913;c b&#234;n nhau. T&#7915; &#273;&#226;y, m&#7885;i th&#7913; b&#7855;t &#273;&#7847;u.',
-                upcoming: false
-            },
-            {
-                date: '25/12/2025',
-                sort: new Date('2025-12-25'),
-                icon: '&#127876;',
-                title: 'Gi&#225;ng Sinh &#273;&#7847;u ti&#234;n',
-                desc: 'M&#249;a Gi&#225;ng Sinh &#273;&#7847;u ti&#234;n c&#249;ng nhau, c&#249;ng trang tr&#237;, c&#249;ng t&#7863;ng qu&#224;, c&#249;ng &#7845;m &#225;p.',
-                upcoming: false
-            },
-            {
-                date: '01/01/2026',
-                sort: new Date('2026-01-01'),
-                icon: '&#127878;',
-                title: 'N&#259;m M&#7899;i &#273;&#7847;u ti&#234;n',
-                desc: '&#272;&#243;n giao th&#7915;a c&#249;ng nhau, c&#249;ng &#432;&#7899;c nguy&#7879;n cho m&#7897;t n&#259;m m&#7899;i tr&#224;n &#273;&#7847;y y&#234;u th&#432;&#417;ng.',
-                upcoming: false
-            },
-            {
-                date: '14/02/2026',
-                sort: new Date('2026-02-14'),
-                icon: '&#127801;',
-                title: 'Valentine &#273;&#7847;u ti&#234;n',
-                desc: 'Ng&#224;y Valentine &#273;&#7847;u ti&#234;n b&#234;n nhau &#8212; hoa h&#7891;ng, socola v&#224; n&#7909; c&#432;&#7901;i.',
-                upcoming: false
-            },
-            {
-                date: '08/03/2026',
-                sort: new Date('2026-03-08'),
-                icon: '&#127800;',
-                title: 'Ng&#224;y Qu&#7889;c t&#7871; Ph&#7909; n&#7919;',
-                desc: 'Ng&#224;y &#273;&#7863;c bi&#7879;t &#273;&#7875; tri &#226;n v&#224; y&#234;u th&#432;&#417;ng nhi&#7873;u h&#417;n.',
-                upcoming: false
-            },
-            {
-                date: '18/04/2026',
-                sort: new Date('2026-04-18'),
-                icon: '&#127942;',
-                title: 'K&#7927; ni&#7879;m 6 th&#225;ng',
-                desc: 'N&#7917;a n&#259;m y&#234;u th&#432;&#417;ng &#8212; m&#7897;t n&#7917;a ch&#7863;ng &#273;&#432;&#7901;ng &#273;&#7847;u ti&#234;n &#273;&#227; &#273;i qua.',
-                upcoming: true
-            },
-            {
-                date: '01/06/2026',
-                sort: new Date('2026-06-01'),
-                icon: '&#127958;&#65039;',
-                title: 'M&#249;a h&#232; c&#249;ng nhau',
-                desc: 'C&#249;ng nhau &#273;i bi&#7875;n, t&#7853;n h&#432;&#7903;ng m&#249;a h&#232; v&#224; t&#7841;o th&#234;m nhi&#7873;u k&#7927; ni&#7879;m.',
-                upcoming: true
-            },
-            {
-                date: '18/10/2026',
-                sort: new Date('2026-10-18'),
-                icon: '&#128149;',
-                title: 'Tr&#242;n 1 n&#259;m y&#234;u nhau!',
-                desc: '365 ng&#224;y b&#234;n nhau &#8212; m&#7897;t c&#7897;t m&#7889;c &#273;&#225;ng nh&#7899;. Ch&#250;c m&#7915;ng k&#7927; ni&#7879;m c&#7911;a ch&#250;ng m&#236;nh!',
-                upcoming: true
-            }
-        ];
+  <!-- PROGRESS BAR -->
+  <div class="progress-card">
+    <div class="progress-head">
+      <span>18/10/2025</span>
+      <strong id="pctText">0%</strong>
+      <span>18/10/2026</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-labels">
+      <span>Ngày đầu yêu nhau 💫</span>
+      <span>Tròn 1 năm 🌹</span>
+    </div>
+  </div>
 
-        // ============ COUNT UP (days together) ============
-        function updateCountUp() {
-            const now = new Date();
-            const together = now - START_DATE;
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-heart">💕</div>
+    <div class="divider-line"></div>
+  </div>
 
-            if (together > 0) {
-                const days = Math.floor(together / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((together % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((together % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((together % (1000 * 60)) / 1000);
+  <!-- QUOTE -->
+  <div class="quote-card">
+    <span class="quote-mark">"</span>
+    <p class="quote-text" id="quoteText">Anh yêu em không phải vì em hoàn hảo, mà vì với em, mọi thứ đều trở nên hoàn hảo hơn.</p>
+    <div class="quote-dots" id="quoteDots"></div>
+  </div>
 
-                document.getElementById('up-days').textContent = days;
-                document.getElementById('up-hours').textContent = String(hours).padStart(2, '0');
-                document.getElementById('up-minutes').textContent = String(minutes).padStart(2, '0');
-                document.getElementById('up-seconds').textContent = String(seconds).padStart(2, '0');
+  <!-- MILESTONES -->
+  <div class="milestones">
+    <div class="section-title">Những cột mốc đáng nhớ ✨</div>
+    <div class="milestone-list" id="milestoneList"></div>
+  </div>
 
-                const totalHours = Math.floor(together / (1000 * 60 * 60));
-                const heartbeats = Math.floor(together / 1000 * 1.2); // ~72 bpm
+  <!-- FOOTER -->
+  <div class="footer">
+    Made with <span class="heart">❤️</span> · Mãi mãi yêu em
+  </div>
 
-                document.getElementById('stat-hours').textContent = totalHours.toLocaleString();
-                document.getElementById('stat-heartbeats').textContent = (heartbeats > 999999999
-                    ? (heartbeats / 1000000000).toFixed(1) + 'B'
-                    : heartbeats > 999999
-                        ? (heartbeats / 1000000).toFixed(1) + 'M'
-                        : heartbeats.toLocaleString());
-            }
-        }
+</div>
 
-        // ============ COUNTDOWN (to anniversary) ============
-        function updateCountdown() {
-            const now = new Date();
-            const diff = ANNIVERSARY_DATE - now;
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+const START       = new Date('2025-10-18T00:00:00').getTime();
+const ANNIVERSARY = new Date('2026-10-18T00:00:00').getTime();
 
-            if (diff <= 0) {
-                document.getElementById('countdown-title').innerHTML = '\uD83C\uDF89 Ch\u00FAc m\u1EEBng k\u1EF7 ni\u1EC7m 1 n\u0103m! \uD83C\uDF89';
-                document.getElementById('countdown-label').textContent = 'H\u00F4m nay l\u00E0 ng\u00E0y c\u1EE7a ch\u00FAng m\u00ECnh!';
-                document.getElementById('days').textContent = '0';
-                document.getElementById('hours').textContent = '00';
-                document.getElementById('minutes').textContent = '00';
-                document.getElementById('seconds').textContent = '00';
-            } else {
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+// ── QUOTES ─────────────────────────────────────────────────────────────────
+const quotes = [
+  'Anh yêu em không phải vì em hoàn hảo, mà vì với em, mọi thứ đều trở nên hoàn hảo hơn.',
+  'Mỗi ngày bên em là một món quà mà anh trân trọng hơn tất cả.',
+  'Tình yêu không phải là nhìn nhau, mà là cùng nhìn về một hướng.',
+  'Em là nhà — nơi anh luôn muốn trở về sau mọi chuyến đi.',
+  'Có em, mỗi khoảnh khắc bình thường cũng trở thành kỷ niệm không thể quên.',
+  'Anh không hứa hoàn hảo, nhưng hứa sẽ luôn cố gắng vì em.',
+  'Yêu em là điều dễ dàng nhất và hạnh phúc nhất anh từng làm.',
+];
 
-                document.getElementById('days').textContent = days;
-                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-            }
-        }
+// ── MILESTONES ──────────────────────────────────────────────────────────────
+const milestones = [
+  { icon: '💘', name: 'Ngày đầu yêu nhau',           date: '18/10/2025', ts: new Date('2025-10-18').getTime() },
+  { icon: '🌷', name: 'Tròn 1 tháng bên nhau',       date: '18/11/2025', ts: new Date('2025-11-18').getTime() },
+  { icon: '⛄', name: 'Giáng Sinh đầu tiên cùng nhau', date: '25/12/2025', ts: new Date('2025-12-25').getTime() },
+  { icon: '🎆', name: 'Năm mới 2026 bên nhau',        date: '01/01/2026', ts: new Date('2026-01-01').getTime() },
+  { icon: '💝', name: 'Valentine đầu tiên',            date: '14/02/2026', ts: new Date('2026-02-14').getTime() },
+  { icon: '🌸', name: 'Tròn 6 tháng hạnh phúc',       date: '18/04/2026', ts: new Date('2026-04-18').getTime() },
+  { icon: '🌹', name: 'Kỷ niệm 1 năm tình yêu',       date: '18/10/2026', ts: new Date('2026-10-18').getTime() },
+];
 
-        function updateAll() {
-            updateCountUp();
-            updateCountdown();
-        }
+// ── STARS ───────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 160; i++) {
+    const r = Math.random() * 1.5 + 0.3;
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r, baseR: r,
+      speed: Math.random() * 0.4 + 0.1,
+      phase: Math.random() * Math.PI * 2,
+      color: Math.random() > 0.85 ? '#fde68a' : Math.random() > 0.7 ? '#ffb3c6' : '#ffffff',
+    });
+  }
+}
+function drawStars(t) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    const pulse = Math.sin(t * s.speed + s.phase);
+    const r = s.baseR * (0.7 + 0.3 * pulse);
+    const alpha = 0.3 + 0.5 * ((pulse + 1) / 2);
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+resize();
+initStars();
+window.addEventListener('resize', () => { resize(); initStars(); });
 
-        updateAll();
-        setInterval(updateAll, 1000);
+// ── FLOATING HEARTS ─────────────────────────────────────────────────────────
+const heartEmojis = ['❤️','💕','💖','💗','💓','🌹','✨'];
+const layer = document.getElementById('heartLayer');
+for (let i = 0; i < 22; i++) {
+  const h = document.createElement('div');
+  h.className = 'fheart';
+  h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+  const tx  = (Math.random() - 0.5) * 120;
+  const rot = (Math.random() - 0.5) * 360;
+  const sc  = Math.random() * 0.8 + 0.5;
+  h.style.cssText = `
+    left: ${Math.random() * 100}%;
+    font-size: ${Math.random() * 18 + 10}px;
+    --tx: ${tx}px;
+    --rot: ${rot}deg;
+    --sc: ${sc};
+    animation-duration: ${Math.random() * 12 + 8}s;
+    animation-delay: ${Math.random() * 10}s;
+  `;
+  layer.appendChild(h);
+}
 
-        // ============ RENDER TIMELINE ============
-        function renderTimeline() {
-            const container = document.getElementById('timeline');
-            const now = new Date();
+// ── PETALS ───────────────────────────────────────────────────────────────────
+const petalColors = ['#ff6b8a','#ffb3c6','#f5c842','#ff4d73','#fde68a'];
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'petal';
+  const px  = (Math.random() - 0.5) * 200;
+  const pr  = Math.random() * 720;
+  p.style.cssText = `
+    left: ${Math.random() * 100}%;
+    top: -20px;
+    background: ${petalColors[Math.floor(Math.random() * petalColors.length)]};
+    width: ${Math.random() * 8 + 6}px;
+    height: ${Math.random() * 10 + 8}px;
+    --px: ${px}px;
+    --pr: ${pr}deg;
+    animation-duration: ${Math.random() * 10 + 8}s;
+    animation-delay: ${Math.random() * 12}s;
+    opacity: 0.6;
+  `;
+  layer.appendChild(p);
+}
 
-            events.forEach((event, index) => {
-                const isPast = event.sort <= now;
-                const item = document.createElement('div');
-                item.className = `timeline-item fade-in ${isPast ? '' : 'upcoming'}`;
+// ── QUOTES ───────────────────────────────────────────────────────────────────
+let qIndex = 0;
+const qEl   = document.getElementById('quoteText');
+const qDots = document.getElementById('quoteDots');
 
-                item.innerHTML = `
-                    <div class="timeline-content">
-                        <div class="timeline-icon">${event.icon}</div>
-                        <div class="timeline-date">${event.date}</div>
-                        <div class="timeline-title">${event.title}</div>
-                        <div class="timeline-desc">${event.desc}</div>
-                        <span class="timeline-tag ${isPast ? 'tag-past' : 'tag-upcoming'}">
-                            ${isPast ? '&#10024; &#272;&#227; tr&#7843;i qua' : '&#128337; S&#7855;p t&#7899;i'}
-                        </span>
-                    </div>
-                    <div class="timeline-dot"></div>
-                `;
+quotes.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'qdot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => setQuote(i));
+  qDots.appendChild(d);
+});
 
-                container.appendChild(item);
-            });
-        }
+function setQuote(i) {
+  qEl.classList.add('fade-out');
+  setTimeout(() => {
+    qIndex = i;
+    qEl.textContent = quotes[qIndex];
+    qEl.classList.remove('fade-out');
+    document.querySelectorAll('.qdot').forEach((d, j) => d.classList.toggle('active', j === qIndex));
+  }, 500);
+}
+setInterval(() => setQuote((qIndex + 1) % quotes.length), 5000);
 
-        renderTimeline();
+// ── MILESTONES ────────────────────────────────────────────────────────────────
+const mlList = document.getElementById('milestoneList');
+const now0   = Date.now();
+milestones.forEach(m => {
+  const reached = now0 >= m.ts;
+  const div = document.createElement('div');
+  div.className = 'milestone' + (reached ? ' reached' : '');
+  div.innerHTML = `
+    <div class="ms-icon">${m.icon}</div>
+    <div class="ms-info">
+      <div class="ms-name">${m.name}</div>
+      <div class="ms-date">${m.date}</div>
+    </div>
+    <div class="ms-badge">${reached ? '✓ Đã đến' : 'Sắp tới'}</div>
+  `;
+  mlList.appendChild(div);
+});
 
-        // ============ STARS ============
-        function createStars() {
-            const container = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDuration = (2 + Math.random() * 3) + 's';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                container.appendChild(star);
-            }
-        }
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function pad(n, len) { return String(Math.floor(n)).padStart(len, '0'); }
+function pop(el, val) {
+  if (el.textContent !== val) {
+    el.textContent = val;
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+    setTimeout(() => el.classList.remove('pop'), 180);
+  }
+}
 
-        createStars();
+// ── MAIN TICK ─────────────────────────────────────────────────────────────────
+function tick(t) {
+  const now = Date.now();
 
-        // ============ FLOATING HEARTS ============
-        function createFloatingHearts() {
-            const container = document.getElementById('hearts-bg');
-            const heartEmojis = ['\u2764\uFE0F', '\uD83D\uDC95', '\uD83D\uDC96', '\uD83D\uDC97', '\uD83D\uDC93', '\uD83E\uDE77'];
+  // ── Elapsed since START ──────────────────────────────────
+  const elapsedMs  = Math.max(0, now - START);
+  const totalSecs  = elapsedMs / 1000;
+  const totalMins  = totalSecs / 60;
+  const totalHours = totalMins / 60;
+  const totalDays  = Math.floor(totalHours / 24);
 
-            setInterval(() => {
-                const heart = document.createElement('div');
-                heart.className = 'floating-heart';
-                heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
-                heart.style.left = Math.random() * 100 + '%';
-                heart.style.fontSize = (14 + Math.random() * 20) + 'px';
-                heart.style.animationDuration = (6 + Math.random() * 6) + 's';
-                container.appendChild(heart);
+  document.getElementById('daysElapsed').textContent    = totalDays.toLocaleString();
+  document.getElementById('nightsElapsed').textContent  = totalDays.toLocaleString();
+  document.getElementById('hoursElapsed').textContent   = Math.floor(totalHours).toLocaleString();
+  document.getElementById('minutesElapsed').textContent = Math.floor(totalMins).toLocaleString();
 
-                setTimeout(() => heart.remove(), 12000);
-            }, 800);
-        }
+  // ── Countdown to ANNIVERSARY ─────────────────────────────
+  const diff = ANNIVERSARY - now;
+  if (diff > 0) {
+    const d  = Math.floor(diff / 86400000);
+    const h  = Math.floor((diff % 86400000) / 3600000);
+    const m  = Math.floor((diff % 3600000) / 60000);
+    const s  = Math.floor((diff % 60000) / 1000);
+    pop(document.getElementById('cdDays'),  pad(d, 3));
+    pop(document.getElementById('cdHours'), pad(h, 2));
+    pop(document.getElementById('cdMins'),  pad(m, 2));
+    pop(document.getElementById('cdSecs'),  pad(s, 2));
+  } else {
+    ['cdDays','cdHours','cdMins','cdSecs'].forEach(id => document.getElementById(id).textContent = '00');
+    document.getElementById('anniversaryMsg').style.display = 'block';
+  }
 
-        createFloatingHearts();
+  // ── Progress bar ──────────────────────────────────────────
+  const span = ANNIVERSARY - START;
+  const pct  = Math.min(100, Math.max(0, ((now - START) / span) * 100));
+  document.getElementById('progressFill').style.width = pct.toFixed(3) + '%';
+  document.getElementById('pctText').textContent = pct.toFixed(1) + '%';
 
-        // ============ SCROLL ANIMATIONS ============
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1 });
+  // ── Stars ─────────────────────────────────────────────────
+  drawStars(t / 1000);
+  requestAnimationFrame(tick);
+}
 
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-        // Re-observe after timeline is rendered
-        setTimeout(() => {
-            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-        }, 100);
-    </script>
+requestAnimationFrame(tick);
+</script>
 </body>
 </html>
