@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FC Tổ 10 — Thủy Châu, Huế</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+  <meta property="og:title" content="FC Tổ 10 — Thủy Châu, Huế">
+  <meta property="og:description" content="Trang chủ đội bóng Tổ 10, phường Thủy Châu, thành phố Huế — Lịch sử, danh hiệu, đội hình và hơn thế nữa">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #0a1628;
+      --primary2:  #132240;
+      --accent:    #f59e0b;
+      --accent2:   #fbbf24;
+      --green:     #10b981;
+      --red:       #ef4444;
+      --blue:      #3b82f6;
+      --white:     #ffffff;
+      --gray:      rgba(255,255,255,0.6);
+      --border:    rgba(255,255,255,0.1);
+      --soft:      rgba(255,255,255,0.05);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: var(--primary);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ──────────────────────────────────────────── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(10,22,40,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+    .navbar .logo span { color: var(--white); }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--gray);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .navbar { padding: 12px 16px; }
+      .nav-toggle { display: block; }
+      .nav-links {
+        position: fixed;
+        top: 54px; left: 0; right: 0;
+        background: rgba(10,22,40,0.98);
+        backdrop-filter: blur(16px);
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        display: none;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 0.95rem; }
+    }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(245,158,11,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 70%, rgba(59,130,246,0.06) 0%, transparent 50%),
+                  var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      color: var(--accent2);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .hero-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 7rem);
+      letter-spacing: 4px;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--white) 0%, var(--accent2) 50%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .hero .subtitle {
+      font-family: 'Dancing Script', cursive;
+      font-weight: 600;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: var(--gray);
+      margin-bottom: 32px;
+      position: relative;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat .hs-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: var(--accent);
+    }
+    .hero-stat .hs-lbl {
+      font-size: 0.7rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: bounceDown 2s ease-in-out infinite;
+    }
+    @keyframes bounceDown {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── SECTIONS ────────────────────────────────────────── */
+    .section {
+      padding: 80px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .section-header .sh-tag {
+      display: inline-block;
+      padding: 4px 14px;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 100px;
+      font-size: 0.68rem;
+      color: var(--accent2);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 700;
+      color: var(--white);
+    }
+    .section-header p {
+      margin-top: 8px;
+      color: var(--gray);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .divider-line {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin: 16px auto 0;
+      border-radius: 100px;
+    }
+
+    /* ── ABOUT ───────────────────────────────────────────── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .about-card {
+      padding: 28px 24px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .about-card .ac-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    .about-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--accent2);
+    }
+    .about-card p {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+    @media (max-width: 600px) {
+      .about-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── TIMELINE ────────────────────────────────────────── */
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent), rgba(245,158,11,0.1));
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 36px;
+      padding: 20px 24px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .timeline-item:hover {
+      border-color: rgba(245,158,11,0.3);
+      transform: translateX(4px);
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -33px;
+      top: 24px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--primary);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.3);
+    }
+    .timeline-item .ti-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .timeline-item .ti-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .timeline-item .ti-desc {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    /* ── TROPHIES ────────────────────────────────────────── */
+    .trophy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .trophy-card {
+      text-align: center;
+      padding: 28px 20px;
+      background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(245,158,11,0.02) 100%);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 16px;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .trophy-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,158,11,0.5);
+    }
+    .trophy-card .tc-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .trophy-card .tc-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .trophy-card .tc-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+    }
+    .trophy-card .tc-years {
+      font-size: 0.7rem;
+      color: var(--gray);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    /* ── PLAYERS ─────────────────────────────────────────── */
+    .manager-grid {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .manager-card {
+      text-align: center;
+      padding: 24px 32px;
+      background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.03));
+      border: 2px solid rgba(245,158,11,0.4);
+      border-radius: 16px;
+      min-width: 180px;
+    }
+    .manager-card .mg-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    .manager-card .mg-name {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .manager-card .mg-role {
+      font-size: 0.72rem;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+    }
+    .player-card {
+      text-align: center;
+      padding: 24px 16px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .player-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59,130,246,0.4);
+      box-shadow: 0 12px 40px rgba(59,130,246,0.1);
+    }
+    .player-card .pc-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .player-card .pc-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .player-card .pc-pos {
+      font-size: 0.7rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .player-card .pc-nick {
+      font-size: 0.72rem;
+      color: var(--accent2);
+      font-style: italic;
+      margin-top: 4px;
+    }
+    .player-card.captain { border-color: rgba(245,158,11,0.4); }
+    .player-card.captain::after {
+      content: '©';
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .player-card { position: relative; }
+
+    /* ── LEGENDS ─────────────────────────────────────────── */
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .legend-item:hover {
+      border-color: rgba(245,158,11,0.3);
+      transform: translateX(4px);
+    }
+    .legend-item .li-icon {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+    .legend-item .li-info { flex: 1; }
+    .legend-item .li-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .legend-item .li-detail {
+      font-size: 0.78rem;
+      color: var(--gray);
+      margin-top: 2px;
+    }
+    .legend-item .li-years {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 100px;
+      color: var(--accent2);
+      white-space: nowrap;
+    }
+
+    /* ── STATS BANNER ────────────────────────────────────── */
+    .stats-banner {
+      background: linear-gradient(135deg, var(--primary2) 0%, var(--primary) 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 24px;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .stat-item { text-align: center; }
+    .stat-item .si-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      color: var(--accent);
+    }
+    .stat-item .si-lbl {
+      font-size: 0.72rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.25);
+      border-top: 1px solid var(--border);
+    }
+    .footer .ft-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    /* ── BACK TO TOP ─────────────────────────────────────── */
+    .back-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(245,158,11,0.2);
+      border: 1px solid rgba(245,158,11,0.4);
+      backdrop-filter: blur(12px);
+      color: var(--accent);
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s, background 0.2s;
+      pointer-events: none;
+    }
+    .back-top.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+    .back-top:hover { background: rgba(245,158,11,0.4); }
+
+    /* ── SCROLL REVEAL ───────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── MATCHES / VIDEOS ─────────────────────────────────── */
+    .match-group {
+      margin-bottom: 36px;
+    }
+    .match-group-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.4rem;
+      color: var(--accent2);
+      margin-bottom: 16px;
+      padding-left: 4px;
+    }
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .match-card {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .match-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,158,11,0.4);
+      box-shadow: 0 12px 40px rgba(245,158,11,0.1);
+    }
+    .match-card .mc-video {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      background: #000;
+      cursor: pointer;
+      display: block;
+      text-decoration: none;
+    }
+    .match-card .mc-video img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .match-card .mc-video .play-btn {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 64px; height: 64px;
+      background: rgba(255,0,0,0.85);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .match-card .mc-video:hover .play-btn {
+      background: rgba(255,0,0,1);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .match-card .mc-video .play-btn::after {
+      content: '';
+      display: block;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 12px 0 12px 22px;
+      border-color: transparent transparent transparent #fff;
+      margin-left: 4px;
+    }
+    .match-card .mc-info {
+      padding: 14px 16px;
+    }
+    .match-card .mc-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 520px) {
+      .match-grid { grid-template-columns: 1fr; }
+      .match-card .mc-title { font-size: 0.82rem; }
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 520px) {
+      .section { padding: 50px 16px; }
+      .hero { padding: 80px 16px 50px; }
+      .hero-stats { gap: 24px; }
+      .hero-stat .hs-val { font-size: 2rem; }
+      .player-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .player-card { padding: 18px 12px; }
+      .player-card .pc-number { font-size: 1.8rem; }
+      .stats-row { gap: 28px; }
+      .stat-item .si-val { font-size: 2.2rem; }
+      .timeline { padding-left: 32px; }
+      .trophy-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">FC <span>TỔ 10</span></div>
+  <button class="nav-toggle" id="navToggle">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">Giới thiệu</a></li>
+    <li><a href="#history">Lịch sử</a></li>
+    <li><a href="#trophies">Danh hiệu</a></li>
+    <li><a href="#squad">Đội hình</a></li>
+    <li><a href="#legends">Huyền thoại</a></li>
+    <li><a href="#matches">Trận đấu</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-badge">⚽ Est. 2018</div>
+  <div class="hero-icon">⚽</div>
+  <h1>FC TỔ 10</h1>
+  <p class="subtitle">Thủy Châu, Huế — Đoàn kết là sức mạnh</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hs-val" id="heroYears">0</div>
+      <div class="hs-lbl">Năm hoạt động</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val">20+</div>
+      <div class="hs-lbl">Cầu thủ</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val">5</div>
+      <div class="hs-lbl">Danh hiệu</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val">100+</div>
+      <div class="hs-lbl">Trận đấu</div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ Cuộn xuống để khám phá ↓</div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="section-header reveal">
+    <div class="sh-tag">Về chúng tôi</div>
+    <h2>Giới thiệu FC Tổ 10</h2>
+    <p>Đội bóng đá phong trào của Tổ 10 — phường Thủy Châu, thành phố Huế</p>
+    <div class="divider-line"></div>
+  </div>
+  <div class="about-grid reveal">
+    <div class="about-card">
+      <div class="ac-icon">🏠</div>
+      <h3>Quê hương</h3>
+      <p>Đội bóng được thành lập từ anh em trong Tổ 10, phường Thủy Châu, thành phố Huế. Nơi mà tình yêu bóng đá gắn kết mọi người lại với nhau.</p>
+    </div>
+    <div class="about-card">
+      <div class="ac-icon">💪</div>
+      <h3>Tinh thần</h3>
+      <p>Đoàn kết, chiến đấu hết mình, fair play. Trên sân là đối thủ, ngoài sân là anh em. Mỗi trận đấu là một kỷ niệm.</p>
+    </div>
+    <div class="about-card">
+      <div class="ac-icon">🎽</div>
+      <h3>Màu áo</h3>
+      <p>Áo vàng — biểu tượng cho sự nhiệt huyết và tinh thần chiến đấu không bao giờ tắt của FC Tổ 10.</p>
+    </div>
+    <div class="about-card">
+      <div class="ac-icon">📍</div>
+      <h3>Sân nhà</h3>
+      <p>Sân bóng Thủy Châu — nơi ghi dấu bao trận đấu kịch tính và những bàn thắng đáng nhớ.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HISTORY TIMELINE -->
+<section class="section" id="history">
+  <div class="section-header reveal">
+    <div class="sh-tag">Giai đoạn phát triển</div>
+    <h2>Lịch sử đội bóng</h2>
+    <p>Hành trình từ những ngày đầu thành lập</p>
+    <div class="divider-line"></div>
+  </div>
+  <div class="timeline reveal" id="timeline"></div>
+</section>
+
+<!-- TROPHIES -->
+<section class="section" id="trophies">
+  <div class="section-header reveal">
+    <div class="sh-tag">Tủ danh hiệu</div>
+    <h2>Danh hiệu & Thành tích</h2>
+    <p>Những chiến tích đáng tự hào của FC Tổ 10</p>
+    <div class="divider-line"></div>
+  </div>
+  <div class="trophy-grid reveal" id="trophyGrid"></div>
+</section>
+
+<!-- STATS BANNER -->
+<div class="stats-banner reveal">
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="si-val">120+</div>
+      <div class="si-lbl">Trận đấu</div>
+    </div>
+    <div class="stat-item">
+      <div class="si-val">85</div>
+      <div class="si-lbl">Chiến thắng</div>
+    </div>
+    <div class="stat-item">
+      <div class="si-val">250+</div>
+      <div class="si-lbl">Bàn thắng</div>
+    </div>
+    <div class="stat-item">
+      <div class="si-val">20+</div>
+      <div class="si-lbl">Thành viên</div>
+    </div>
+  </div>
+</div>
+
+<!-- CURRENT SQUAD -->
+<section class="section" id="squad">
+  <div class="section-header reveal">
+    <div class="sh-tag">Đội hình hiện tại</div>
+    <h2>Các cầu thủ</h2>
+    <p>Những chiến binh đang khoác áo FC Tổ 10</p>
+    <div class="divider-line"></div>
+  </div>
+  <div class="manager-grid reveal" id="managerGrid"></div>
+  <div class="player-grid reveal" id="playerGrid"></div>
+</section>
+
+<!-- LEGENDS -->
+<section class="section" id="legends">
+  <div class="section-header reveal">
+    <div class="sh-tag">Cựu cầu thủ</div>
+    <h2>Huyền thoại Tổ 10</h2>
+    <p>Những người đã cống hiến và để lại dấu ấn</p>
+    <div class="divider-line"></div>
+  </div>
+  <div class="legend-list reveal" id="legendList"></div>
+</section>
+
+<!-- MATCHES / VIDEOS -->
+<section class="section" id="matches">
+  <div class="section-header reveal">
+    <div class="sh-tag">Trận đấu</div>
+    <h2>Video các trận đấu</h2>
+    <p>Những khoảnh khắc kịch tính trên sân cỏ</p>
+    <div class="divider-line"></div>
+  </div>
+  <div id="matchesContainer" class="reveal"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="ft-name">FC TỔ 10 — THỦY CHÂU, HUẾ</div>
+  <p>Đoàn kết là sức mạnh ⚽ Est. 2018</p>
+</footer>
+
+<button class="back-top" id="backTop">↑</button>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+// ★ CẬP NHẬT: Thay đổi thông tin thật của đội bóng tại đây
+
+const FOUNDED = 2018;
+
+const TIMELINE = [
+  { year: '2018', title: 'Thành lập FC Tổ 10', desc: 'Đội bóng được thành lập bởi anh em trong Tổ 10, phường Thủy Châu, thành phố Huế. Những ngày đầu tập luyện và giao hữu với các đội xung quanh.' },
+  { year: '2019', title: 'Giải đấu đầu tiên', desc: 'Tham gia giải bóng đá phong trào cấp xã lần đầu tiên. Đội hình còn non trẻ nhưng đầy nhiệt huyết.' },
+  { year: '2020', title: 'Xây dựng đội hình', desc: 'Bổ sung thêm nhiều cầu thủ chất lượng. Đội bóng bắt đầu có hệ thống chiến thuật rõ ràng hơn.' },
+  { year: '2021', title: 'Danh hiệu đầu tiên', desc: 'Giành chức vô địch giải bóng đá ấp lần đầu tiên. Chiến thắng thuyết phục trong trận chung kết.' },
+  { year: '2022', title: 'Mở rộng & phát triển', desc: 'Mở rộng đội hình, tham gia nhiều giải đấu hơn. FC Tổ 10 trở thành cái tên được nể phục trong khu vực.' },
+  { year: '2023', title: 'Bảo vệ ngôi vương', desc: 'Bảo vệ thành công chức vô địch. Hàng công ghi bàn ấn tượng, hàng thủ vững chắc.' },
+  { year: '2024', title: 'Kỷ nguyên vàng', desc: 'Thống trị giải đấu với lối chơi tấn công đẹp mắt. Nhiều cầu thủ trẻ tài năng gia nhập đội.' },
+  { year: '2025', title: 'Hướng đến tương lai', desc: 'Tiếp tục duy trì phong độ, đào tạo thế hệ kế thừa. FC Tổ 10 luôn hướng về phía trước.' },
+];
+
+const TROPHIES = [
+  { icon: '🏆', name: 'Vô địch giải ấp', count: 3, years: '2021, 2023, 2024' },
+  { icon: '🥈', name: 'Á quân giải xã', count: 1, years: '2022' },
+  { icon: '🏅', name: 'Giải Fair Play', count: 1, years: '2023' },
+  { icon: '⚽', name: 'Vua phá lưới', count: 2, years: '2021, 2024' },
+  { icon: '🧤', name: 'Thủ môn xuất sắc', count: 1, years: '2023' },
+  { icon: '⭐', name: 'Cầu thủ xuất sắc', count: 2, years: '2022, 2024' },
+];
+
+const MANAGERS = [
+  { name: 'Mai Văn Hiếu', role: 'Ông bầu' },
+  { name: 'Huỳnh Kim Trình', role: 'Ông bầu' },
+];
+
+const PLAYERS = [
+  { number: 1,  name: 'Lê Trung Vũ' },
+  { number: 4,  name: 'Đặng Thanh Phong' },
+  { number: 5,  name: 'Quang Peter' },
+  { number: 6,  name: 'Phan Ngọc Đức' },
+  { number: 7,  name: 'Hồ Duy Tân' },
+  { number: 9,  name: 'Võ Đức Bảo Hoàng' },
+  { number: 10, name: 'Đặng Văn Rin' },
+  { number: 12, name: 'Nguyễn Văn Hữu Phước' },
+  { number: 14, name: 'Lê Tình' },
+  { number: 16, name: 'Nguyễn Thanh Dét' },
+  { number: 17, name: 'Lê Văn Hòa' },
+  { number: 18, name: 'Đặng Văn Đức' },
+  { number: 19, name: 'Nguyễn Hoàn Công' },
+  { number: 20, name: 'Đặng Văn Huỳnh' },
+  { number: 21, name: 'Nguyễn Đình Tâm' },
+  { number: 22, name: 'Đặng Văn Quý' },
+  { number: 23, name: 'Lê Văn Thành Công' },
+  { number: 24, name: 'Lê Phước Tài' },
+  { number: 25, name: 'Lê Phước Định' },
+  { number: 28, name: 'Mai Văn Tấn' },
+  { number: 30, name: 'Phan Ngọc Hào' },
+  { number: 67, name: 'Nguyễn Hữu Thắng' },
+  { number: 79, name: 'Lê Văn Hưng' },
+];
+
+// ★ CẬP NHẬT: Thêm/sửa cựu cầu thủ tại đây
+const LEGENDS = [
+  { name: 'Tên cựu cầu thủ 1', detail: 'Tiền đạo — Vua phá lưới 2021', years: '2018–2022', icon: '⭐' },
+  { name: 'Tên cựu cầu thủ 2', detail: 'Thủ môn — Bàn tay vàng', years: '2018–2023', icon: '🧤' },
+  { name: 'Tên cựu cầu thủ 3', detail: 'Hậu vệ — Bức tường thép', years: '2019–2024', icon: '🛡️' },
+  { name: 'Tên cựu cầu thủ 4', detail: 'Tiền vệ — Nhạc trưởng', years: '2018–2023', icon: '🎯' },
+  { name: 'Tên cựu cầu thủ 5', detail: 'Đội trưởng sáng lập', years: '2018–2022', icon: '👑' },
+];
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+
+// Hero years
+document.getElementById('heroYears').textContent = new Date().getFullYear() - FOUNDED;
+
+// Timeline
+const tlEl = document.getElementById('timeline');
+TIMELINE.forEach(t => {
+  const div = document.createElement('div');
+  div.className = 'timeline-item';
+  div.innerHTML = `
+    <div class="ti-year">${t.year}</div>
+    <div class="ti-title">${t.title}</div>
+    <div class="ti-desc">${t.desc}</div>
+  `;
+  tlEl.appendChild(div);
+});
+
+// Trophies
+const trEl = document.getElementById('trophyGrid');
+TROPHIES.forEach(t => {
+  const div = document.createElement('div');
+  div.className = 'trophy-card';
+  div.innerHTML = `
+    <div class="tc-icon">${t.icon}</div>
+    <div class="tc-name">${t.name}</div>
+    <div class="tc-count">${t.count}</div>
+    <div class="tc-years">${t.years}</div>
+  `;
+  trEl.appendChild(div);
+});
+
+// Managers
+const mgEl = document.getElementById('managerGrid');
+MANAGERS.forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'manager-card';
+  div.innerHTML = `
+    <div class="mg-icon">👔</div>
+    <div class="mg-name">${m.name}</div>
+    <div class="mg-role">${m.role}</div>
+  `;
+  mgEl.appendChild(div);
+});
+
+// Players
+const plEl = document.getElementById('playerGrid');
+PLAYERS.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'player-card';
+  div.innerHTML = `
+    <div class="pc-number">${p.number}</div>
+    <div class="pc-name">${p.name}</div>
+  `;
+  plEl.appendChild(div);
+});
+
+// Legends
+const lgEl = document.getElementById('legendList');
+LEGENDS.forEach(l => {
+  const div = document.createElement('div');
+  div.className = 'legend-item';
+  div.innerHTML = `
+    <div class="li-icon">${l.icon}</div>
+    <div class="li-info">
+      <div class="li-name">${l.name}</div>
+      <div class="li-detail">${l.detail}</div>
+    </div>
+    <div class="li-years">${l.years}</div>
+  `;
+  lgEl.appendChild(div);
+});
+
+// ── MATCHES / VIDEOS ────────────────────────────────────────────────────────
+const MATCHES = [
+  {
+    group: 'Chung kết Sân 7 Tổ 10',
+    matches: [
+      { title: 'Chung kết sân 7 — Tổ 10', youtube: 'Bu1_pqajIWk', fb: 'https://www.facebook.com/vinhthanhxafc/videos/24057446207232639' },
+    ]
+  },
+  {
+    group: 'Lễ bế mạc',
+    matches: [
+      { title: 'Lễ bế mạc giải đấu', youtube: 'ciM8Uw_OjnI', fb: 'https://www.facebook.com/vinhthanhxafc/videos/870286504387201' },
+    ]
+  },
+  {
+    group: 'Vòng bảng',
+    matches: [
+      { title: 'Vòng bảng — Lượt 1', youtube: 'HdSMUuQ3uEw', fb: 'https://www.facebook.com/vinhthanhxafc/videos/825701729250910' },
+      { title: 'Vòng bảng — Lượt 2 (Trận 1)', youtube: 'AxtKX48YqUk', fb: 'https://www.facebook.com/vinhthanhxafc/videos/858150876260556' },
+      { title: 'Vòng bảng — Lượt 2 (Trận 2)', youtube: 'gBoGdZLpv2U', fb: 'https://www.facebook.com/vinhthanhxafc/videos/399522115985301' },
+      { title: 'Vòng bảng — Lượt 3', youtube: 'gBoGdZLpv2U', fb: 'https://www.facebook.com/vinhthanhxafc/videos/501842502310057' },
+      { title: 'Vòng bảng — Lượt 4', youtube: 'xC1geyxiS9E', fb: 'https://www.facebook.com/vinhthanhxafc/videos/1190612935609326' },
+    ]
+  },
+  {
+    group: 'Vòng loại trực tiếp',
+    matches: [
+      { title: 'Bán kết', youtube: '7LqWSkVr17s', fb: 'https://www.facebook.com/vinhthanhxafc/videos/997576682164742' },
+      { title: 'Chung kết', youtube: 'hYNTalj2rHo', fb: 'https://www.facebook.com/vinhthanhxafc/videos/1488551445107864' },
+    ]
+  },
+  {
+    group: 'Tổng kết',
+    matches: [
+      { title: 'Video tổng kết giải đấu', youtube: '', fb: 'https://www.facebook.com/vinhthanhxafc/videos/689828626674714' },
+    ]
+  },
+  {
+    group: 'Giải S7 Nội bộ Hương Thủy 2024',
+    matches: [
+      { title: 'Chung kết giải S7 Nội bộ Hương Thủy 2024', youtube: '1SQoujlJTf0', fb: 'https://www.facebook.com/vinhthanhxafc/videos/821924143326081' },
+    ]
+  },
+];
+
+const matchesContainer = document.getElementById('matchesContainer');
+MATCHES.forEach(g => {
+  const groupDiv = document.createElement('div');
+  groupDiv.className = 'match-group';
+
+  const title = document.createElement('div');
+  title.className = 'match-group-title';
+  title.textContent = g.group;
+  groupDiv.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.className = 'match-grid';
+
+  g.matches.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'match-card';
+
+    let videoHtml = '';
+    if (m.youtube) {
+      videoHtml = `<a class="mc-video" href="https://youtu.be/${m.youtube}" target="_blank" rel="noopener">
+        <img src="https://img.youtube.com/vi/${m.youtube}/hqdefault.jpg" alt="${m.title}" loading="lazy">
+        <div class="play-btn"></div>
+      </a>`;
+    }
+
+    card.innerHTML = `
+      ${videoHtml}
+      <div class="mc-info">
+        <div class="mc-title">${m.title}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  groupDiv.appendChild(grid);
+  matchesContainer.appendChild(groupDiv);
+});
+
+// ── NAV TOGGLE ──────────────────────────────────────────────────────────────
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+// Đóng menu khi bấm link
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+});
+
+// ── BACK TO TOP ─────────────────────────────────────────────────────────────
+const topBtn = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  topBtn.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// ── SCROLL REVEAL ───────────────────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
