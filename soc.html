@@ -700,6 +700,86 @@
       transform: translateY(0);
     }
 
+    /* ── PHOTO GALLERY — Masonry ─────────────────────────── */
+    .gallery {
+      width: 100%;
+      max-width: 700px;
+    }
+    .gallery-masonry {
+      columns: 3;
+      column-gap: 10px;
+    }
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 10px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      position: relative;
+    }
+    .gallery-item:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 40px rgba(96,165,250,0.2);
+      border-color: rgba(96,165,250,0.4);
+    }
+    .gallery-item img {
+      width: 100%;
+      display: block;
+    }
+    @media (max-width: 520px) {
+      .gallery-masonry { columns: 2; column-gap: 8px; }
+      .gallery-item { border-radius: 12px; margin-bottom: 8px; }
+    }
+
+    /* ── LIGHTBOX ──────────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0,0,0,0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      backdrop-filter: blur(8px);
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .lightbox-close:hover { color: #fff; }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 10px;
+    }
+    .lightbox-nav:hover { color: #fff; }
+    .lightbox-prev { left: 12px; }
+    .lightbox-next { right: 12px; }
+
     /* ── FOOTER ──────────────────────────────────────────── */
     .footer {
       text-align: center;
@@ -1046,6 +1126,26 @@
     <div class="milestone-list" id="milestoneList"></div>
   </div>
 
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">📸</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- PHOTO GALLERY -->
+  <div class="gallery reveal">
+    <div class="section-title">Khoảnh khắc của bé Sóc 📸</div>
+    <div class="gallery-masonry" id="galleryMasonry"></div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lbClose">&times;</button>
+    <button class="lightbox-nav lightbox-prev" id="lbPrev">&#8249;</button>
+    <img id="lbImg" src="" alt="">
+    <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
+  </div>
+
   <!-- FOOTER -->
   <div class="footer">
     Made with <span class="heart">💙</span> · Ba yêu con mãi mãi
@@ -1327,6 +1427,80 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.15 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── PHOTO GALLERY ────────────────────────────────────────────────────────────
+const GALLERY_FILES = [
+  'anh-1.jpg',
+  'anh-2.jpg',
+  'anh-3.jpg',
+  'anh-4.jpg',
+  'anh-5.jpg',
+  'anh-6.jpg',
+  'anh-7.jpg',
+  'anh-8.jpg',
+  'anh-9.jpg',
+  'anh-10.jpg',
+  'anh-11.jpg',
+];
+
+const galleryEl = document.getElementById('galleryMasonry');
+let currentLbIndex = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const galleryImages = shuffle(GALLERY_FILES);
+galleryImages.forEach((src, i) => {
+  const item = document.createElement('div');
+  item.className = 'gallery-item';
+  const path = 'images/soc/' + src;
+  const img = document.createElement('img');
+  img.src = path;
+  img.alt = 'Bé Sóc ' + (i + 1);
+  img.loading = 'lazy';
+  item.appendChild(img);
+  item.addEventListener('click', () => openLightbox(i));
+  galleryEl.appendChild(item);
+});
+
+// Lightbox
+const lightboxEl = document.getElementById('lightbox');
+const lbImgEl    = document.getElementById('lbImg');
+
+function openLightbox(i) {
+  currentLbIndex = i;
+  lbImgEl.src = 'images/soc/' + galleryImages[i];
+  lightboxEl.classList.add('active');
+}
+function closeLightbox() {
+  lightboxEl.classList.remove('active');
+}
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+lightboxEl.addEventListener('click', (e) => { if (e.target === lightboxEl) closeLightbox(); });
+document.getElementById('lbPrev').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!galleryImages.length) return;
+  currentLbIndex = (currentLbIndex - 1 + galleryImages.length) % galleryImages.length;
+  lbImgEl.src = 'images/soc/' + galleryImages[currentLbIndex];
+});
+document.getElementById('lbNext').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!galleryImages.length) return;
+  currentLbIndex = (currentLbIndex + 1) % galleryImages.length;
+  lbImgEl.src = 'images/soc/' + galleryImages[currentLbIndex];
+});
+document.addEventListener('keydown', (e) => {
+  if (!lightboxEl.classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') document.getElementById('lbPrev').click();
+  if (e.key === 'ArrowRight') document.getElementById('lbNext').click();
+});
 
 // ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
 const musicBtnEl = document.getElementById('musicBtn');
