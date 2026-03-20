@@ -145,10 +145,11 @@
       position: relative;
     }
     .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3.5rem, 10vw, 7rem);
-      letter-spacing: 4px;
-      line-height: 1;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 6vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1.3;
       background: linear-gradient(135deg, var(--white) 0%, var(--accent2) 50%, var(--accent) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -335,16 +336,19 @@
     /* ── TROPHIES ────────────────────────────────────────── */
     .trophy-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
     }
     .trophy-card {
       text-align: center;
-      padding: 28px 20px;
+      padding: 28px 16px;
       background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(245,158,11,0.02) 100%);
       border: 1px solid rgba(245,158,11,0.2);
       border-radius: 16px;
       transition: transform 0.3s, border-color 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .trophy-card:hover {
       transform: translateY(-4px);
@@ -354,7 +358,11 @@
     .trophy-card .tc-name {
       font-size: 0.85rem;
       font-weight: 600;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
+      line-height: 1.6;
+      min-height: 2.8em;
+      display: flex;
+      align-items: center;
     }
     .trophy-card .tc-count {
       font-family: 'Bebas Neue', sans-serif;
@@ -364,8 +372,8 @@
     .trophy-card .tc-years {
       font-size: 0.7rem;
       color: var(--gray);
-      margin-top: 4px;
-      line-height: 1.5;
+      margin-top: 6px;
+      line-height: 1.6;
     }
 
     /* ── PLAYERS ─────────────────────────────────────────── */
@@ -383,10 +391,29 @@
       border: 2px solid rgba(245,158,11,0.4);
       border-radius: 16px;
       min-width: 180px;
+      cursor: pointer;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .manager-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,158,11,0.7);
+      box-shadow: 0 12px 40px rgba(245,158,11,0.15);
+    }
+    .manager-card:hover .mg-photo {
+      transform: scale(1.1);
     }
     .manager-card .mg-icon {
       font-size: 2rem;
       margin-bottom: 8px;
+    }
+    .manager-card .mg-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(245,158,11,0.4);
+      margin-bottom: 10px;
+      transition: transform 0.3s;
     }
     .manager-card .mg-name {
       font-size: 1rem;
@@ -407,28 +434,75 @@
     }
     .player-card {
       text-align: center;
-      padding: 24px 16px;
+      padding: 20px 16px;
       background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 16px;
       transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      cursor: pointer;
     }
     .player-card:hover {
       transform: translateY(-4px);
       border-color: rgba(59,130,246,0.4);
       box-shadow: 0 12px 40px rgba(59,130,246,0.1);
     }
+    .player-card:hover .pc-photo {
+      transform: scale(1.1);
+    }
+    .player-card .pc-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      object-fit: cover;
+      border: 2px solid rgba(245,158,11,0.3);
+      margin-bottom: 10px;
+    }
+    .player-card .pc-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 2rem;
+    }
     .player-card .pc-number {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       color: var(--accent);
       line-height: 1;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .player-card .pc-name {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       margin-bottom: 4px;
+    }
+    .player-card .pc-gk {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 100px;
+      padding: 2px 10px;
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+    .ssv-header {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent2);
+      text-align: center;
+      letter-spacing: 2px;
+      margin-top: 30px;
+      margin-bottom: 10px;
     }
     .player-card .pc-pos {
       font-size: 0.7rem;
@@ -496,6 +570,51 @@
       border-radius: 100px;
       color: var(--accent2);
       white-space: nowrap;
+    }
+
+    /* ── PHOTO LIGHTBOX ─────────────────────────────────── */
+    .photo-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      backdrop-filter: blur(8px);
+    }
+    .photo-lightbox.active { display: flex; }
+    .photo-lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+      object-fit: contain;
+    }
+    .photo-lightbox-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .photo-lightbox-close:hover { color: #fff; }
+    .photo-lightbox-name {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      background: rgba(0,0,0,0.6);
+      padding: 8px 24px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
     }
 
     /* ── STATS BANNER ────────────────────────────────────── */
@@ -646,15 +765,55 @@
     .back-top.show { opacity: 1; transform: translateY(0); pointer-events: all; }
     .back-top:hover { background: rgba(245,158,11,0.4); }
 
-    /* ── SCROLL REVEAL ───────────────────────────────────── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
+    /* ── LOADING SCREEN ─────────────────────────────────── */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: radial-gradient(ellipse at 50% 40%, var(--primary2) 0%, var(--primary) 60%, #050d1a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
+    .loading-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .loading-icon {
+      font-size: 3.5rem;
+      animation: loadingBounce 1s ease-in-out infinite;
+    }
+    @keyframes loadingBounce {
+      0%,100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+      50%     { transform: scale(1.2) rotate(20deg); opacity: 1; }
+    }
+    .loading-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--accent2);
+      letter-spacing: 1px;
+    }
+    .loading-bar {
+      width: 180px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      border-radius: 100px;
+      animation: loadingFill 2s ease forwards;
+    }
+    @keyframes loadingFill {
+      0%   { width: 0%; }
+      60%  { width: 75%; }
+      100% { width: 100%; }
     }
 
     /* ── MATCHES / VIDEOS ─────────────────────────────────── */
@@ -751,15 +910,24 @@
       .stats-row { gap: 28px; }
       .stat-item .si-val { font-size: 2.2rem; }
       .timeline { padding-left: 32px; }
-      .trophy-grid { grid-template-columns: repeat(2, 1fr); }
+      .trophy-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .manager-grid { gap: 12px; }
+      .manager-card { flex: 1 1 100%; min-width: 0; }
     }
   </style>
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-icon">⚽</div>
+  <div class="loading-text">Đang tải đội bóng...</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
 <!-- NAVBAR -->
 <nav class="navbar">
-  <div class="logo">FC <span>TỔ 10</span></div>
+  <div class="logo">Phù Nam 3 <span>(Tổ 10)</span></div>
   <button class="nav-toggle" id="navToggle">☰</button>
   <ul class="nav-links" id="navLinks">
     <li><a href="#about">Giới thiệu</a></li>
@@ -773,9 +941,9 @@
 
 <!-- HERO -->
 <section class="hero" id="home">
-  <div class="hero-badge">⚽ Est. 2018</div>
+  <div class="hero-badge">⚽ Phù Nam 3 — Est. 2017</div>
   <div class="hero-icon">⚽</div>
-  <h1>FC TỔ 10</h1>
+  <h1>Đội bóng Phù Nam 3 (Tổ 10)</h1>
   <p class="subtitle">Thủy Châu, Huế — Đoàn kết là sức mạnh</p>
   <div class="hero-stats">
     <div class="hero-stat">
@@ -783,11 +951,11 @@
       <div class="hs-lbl">Năm hoạt động</div>
     </div>
     <div class="hero-stat">
-      <div class="hs-val">20+</div>
+      <div class="hs-val">40+</div>
       <div class="hs-lbl">Cầu thủ</div>
     </div>
     <div class="hero-stat">
-      <div class="hs-val">5</div>
+      <div class="hs-val">6</div>
       <div class="hs-lbl">Danh hiệu</div>
     </div>
     <div class="hero-stat">
@@ -795,22 +963,21 @@
       <div class="hs-lbl">Trận đấu</div>
     </div>
   </div>
-  <div class="scroll-hint">↓ Cuộn xuống để khám phá ↓</div>
 </section>
 
 <!-- ABOUT -->
 <section class="section" id="about">
-  <div class="section-header reveal">
+  <div class="section-header">
     <div class="sh-tag">Về chúng tôi</div>
     <h2>Giới thiệu FC Tổ 10</h2>
-    <p>Đội bóng đá phong trào của Tổ 10 — phường Thủy Châu, thành phố Huế</p>
+    <p>Tiền thân Phù Nam 3 — Đội bóng đá phong trào phường Thủy Châu, thành phố Huế</p>
     <div class="divider-line"></div>
   </div>
-  <div class="about-grid reveal">
+  <div class="about-grid">
     <div class="about-card">
       <div class="ac-icon">🏠</div>
       <h3>Quê hương</h3>
-      <p>Đội bóng được thành lập từ anh em trong Tổ 10, phường Thủy Châu, thành phố Huế. Nơi mà tình yêu bóng đá gắn kết mọi người lại với nhau.</p>
+      <p>Xuất thân từ Phù Nam 3, đổi tên thành Tổ 10 vào năm 2017. Đội bóng của anh em phường Thủy Châu, thành phố Huế — nơi tình yêu bóng đá gắn kết mọi người.</p>
     </div>
     <div class="about-card">
       <div class="ac-icon">💪</div>
@@ -820,55 +987,55 @@
     <div class="about-card">
       <div class="ac-icon">🎽</div>
       <h3>Màu áo</h3>
-      <p>Áo vàng — biểu tượng cho sự nhiệt huyết và tinh thần chiến đấu không bao giờ tắt của FC Tổ 10.</p>
+      <p>Áo vàng và áo đỏ — hai màu áo biểu tượng cho sự nhiệt huyết và tinh thần chiến đấu không bao giờ tắt của FC Tổ 10.</p>
     </div>
     <div class="about-card">
       <div class="ac-icon">📍</div>
       <h3>Sân nhà</h3>
-      <p>Sân bóng Thủy Châu — nơi ghi dấu bao trận đấu kịch tính và những bàn thắng đáng nhớ.</p>
+      <p>Sân bóng Tổ 10, Phù Nam 3 — nơi ghi dấu bao trận đấu kịch tính và những bàn thắng đáng nhớ.</p>
     </div>
   </div>
 </section>
 
 <!-- HISTORY TIMELINE -->
 <section class="section" id="history">
-  <div class="section-header reveal">
+  <div class="section-header">
     <div class="sh-tag">Giai đoạn phát triển</div>
     <h2>Lịch sử đội bóng</h2>
     <p>Hành trình từ những ngày đầu thành lập</p>
     <div class="divider-line"></div>
   </div>
-  <div class="timeline reveal" id="timeline"></div>
+  <div class="timeline" id="timeline"></div>
 </section>
 
 <!-- TROPHIES -->
 <section class="section" id="trophies">
-  <div class="section-header reveal">
+  <div class="section-header">
     <div class="sh-tag">Tủ danh hiệu</div>
     <h2>Danh hiệu & Thành tích</h2>
     <p>Những chiến tích đáng tự hào của FC Tổ 10</p>
     <div class="divider-line"></div>
   </div>
-  <div class="trophy-grid reveal" id="trophyGrid"></div>
+  <div class="trophy-grid" id="trophyGrid"></div>
 </section>
 
 <!-- STATS BANNER -->
-<div class="stats-banner reveal">
+<div class="stats-banner">
   <div class="stats-row">
     <div class="stat-item">
-      <div class="si-val">120+</div>
+      <div class="si-val">80+</div>
       <div class="si-lbl">Trận đấu</div>
     </div>
     <div class="stat-item">
-      <div class="si-val">85</div>
+      <div class="si-val">60</div>
       <div class="si-lbl">Chiến thắng</div>
     </div>
     <div class="stat-item">
-      <div class="si-val">250+</div>
+      <div class="si-val">200+</div>
       <div class="si-lbl">Bàn thắng</div>
     </div>
     <div class="stat-item">
-      <div class="si-val">20+</div>
+      <div class="si-val">40+</div>
       <div class="si-lbl">Thành viên</div>
     </div>
   </div>
@@ -876,42 +1043,47 @@
 
 <!-- CURRENT SQUAD -->
 <section class="section" id="squad">
-  <div class="section-header reveal">
-    <div class="sh-tag">Đội hình hiện tại</div>
-    <h2>Các cầu thủ</h2>
-    <p>Những chiến binh đang khoác áo FC Tổ 10</p>
+  <div class="section-header">
+    <div class="sh-tag">Đội hình</div>
+    <h2>Cầu thủ & Cựu cầu thủ</h2>
+    <p>Những người đã và đang gắn bó với FC Tổ 10</p>
     <div class="divider-line"></div>
   </div>
-  <div class="manager-grid reveal" id="managerGrid"></div>
-  <div class="player-grid reveal" id="playerGrid"></div>
+  <div class="manager-grid" id="managerGrid"></div>
+  <div class="ssv-header">Ban Huấn Luyện</div>
+  <div class="manager-grid" id="bhlGrid"></div>
+  <div class="ssv-header">Cầu Thủ</div>
+  <div class="player-grid" id="playerGrid"></div>
+  <div class="ssv-header">Săn Sót Viên</div>
+  <div class="player-grid" id="ssvGrid"></div>
 </section>
 
 <!-- LEGENDS -->
 <section class="section" id="legends">
-  <div class="section-header reveal">
+  <div class="section-header">
     <div class="sh-tag">Cựu cầu thủ</div>
     <h2>Huyền thoại Tổ 10</h2>
     <p>Những người đã cống hiến và để lại dấu ấn</p>
     <div class="divider-line"></div>
   </div>
-  <div class="legend-list reveal" id="legendList"></div>
+  <div class="legend-list" id="legendList"></div>
 </section>
 
 <!-- MATCHES / VIDEOS -->
 <section class="section" id="matches">
-  <div class="section-header reveal">
+  <div class="section-header">
     <div class="sh-tag">Trận đấu</div>
     <h2>Video các trận đấu</h2>
     <p>Những khoảnh khắc kịch tính trên sân cỏ</p>
     <div class="divider-line"></div>
   </div>
-  <div id="matchesContainer" class="reveal"></div>
+  <div id="matchesContainer"></div>
 </section>
 
 <!-- FOOTER -->
 <footer class="footer">
-  <div class="ft-name">FC TỔ 10 — THỦY CHÂU, HUẾ</div>
-  <p>Đoàn kết là sức mạnh ⚽ Est. 2018</p>
+  <div class="ft-name">Đội bóng Phù Nam 3 (Tổ 10) — Thủy Châu, Huế</div>
+  <p>Đoàn kết là sức mạnh ⚽ Est. 2017</p>
 </footer>
 
 <button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc nền">🎵</button>
@@ -919,63 +1091,92 @@
   <span class="prompt-icon">🎵</span>
   <span class="prompt-text"><strong>Bấm vào đây</strong> để nghe nhạc nền!</span>
 </div>
+<!-- PHOTO LIGHTBOX -->
+<div class="photo-lightbox" id="photoLightbox">
+  <button class="photo-lightbox-close" id="plbClose">&times;</button>
+  <img id="plbImg" src="" alt="">
+  <div class="photo-lightbox-name" id="plbName"></div>
+</div>
+
 <button class="back-top" id="backTop">↑</button>
 
 <script>
 // ── DATA ────────────────────────────────────────────────────────────────────
 // ★ CẬP NHẬT: Thay đổi thông tin thật của đội bóng tại đây
 
-const FOUNDED = 2018;
+const FOUNDED = 2017;
 
 const TIMELINE = [
-  { year: '2018', title: 'Thành lập FC Tổ 10', desc: 'Đội bóng được thành lập bởi anh em trong Tổ 10, phường Thủy Châu, thành phố Huế. Những ngày đầu tập luyện và giao hữu với các đội xung quanh.' },
-  { year: '2019', title: 'Giải đấu đầu tiên', desc: 'Tham gia giải bóng đá phong trào cấp xã lần đầu tiên. Đội hình còn non trẻ nhưng đầy nhiệt huyết.' },
-  { year: '2020', title: 'Xây dựng đội hình', desc: 'Bổ sung thêm nhiều cầu thủ chất lượng. Đội bóng bắt đầu có hệ thống chiến thuật rõ ràng hơn.' },
-  { year: '2021', title: 'Danh hiệu đầu tiên', desc: 'Giành chức vô địch giải bóng đá ấp lần đầu tiên. Chiến thắng thuyết phục trong trận chung kết.' },
-  { year: '2022', title: 'Mở rộng & phát triển', desc: 'Mở rộng đội hình, tham gia nhiều giải đấu hơn. FC Tổ 10 trở thành cái tên được nể phục trong khu vực.' },
-  { year: '2023', title: 'Bảo vệ ngôi vương', desc: 'Bảo vệ thành công chức vô địch. Hàng công ghi bàn ấn tượng, hàng thủ vững chắc.' },
-  { year: '2024', title: 'Kỷ nguyên vàng', desc: 'Thống trị giải đấu với lối chơi tấn công đẹp mắt. Nhiều cầu thủ trẻ tài năng gia nhập đội.' },
-  { year: '2025', title: 'Hướng đến tương lai', desc: 'Tiếp tục duy trì phong độ, đào tạo thế hệ kế thừa. FC Tổ 10 luôn hướng về phía trước.' },
+  { year: '2017', title: 'Khởi nguồn — Phù Nam 3 đổi tên thành Tổ 10', desc: 'Đội bóng Phù Nam 3 chính thức mang tên mới Tổ 10, đánh dấu một chương mới trong hành trình bóng đá của anh em phường Thủy Châu, thành phố Huế.' },
+  { year: '2017', title: 'Lần đầu ra sân — Giải phường xã', desc: 'Tổ 10 tham gia giải đấu phường xã lần đầu tiên. Đội hình còn non trẻ, thiếu kinh nghiệm thi đấu nên sớm dừng bước ngay từ vòng bảng.' },
+  { year: '2022', title: 'Tấm huy chương đầu tiên 🥉', desc: 'Với đội hình trẻ nhất giải, Tổ 10 mang theo khát khao chiến đấu nhưng chưa đủ bản lĩnh ở những thời khắc quyết định. Dừng chân tại bán kết và giành huy chương đồng — tấm huy chương đầu tiên trong lịch sử đội bóng.' },
+  { year: '2023', title: 'Vô địch giải sân 7 trên sân nhà 🏆', desc: 'Cuối năm 2023, Tổ 10 lên ngôi vô địch giải bóng đá sân 7 được tổ chức ngay trên sân nhà — chiếc cúp vàng đầu tiên, khẳng định bước trưởng thành vượt bậc của đội bóng.' },
+  { year: '2024', title: 'Vô địch giải phường — Bất bại 🏆', desc: 'Mùa hè 2024, Tổ 10 lần đầu tiên vô địch giải bóng đá phường với thành tích bất bại toàn giải. Đặc biệt là 2 chiến thắng trước đội bóng Châu Sơn trong cùng một giải đấu — đối thủ mạnh nhất mà Tổ 10 phải đối đầu bao năm qua.' },
+  { year: '2024', title: 'Vô địch giải sân 7 Hương Thủy 🏆', desc: 'Cuối năm 2024, tiếp tục chinh phục giải bóng đá sân 7 Hương Thủy tại sân khu công nghiệp. Một năm vàng với cú đúp danh hiệu.' },
+  { year: '2025', title: 'Trở lại với cái tên Phù Nam 3 🏅', desc: 'Năm 2025, đội bóng trở lại với cái tên Phù Nam 3. Tham gia giải bóng đá phường Hương Thủy ở đẳng cấp chuyên môn cao hơn, với đội hình trẻ và thiếu vắng nhiều nhân tố chủ chốt, Phù Nam 3 vẫn xuất sắc giành hạng 3 chung cuộc. Đáng tự hào hơn cả là danh hiệu Đội bóng Fair Play nhất giải — lối đá đẹp, tinh thần thể thao cao thượng mà BHL và các cầu thủ luôn theo đuổi suốt những năm qua.' },
 ];
 
 const TROPHIES = [
-  { icon: '🏆', name: 'Vô địch giải ấp', count: 3, years: '2021, 2023, 2024' },
-  { icon: '🥈', name: 'Á quân giải xã', count: 1, years: '2022' },
-  { icon: '🏅', name: 'Giải Fair Play', count: 1, years: '2023' },
-  { icon: '⚽', name: 'Vua phá lưới', count: 2, years: '2021, 2024' },
-  { icon: '🧤', name: 'Thủ môn xuất sắc', count: 1, years: '2023' },
-  { icon: '⭐', name: 'Cầu thủ xuất sắc', count: 2, years: '2022, 2024' },
+  { icon: '🥉', name: 'Huy chương đồng phường Thủy Châu', count: 1, years: '2022' },
+  { icon: '🏆', name: 'Vô địch giải sân 7 (sân nhà)', count: 1, years: '2023' },
+  { icon: '🏆', name: 'Vô địch giải bóng đá phường (bất bại)', count: 1, years: '2024' },
+  { icon: '🏆', name: 'Vô địch giải sân 7 Hương Thủy', count: 1, years: '2024' },
+  { icon: '🥉', name: 'Hạng 3 giải bóng đá phường Hương Thủy', count: 1, years: '2025' },
+  { icon: '🏅', name: 'Đội bóng Fair Play nhất giải', count: 1, years: '2025' },
 ];
 
 const MANAGERS = [
-  { name: 'Mai Văn Hiếu', role: 'Ông bầu' },
-  { name: 'Huỳnh Kim Trình', role: 'Ông bầu' },
+  { name: 'Mai Văn Hiếu', role: 'Ông bầu', img: 'hieu-bau.JPG' },
+  { name: 'Huỳnh Kim Trình', role: 'Ông bầu', img: 'trinh-bau.jpg' },
+];
+
+const BHL = [
+  { name: 'Văn Kiên',    role: 'HLV',        img: 'Kien-HLV.JPG' },
+  { name: 'Công Huynh',  role: 'Tổ trưởng',  img: 'huynh-totruong.JPG' },
+  { name: 'Thanh Tùng',  role: 'BHL',         img: 'tung-bhl.JPG' },
 ];
 
 const PLAYERS = [
-  { number: 1,  name: 'Lê Trung Vũ' },
-  { number: 4,  name: 'Đặng Thanh Phong' },
-  { number: 5,  name: 'Quang Peter' },
-  { number: 6,  name: 'Phan Ngọc Đức' },
-  { number: 7,  name: 'Hồ Duy Tân' },
-  { number: 9,  name: 'Võ Đức Bảo Hoàng' },
-  { number: 10, name: 'Đặng Văn Rin' },
-  { number: 12, name: 'Nguyễn Văn Hữu Phước' },
-  { number: 14, name: 'Lê Tình' },
-  { number: 16, name: 'Nguyễn Thanh Dét' },
-  { number: 17, name: 'Lê Văn Hòa' },
-  { number: 18, name: 'Đặng Văn Đức' },
-  { number: 19, name: 'Nguyễn Hoàn Công' },
-  { number: 20, name: 'Đặng Văn Huỳnh' },
-  { number: 21, name: 'Nguyễn Đình Tâm' },
-  { number: 22, name: 'Đặng Văn Quý' },
-  { number: 23, name: 'Lê Văn Thành Công' },
-  { number: 24, name: 'Lê Phước Tài' },
-  { number: 25, name: 'Lê Phước Định' },
-  { number: 28, name: 'Mai Văn Tấn' },
-  { number: 30, name: 'Phan Ngọc Hào' },
-  { number: 67, name: 'Nguyễn Hữu Thắng' },
-  { number: 79, name: 'Lê Văn Hưng' },
+  { number: 1,  name: 'Trung Vũ',     img: 'vu-1.JPG', gk: true },
+  { number: 2,  name: 'Duy Lưu',      img: 'luu-2.JPG' },
+  { number: 2,  name: 'Đặng Vinh',    img: 'vinh-2.png' },
+  { number: 3,  name: 'Tá Trình',     img: 'trình-3.png' },
+  { number: 4,  name: 'Thanh Phong',   img: 'phong-4.JPG' },
+  { number: 5,  name: 'Quang Peter',   img: 'quang-5.JPG' },
+  { number: 6,  name: 'Ngọc Đức',     img: 'duc-6.JPG' },
+  { number: 9,  name: 'Duy Khánh',    img: 'khanh-9.png' },
+  { number: 10, name: 'Văn Rin',       img: 'rin-10.JPG' },
+  { number: 11, name: 'Xuân Đạt',       img: 'bon-11.JPG' },
+  { number: 12, name: 'Hữu Phước',    img: 'phuoc-12.JPG' },
+  { number: 14, name: 'Lê Tình',       img: 'tinh-14.JPG' },
+  { number: 14, name: 'Ngọc Hóa',     img: 'hoa-14.png' },
+  { number: 15, name: 'Thành Công',    img: 'cong-15.JPG', gk: true },
+  { number: 15, name: 'Đình Thành',   img: 'thanh-15.png', gk: true },
+  { number: 16, name: 'Thanh Dét',     img: 'det-16.JPG' },
+  { number: 16, name: 'Ngọc Lương',   img: 'luong-16.png' },
+  { number: 17, name: 'Văn Hòa',      img: 'hoa-17.JPG' },
+  { number: 18, name: 'Duy Tân',       img: 'tan-18.JPG' },
+  { number: 19, name: 'Hoàn Công',    img: 'cong-19.JPG' },
+  { number: 20, name: 'Phước Đồng',   img: 'dong-20.png', gk: true },
+  { number: 21, name: 'Đình Tâm',     img: 'tam-21.JPG' },
+  { number: 22, name: 'Văn Quý',      img: 'quy-25.JPG' },
+  { number: 23, name: 'Văn Đức',      img: 'duc-23.JPG' },
+  { number: 24, name: 'Phước Tài',    img: 'tai-24.png' },
+  { number: 25, name: 'Phước Định',   img: 'dinh-25.JPG' },
+  { number: 28, name: 'Văn Tấn',      img: 'tan-28.JPG' },
+  { number: 30, name: 'Ngọc Hào',     img: 'hao-30.JPG' },
+  { number: 34, name: 'Văn Hưng',     img: 'hung-34.JPG' },
+  { number: 67, name: 'Hữu Thắng',   img: 'thang-67.JPG' },
+  { number: 91, name: 'Bảo Phan',     img: 'bao-91.JPG', gk: true },
+  { number: 96, name: 'Văn Huỳnh',    img: 'huynh-96.JPG' },
+  { number: 99, name: 'Đăng Bình',    img: 'binh-99.JPG' },
+];
+
+const SSV = [
+  { name: 'Anh Hảo', img: 'hao-ssv.png' },
+  { name: 'Mai Sôn',        img: 'son-ssv.png' },
+  { name: 'Thanh Tiến', img: 'tien-ssv.JPG' },
+  { name: 'Anh Heo',    img: 'heo.JPG' },
 ];
 
 // ★ CẬP NHẬT: Thêm/sửa cựu cầu thủ tại đây
@@ -1019,17 +1220,40 @@ TROPHIES.forEach(t => {
   trEl.appendChild(div);
 });
 
+// Thumbnail helper: original filename → thumb/xxx.jpg
+function thumb(img) { return 'images/to10/thumb/' + img.replace(/\.(jpg|jpeg|png)$/i, '.jpg'); }
+function full(img) { return 'images/to10/' + img; }
+
 // Managers
 const mgEl = document.getElementById('managerGrid');
 MANAGERS.forEach(m => {
   const div = document.createElement('div');
   div.className = 'manager-card';
+  const mgPhoto = m.img
+    ? `<img class="mg-photo" src="${thumb(m.img)}" data-full="${full(m.img)}" alt="${m.name}">`
+    : `<div class="mg-icon">👔</div>`;
   div.innerHTML = `
-    <div class="mg-icon">👔</div>
+    ${mgPhoto}
     <div class="mg-name">${m.name}</div>
     <div class="mg-role">${m.role}</div>
   `;
   mgEl.appendChild(div);
+});
+
+// BHL
+const bhlEl = document.getElementById('bhlGrid');
+BHL.forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'manager-card';
+  const mgPhoto = m.img
+    ? `<img class="mg-photo" src="${thumb(m.img)}" data-full="${full(m.img)}" alt="${m.name}">`
+    : `<div class="mg-icon">👔</div>`;
+  div.innerHTML = `
+    ${mgPhoto}
+    <div class="mg-name">${m.name}</div>
+    <div class="mg-role">${m.role}</div>
+  `;
+  bhlEl.appendChild(div);
 });
 
 // Players
@@ -1037,11 +1261,33 @@ const plEl = document.getElementById('playerGrid');
 PLAYERS.forEach(p => {
   const div = document.createElement('div');
   div.className = 'player-card';
+  const photoHtml = p.img
+    ? `<img class="pc-photo" src="${thumb(p.img)}" data-full="${full(p.img)}" alt="${p.name}">`
+    : `<div class="pc-avatar">⚽</div>`;
+  const gkHtml = p.gk ? `<div class="pc-gk">GK</div>` : '';
   div.innerHTML = `
+    ${photoHtml}
     <div class="pc-number">${p.number}</div>
     <div class="pc-name">${p.name}</div>
+    ${gkHtml}
   `;
   plEl.appendChild(div);
+});
+
+// SSV
+const ssvEl = document.getElementById('ssvGrid');
+SSV.forEach(s => {
+  const div = document.createElement('div');
+  div.className = 'player-card';
+  const photoHtml = s.img
+    ? `<img class="pc-photo" src="${thumb(s.img)}" data-full="${full(s.img)}" alt="${s.name}">`
+    : `<div class="pc-avatar">⚽</div>`;
+  div.innerHTML = `
+    ${photoHtml}
+    <div class="pc-name">${s.name}</div>
+    <div class="pc-gk">Săn Sóc Viên</div>
+  `;
+  ssvEl.appendChild(div);
 });
 
 // Legends
@@ -1092,12 +1338,6 @@ const MATCHES = [
     ]
   },
   {
-    group: 'Tổng kết',
-    matches: [
-      { title: 'Video tổng kết giải đấu', youtube: '', fb: 'https://www.facebook.com/vinhthanhxafc/videos/689828626674714' },
-    ]
-  },
-  {
     group: 'Giải S7 Nội bộ Hương Thủy 2024',
     matches: [
       { title: 'Chung kết giải S7 Nội bộ Hương Thủy 2024', youtube: '1SQoujlJTf0', fb: 'https://www.facebook.com/vinhthanhxafc/videos/821924143326081' },
@@ -1125,7 +1365,7 @@ MATCHES.forEach(g => {
     let videoHtml = '';
     if (m.youtube) {
       videoHtml = `<a class="mc-video" href="https://youtu.be/${m.youtube}" target="_blank" rel="noopener">
-        <img src="https://img.youtube.com/vi/${m.youtube}/hqdefault.jpg" alt="${m.title}" loading="lazy">
+        <img src="https://img.youtube.com/vi/${m.youtube}/hqdefault.jpg" alt="${m.title}">
         <div class="play-btn"></div>
       </a>`;
     }
@@ -1225,16 +1465,60 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-// ── SCROLL REVEAL ───────────────────────────────────────────────────────────
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      observer.unobserve(e.target);
-    }
+// ── PHOTO LIGHTBOX ──────────────────────────────────────────────────────────
+const plbEl   = document.getElementById('photoLightbox');
+const plbImg  = document.getElementById('plbImg');
+const plbName = document.getElementById('plbName');
+
+function openPhotoLightbox(src, name) {
+  plbImg.src = src;
+  plbName.textContent = name;
+  plbEl.classList.add('active');
+}
+function closePhotoLightbox() {
+  plbEl.classList.remove('active');
+}
+document.getElementById('plbClose').addEventListener('click', closePhotoLightbox);
+plbEl.addEventListener('click', (e) => { if (e.target === plbEl) closePhotoLightbox(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && plbEl.classList.contains('active')) closePhotoLightbox();
+});
+
+// Attach click to entire cards (player, manager, BHL, SSV)
+document.querySelectorAll('.player-card, .manager-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const img = card.querySelector('.pc-photo, .mg-photo');
+    if (!img) return;
+    const name = card.querySelector('.pc-name, .mg-name')?.textContent || '';
+    openPhotoLightbox(img.dataset.full || img.src, name);
   });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+});
+
+// ── LOADING SCREEN & PRELOAD THUMBNAILS ─────────────────────────────────────
+(function() {
+  const allThumbs = [...PLAYERS, ...BHL, ...SSV, ...MANAGERS]
+    .filter(p => p.img)
+    .map(p => thumb(p.img));
+  let loaded = 0;
+  const total = allThumbs.length;
+  function checkDone() {
+    loaded++;
+    if (loaded >= total) {
+      document.getElementById('loadingScreen').classList.add('hide');
+    }
+  }
+  allThumbs.forEach(src => {
+    const img = new Image();
+    img.onload = checkDone;
+    img.onerror = checkDone;
+    img.src = src;
+  });
+  // Fallback: hide after 3s even if some images haven't loaded
+  setTimeout(() => {
+    document.getElementById('loadingScreen').classList.add('hide');
+  }, 3000);
+})();
+
 </script>
 </body>
 </html>
