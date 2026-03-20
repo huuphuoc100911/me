@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tình Yêu Của Chúng Mình 💕</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>">
+
+  <!-- Meta OG — hiển thị đẹp khi share link trên Facebook, Zalo, Messenger -->
+  <meta property="og:title" content="Thị Huyền ❤️ Hữu Phước — Kỷ niệm 1 năm yêu nhau">
+  <meta property="og:description" content="18/10/2025 — 18/10/2026 · Một năm yêu thương, ngàn năm hạnh phúc 💕">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="">
+  <meta name="description" content="Trang kỷ niệm 1 năm yêu nhau của Thị Huyền và Hữu Phước 💕">
+  <meta name="theme-color" content="#1a0a14">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap');
 
@@ -439,6 +447,63 @@
     }
     .qdot.active { background: var(--rose); transform: scale(1.4); }
 
+    /* ── PHOTO GALLERY ──────────────────────────────────── */
+    .gallery {
+      width: 100%;
+      max-width: 700px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .gallery-item {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      position: relative;
+    }
+    .gallery-item:hover {
+      transform: scale(1.04);
+      box-shadow: 0 12px 40px rgba(255,107,138,0.2);
+      border-color: rgba(255,107,138,0.4);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .gallery-item .placeholder-icon {
+      font-size: 2.5rem;
+      opacity: 0.3;
+    }
+    .gallery-item .placeholder-text {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .gallery-item.span-2 {
+      grid-column: span 2;
+      aspect-ratio: 2/1;
+    }
+    @media (max-width: 520px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .gallery-item { border-radius: 12px; }
+      .gallery-item.span-2 { grid-column: span 2; }
+      .gallery-item .placeholder-icon { font-size: 1.8rem; }
+    }
+
     /* ── MILESTONES ──────────────────────────────────────── */
     .milestones {
       width: 100%;
@@ -548,16 +613,182 @@
     }
     .footer .heart { color: var(--rose); animation: heartbeat 1.5s ease-in-out infinite; display: inline-block; }
 
-    /* ── RESPONSIVE ──────────────────────────────────────── */
+    /* ── BACK TO TOP ────────────────────────────────────── */
+    .back-to-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,107,138,0.2);
+      border: 1px solid rgba(255,107,138,0.4);
+      backdrop-filter: blur(12px);
+      color: var(--pink);
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+      pointer-events: none;
+    }
+    .back-to-top.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .back-to-top:hover {
+      background: rgba(255,107,138,0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ── MUSIC BUTTON ───────────────────────────────────── */
+    .music-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,107,138,0.2);
+      border: 1px solid rgba(255,107,138,0.4);
+      backdrop-filter: blur(12px);
+      color: var(--pink);
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .music-btn:hover {
+      background: rgba(255,107,138,0.5);
+      transform: scale(1.1);
+    }
+    .music-btn.playing {
+      animation: musicPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes musicPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,107,138,0.3); }
+      50% { box-shadow: 0 0 0 10px rgba(255,107,138,0); }
+    }
+
+    /* ── MUSIC PROMPT ──────────────────────────────────── */
+    .music-prompt {
+      position: fixed;
+      bottom: 80px;
+      left: 24px;
+      background: rgba(26,10,20,0.95);
+      border: 1px solid rgba(255,107,138,0.5);
+      border-radius: 16px;
+      padding: 14px 20px;
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      z-index: 101;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: promptSlideUp 0.5s ease forwards;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 220px;
+    }
+    .music-prompt:hover {
+      border-color: var(--rose);
+      transform: translateY(-2px);
+    }
+    .music-prompt .prompt-icon {
+      font-size: 1.6rem;
+      animation: musicPulse 1.5s ease-in-out infinite;
+    }
+    .music-prompt .prompt-text {
+      font-size: 0.78rem;
+      color: var(--pink);
+      line-height: 1.4;
+    }
+    .music-prompt .prompt-text strong {
+      color: var(--gold2);
+    }
+    @keyframes promptSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     @media (max-width: 520px) {
-      .stats-grid { grid-template-columns: 1fr; }
+      .music-prompt { bottom: 66px; left: 16px; padding: 10px 14px; max-width: 190px; border-radius: 12px; }
+      .music-prompt .prompt-icon { font-size: 1.3rem; }
+      .music-prompt .prompt-text { font-size: 0.7rem; }
+    }
+    @media (max-width: 520px) {
+      .music-btn, .back-to-top { width: 42px; height: 42px; font-size: 1.1rem; bottom: 16px; }
+      .music-btn { left: 16px; }
+      .back-to-top { right: 16px; }
+    }
+
+    /* ── RESPONSIVE — Tablet ────────────────────────────── */
+    @media (max-width: 768px) {
+      .wrapper { padding: 30px 16px 50px; gap: 36px; }
+      .header h1 { font-size: clamp(2rem, 5vw, 3rem); }
+      .header .names-display { font-size: clamp(1rem, 2.5vw, 1.3rem); }
+      .stat-card { padding: 24px 18px; border-radius: 20px; }
+      .stat-card .stat-number { font-size: clamp(2rem, 5vw, 3rem); }
+      .countdown-card { padding: 32px 20px; border-radius: 22px; }
+      .cb-val { width: 82px; height: 76px; font-size: 2.1rem; }
+      .quote-card { padding: 28px 24px; }
+      .milestone { padding: 14px 18px; gap: 12px; }
+    }
+
+    /* ── RESPONSIVE — Mobile ─────────────────────────────── */
+    @media (max-width: 520px) {
+      .wrapper { padding: 20px 12px 40px; gap: 28px; }
+      .header { padding-top: 12px; }
+      .header .eyebrow { font-size: 1.2rem; }
+      .header h1 { font-size: 1.8rem; }
+      .header .names-display { font-size: 1rem; }
+      .header .names-display .sep { margin: 0 6px; }
+      .header .sub { font-size: 0.85rem; }
+      .stats-grid { grid-template-columns: 1fr; gap: 12px; }
       .stat-card.big { grid-column: auto; }
-      .cb-val { width: 68px; height: 68px; font-size: 1.8rem; border-radius: 14px; }
-      .countdown-blocks { gap: 6px; }
-      .cb-dot { font-size: 1.4rem; margin-bottom: 12px; }
-      .countdown-card { padding: 28px 16px; }
-      .quote-card { padding: 28px 20px; }
-      .progress-card { padding: 20px 20px; }
+      .stat-card { padding: 20px 16px; border-radius: 16px; }
+      .stat-card .stat-icon { font-size: 1.5rem; margin-bottom: 6px; }
+      .stat-card .stat-number { font-size: 2rem; }
+      .stat-card .stat-label { font-size: 0.65rem; letter-spacing: 1px; }
+      .cb-val { width: 64px; height: 64px; font-size: 1.7rem; border-radius: 14px; }
+      .countdown-blocks { gap: 5px; }
+      .cb-dot { font-size: 1.2rem; margin-bottom: 10px; }
+      .cb-lbl { font-size: 0.55rem; }
+      .countdown-card { padding: 24px 12px; border-radius: 18px; }
+      .countdown-title { font-size: 1.3rem; }
+      .countdown-sub { font-size: 0.72rem; margin-bottom: 20px; }
+      .quote-card { padding: 24px 16px; border-radius: 18px; }
+      .quote-mark { font-size: 3.5rem; }
+      .progress-card { padding: 16px 14px; border-radius: 14px; }
+      .progress-head span { font-size: 0.68rem; }
+      .progress-head strong { font-size: 0.85rem; }
+      .divider { max-width: 300px; }
+      .date-badge { gap: 8px; }
+      .badge { padding: 6px 14px; font-size: 0.72rem; }
+      .section-title { font-size: 1.4rem; }
+      .milestone { padding: 12px 14px; gap: 10px; border-radius: 12px; }
+      .milestone .ms-icon { font-size: 1.2rem; }
+      .milestone .ms-name { font-size: 0.85rem; }
+      .milestone .ms-date { font-size: 0.68rem; }
+      .milestone .ms-badge { font-size: 0.6rem; padding: 2px 8px; }
+      .milestone .ms-progress-pct { font-size: 0.58rem; min-width: 28px; }
+    }
+
+    /* ── RESPONSIVE — Very small ─────────────────────────── */
+    @media (max-width: 360px) {
+      .header h1 { font-size: 1.5rem; }
+      .header .names-display { font-size: 0.9rem; }
+      .cb-val { width: 56px; height: 56px; font-size: 1.4rem; border-radius: 12px; }
+      .countdown-blocks { gap: 3px; }
+      .cb-dot { font-size: 1rem; }
+      .stat-card .stat-number { font-size: 1.6rem; }
+      .badge { padding: 5px 10px; font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -663,6 +894,39 @@
     <div class="quote-dots" id="quoteDots"></div>
   </div>
 
+  <!-- PHOTO GALLERY -->
+  <div class="gallery">
+    <div class="section-title">Khoảnh khắc của chúng mình 📸</div>
+    <div class="gallery-grid">
+      <div class="gallery-item span-2">
+        <span class="placeholder-icon">📷</span>
+        <span class="placeholder-text">Thêm ảnh đầu tiên</span>
+      </div>
+      <div class="gallery-item">
+        <span class="placeholder-icon">🌸</span>
+        <span class="placeholder-text">Ảnh 2</span>
+      </div>
+      <div class="gallery-item">
+        <span class="placeholder-icon">💕</span>
+        <span class="placeholder-text">Ảnh 3</span>
+      </div>
+      <div class="gallery-item">
+        <span class="placeholder-icon">✨</span>
+        <span class="placeholder-text">Ảnh 4</span>
+      </div>
+      <div class="gallery-item span-2">
+        <span class="placeholder-icon">🌹</span>
+        <span class="placeholder-text">Ảnh đặc biệt</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-heart">📸</div>
+    <div class="divider-line"></div>
+  </div>
+
   <!-- MILESTONES -->
   <div class="milestones">
     <div class="section-title">Những cột mốc đáng nhớ ✨</div>
@@ -675,6 +939,18 @@
   </div>
 
 </div>
+
+<!-- MUSIC BUTTON -->
+<button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc nền">🎵</button>
+
+<!-- MUSIC PROMPT -->
+<div class="music-prompt" id="musicPrompt">
+  <span class="prompt-icon">🎵</span>
+  <span class="prompt-text"><strong>Bấm vào đây</strong> để nghe nhạc nhé! 💕</span>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" title="Lên đầu trang">↑</button>
 
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
@@ -695,15 +971,20 @@ const quotes = [
 // ── MILESTONES ──────────────────────────────────────────────────────────────
 const milestones = [
   { icon: '💘', name: 'Ngày đầu yêu nhau',             date: '18/10/2025', ts: new Date('2025-10-18').getTime() },
-  { icon: '🌷', name: 'Tròn 1 tháng bên nhau',         date: '18/11/2025', ts: new Date('2025-11-18').getTime() },
   { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',   date: '23/10/2025', ts: new Date('2025-10-23').getTime() },
+  { icon: '🌷', name: 'Tròn 1 tháng bên nhau',         date: '18/11/2025', ts: new Date('2025-11-18').getTime() },
+  { icon: '💯', name: 'Tròn 100 ngày yêu nhau',        date: '26/01/2026', ts: new Date('2026-01-26').getTime() },
   { icon: '⛄', name: 'Giáng Sinh đầu tiên cùng nhau', date: '25/12/2025', ts: new Date('2025-12-25').getTime() },
   { icon: '🎆', name: 'Năm mới 2026 bên nhau',          date: '01/01/2026', ts: new Date('2026-01-01').getTime() },
   { icon: '💝', name: 'Valentine đầu tiên',              date: '14/02/2026', ts: new Date('2026-02-14').getTime() },
   { icon: '🌸', name: 'Tròn 6 tháng hạnh phúc',         date: '18/04/2026', ts: new Date('2026-04-18').getTime() },
+  { icon: '🔥', name: 'Tròn 200 ngày bên nhau',         date: '06/05/2026', ts: new Date('2026-05-06').getTime() },
+  { icon: '⭐', name: 'Tròn 300 ngày yêu thương',       date: '14/08/2026', ts: new Date('2026-08-14').getTime() },
   { icon: '🎂', name: 'Sinh nhật anh — Hữu Phước 🎉',   date: '09/10/2026', ts: new Date('2026-10-09').getTime() },
   { icon: '🌹', name: 'Kỷ niệm 1 năm tình yêu',         date: '18/10/2026', ts: new Date('2026-10-18').getTime() },
   { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',    date: '23/10/2026', ts: new Date('2026-10-23').getTime() },
+  { icon: '🏆', name: 'Tròn 500 ngày bên nhau',          date: '02/03/2027', ts: new Date('2027-03-02').getTime() },
+  { icon: '💎', name: 'Tròn 1000 ngày yêu nhau!',       date: '14/07/2028', ts: new Date('2028-07-14').getTime() },
 ];
 
 // ── STARS ───────────────────────────────────────────────────────────────────
@@ -926,6 +1207,74 @@ function tick(t) {
 }
 
 requestAnimationFrame(tick);
+
+// ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
+const musicBtnEl = document.getElementById('musicBtn');
+let bgMusic = null;
+let musicPlaying = false;
+let lastSongIndex = -1;
+
+const MUSIC_LIST = [
+  'music/love/yeu-em-hon-moi-ngay.mp3',
+  'music/love/you-are-my-crush.mp3',
+];
+
+function getRandomSong() {
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * MUSIC_LIST.length);
+  } while (idx === lastSongIndex && MUSIC_LIST.length > 1);
+  lastSongIndex = idx;
+  return MUSIC_LIST[idx];
+}
+
+function playSong() {
+  if (bgMusic) { bgMusic.pause(); bgMusic = null; }
+  bgMusic = new Audio(getRandomSong());
+  bgMusic.volume = 0.4;
+  bgMusic.addEventListener('ended', () => playSong());
+  bgMusic.play();
+  musicPlaying = true;
+  musicBtnEl.textContent = '🔊';
+  musicBtnEl.classList.add('playing');
+}
+
+function stopMusic() {
+  if (bgMusic) bgMusic.pause();
+  musicPlaying = false;
+  musicBtnEl.textContent = '🎵';
+  musicBtnEl.classList.remove('playing');
+}
+
+// Nút bật/tắt thủ công
+musicBtnEl.addEventListener('click', () => {
+  musicPlaying ? stopMusic() : playSong();
+  // Ẩn prompt khi đã bấm
+  musicPromptEl.style.display = 'none';
+});
+
+// Prompt nhạc — hiện sau 2 giây, bấm vào là phát nhạc
+const musicPromptEl = document.getElementById('musicPrompt');
+
+setTimeout(() => {
+  if (!musicPlaying) {
+    musicPromptEl.style.display = 'flex';
+  }
+}, 2000);
+
+musicPromptEl.addEventListener('click', () => {
+  if (!musicPlaying) playSong();
+  musicPromptEl.style.display = 'none';
+});
+
+// ── BACK TO TOP ──────────────────────────────────────────────────────────────
+const btnTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  btnTop.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+btnTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 </script>
 </body>
 </html>
