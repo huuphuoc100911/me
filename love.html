@@ -1430,7 +1430,7 @@ galleryImages.forEach((src, i) => {
 
   if (isVideo(src)) {
     const vid = document.createElement('video');
-    vid.src = path;
+    vid.src = path + '#t=0.001';
     vid.muted = true;
     vid.loop = true;
     vid.playsInline = true;
