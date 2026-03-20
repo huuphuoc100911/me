@@ -714,7 +714,8 @@
       transition: opacity 0.2s ease, transform 0.2s ease;
       backdrop-filter: blur(10px);
     }
-    .milestone:not(.reached):hover .ms-badge::after {
+    .milestone:not(.reached):hover .ms-badge::after,
+    .milestone:not(.reached).show-tooltip .ms-badge::after {
       opacity: 1;
       transform: translateY(0);
     }
@@ -1269,12 +1270,27 @@ milestones.forEach(m => {
 
   mlList.appendChild(div);
 
+  // Bấm vào ô milestone để show/hide tooltip
   if (!reached) {
+    div.addEventListener('click', () => {
+      // Ẩn tooltip của các milestone khác
+      document.querySelectorAll('.milestone.show-tooltip').forEach(el => {
+        if (el !== div) el.classList.remove('show-tooltip');
+      });
+      div.classList.toggle('show-tooltip');
+    });
     upcomingEls.push({
       fill: div.querySelector('.ms-progress-fill'),
       pct:  div.querySelector('.ms-progress-pct'),
       ts:   m.ts,
     });
+  }
+});
+
+// Bấm ra ngoài thì ẩn tooltip
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.milestone')) {
+    document.querySelectorAll('.milestone.show-tooltip').forEach(el => el.classList.remove('show-tooltip'));
   }
 });
 
