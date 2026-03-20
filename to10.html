@@ -1338,6 +1338,12 @@ const MATCHES = [
     ]
   },
   {
+    group: 'Hành trình vô địch',
+    matches: [
+      { title: 'Hành trình đến với chức vô địch của Tổ 10 Thủy Châu', youtube: 'H285xPBA9pQ' },
+    ]
+  },
+  {
     group: 'Giải S7 Nội bộ Hương Thủy 2024',
     matches: [
       { title: 'Chung kết giải S7 Nội bộ Hương Thủy 2024', youtube: '1SQoujlJTf0', fb: 'https://www.facebook.com/vinhthanhxafc/videos/821924143326081' },
@@ -1499,24 +1505,13 @@ document.querySelectorAll('.player-card, .manager-card').forEach(card => {
   const allThumbs = [...PLAYERS, ...BHL, ...SSV, ...MANAGERS]
     .filter(p => p.img)
     .map(p => thumb(p.img));
-  let loaded = 0;
-  const total = allThumbs.length;
-  function checkDone() {
-    loaded++;
-    if (loaded >= total) {
-      document.getElementById('loadingScreen').classList.add('hide');
-    }
-  }
   allThumbs.forEach(src => {
     const img = new Image();
-    img.onload = checkDone;
-    img.onerror = checkDone;
     img.src = src;
   });
-  // Fallback: hide after 3s even if some images haven't loaded
   setTimeout(() => {
     document.getElementById('loadingScreen').classList.add('hide');
-  }, 3000);
+  }, 2000);
 })();
 
 </script>
