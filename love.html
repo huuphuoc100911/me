@@ -588,13 +588,30 @@
       box-shadow: 0 12px 40px rgba(255,107,138,0.2);
       border-color: rgba(255,107,138,0.4);
     }
-    .gallery-item img {
+    .gallery-item img,
+    .gallery-item video {
       width: 100%;
       display: block;
+    }
+    .gallery-item .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      opacity: 0.8;
+      pointer-events: none;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .gallery-item:hover .play-icon {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.15);
     }
     @media (max-width: 520px) {
       .gallery-masonry { columns: 2; column-gap: 8px; }
       .gallery-item { border-radius: 12px; margin-bottom: 8px; }
+      .gallery-item .play-icon { font-size: 2rem; }
     }
 
     /* ── LIGHTBOX ──────────────────────────────────────── */
@@ -610,7 +627,8 @@
       backdrop-filter: blur(8px);
     }
     .lightbox.active { display: flex; }
-    .lightbox img {
+    .lightbox img,
+    .lightbox video {
       max-width: 92vw;
       max-height: 90vh;
       border-radius: 12px;
@@ -1063,6 +1081,7 @@
     <button class="lightbox-close" id="lbClose">&times;</button>
     <button class="lightbox-nav lightbox-prev" id="lbPrev">&#8249;</button>
     <img id="lbImg" src="" alt="">
+    <video id="lbVideo" src="" controls playsinline style="display:none"></video>
     <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
   </div>
 
@@ -1370,18 +1389,28 @@ function tick(t) {
 
 requestAnimationFrame(tick);
 
-// ── PHOTO GALLERY ────────────────────────────────────────────────────────────
-// ★ Thêm ảnh mới: bỏ file vào images/love/ rồi thêm tên file vào mảng bên dưới
-const GALLERY_IMAGES = [
+// ── PHOTO & VIDEO GALLERY ────────────────────────────────────────────────────
+// ★ Thêm ảnh/video mới: bỏ file vào images/love/ rồi thêm tên file vào mảng bên dưới
+const GALLERY_FILES = [
   'love-1.jpg',
   'love-2.jpg',
   'love-3.jpg',
   'love-4.jpg',
   'love-5.jpg',
+  'love-6.jpg',
+  'love-7.jpg',
+  'love-8.jpg',
+  'love-9.jpg',
+  'video-01.mp4',
+  'video-02.mp4',
+  'video-03.mp4',
+  'video-04.mp4',
 ];
 
 const galleryEl = document.getElementById('galleryMasonry');
 let currentLbIndex = 0;
+
+function isVideo(f) { return /\.(mp4|webm|mov)$/i.test(f); }
 
 // Shuffle ngẫu nhiên (Fisher-Yates)
 function shuffle(arr) {
@@ -1393,30 +1422,68 @@ function shuffle(arr) {
   return a;
 }
 
-const galleryImages = shuffle(GALLERY_IMAGES);
+const galleryImages = shuffle(GALLERY_FILES);
 galleryImages.forEach((src, i) => {
   const item = document.createElement('div');
   item.className = 'gallery-item';
-  const img = document.createElement('img');
-  img.src = 'images/love/' + src;
-  img.alt = 'Kỷ niệm ' + (i + 1);
-  img.loading = 'lazy';
-  item.appendChild(img);
+  const path = 'images/love/' + src;
+
+  if (isVideo(src)) {
+    const vid = document.createElement('video');
+    vid.src = path;
+    vid.muted = true;
+    vid.loop = true;
+    vid.playsInline = true;
+    vid.preload = 'metadata';
+    // Hover thì play preview
+    item.addEventListener('mouseenter', () => vid.play().catch(() => {}));
+    item.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+    item.appendChild(vid);
+    // Icon play
+    const play = document.createElement('span');
+    play.className = 'play-icon';
+    play.textContent = '▶';
+    item.appendChild(play);
+  } else {
+    const img = document.createElement('img');
+    img.src = path;
+    img.alt = 'Kỷ niệm ' + (i + 1);
+    img.loading = 'lazy';
+    item.appendChild(img);
+  }
+
   item.addEventListener('click', () => openLightbox(i));
   galleryEl.appendChild(item);
 });
 
 // Lightbox
-const lightboxEl = document.getElementById('lightbox');
-const lbImgEl    = document.getElementById('lbImg');
+const lightboxEl  = document.getElementById('lightbox');
+const lbImgEl     = document.getElementById('lbImg');
+const lbVideoEl   = document.getElementById('lbVideo');
+
+function showLightboxMedia(src) {
+  const path = 'images/love/' + src;
+  if (isVideo(src)) {
+    lbImgEl.style.display = 'none';
+    lbVideoEl.style.display = 'block';
+    lbVideoEl.src = path;
+    lbVideoEl.play().catch(() => {});
+  } else {
+    lbVideoEl.style.display = 'none';
+    lbVideoEl.pause();
+    lbImgEl.style.display = 'block';
+    lbImgEl.src = path;
+  }
+}
 
 function openLightbox(i) {
   currentLbIndex = i;
-  lbImgEl.src = 'images/love/' + galleryImages[i];
+  showLightboxMedia(galleryImages[i]);
   lightboxEl.classList.add('active');
 }
 function closeLightbox() {
   lightboxEl.classList.remove('active');
+  lbVideoEl.pause();
 }
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 lightboxEl.addEventListener('click', (e) => { if (e.target === lightboxEl) closeLightbox(); });
@@ -1424,13 +1491,13 @@ document.getElementById('lbPrev').addEventListener('click', (e) => {
   e.stopPropagation();
   if (!galleryImages.length) return;
   currentLbIndex = (currentLbIndex - 1 + galleryImages.length) % galleryImages.length;
-  lbImgEl.src = 'images/love/' + galleryImages[currentLbIndex];
+  showLightboxMedia(galleryImages[currentLbIndex]);
 });
 document.getElementById('lbNext').addEventListener('click', (e) => {
   e.stopPropagation();
   if (!galleryImages.length) return;
   currentLbIndex = (currentLbIndex + 1) % galleryImages.length;
-  lbImgEl.src = 'images/love/' + galleryImages[currentLbIndex];
+  showLightboxMedia(galleryImages[currentLbIndex]);
 });
 document.addEventListener('keydown', (e) => {
   if (!lightboxEl.classList.contains('active')) return;
