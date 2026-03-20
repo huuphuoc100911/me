@@ -1547,22 +1547,34 @@ function stopMusic() {
 // Nút bật/tắt thủ công
 musicBtnEl.addEventListener('click', () => {
   musicPlaying ? stopMusic() : playSong();
-  // Ẩn prompt khi đã bấm
+  // Ẩn prompt và dừng lặp khi đã bấm
   musicPromptEl.style.display = 'none';
+  if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
 });
 
-// Prompt nhạc — hiện sau 2 giây, bấm vào là phát nhạc
+// Prompt nhạc — hiện sau 2s, show 5s rồi ẩn, lặp lại mỗi 1 phút
 const musicPromptEl = document.getElementById('musicPrompt');
+let promptInterval = null;
 
+function showPromptBriefly() {
+  if (musicPlaying) return;
+  musicPromptEl.style.display = 'flex';
+  setTimeout(() => {
+    musicPromptEl.style.display = 'none';
+  }, 5000);
+}
+
+// Lần đầu: sau 2s
 setTimeout(() => {
-  if (!musicPlaying) {
-    musicPromptEl.style.display = 'flex';
-  }
+  showPromptBriefly();
+  // Sau đó lặp mỗi 1 phút
+  promptInterval = setInterval(showPromptBriefly, 60000);
 }, 2000);
 
 musicPromptEl.addEventListener('click', () => {
   if (!musicPlaying) playSong();
   musicPromptEl.style.display = 'none';
+  if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
 });
 
 // ── BACK TO TOP ──────────────────────────────────────────────────────────────
