@@ -9,6 +9,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "love.personal.io.vn" }],
       "destination": "/love.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "soc.personal.io.vn" }],
+      "destination": "/soc.html"
     }
   ]
 }

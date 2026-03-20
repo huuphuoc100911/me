@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bé Sóc — Nguyễn Đức Thịnh</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👶</text></svg>">
+  <meta property="og:title" content="Bé Sóc — Nguyễn Đức Thịnh">
+  <meta property="og:description" content="15/11/2025 — Chào mừng thiên thần nhỏ đến với thế giới! Tuổi Ất Tỵ">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0a1428">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky:     #60a5fa;
+      --sky2:    #93c5fd;
+      --mint:    #6ee7b7;
+      --mint2:   #a7f3d0;
+      --gold:    #fbbf24;
+      --gold2:   #fde68a;
+      --pink:    #f9a8d4;
+      --deep:    #0a1428;
+      --deep2:   #132240;
+      --white:   #fff;
+      --soft:    rgba(255,255,255,0.08);
+      --border:  rgba(255,255,255,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(ellipse at 20% 30%, #132240 0%, #0a1428 40%, #060d1a 100%);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── LOADING SCREEN ─────────────────────────────────── */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #132240 0%, #0a1428 50%, #060d1a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    .loading-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .loading-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(96,165,250,0.4);
+      box-shadow: 0 0 30px rgba(96,165,250,0.3);
+      animation: loadingBounce 1s ease-in-out infinite;
+    }
+    @keyframes loadingBounce {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%     { transform: translateY(-12px) scale(1.1); }
+    }
+    .loading-text {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.4rem;
+      color: var(--sky2);
+      letter-spacing: 1px;
+    }
+    .loading-bar {
+      width: 160px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--sky), var(--mint), var(--gold));
+      border-radius: 100px;
+      animation: loadingFill 1.5s ease forwards;
+    }
+    @keyframes loadingFill {
+      0%   { width: 0%; }
+      60%  { width: 80%; }
+      100% { width: 100%; }
+    }
+
+    /* ── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── CANVAS stars ─────────────────────────────────────── */
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── FLOATING ITEMS ──────────────────────────────────── */
+    .float-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .float-item {
+      position: absolute;
+      bottom: -60px;
+      opacity: 0;
+      font-size: 20px;
+      animation: floatUp linear infinite;
+      filter: blur(0.5px);
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 0; }
+      10%  { opacity: 1; }
+      80%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh) translateX(var(--tx)) rotate(var(--rot)) scale(var(--sc)); opacity: 0; }
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 40px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+
+    /* ── HEADER ───────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      padding-top: 24px;
+    }
+    .header .eyebrow {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.5rem;
+      color: var(--sky2);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.2s ease forwards;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 40%, var(--sky) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.5s ease forwards;
+    }
+    .header .baby-photo {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(96,165,250,0.4);
+      box-shadow: 0 0 30px rgba(96,165,250,0.2), 0 0 60px rgba(110,231,183,0.1);
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.35s ease forwards;
+    }
+    .header .baby-name {
+      margin-top: 14px;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--gold2);
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.65s ease forwards;
+    }
+    .header .sub {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.5px;
+      opacity: 0;
+      animation: fadeDown 0.8s 0.9s ease forwards;
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── DIVIDER ───────────────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--sky), transparent);
+    }
+    .divider-icon {
+      font-size: 1.2rem;
+      animation: iconBounce 2s ease-in-out infinite;
+    }
+    @keyframes iconBounce {
+      0%,100% { transform: scale(1) rotate(0deg); }
+      25%     { transform: scale(1.2) rotate(-5deg); }
+      50%     { transform: scale(1) rotate(0deg); }
+      75%     { transform: scale(1.15) rotate(5deg); }
+    }
+
+    /* ── DATE / INFO BADGE ──────────────────────────────── */
+    .date-badge {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .badge {
+      padding: 8px 22px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--soft);
+      backdrop-filter: blur(10px);
+      font-size: 0.82rem;
+      color: var(--sky2);
+      letter-spacing: 1px;
+    }
+    .badge strong { color: var(--gold2); }
+
+    /* ── BABY INFO CARD ────────────────────────────────── */
+    .baby-info {
+      width: 100%;
+      max-width: 700px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.1) 0%, rgba(110,231,183,0.06) 100%);
+      border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 28px;
+      padding: 40px 32px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+    .baby-info::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(96,165,250,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .baby-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 20px;
+      position: relative;
+    }
+    .info-item {
+      text-align: center;
+    }
+    .info-item .ii-icon { font-size: 2rem; margin-bottom: 8px; }
+    .info-item .ii-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold2);
+      margin-bottom: 4px;
+    }
+    .info-item .ii-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    /* ── STATS GRID ─────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      max-width: 700px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(96,165,250,0.15); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--sky), var(--mint), var(--gold));
+    }
+    .stat-card .stat-icon { font-size: 2rem; margin-bottom: 10px; }
+    .stat-card .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--white) 0%, var(--gold2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .stat-card .stat-sub {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: var(--sky2);
+      font-style: italic;
+    }
+
+    /* ── COUNTDOWN ───────────────────────────────────────── */
+    .countdown-card {
+      width: 100%;
+      max-width: 700px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.12) 0%, rgba(110,231,183,0.06) 100%);
+      border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 28px;
+      padding: 40px 32px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+    .countdown-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(96,165,250,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .countdown-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: var(--sky2);
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .countdown-sub {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 1px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+    .countdown-blocks {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .cb {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cb-val {
+      width: 100px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(96,165,250,0.35);
+      border-radius: 18px;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.1s ease;
+    }
+    .cb-val.pop { transform: scale(1.08); }
+    .cb-val::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--sky), transparent);
+    }
+    .cb-dot {
+      font-size: 2rem;
+      color: rgba(96,165,250,0.5);
+      align-self: center;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+    .cb-lbl {
+      margin-top: 8px;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--sky);
+    }
+
+    /* ── PROGRESS ────────────────────────────────────────── */
+    .progress-card {
+      width: 100%;
+      max-width: 700px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 32px;
+      backdrop-filter: blur(12px);
+    }
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .progress-head span {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+    }
+    .progress-head strong { color: var(--gold2); font-size: 1rem; }
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--sky), var(--mint), var(--gold));
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+      transition: width 1s ease;
+      position: relative;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 12px var(--gold);
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── QUOTE ───────────────────────────────────────────── */
+    .quote-card {
+      width: 100%;
+      max-width: 580px;
+      text-align: center;
+      padding: 36px 40px;
+      background: linear-gradient(135deg, rgba(110,231,183,0.08) 0%, rgba(96,165,250,0.08) 100%);
+      border: 1px solid rgba(110,231,183,0.25);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      position: relative;
+    }
+    .quote-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      color: var(--sky);
+      opacity: 0.3;
+      line-height: 0.6;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .quote-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: rgba(255,255,255,0.9);
+      line-height: 1.7;
+      min-height: 60px;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .quote-text.fade-out { opacity: 0; transform: translateY(10px); }
+    .quote-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .qdot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .qdot.active { background: var(--sky); transform: scale(1.4); }
+
+    /* ── LETTER ───────────────────────────────────────────── */
+    .letter-card {
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      padding: 40px 36px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.08) 0%, rgba(251,191,36,0.06) 100%);
+      border: 1px solid rgba(96,165,250,0.25);
+      border-radius: 24px;
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+    }
+    .letter-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(96,165,250,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .letter-card .letter-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .letter-card .letter-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: var(--sky2);
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .letter-card .letter-body {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.9;
+      position: relative;
+    }
+    .letter-card .letter-sign {
+      margin-top: 20px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.2rem;
+      color: var(--gold2);
+      position: relative;
+    }
+
+    /* ── MILESTONES ──────────────────────────────────────── */
+    .milestones {
+      width: 100%;
+      max-width: 700px;
+    }
+    .section-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.8rem;
+      color: var(--sky2);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .milestone-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .milestone {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .milestone:hover { transform: translateX(6px); border-color: rgba(96,165,250,0.4); }
+    .milestone.reached { border-color: rgba(110,231,183,0.4); background: rgba(110,231,183,0.06); }
+    .milestone .ms-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .milestone .ms-info { flex: 1; }
+    .milestone .ms-name { font-size: 0.95rem; font-weight: 500; color: var(--white); }
+    .milestone .ms-date { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .milestone .ms-progress {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .milestone .ms-progress-track {
+      flex: 1;
+      height: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .milestone .ms-progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--sky), var(--mint));
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+      transition: width 1s ease;
+    }
+    .milestone .ms-progress-pct {
+      font-size: 0.65rem;
+      color: var(--gold2);
+      white-space: nowrap;
+      font-weight: 600;
+      min-width: 34px;
+      text-align: right;
+    }
+    .milestone .ms-badge {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(96,165,250,0.2);
+      color: var(--sky2);
+      border: 1px solid rgba(96,165,250,0.3);
+      white-space: nowrap;
+      position: relative;
+      cursor: default;
+    }
+    .milestone.reached .ms-badge { background: rgba(110,231,183,0.2); color: var(--mint2); border-color: rgba(110,231,183,0.3); }
+
+    .milestone:not(.reached) .ms-badge::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      right: 0;
+      background: rgba(10,20,40,0.95);
+      border: 1px solid rgba(96,165,250,0.4);
+      color: var(--sky2);
+      font-size: 0.72rem;
+      padding: 5px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+    .milestone:not(.reached):hover .ms-badge::after,
+    .milestone:not(.reached).show-tooltip .ms-badge::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.25);
+      padding-bottom: 12px;
+    }
+    .footer .heart { color: var(--sky); animation: iconBounce 2s ease-in-out infinite; display: inline-block; }
+
+    /* ── BACK TO TOP ────────────────────────────────────── */
+    .back-to-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(96,165,250,0.2);
+      border: 1px solid rgba(96,165,250,0.4);
+      backdrop-filter: blur(12px);
+      color: var(--sky2);
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+      pointer-events: none;
+    }
+    .back-to-top.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .back-to-top:hover {
+      background: rgba(96,165,250,0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ── MUSIC BUTTON ───────────────────────────────────── */
+    .music-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(96,165,250,0.2);
+      border: 1px solid rgba(96,165,250,0.4);
+      backdrop-filter: blur(12px);
+      color: var(--sky2);
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .music-btn:hover {
+      background: rgba(96,165,250,0.5);
+      transform: scale(1.1);
+    }
+    .music-btn.playing {
+      animation: musicPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes musicPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.3); }
+      50% { box-shadow: 0 0 0 10px rgba(96,165,250,0); }
+    }
+
+    /* ── MUSIC PROMPT ──────────────────────────────────── */
+    .music-prompt {
+      position: fixed;
+      bottom: 80px;
+      left: 24px;
+      background: rgba(10,20,40,0.95);
+      border: 1px solid rgba(96,165,250,0.5);
+      border-radius: 16px;
+      padding: 14px 20px;
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      z-index: 101;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: promptSlideUp 0.5s ease forwards;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 220px;
+    }
+    .music-prompt:hover {
+      border-color: var(--sky);
+      transform: translateY(-2px);
+    }
+    .music-prompt .prompt-icon {
+      font-size: 1.6rem;
+      animation: musicPulse 1.5s ease-in-out infinite;
+    }
+    .music-prompt .prompt-text {
+      font-size: 0.78rem;
+      color: var(--sky2);
+      line-height: 1.4;
+    }
+    .music-prompt .prompt-text strong {
+      color: var(--gold2);
+    }
+    @keyframes promptSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE — Tablet ────────────────────────────── */
+    @media (max-width: 768px) {
+      .wrapper { padding: 30px 16px 50px; gap: 36px; }
+      .header h1 { font-size: clamp(2rem, 5vw, 3rem); }
+      .header .baby-name { font-size: clamp(1rem, 2.5vw, 1.3rem); }
+      .stat-card { padding: 24px 18px; border-radius: 20px; }
+      .stat-card .stat-number { font-size: clamp(2rem, 5vw, 3rem); }
+      .countdown-card { padding: 32px 20px; border-radius: 22px; }
+      .cb-val { width: 82px; height: 76px; font-size: 2.1rem; }
+      .quote-card { padding: 28px 24px; }
+      .milestone { padding: 14px 18px; gap: 12px; }
+    }
+
+    /* ── RESPONSIVE — Mobile ─────────────────────────────── */
+    @media (max-width: 520px) {
+      .wrapper { padding: 20px 12px 40px; gap: 28px; }
+      .header { padding-top: 12px; }
+      .header .eyebrow { font-size: 1.2rem; }
+      .header h1 { font-size: 1.8rem; }
+      .header .baby-name { font-size: 1rem; }
+      .header .sub { font-size: 0.85rem; }
+      .stats-grid { grid-template-columns: 1fr; gap: 12px; }
+      .stat-card { padding: 20px 16px; border-radius: 16px; }
+      .stat-card .stat-icon { font-size: 1.5rem; margin-bottom: 6px; }
+      .stat-card .stat-number { font-size: 2rem; }
+      .stat-card .stat-label { font-size: 0.65rem; letter-spacing: 1px; }
+      .cb-val { width: 64px; height: 64px; font-size: 1.7rem; border-radius: 14px; }
+      .countdown-blocks { gap: 5px; }
+      .cb-dot { font-size: 1.2rem; margin-bottom: 10px; }
+      .cb-lbl { font-size: 0.55rem; }
+      .countdown-card { padding: 24px 12px; border-radius: 18px; }
+      .countdown-title { font-size: 1.3rem; }
+      .countdown-sub { font-size: 0.72rem; margin-bottom: 20px; }
+      .quote-card { padding: 24px 16px; border-radius: 18px; }
+      .quote-mark { font-size: 3.5rem; }
+      .progress-card { padding: 16px 14px; border-radius: 14px; }
+      .progress-head span { font-size: 0.68rem; }
+      .progress-head strong { font-size: 0.85rem; }
+      .divider { max-width: 300px; }
+      .date-badge { gap: 8px; }
+      .badge { padding: 6px 14px; font-size: 0.72rem; }
+      .section-title { font-size: 1.4rem; }
+      .milestone { padding: 12px 14px; gap: 10px; border-radius: 12px; }
+      .milestone .ms-icon { font-size: 1.2rem; }
+      .milestone .ms-name { font-size: 0.85rem; }
+      .milestone .ms-date { font-size: 0.68rem; }
+      .milestone .ms-badge { font-size: 0.6rem; padding: 2px 8px; }
+      .milestone .ms-progress-pct { font-size: 0.58rem; min-width: 28px; }
+      .letter-card { padding: 28px 18px; border-radius: 18px; }
+      .letter-card .letter-title { font-size: 1.3rem; }
+      .letter-card .letter-body { font-size: 0.85rem; }
+      .baby-info { padding: 28px 18px; border-radius: 20px; }
+      .music-prompt { bottom: 66px; left: 16px; padding: 10px 14px; max-width: 190px; border-radius: 12px; }
+      .music-prompt .prompt-icon { font-size: 1.3rem; }
+      .music-prompt .prompt-text { font-size: 0.7rem; }
+      .music-btn, .back-to-top { width: 42px; height: 42px; font-size: 1.1rem; bottom: 16px; }
+      .music-btn { left: 16px; }
+      .back-to-top { right: 16px; }
+    }
+
+    @media (max-width: 360px) {
+      .header h1 { font-size: 1.5rem; }
+      .header .baby-name { font-size: 0.9rem; }
+      .cb-val { width: 56px; height: 56px; font-size: 1.4rem; border-radius: 12px; }
+      .countdown-blocks { gap: 3px; }
+      .cb-dot { font-size: 1rem; }
+      .stat-card .stat-number { font-size: 1.6rem; }
+      .badge { padding: 5px 10px; font-size: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <img class="loading-photo" src="images/soc/soc.png" alt="Bé Sóc">
+  <div class="loading-text">Chào mừng bé Sóc...</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<canvas id="starCanvas"></canvas>
+<div class="float-layer" id="floatLayer"></div>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="eyebrow">&#10022; Thiên thần nhỏ đã đến &#10022;</div>
+    <img class="baby-photo" src="images/soc/soc.png" alt="Bé Sóc">
+    <h1>Bé Sóc</h1>
+    <div class="baby-name">Nguyễn Đức Thịnh</div>
+    <p class="sub">15/11/2025 — Ngày con chào đời, cuộc sống thêm trọn vẹn</p>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">👶</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- DATE & INFO BADGES -->
+  <div class="date-badge">
+    <div class="badge">Ngày sinh: <strong>15/11/2025</strong></div>
+    <div class="badge">Tuổi: <strong>Ất Tỵ (Rắn)</strong></div>
+    <div class="badge">Cung: <strong>Bọ Cạp</strong></div>
+  </div>
+
+  <!-- BABY INFO -->
+  <div class="baby-info reveal">
+    <div class="baby-info-grid">
+      <div class="info-item">
+        <div class="ii-icon">👶</div>
+        <div class="ii-val">Nguyễn Đức Thịnh</div>
+        <div class="ii-label">Họ và tên</div>
+      </div>
+      <div class="info-item">
+        <div class="ii-icon">🏠</div>
+        <div class="ii-val">Sóc</div>
+        <div class="ii-label">Tên ở nhà</div>
+      </div>
+      <div class="info-item">
+        <div class="ii-icon">📅</div>
+        <div class="ii-val">15/11/2025</div>
+        <div class="ii-label">Ngày sinh</div>
+      </div>
+      <div class="info-item">
+        <div class="ii-icon">🐍</div>
+        <div class="ii-val">Ất Tỵ</div>
+        <div class="ii-label">Tuổi con rắn</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid reveal">
+    <div class="stat-card">
+      <div class="stat-icon">🍼</div>
+      <div class="stat-number" id="daysOld">0</div>
+      <div class="stat-label">Ngày tuổi</div>
+      <div class="stat-sub">mỗi ngày thêm lớn</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🌙</div>
+      <div class="stat-number" id="monthsOld">0</div>
+      <div class="stat-label">Tháng tuổi</div>
+      <div class="stat-sub">lớn nhanh lắm rồi</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-number" id="hoursOld">0</div>
+      <div class="stat-label">Giờ trên đời</div>
+      <div class="stat-sub">từng giây đều quý</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💓</div>
+      <div class="stat-number" id="heartbeats">0</div>
+      <div class="stat-label">Nhịp tim</div>
+      <div class="stat-sub">trái tim bé nhỏ</div>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN to 1st birthday -->
+  <div class="countdown-card reveal">
+    <div class="countdown-title">Đếm ngược đến sinh nhật 1 tuổi</div>
+    <div class="countdown-sub">15 / 11 / 2026 &nbsp;—&nbsp; Tròn 1 tuổi rồi con!</div>
+    <div class="countdown-blocks">
+      <div class="cb"><div class="cb-val" id="cdDays">000</div><div class="cb-lbl">Ngày</div></div>
+      <div class="cb-dot">:</div>
+      <div class="cb"><div class="cb-val" id="cdHours">00</div><div class="cb-lbl">Giờ</div></div>
+      <div class="cb-dot">:</div>
+      <div class="cb"><div class="cb-val" id="cdMins">00</div><div class="cb-lbl">Phút</div></div>
+      <div class="cb-dot">:</div>
+      <div class="cb"><div class="cb-val" id="cdSecs">00</div><div class="cb-lbl">Giây</div></div>
+    </div>
+    <div id="birthdayMsg" style="display:none; margin-top:24px; font-family:'Dancing Script',cursive; font-size:1.8rem; color:var(--gold2);">
+      🎂 Chúc mừng sinh nhật 1 tuổi bé Sóc! 🎂
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-card reveal">
+    <div class="progress-head">
+      <span>15/11/2025</span>
+      <strong id="pctText">0%</strong>
+      <span>15/11/2026</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-labels">
+      <span>Ngày con chào đời 👶</span>
+      <span>Tròn 1 tuổi 🎂</span>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">🍼</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- QUOTE -->
+  <div class="quote-card reveal">
+    <span class="quote-mark">"</span>
+    <p class="quote-text" id="quoteText">Con là món quà tuyệt vời nhất mà cuộc đời trao cho ba mẹ.</p>
+    <div class="quote-dots" id="quoteDots"></div>
+  </div>
+
+  <!-- LETTER -->
+  <div class="letter-card reveal">
+    <div class="letter-icon">💌</div>
+    <div class="letter-title">Lời ba mẹ muốn nói với con...</div>
+    <div class="letter-body">
+      Sóc ơi, ngày con chào đời là ngày hạnh phúc nhất trong cuộc đời ba mẹ. Con là thiên thần nhỏ, là ánh sáng của gia đình mình.<br><br>
+      Ba mẹ hứa sẽ luôn bên con, dìu dắt con lớn lên, che chở con mỗi ngày. Dù có chuyện gì xảy ra, ba mẹ sẽ luôn yêu thương con vô điều kiện.<br><br>
+      Con hãy lớn lên thật khỏe mạnh, thật vui vẻ nhé! Ba mẹ yêu con nhiều lắm!
+    </div>
+    <div class="letter-sign">— Ba Đức Bảo & Mẹ Quỳnh Thi gửi bé Sóc</div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">⭐</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="milestones reveal">
+    <div class="section-title">Những cột mốc của bé Sóc</div>
+    <div class="milestone-list" id="milestoneList"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Made with <span class="heart">💙</span> · Ba yêu con mãi mãi
+  </div>
+
+</div>
+
+<!-- MUSIC BUTTON -->
+<button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc nền">🎵</button>
+
+<!-- MUSIC PROMPT -->
+<div class="music-prompt" id="musicPrompt">
+  <span class="prompt-icon">🎵</span>
+  <span class="prompt-text"><strong>Bấm vào đây</strong> để nghe nhạc nhé!</span>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" title="Lên đầu trang">↑</button>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+const BIRTHDAY    = new Date('2025-11-15T00:00:00').getTime();
+const FIRST_BDAY  = new Date('2026-11-15T00:00:00').getTime();
+
+// ── QUOTES ─────────────────────────────────────────────────────────────────
+const quotes = [
+  'Con là món quà tuyệt vời nhất mà cuộc đời trao cho ba mẹ.',
+  'Mỗi tiếng cười của con là giai điệu ngọt ngào nhất trên đời.',
+  'Con lớn lên từng ngày, và ba mẹ hạnh phúc theo từng khoảnh khắc.',
+  'Thiên thần nhỏ ơi, con là tất cả của ba mẹ.',
+  'Có con, mỗi ngày đều là một ngày đáng sống.',
+  'Ba mẹ sẽ luôn là bến đỗ bình yên nhất của con.',
+  'Con đến, mang theo cả bầu trời yêu thương.',
+];
+
+// ── MILESTONES ──────────────────────────────────────────────────────────────
+const milestones = [
+  { icon: '👶', name: 'Ngày con chào đời',                date: '15/11/2025', ts: new Date('2025-11-15').getTime() },
+  { icon: '🌙', name: 'Tròn 1 tháng tuổi (Đầy tháng)',   date: '15/12/2025', ts: new Date('2025-12-15').getTime() },
+  { icon: '🎄', name: 'Giáng Sinh đầu tiên của con',      date: '25/12/2025', ts: new Date('2025-12-25').getTime() },
+  { icon: '🎆', name: 'Năm mới 2026 — năm đầu tiên',     date: '01/01/2026', ts: new Date('2026-01-01').getTime() },
+  { icon: '🧒', name: 'Tròn 2 tháng tuổi',                date: '15/01/2026', ts: new Date('2026-01-15').getTime() },
+  { icon: '🐴', name: 'Tết Nguyên Đán (Tết Bính Ngọ)',      date: '17/02/2026', ts: new Date('2026-02-17').getTime() },
+  { icon: '🍼', name: 'Tròn 3 tháng tuổi',                date: '15/02/2026', ts: new Date('2026-02-15').getTime() },
+  { icon: '🌸', name: 'Tròn 6 tháng tuổi',                date: '15/05/2026', ts: new Date('2026-05-15').getTime() },
+  { icon: '🎒', name: 'Tròn 9 tháng tuổi',                date: '15/08/2026', ts: new Date('2026-08-15').getTime() },
+  { icon: '🎂', name: 'Sinh nhật tròn 1 tuổi!',           date: '15/11/2026', ts: new Date('2026-11-15').getTime() },
+];
+
+// ── STARS ───────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 160; i++) {
+    const r = Math.random() * 1.5 + 0.3;
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r, baseR: r,
+      speed: Math.random() * 0.4 + 0.1,
+      phase: Math.random() * Math.PI * 2,
+      color: Math.random() > 0.85 ? '#fde68a' : Math.random() > 0.7 ? '#93c5fd' : '#ffffff',
+    });
+  }
+}
+function drawStars(t) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    const pulse = Math.sin(t * s.speed + s.phase);
+    const r = s.baseR * (0.7 + 0.3 * pulse);
+    const alpha = 0.3 + 0.5 * ((pulse + 1) / 2);
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+resize();
+initStars();
+window.addEventListener('resize', () => { resize(); initStars(); });
+
+// ── FLOATING ITEMS ─────────────────────────────────────────────────────────
+const floatEmojis = ['⭐','🌙','✨','💫','🧸','🍼','👶','💙'];
+const layer = document.getElementById('floatLayer');
+for (let i = 0; i < 20; i++) {
+  const h = document.createElement('div');
+  h.className = 'float-item';
+  h.textContent = floatEmojis[Math.floor(Math.random() * floatEmojis.length)];
+  const tx  = (Math.random() - 0.5) * 120;
+  const rot = (Math.random() - 0.5) * 360;
+  const sc  = Math.random() * 0.8 + 0.5;
+  h.style.cssText = `
+    left: ${Math.random() * 100}%;
+    font-size: ${Math.random() * 18 + 10}px;
+    --tx: ${tx}px;
+    --rot: ${rot}deg;
+    --sc: ${sc};
+    animation-duration: ${Math.random() * 12 + 8}s;
+    animation-delay: ${Math.random() * 10}s;
+  `;
+  layer.appendChild(h);
+}
+
+// ── QUOTES ───────────────────────────────────────────────────────────────────
+let qIndex = 0;
+const qEl   = document.getElementById('quoteText');
+const qDots = document.getElementById('quoteDots');
+
+quotes.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'qdot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => setQuote(i));
+  qDots.appendChild(d);
+});
+
+function setQuote(i) {
+  qEl.classList.add('fade-out');
+  setTimeout(() => {
+    qIndex = i;
+    qEl.textContent = quotes[qIndex];
+    qEl.classList.remove('fade-out');
+    document.querySelectorAll('.qdot').forEach((d, j) => d.classList.toggle('active', j === qIndex));
+  }, 500);
+}
+setInterval(() => setQuote((qIndex + 1) % quotes.length), 5000);
+
+// ── MILESTONES ────────────────────────────────────────────────────────────────
+const mlList = document.getElementById('milestoneList');
+const now0   = Date.now();
+
+milestones.sort((a, b) => a.ts - b.ts);
+
+milestones.forEach(m => {
+  const reached  = now0 >= m.ts;
+  const daysLeft = reached ? 0 : Math.ceil((m.ts - now0) / 86400000);
+  const tooltip  = `còn ${daysLeft} ngày nữa`;
+
+  const span = m.ts - BIRTHDAY;
+  const pct  = reached ? 100 : Math.min(99.9, Math.max(0, ((now0 - BIRTHDAY) / span) * 100));
+
+  const div = document.createElement('div');
+  div.className = 'milestone' + (reached ? ' reached' : '');
+
+  const progressHtml = !reached ? `
+    <div class="ms-progress">
+      <div class="ms-progress-track">
+        <div class="ms-progress-fill" style="width:${pct.toFixed(2)}%"></div>
+      </div>
+      <div class="ms-progress-pct">${pct.toFixed(1)}%</div>
+    </div>` : '';
+
+  div.innerHTML = `
+    <div class="ms-icon">${m.icon}</div>
+    <div class="ms-info">
+      <div class="ms-name">${m.name}</div>
+      <div class="ms-date">${m.date}</div>
+      ${progressHtml}
+    </div>
+    <div class="ms-badge" ${!reached ? `data-tooltip="${tooltip}"` : ''}>${reached ? '✓ Đã đến' : 'Sắp tới'}</div>
+  `;
+
+  // Mobile tooltip toggle
+  div.addEventListener('click', () => {
+    if (reached) return;
+    div.classList.toggle('show-tooltip');
+  });
+
+  mlList.appendChild(div);
+});
+
+// ── LIVE UPDATES ──────────────────────────────────────────────────────────────
+const daysEl = document.getElementById('daysOld');
+const monthsEl = document.getElementById('monthsOld');
+const hoursEl = document.getElementById('hoursOld');
+const heartEl = document.getElementById('heartbeats');
+const cdDays = document.getElementById('cdDays');
+const cdHours = document.getElementById('cdHours');
+const cdMins = document.getElementById('cdMins');
+const cdSecs = document.getElementById('cdSecs');
+const pctText = document.getElementById('pctText');
+const progressFill = document.getElementById('progressFill');
+const birthdayMsg = document.getElementById('birthdayMsg');
+
+function formatNum(n) {
+  return n.toLocaleString('vi-VN');
+}
+
+function calcMonths(birthMs, nowMs) {
+  const bd = new Date(birthMs);
+  const nd = new Date(nowMs);
+  let months = (nd.getFullYear() - bd.getFullYear()) * 12 + (nd.getMonth() - bd.getMonth());
+  if (nd.getDate() < bd.getDate()) months--;
+  return Math.max(0, months);
+}
+
+function update() {
+  const now = Date.now();
+  const diff = now - BIRTHDAY;
+
+  // Stats
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor(diff / 3600000);
+  const months = calcMonths(BIRTHDAY, now);
+  // Baby heart rate ~120-140 bpm average
+  const beats = Math.floor(diff / 1000 * 130 / 60);
+
+  daysEl.textContent = formatNum(days);
+  monthsEl.textContent = formatNum(months);
+  hoursEl.textContent = formatNum(hours);
+  heartEl.textContent = formatNum(beats);
+
+  // Countdown to 1st birthday
+  const remain = FIRST_BDAY - now;
+  if (remain <= 0) {
+    cdDays.textContent = '0';
+    cdHours.textContent = '00';
+    cdMins.textContent = '00';
+    cdSecs.textContent = '00';
+    birthdayMsg.style.display = 'block';
+  } else {
+    const rd = Math.floor(remain / 86400000);
+    const rh = Math.floor((remain % 86400000) / 3600000);
+    const rm = Math.floor((remain % 3600000) / 60000);
+    const rs = Math.floor((remain % 60000) / 1000);
+
+    const newDays = String(rd);
+    const newHours = String(rh).padStart(2, '0');
+    const newMins = String(rm).padStart(2, '0');
+    const newSecs = String(rs).padStart(2, '0');
+
+    if (cdSecs.textContent !== newSecs) { cdSecs.classList.add('pop'); setTimeout(() => cdSecs.classList.remove('pop'), 100); }
+    cdDays.textContent = newDays;
+    cdHours.textContent = newHours;
+    cdMins.textContent = newMins;
+    cdSecs.textContent = newSecs;
+  }
+
+  // Progress bar
+  const totalSpan = FIRST_BDAY - BIRTHDAY;
+  const pct = Math.min(100, Math.max(0, (diff / totalSpan) * 100));
+  pctText.textContent = pct.toFixed(2) + '%';
+  progressFill.style.width = pct.toFixed(4) + '%';
+}
+
+update();
+setInterval(update, 1000);
+
+// ── ANIMATION LOOP (stars) ───────────────────────────────────────────────────
+let t = 0;
+function animLoop() {
+  t += 0.01;
+  drawStars(t);
+  requestAnimationFrame(animLoop);
+}
+animLoop();
+
+// ── LOADING ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loadingScreen').classList.add('hide');
+  }, 1800);
+});
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
+const musicBtnEl = document.getElementById('musicBtn');
+let bgMusic = null;
+let musicPlaying = false;
+let lastSongIndex = -1;
+
+const MUSIC_LIST = [
+  'music/soc/ca-nha-thuong-nhau.mp3',
+];
+
+function getRandomSong() {
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * MUSIC_LIST.length);
+  } while (idx === lastSongIndex && MUSIC_LIST.length > 1);
+  lastSongIndex = idx;
+  return MUSIC_LIST[idx];
+}
+
+function playSong() {
+  if (bgMusic) { bgMusic.pause(); bgMusic = null; }
+  bgMusic = new Audio(getRandomSong());
+  bgMusic.volume = 0.4;
+  bgMusic.addEventListener('ended', () => playSong());
+  bgMusic.play();
+  musicPlaying = true;
+  musicBtnEl.textContent = '🔊';
+  musicBtnEl.classList.add('playing');
+}
+
+function stopMusic() {
+  if (bgMusic) bgMusic.pause();
+  musicPlaying = false;
+  musicBtnEl.textContent = '🎵';
+  musicBtnEl.classList.remove('playing');
+}
+
+musicBtnEl.addEventListener('click', () => {
+  musicPlaying ? stopMusic() : playSong();
+  musicPromptEl.style.display = 'none';
+  if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
+});
+
+const musicPromptEl = document.getElementById('musicPrompt');
+let promptInterval = null;
+
+function showPromptBriefly() {
+  if (musicPlaying) return;
+  musicPromptEl.style.display = 'flex';
+  setTimeout(() => {
+    musicPromptEl.style.display = 'none';
+  }, 5000);
+}
+
+setTimeout(() => {
+  showPromptBriefly();
+  promptInterval = setInterval(showPromptBriefly, 60000);
+}, 2000);
+
+musicPromptEl.addEventListener('click', () => {
+  if (!musicPlaying) playSong();
+  musicPromptEl.style.display = 'none';
+  if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
+});
+
+// ── BACK TO TOP ──────────────────────────────────────────────────────────────
+const btnTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  btnTop.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+btnTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+</body>
+</html>
