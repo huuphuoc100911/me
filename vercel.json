@@ -1,6 +1,14 @@
 {
-    "rewrites": [
-      { "source": "/", "destination": "/to10.html" },
-      { "source": "/", "destination": "/love.html" }
-    ]
-  }
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "doibong.to10-phu-nam-3.io.vn" }],
+      "destination": "/to10.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "love.to10-phu-nam-3.io.vn" }],
+      "destination": "/love.html"
+    }
+  ]
+}
