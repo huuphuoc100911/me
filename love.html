@@ -562,62 +562,85 @@
       .love-letter .letter-body { font-size: 0.85rem; }
     }
 
-    /* ── PHOTO GALLERY ──────────────────────────────────── */
+    /* ── PHOTO GALLERY — Masonry ─────────────────────────── */
     .gallery {
       width: 100%;
       max-width: 700px;
     }
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+    .gallery-masonry {
+      columns: 3;
+      column-gap: 10px;
     }
     .gallery-item {
-      aspect-ratio: 1;
+      break-inside: avoid;
+      margin-bottom: 10px;
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--border);
       background: var(--soft);
       backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       cursor: pointer;
       transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
       position: relative;
     }
     .gallery-item:hover {
-      transform: scale(1.04);
+      transform: scale(1.03);
       box-shadow: 0 12px 40px rgba(255,107,138,0.2);
       border-color: rgba(255,107,138,0.4);
     }
     .gallery-item img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .gallery-item .placeholder-icon {
-      font-size: 2.5rem;
-      opacity: 0.3;
-    }
-    .gallery-item .placeholder-text {
-      position: absolute;
-      bottom: 10px;
-      font-size: 0.6rem;
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    .gallery-item.span-2 {
-      grid-column: span 2;
-      aspect-ratio: 2/1;
+      display: block;
     }
     @media (max-width: 520px) {
-      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .gallery-item { border-radius: 12px; }
-      .gallery-item.span-2 { grid-column: span 2; }
-      .gallery-item .placeholder-icon { font-size: 1.8rem; }
+      .gallery-masonry { columns: 2; column-gap: 8px; }
+      .gallery-item { border-radius: 12px; margin-bottom: 8px; }
     }
+
+    /* ── LIGHTBOX ──────────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0,0,0,0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      backdrop-filter: blur(8px);
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .lightbox-close:hover { color: #fff; }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 10px;
+    }
+    .lightbox-nav:hover { color: #fff; }
+    .lightbox-prev { left: 12px; }
+    .lightbox-next { right: 12px; }
 
     /* ── MILESTONES ──────────────────────────────────────── */
     .milestones {
@@ -1032,28 +1055,15 @@
   <!-- PHOTO GALLERY -->
   <div class="gallery reveal">
     <div class="section-title">Khoảnh khắc của chúng mình 📸</div>
-    <div class="gallery-grid">
-      <div class="gallery-item span-2">
-        <span class="placeholder-icon">📷</span>
-        <span class="placeholder-text">Thêm ảnh đầu tiên</span>
-      </div>
-      <div class="gallery-item">
-        <span class="placeholder-icon">🌸</span>
-        <span class="placeholder-text">Ảnh 2</span>
-      </div>
-      <div class="gallery-item">
-        <span class="placeholder-icon">💕</span>
-        <span class="placeholder-text">Ảnh 3</span>
-      </div>
-      <div class="gallery-item">
-        <span class="placeholder-icon">✨</span>
-        <span class="placeholder-text">Ảnh 4</span>
-      </div>
-      <div class="gallery-item span-2">
-        <span class="placeholder-icon">🌹</span>
-        <span class="placeholder-text">Ảnh đặc biệt</span>
-      </div>
-    </div>
+    <div class="gallery-masonry" id="galleryMasonry"></div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lbClose">&times;</button>
+    <button class="lightbox-nav lightbox-prev" id="lbPrev">&#8249;</button>
+    <img id="lbImg" src="" alt="">
+    <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
   </div>
 
   <div class="divider">
@@ -1359,6 +1369,75 @@ function tick(t) {
 }
 
 requestAnimationFrame(tick);
+
+// ── PHOTO GALLERY ────────────────────────────────────────────────────────────
+// ★ Thêm ảnh mới: bỏ file vào images/love/ rồi thêm tên file vào mảng bên dưới
+const GALLERY_IMAGES = [
+  'love-1.jpg',
+  'love-2.jpg',
+  'love-3.jpg',
+  'love-4.jpg',
+  'love-5.jpg',
+];
+
+const galleryEl = document.getElementById('galleryMasonry');
+let currentLbIndex = 0;
+
+// Shuffle ngẫu nhiên (Fisher-Yates)
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const galleryImages = shuffle(GALLERY_IMAGES);
+galleryImages.forEach((src, i) => {
+  const item = document.createElement('div');
+  item.className = 'gallery-item';
+  const img = document.createElement('img');
+  img.src = 'images/love/' + src;
+  img.alt = 'Kỷ niệm ' + (i + 1);
+  img.loading = 'lazy';
+  item.appendChild(img);
+  item.addEventListener('click', () => openLightbox(i));
+  galleryEl.appendChild(item);
+});
+
+// Lightbox
+const lightboxEl = document.getElementById('lightbox');
+const lbImgEl    = document.getElementById('lbImg');
+
+function openLightbox(i) {
+  currentLbIndex = i;
+  lbImgEl.src = 'images/love/' + galleryImages[i];
+  lightboxEl.classList.add('active');
+}
+function closeLightbox() {
+  lightboxEl.classList.remove('active');
+}
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+lightboxEl.addEventListener('click', (e) => { if (e.target === lightboxEl) closeLightbox(); });
+document.getElementById('lbPrev').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!galleryImages.length) return;
+  currentLbIndex = (currentLbIndex - 1 + galleryImages.length) % galleryImages.length;
+  lbImgEl.src = 'images/love/' + galleryImages[currentLbIndex];
+});
+document.getElementById('lbNext').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!galleryImages.length) return;
+  currentLbIndex = (currentLbIndex + 1) % galleryImages.length;
+  lbImgEl.src = 'images/love/' + galleryImages[currentLbIndex];
+});
+document.addEventListener('keydown', (e) => {
+  if (!lightboxEl.classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') document.getElementById('lbPrev').click();
+  if (e.key === 'ArrowRight') document.getElementById('lbNext').click();
+});
 
 // ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
 const musicBtnEl = document.getElementById('musicBtn');
