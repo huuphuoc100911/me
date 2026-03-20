@@ -536,6 +536,84 @@
       margin-bottom: 6px;
     }
 
+    /* ── MUSIC BUTTON ───────────────────────────────────── */
+    .music-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(245,158,11,0.2);
+      border: 1px solid rgba(245,158,11,0.4);
+      backdrop-filter: blur(12px);
+      color: var(--accent);
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .music-btn:hover {
+      background: rgba(245,158,11,0.5);
+      transform: scale(1.1);
+    }
+    .music-btn.playing {
+      animation: musicPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes musicPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
+      50% { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+    }
+
+    /* ── MUSIC PROMPT ──────────────────────────────────── */
+    .music-prompt {
+      position: fixed;
+      bottom: 80px;
+      left: 24px;
+      background: rgba(10,10,20,0.95);
+      border: 1px solid rgba(245,158,11,0.5);
+      border-radius: 16px;
+      padding: 14px 20px;
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      z-index: 101;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: promptSlideUp 0.5s ease forwards;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 220px;
+    }
+    .music-prompt:hover {
+      border-color: var(--accent2);
+      transform: translateY(-2px);
+    }
+    .music-prompt .prompt-icon {
+      font-size: 1.6rem;
+      animation: musicPulse 1.5s ease-in-out infinite;
+    }
+    .music-prompt .prompt-text {
+      font-size: 0.78rem;
+      color: var(--accent);
+      line-height: 1.4;
+    }
+    .music-prompt .prompt-text strong {
+      color: var(--accent2);
+    }
+    @keyframes promptSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 520px) {
+      .music-prompt { bottom: 66px; left: 16px; padding: 10px 14px; max-width: 190px; border-radius: 12px; }
+      .music-prompt .prompt-icon { font-size: 1.3rem; }
+      .music-prompt .prompt-text { font-size: 0.7rem; }
+      .music-btn { width: 42px; height: 42px; font-size: 1.1rem; bottom: 16px; left: 16px; }
+    }
+
     /* ── BACK TO TOP ─────────────────────────────────────── */
     .back-top {
       position: fixed;
@@ -830,6 +908,11 @@
   <p>Đoàn kết là sức mạnh ⚽ Est. 2018</p>
 </footer>
 
+<button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc nền">🎵</button>
+<div class="music-prompt" id="musicPrompt">
+  <span class="prompt-icon">🎵</span>
+  <span class="prompt-text"><strong>Bấm vào đây</strong> để nghe nhạc nền!</span>
+</div>
 <button class="back-top" id="backTop">↑</button>
 
 <script>
@@ -1061,6 +1144,72 @@ document.getElementById('navToggle').addEventListener('click', () => {
 // Đóng menu khi bấm link
 document.querySelectorAll('.nav-links a').forEach(a => {
   a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+});
+
+// ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
+const musicBtnEl = document.getElementById('musicBtn');
+let bgMusic = null;
+let musicPlaying = false;
+let lastSongIndex = -1;
+
+const MUSIC_LIST = [
+  'music/to10/duong-den-ngay-vinh-quang.mp3',
+];
+
+function getRandomSong() {
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * MUSIC_LIST.length);
+  } while (idx === lastSongIndex && MUSIC_LIST.length > 1);
+  lastSongIndex = idx;
+  return MUSIC_LIST[idx];
+}
+
+function playSong() {
+  if (bgMusic) { bgMusic.pause(); bgMusic = null; }
+  bgMusic = new Audio(getRandomSong());
+  bgMusic.volume = 0.4;
+  bgMusic.addEventListener('ended', () => playSong());
+  bgMusic.play();
+  musicPlaying = true;
+  musicBtnEl.textContent = '🔊';
+  musicBtnEl.classList.add('playing');
+}
+
+function stopMusic() {
+  if (bgMusic) bgMusic.pause();
+  musicPlaying = false;
+  musicBtnEl.textContent = '🎵';
+  musicBtnEl.classList.remove('playing');
+}
+
+musicBtnEl.addEventListener('click', () => {
+  musicPlaying ? stopMusic() : playSong();
+  musicPromptEl.style.display = 'none';
+  if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
+});
+
+// Prompt nhạc — hiện sau 2s, show 5s rồi ẩn, lặp lại mỗi 1 phút
+const musicPromptEl = document.getElementById('musicPrompt');
+let promptInterval = null;
+
+function showPromptBriefly() {
+  if (musicPlaying) return;
+  musicPromptEl.style.display = 'flex';
+  setTimeout(() => {
+    musicPromptEl.style.display = 'none';
+  }, 5000);
+}
+
+setTimeout(() => {
+  showPromptBriefly();
+  promptInterval = setInterval(showPromptBriefly, 60000);
+}, 2000);
+
+musicPromptEl.addEventListener('click', () => {
+  if (!musicPlaying) playSong();
+  musicPromptEl.style.display = 'none';
+  if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
 });
 
 // ── BACK TO TOP ─────────────────────────────────────────────────────────────
