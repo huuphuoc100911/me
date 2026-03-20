@@ -42,6 +42,68 @@
       overflow-x: hidden;
     }
 
+    /* ── LOADING SCREEN ─────────────────────────────────── */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #3d1525 0%, #1a0a14 50%, #0d0610 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    .loading-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .loading-heart {
+      font-size: 3.5rem;
+      animation: loadingPulse 1s ease-in-out infinite;
+    }
+    @keyframes loadingPulse {
+      0%,100% { transform: scale(1); opacity: 0.7; }
+      50%     { transform: scale(1.3); opacity: 1; }
+    }
+    .loading-text {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.4rem;
+      color: var(--pink);
+      letter-spacing: 1px;
+    }
+    .loading-bar {
+      width: 160px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--rose), var(--gold));
+      border-radius: 100px;
+      animation: loadingFill 1.5s ease forwards;
+    }
+    @keyframes loadingFill {
+      0%   { width: 0%; }
+      60%  { width: 80%; }
+      100% { width: 100%; }
+    }
+
+    /* ── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* ── CANVAS stars ─────────────────────────────────────── */
     #starCanvas {
       position: fixed;
@@ -447,6 +509,59 @@
     }
     .qdot.active { background: var(--rose); transform: scale(1.4); }
 
+    /* ── LOVE LETTER ───────────────────────────────────── */
+    .love-letter {
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      padding: 40px 36px;
+      background: linear-gradient(135deg, rgba(255,107,138,0.08) 0%, rgba(245,200,66,0.06) 100%);
+      border: 1px solid rgba(255,107,138,0.25);
+      border-radius: 24px;
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+    }
+    .love-letter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,107,138,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .love-letter .letter-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .love-letter .letter-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: var(--pink);
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .love-letter .letter-body {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.9;
+      position: relative;
+    }
+    .love-letter .letter-sign {
+      margin-top: 20px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.2rem;
+      color: var(--gold2);
+      position: relative;
+    }
+    @media (max-width: 520px) {
+      .love-letter { padding: 28px 18px; border-radius: 18px; }
+      .love-letter .letter-title { font-size: 1.3rem; }
+      .love-letter .letter-body { font-size: 0.85rem; }
+    }
+
     /* ── PHOTO GALLERY ──────────────────────────────────── */
     .gallery {
       width: 100%;
@@ -794,6 +909,13 @@
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-heart">💕</div>
+  <div class="loading-text">Đang tải tình yêu...</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
 <canvas id="starCanvas"></canvas>
 <div class="heart-layer" id="heartLayer"></div>
 
@@ -820,7 +942,7 @@
   </div>
 
   <!-- MAIN STATS -->
-  <div class="stats-grid">
+  <div class="stats-grid reveal">
     <div class="stat-card">
       <div class="stat-icon">🌸</div>
       <div class="stat-number" id="daysElapsed">0</div>
@@ -828,10 +950,10 @@
       <div class="stat-sub">ngày hạnh phúc</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon">🌙</div>
-      <div class="stat-number" id="nightsElapsed">0</div>
-      <div class="stat-label">Đêm nhớ nhau</div>
-      <div class="stat-sub">đêm thương nhớ</div>
+      <div class="stat-icon">💓</div>
+      <div class="stat-number" id="heartbeats">0</div>
+      <div class="stat-label">Nhịp tim yêu</div>
+      <div class="stat-sub">nhịp đập vì em</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">⏰</div>
@@ -848,7 +970,7 @@
   </div>
 
   <!-- COUNTDOWN -->
-  <div class="countdown-card">
+  <div class="countdown-card reveal">
     <div class="countdown-title">Đếm ngược đến kỷ niệm 1 năm 💍</div>
     <div class="countdown-sub">18 / 10 / 2026 &nbsp;—&nbsp; Một năm trọn vẹn yêu thương</div>
     <div class="countdown-blocks">
@@ -866,7 +988,7 @@
   </div>
 
   <!-- PROGRESS BAR -->
-  <div class="progress-card">
+  <div class="progress-card reveal">
     <div class="progress-head">
       <span>18/10/2025</span>
       <strong id="pctText">0%</strong>
@@ -888,14 +1010,26 @@
   </div>
 
   <!-- QUOTE -->
-  <div class="quote-card">
+  <div class="quote-card reveal">
     <span class="quote-mark">"</span>
     <p class="quote-text" id="quoteText">Anh yêu em không phải vì em hoàn hảo, mà vì với em, mọi thứ đều trở nên hoàn hảo hơn.</p>
     <div class="quote-dots" id="quoteDots"></div>
   </div>
 
+  <!-- LOVE LETTER -->
+  <div class="love-letter reveal">
+    <div class="letter-icon">💌</div>
+    <div class="letter-title">Lời muốn nói...</div>
+    <div class="letter-body">
+      Em ơi, anh không giỏi nói lời hoa mỹ, nhưng anh muốn em biết rằng — từ ngày có em, cuộc sống của anh trở nên ý nghĩa hơn rất nhiều.<br><br>
+      Cảm ơn em đã luôn ở bên, đã cười khi anh vui, đã vỗ về khi anh buồn. Mỗi ngày trôi qua, anh càng thêm trân trọng tình yêu của mình.<br><br>
+      Anh hứa sẽ luôn cố gắng, để mỗi ngày bên nhau đều là một ngày đáng nhớ. Yêu em nhiều lắm! 💕
+    </div>
+    <div class="letter-sign">— Hữu Phước gửi Thị Huyền 💗</div>
+  </div>
+
   <!-- PHOTO GALLERY -->
-  <div class="gallery">
+  <div class="gallery reveal">
     <div class="section-title">Khoảnh khắc của chúng mình 📸</div>
     <div class="gallery-grid">
       <div class="gallery-item span-2">
@@ -928,7 +1062,7 @@
   </div>
 
   <!-- MILESTONES -->
-  <div class="milestones">
+  <div class="milestones reveal">
     <div class="section-title">Những cột mốc đáng nhớ ✨</div>
     <div class="milestone-list" id="milestoneList"></div>
   </div>
@@ -1168,7 +1302,9 @@ function tick(t) {
   const totalDays  = Math.floor(totalHours / 24);
 
   document.getElementById('daysElapsed').textContent    = totalDays.toLocaleString();
-  document.getElementById('nightsElapsed').textContent  = totalDays.toLocaleString();
+  // ~100,000 nhịp tim/ngày (trung bình)
+  const heartbeats = Math.floor(totalDays * 100000 + (totalHours % 24) * 4167);
+  document.getElementById('heartbeats').textContent     = heartbeats.toLocaleString();
   document.getElementById('hoursElapsed').textContent   = Math.floor(totalHours).toLocaleString();
   document.getElementById('minutesElapsed').textContent = Math.floor(totalMins).toLocaleString();
 
@@ -1275,6 +1411,25 @@ window.addEventListener('scroll', () => {
 btnTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+// ── LOADING SCREEN ──────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loadingScreen').classList.add('hide');
+  }, 1600);
+});
+
+// ── SCROLL REVEAL ───────────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 </script>
 </body>
 </html>
