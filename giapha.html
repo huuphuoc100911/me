@@ -366,7 +366,8 @@
       .ancestor-card .ac-name { font-size: 1.1rem; }
       .branch-card { padding: 18px 12px; border-radius: 18px; }
       .branch-parent .bp-name, .branch-parent .bp-spouse { font-size: 0.92rem; }
-      .branch-child { min-width: 90px; flex: 0 1 100px; padding: 10px 8px; }
+      .branch-children { gap: 8px; }
+      .branch-child { min-width: 0; max-width: none; flex: 0 0 calc(50% - 4px); padding: 10px 8px; box-sizing: border-box; }
       .branch-child .bc-avatar { width: 36px; height: 36px; font-size: 1rem; }
       .branch-child .bc-name { font-size: 0.72rem; }
     }
