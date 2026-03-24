@@ -220,7 +220,7 @@ module.exports = async function handler(req, res) {
 
     await transporter.sendMail({
       from: `"Lịch Việt Nam" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER,
+      to: process.env.GMAIL_TO || process.env.GMAIL_USER,
       subject: `📅 Ngày ${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')} — Âm lịch: ${lDay}/${lMonth} ${canChiYear}`,
       html: emailHTML,
     });
