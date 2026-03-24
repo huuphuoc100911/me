@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/notify",
+      "schedule": "0 10 * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/",
@@ -19,6 +25,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "gia-dinh-nguyen-viet.personal.io.vn" }],
       "destination": "/giapha.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "me.personal.io.vn" }],
+      "destination": "/me.html"
     }
   ]
 }
