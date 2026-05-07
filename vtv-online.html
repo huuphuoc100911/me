@@ -1203,13 +1203,16 @@ async function renderEpgFor(channel) {
     `;
   }).join("");
 
-  // Auto-scroll tới chương trình đang chiếu
+  // Auto-scroll tới chương trình đang chiếu — căn giữa trong sidebar
   setTimeout(() => {
     const nowEl = epgSidebarList.querySelector(".now");
-    if (nowEl) {
-      epgSidebarList.scrollTop = nowEl.offsetTop - epgSidebarList.clientHeight / 3;
-    }
-  }, 50);
+    if (!nowEl) return;
+    // Tính offset thủ công để chỉ scroll TRONG sidebar, không scroll cả page.
+    // scrollIntoView({block:"center"}) trên 1 số trình duyệt có thể scroll
+    // ancestor → dùng scrollTop trực tiếp cho an toàn.
+    const targetTop = nowEl.offsetTop - (epgSidebarList.clientHeight / 2) + (nowEl.offsetHeight / 2);
+    epgSidebarList.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+  }, 80);
 }
 
 // ===== Volume memory =====
