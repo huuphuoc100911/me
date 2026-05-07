@@ -50,6 +50,16 @@
     margin-top: 6px;
     font-size: 14px;
   }
+  .kbd-hint { font-size: 12px; opacity: 0.7; margin-top: 8px; }
+  .kbd-hint kbd {
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
 
   /* ===== HOME — filter bar ===== */
   .filter-bar {
@@ -137,16 +147,102 @@
     gap: 16px;
   }
   .channel-card.hidden { display: none; }
+  .channel-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent) inset;
+  }
+
+  /* ===== Multi-view ===== */
+  .multi-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    flex-wrap: wrap;
+  }
+  .multi-bar .info { color: var(--text-dim); font-size: 13px; }
+  .multi-bar .info b { color: var(--accent); }
+  .multi-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .multi-grid {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+  }
+  .multi-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .multi-grid.cols-3 { grid-template-columns: repeat(2, 1fr); grid-template-rows: 1fr 1fr; }
+  .multi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+
+  .multi-tile {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .multi-tile.focused { border-color: var(--accent); }
+  .multi-tile video { width: 100%; height: 100%; display: block; }
+  .multi-tile .label {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .multi-tile .audio-mark {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    display: none;
+  }
+  .multi-tile.focused .audio-mark { display: block; }
 
   .channel-card {
+    position: relative;
     background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 20px;
+    padding-right: 44px;
     cursor: pointer;
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     user-select: none;
   }
+  .star-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: 0;
+    color: var(--text-dim);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    line-height: 1;
+    transition: color 0.15s, background 0.15s, transform 0.15s;
+  }
+  .star-btn:hover { color: #ffd84d; background: rgba(255,255,255,0.05); transform: scale(1.15); }
+  .star-btn.faved { color: #ffd84d; }
   .channel-card:hover {
     transform: scale(1.03);
     border-color: var(--accent);
@@ -299,6 +395,9 @@
   <header>
     <h1><span>VTV</span> Online</h1>
     <p>Xem trực tuyến — Local viewer</p>
+    <p class="kbd-hint">
+      <kbd>/</kbd> tìm · <kbd>←</kbd> <kbd>→</kbd> đổi kênh · <kbd>↑</kbd> <kbd>↓</kbd> volume · <kbd>F</kbd> fullscreen · <kbd>M</kbd> tắt tiếng · <kbd>Esc</kbd> về trang chủ
+    </p>
   </header>
 
   <!-- ===== HOME VIEW ===== -->
@@ -307,8 +406,29 @@
       <input id="searchInput" type="search" placeholder="🔍 Tìm theo tên kênh..." autocomplete="off" />
       <div id="tabBar" class="tab-bar"></div>
     </div>
+    <div id="multiBar" class="multi-bar" hidden>
+      <span class="info">Chế độ chọn nhiều kênh — đã chọn <b id="multiCount">0</b>/4</span>
+      <div class="actions">
+        <button id="multiWatchBtn" class="back-btn">▶ Xem cùng lúc</button>
+        <button id="multiCancelBtn" class="back-btn">Huỷ</button>
+      </div>
+    </div>
+    <div id="multiToggleBar" style="text-align:right; margin-bottom:12px;">
+      <button id="enterMultiBtn" class="back-btn" title="Chọn 2-4 kênh để xem cùng lúc">🪟 Chọn nhiều kênh</button>
+    </div>
     <div id="channelSections"></div>
     <p id="emptyHint" class="empty-hint" hidden>Không có kênh nào khớp.</p>
+  </main>
+
+  <!-- ===== MULTI-VIEW ===== -->
+  <main id="multiView" class="player-view">
+    <div class="player-bar">
+      <button id="multiBackBtn" class="back-btn">← Quay lại danh sách</button>
+      <div class="info" style="color: var(--text-dim); font-size: 13px;">
+        Click 1 ô để bật tiếng (các ô còn lại tự mute)
+      </div>
+    </div>
+    <div id="multiGrid" class="multi-grid"></div>
   </main>
 
   <!-- ===== PLAYER VIEW ===== -->
@@ -316,6 +436,8 @@
     <div class="player-bar">
       <button id="backBtn" class="back-btn">← Quay lại danh sách</button>
       <div class="player-actions">
+        <button id="pipBtn" class="back-btn" title="Picture-in-Picture (P)">📺 PIP</button>
+        <button id="fsBtn" class="back-btn" title="Toàn màn hình (F)">⛶ Fullscreen</button>
         <button id="forceHlsBtn" class="back-btn" title="Bỏ qua iframe, dùng HLS ngay">Dùng HLS</button>
         <a id="openVtvgoBtn" class="back-btn" target="_blank" rel="noopener noreferrer" title="Mở vtvgo.vn ở tab mới">Mở vtvgo.vn ↗</a>
       </div>
@@ -356,8 +478,10 @@
 //         link m3u8 lấy từ DevTools (F12 → Network → .m3u8) vào.
 // VTV6: đã sáp nhập vào VTV3 từ 2022, không còn riêng.
 // Category groups — id phải khớp với `cat` field bên dưới.
+// "fav" là pseudo-category (không gán cho channel, lọc theo favorites set).
 const CATEGORIES = [
   { id: "all",      label: "Tất cả" },
+  { id: "fav",      label: "⭐ Yêu thích" },
   { id: "vtv",      label: "VTV" },
   { id: "htv",      label: "HTV / HTVC" },
   { id: "local",    label: "Địa phương" },
@@ -638,7 +762,58 @@ const CHANNELS = [
 ];
 
 const LS_KEY = "vtv_last_channel";
+const LS_FAV_KEY = "vtv_favorites";
 const IFRAME_TIMEOUT_MS = 5000;
+
+// Slug ổn định để dùng làm URL `?ch=...`. Bỏ dấu Việt + non-alphanum.
+function slugify(s) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// Pre-compute slug cho mỗi kênh
+CHANNELS.forEach((ch) => { ch.slug = slugify(ch.name); });
+
+// ===== Favorites (localStorage) =====
+const favorites = new Set(JSON.parse(localStorage.getItem(LS_FAV_KEY) || "[]"));
+function isFav(ch)   { return favorites.has(ch.slug); }
+function toggleFav(ch) {
+  if (favorites.has(ch.slug)) favorites.delete(ch.slug);
+  else favorites.add(ch.slug);
+  localStorage.setItem(LS_FAV_KEY, JSON.stringify([...favorites]));
+  renderTabs();
+  renderHome();
+}
+
+// ===== History (5 kênh xem gần nhất, MRU) =====
+const LS_HIST_KEY = "vtv_history";
+const LS_VOL_KEY  = "vtv_volume";
+const HIST_MAX = 5;
+let history_ = JSON.parse(localStorage.getItem(LS_HIST_KEY) || "[]");
+function pushHistory(slug) {
+  history_ = history_.filter((s) => s !== slug);
+  history_.unshift(slug);
+  if (history_.length > HIST_MAX) history_ = history_.slice(0, HIST_MAX);
+  localStorage.setItem(LS_HIST_KEY, JSON.stringify(history_));
+}
+function getHistoryChannels() {
+  return history_.map((slug) => CHANNELS.find((c) => c.slug === slug)).filter(Boolean);
+}
+
+// ===== Volume memory =====
+function loadVolume() {
+  const v = parseFloat(localStorage.getItem(LS_VOL_KEY));
+  return isNaN(v) ? 1.0 : Math.max(0, Math.min(1, v));
+}
+function attachVolumeMemory(video) {
+  video.volume = loadVolume();
+  video.addEventListener("volumechange", () => {
+    if (!video.muted) localStorage.setItem(LS_VOL_KEY, String(video.volume));
+  });
+}
 
 const homeView         = document.getElementById("homeView");
 const playerView       = document.getElementById("playerView");
@@ -646,6 +821,16 @@ const channelSections  = document.getElementById("channelSections");
 const tabBar           = document.getElementById("tabBar");
 const searchInput      = document.getElementById("searchInput");
 const emptyHint        = document.getElementById("emptyHint");
+const pipBtn           = document.getElementById("pipBtn");
+const fsBtn            = document.getElementById("fsBtn");
+const enterMultiBtn    = document.getElementById("enterMultiBtn");
+const multiBar         = document.getElementById("multiBar");
+const multiCountEl     = document.getElementById("multiCount");
+const multiWatchBtn    = document.getElementById("multiWatchBtn");
+const multiCancelBtn   = document.getElementById("multiCancelBtn");
+const multiView        = document.getElementById("multiView");
+const multiGrid        = document.getElementById("multiGrid");
+const multiBackBtn     = document.getElementById("multiBackBtn");
 const playerShell   = document.getElementById("playerShell");
 const backBtn       = document.getElementById("backBtn");
 const forceHlsBtn   = document.getElementById("forceHlsBtn");
@@ -663,13 +848,15 @@ let stallWatchdog = null;    // interval kiểm tra video có thật sự kẹt 
 let currentCat = "all";
 let searchQuery = "";
 
-// ===== Render filter tabs (1 lần khi load) =====
+// ===== Render filter tabs =====
 function renderTabs() {
   tabBar.innerHTML = "";
   CATEGORIES.forEach((c) => {
-    const count = c.id === "all"
-      ? CHANNELS.length
-      : CHANNELS.filter((ch) => ch.cat === c.id).length;
+    let count;
+    if (c.id === "all")      count = CHANNELS.length;
+    else if (c.id === "fav") count = favorites.size;
+    else                     count = CHANNELS.filter((ch) => ch.cat === c.id).length;
+
     const btn = document.createElement("div");
     btn.className = "tab" + (c.id === currentCat ? " active" : "");
     btn.dataset.cat = c.id;
@@ -689,12 +876,36 @@ function renderHome() {
   const q = searchQuery.trim().toLowerCase();
   let totalVisible = 0;
 
-  CATEGORIES.filter((c) => c.id !== "all").forEach((c) => {
-    // Filter theo cat (nếu đang chọn 1 cat cụ thể) + theo search
-    if (currentCat !== "all" && currentCat !== c.id) return;
+  // Section "🕒 Xem gần đây" — chỉ hiện khi tab=Tất cả + có history + không đang search
+  if (currentCat === "all" && !q && history_.length > 0) {
+    const items = getHistoryChannels().map((ch) => ({ ch, idx: CHANNELS.indexOf(ch) }));
+    if (items.length > 0) {
+      const section = document.createElement("section");
+      section.className = "channel-section";
+      const header = document.createElement("div");
+      header.className = "section-header";
+      header.innerHTML = `<h2>🕒 Xem gần đây</h2><span class="count">${items.length} kênh</span>`;
+      section.appendChild(header);
+      const grid = document.createElement("div");
+      grid.className = "channel-grid";
+      items.forEach(({ ch, idx }) => grid.appendChild(makeCard(ch, idx)));
+      section.appendChild(grid);
+      channelSections.appendChild(section);
+      totalVisible += items.length;
+    }
+  }
+
+  // Khi tab = "fav" → 1 section duy nhất chứa tất cả channel đã star
+  // Khi tab = "all" → render tất cả các section "thật" (không có fav section riêng)
+  // Khi tab = 1 cat khác → chỉ section đó
+  const sectionsToRender = currentCat === "fav"
+    ? [{ id: "fav", label: "⭐ Yêu thích" }]
+    : CATEGORIES.filter((c) => c.id !== "all" && c.id !== "fav" && (currentCat === "all" || currentCat === c.id));
+
+  sectionsToRender.forEach((c) => {
     const items = CHANNELS
       .map((ch, idx) => ({ ch, idx }))
-      .filter(({ ch }) => ch.cat === c.id)
+      .filter(({ ch }) => c.id === "fav" ? isFav(ch) : ch.cat === c.id)
       .filter(({ ch }) => !q || ch.name.toLowerCase().includes(q) || ch.desc.toLowerCase().includes(q));
     if (items.length === 0) return;
 
@@ -716,11 +927,16 @@ function renderHome() {
   });
 
   emptyHint.hidden = totalVisible > 0;
+  if (totalVisible === 0 && currentCat === "fav") {
+    emptyHint.textContent = "Chưa có kênh nào trong Yêu thích. Bấm ⭐ trên thẻ kênh để thêm.";
+  } else {
+    emptyHint.textContent = "Không có kênh nào khớp.";
+  }
 }
 
 function makeCard(ch, idx) {
   const card = document.createElement("div");
-  card.className = "channel-card";
+  card.className = "channel-card" + (multiSelectMode && multiSelected.has(ch.slug) ? " selected" : "");
   card.tabIndex = 0;
   card.setAttribute("role", "button");
   card.setAttribute("aria-label", `Xem ${ch.name}`);
@@ -733,13 +949,46 @@ function makeCard(ch, idx) {
   desc.className = "desc";
   desc.textContent = ch.desc;
 
+  // Star button (yêu thích)
+  const star = document.createElement("button");
+  star.type = "button";
+  star.className = "star-btn" + (isFav(ch) ? " faved" : "");
+  star.innerHTML = isFav(ch) ? "★" : "☆";
+  star.title = isFav(ch) ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích";
+  star.setAttribute("aria-label", star.title);
+  star.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFav(ch);
+  });
+
+  card.appendChild(star);
   card.appendChild(name);
   card.appendChild(desc);
-  card.addEventListener("click", () => playChannel(idx));
+
+  const onClick = () => {
+    if (multiSelectMode) {
+      if (multiSelected.has(ch.slug)) {
+        multiSelected.delete(ch.slug);
+        card.classList.remove("selected");
+      } else {
+        if (multiSelected.size >= 4) { alert("Tối đa 4 kênh"); return; }
+        if (!ch.m3u8Url || ch.m3u8Url.trim() === "") {
+          alert("Kênh này không có m3u8, không xem multi được");
+          return;
+        }
+        multiSelected.add(ch.slug);
+        card.classList.add("selected");
+      }
+      updateMultiCount();
+    } else {
+      playChannel(idx);
+    }
+  };
+  card.addEventListener("click", onClick);
   card.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      playChannel(idx);
+      onClick();
     }
   });
   return card;
@@ -759,6 +1008,8 @@ function showHome() {
   playerView.classList.remove("active");
   homeView.classList.remove("hidden");
   localStorage.removeItem(LS_KEY);
+  setUrlChannel(null);
+  currentChannel = null;
 }
 
 function cleanupPlayer() {
@@ -918,14 +1169,39 @@ function playChannel(idx) {
   showPlayer(channel);
   cleanupPlayer();
   localStorage.setItem(LS_KEY, String(idx));
+  pushHistory(channel.slug);
+  setUrlChannel(channel.slug);
 
-  // Có link m3u8 → HLS thẳng (mượt, không bị VTVgo chặn).
-  // Không có → thử iframe vtvgo.vn (thường vẫn bị chặn bởi modal điều khoản).
   if (channel.m3u8Url && channel.m3u8Url.trim() !== "") {
     tryHls(channel);
   } else {
     tryIframe(channel);
   }
+}
+
+// Cập nhật ?ch=<slug> trong URL mà không reload
+function setUrlChannel(slug) {
+  const u = new URL(window.location.href);
+  if (slug) u.searchParams.set("ch", slug);
+  else u.searchParams.delete("ch");
+  history.replaceState(null, "", u.toString());
+}
+
+// Tìm kênh tiếp theo / trước trong danh sách hiển thị hiện tại (theo cat + search)
+function siblingChannel(direction) {
+  if (!currentChannel) return null;
+  const q = searchQuery.trim().toLowerCase();
+  const visible = CHANNELS.filter((ch) => {
+    if (currentCat === "fav") return isFav(ch);
+    if (currentCat !== "all" && ch.cat !== currentCat) return false;
+    if (q && !ch.name.toLowerCase().includes(q) && !ch.desc.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if (visible.length === 0) return null;
+  const i = visible.findIndex((c) => c.slug === currentChannel.slug);
+  if (i < 0) return visible[0];
+  const next = direction > 0 ? (i + 1) % visible.length : (i - 1 + visible.length) % visible.length;
+  return visible[next];
 }
 
 function tryIframe(channel) {
@@ -980,6 +1256,7 @@ function tryHls(channel) {
   // → play() sẽ reject vì autoplay policy → fallback mute + hint.
   video.muted = false;
   video.autoplay = true;
+  attachVolumeMemory(video);
   playerShell.appendChild(video);
 
   // Safari có HLS native, các browser khác phải dùng hls.js
@@ -1054,14 +1331,244 @@ function tryHls(channel) {
 // ===== Wire up =====
 backBtn.addEventListener("click", showHome);
 forceHlsBtn.addEventListener("click", () => {
-  // Bỏ qua iframe (vd: VTVgo chặn modal điều khoản trong iframe do
-  // third-party cookie partitioning) → ép sang HLS ngay
   if (currentChannel) tryHls(currentChannel);
 });
+
+// PIP / Fullscreen
+pipBtn.addEventListener("click", async () => {
+  const video = playerShell.querySelector("video");
+  if (!video) return;
+  try {
+    if (document.pictureInPictureElement) await document.exitPictureInPicture();
+    else await video.requestPictureInPicture();
+  } catch (err) { console.warn("[VTV] PIP failed:", err); }
+});
+if (!document.pictureInPictureEnabled) pipBtn.style.display = "none";
+
+fsBtn.addEventListener("click", () => {
+  const video = playerShell.querySelector("video");
+  const target = video || playerShell;
+  if (document.fullscreenElement) document.exitFullscreen();
+  else target.requestFullscreen?.();
+});
+
+// ===== Multi-view: chọn kênh từ home =====
+let multiSelectMode = false;
+const multiSelected = new Set(); // slugs đã chọn
+function setMultiMode(on) {
+  multiSelectMode = on;
+  multiSelected.clear();
+  multiBar.hidden = !on;
+  enterMultiBtn.style.display = on ? "none" : "";
+  multiCountEl.textContent = "0";
+  renderHome();
+}
+function updateMultiCount() {
+  multiCountEl.textContent = String(multiSelected.size);
+}
+enterMultiBtn.addEventListener("click", () => setMultiMode(true));
+multiCancelBtn.addEventListener("click", () => setMultiMode(false));
+multiWatchBtn.addEventListener("click", () => {
+  if (multiSelected.size < 1) { alert("Chọn ít nhất 1 kênh"); return; }
+  const chans = [...multiSelected].map((slug) => CHANNELS.find((c) => c.slug === slug)).filter(Boolean);
+  setMultiMode(false);
+  openMultiView(chans);
+});
+
+// ===== Multi-view: render grid players =====
+const multiPlayers = []; // [{video, hls}]
+function openMultiView(channels) {
+  cleanupMultiView();
+  homeView.classList.add("hidden");
+  multiView.classList.add("active");
+
+  multiGrid.className = "multi-grid cols-" + Math.min(channels.length, 4);
+  channels.forEach((ch, i) => {
+    const tile = document.createElement("div");
+    tile.className = "multi-tile" + (i === 0 ? " focused" : "");
+
+    const label = document.createElement("div");
+    label.className = "label";
+    label.textContent = ch.name;
+    tile.appendChild(label);
+
+    const audioMark = document.createElement("div");
+    audioMark.className = "audio-mark";
+    audioMark.textContent = "🔊 LIVE";
+    tile.appendChild(audioMark);
+
+    const video = document.createElement("video");
+    video.playsInline = true;
+    // Quan trọng: KHÔNG dùng video.autoplay vì hls.js attach MediaSource async,
+    // browser sẽ bỏ qua autoplay trước khi source ready → màn hình đen.
+    // Phải gọi video.play() explicit sau khi MANIFEST_PARSED (hls) hoặc
+    // loadedmetadata (native HLS).
+    video.muted = i !== 0; // chỉ tile đầu tiên có tiếng
+    if (i === 0) attachVolumeMemory(video);
+    tile.appendChild(video);
+
+    const isPrimary = (i === 0);
+    const startPlay = () => {
+      if (isPrimary) {
+        tryPlayWithSound(video); // fallback mute nếu autoplay-with-sound bị chặn
+      } else {
+        video.play().catch((err) => console.warn("[VTV multi]", ch.name, "play fail:", err.name));
+      }
+    };
+
+    let hls = null;
+    if (!ch.m3u8Url || ch.m3u8Url.trim() === "") {
+      console.warn("[VTV multi]", ch.name, "không có m3u8");
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = ch.m3u8Url;
+      video.addEventListener("loadedmetadata", startPlay, { once: true });
+    } else if (window.Hls && Hls.isSupported()) {
+      hls = new Hls({
+        lowLatencyMode: false,
+        enableWorker: true,
+        backBufferLength: 15,
+        nudgeOffset: 0.2,
+        nudgeMaxRetry: 10,
+        maxBufferHole: 1.0,
+        manifestLoadingMaxRetry: 4,
+        levelLoadingMaxRetry: 4,
+        fragLoadingMaxRetry: 4
+      });
+      hls.loadSource(ch.m3u8Url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, startPlay);
+      hls.on(Hls.Events.ERROR, (_e, data) => {
+        if (!data.fatal) return;
+        console.warn("[VTV multi]", ch.name, data.type, data.details);
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          try { hls.startLoad(); } catch(e) {}
+        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+          try { hls.recoverMediaError(); } catch(e) {}
+        }
+      });
+    }
+    tile.addEventListener("click", () => focusMultiTile(i));
+    multiGrid.appendChild(tile);
+    multiPlayers.push({ video, hls, tile });
+  });
+}
+function focusMultiTile(idx) {
+  multiPlayers.forEach((p, i) => {
+    p.video.muted = (i !== idx);
+    p.tile.classList.toggle("focused", i === idx);
+    // Đảm bảo video tiếp tục play (khi user click có user-activation,
+    // có thể gọi play() có tiếng cho tile mới được focus)
+    if (i === idx && p.video.paused) p.video.play().catch(() => {});
+  });
+}
+function cleanupMultiView() {
+  multiPlayers.forEach((p) => { try { p.hls?.destroy(); } catch(e){} });
+  multiPlayers.length = 0;
+  multiGrid.innerHTML = "";
+}
+function exitMultiView() {
+  cleanupMultiView();
+  multiView.classList.remove("active");
+  homeView.classList.remove("hidden");
+}
+multiBackBtn.addEventListener("click", exitMultiView);
+
+// ===== Phím tắt =====
+// Không can thiệp khi user đang gõ trong input/textarea.
+function isTypingTarget(el) {
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || el.isContentEditable;
+}
 window.addEventListener("keydown", (e) => {
+  // Esc: quay về home (đã có ở dưới — nhưng đặt ở đây để đồng bộ)
   if (e.key === "Escape" && playerView.classList.contains("active")) {
+    e.preventDefault();
     showHome();
+    return;
   }
+
+  // "/" → focus search (chỉ khi đang ở home và không phải đang gõ)
+  if (e.key === "/" && !isTypingTarget(e.target) && !playerView.classList.contains("active")) {
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+    return;
+  }
+
+  // Các phím dưới chỉ khi đang xem player + không phải đang gõ
+  if (!playerView.classList.contains("active") || isTypingTarget(e.target)) return;
+  const video = playerShell.querySelector("video");
+
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    const next = siblingChannel(+1);
+    if (next) playChannel(CHANNELS.indexOf(next));
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    const prev = siblingChannel(-1);
+    if (prev) playChannel(CHANNELS.indexOf(prev));
+  } else if (e.key === "ArrowUp" && video) {
+    e.preventDefault();
+    video.volume = Math.min(1, Math.round((video.volume + 0.05) * 100) / 100);
+    if (video.muted) { video.muted = false; removeUnmuteHint(); }
+    showVolumeToast(video);
+  } else if (e.key === "ArrowDown" && video) {
+    e.preventDefault();
+    video.volume = Math.max(0, Math.round((video.volume - 0.05) * 100) / 100);
+    showVolumeToast(video);
+  } else if ((e.key === "f" || e.key === "F") && video) {
+    e.preventDefault();
+    if (document.fullscreenElement) document.exitFullscreen();
+    else video.requestFullscreen?.();
+  } else if ((e.key === "m" || e.key === "M") && video) {
+    e.preventDefault();
+    video.muted = !video.muted;
+    if (!video.muted) removeUnmuteHint();
+    showVolumeToast(video);
+  } else if (e.key === " " && video) {
+    e.preventDefault();
+    if (video.paused) video.play().catch(() => {});
+    else video.pause();
+  }
+});
+
+// Toast hiện volume tạm thời (1.2s)
+let volumeToastTimer = null;
+function showVolumeToast(video) {
+  let el = document.getElementById("volumeToast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "volumeToast";
+    Object.assign(el.style, {
+      position: "absolute", top: "12px", right: "12px",
+      background: "rgba(0,0,0,0.8)", color: "#fff",
+      padding: "8px 14px", borderRadius: "8px",
+      fontSize: "14px", fontWeight: "600",
+      pointerEvents: "none", zIndex: "20",
+      transition: "opacity 0.3s",
+      fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace"
+    });
+    playerShell.appendChild(el);
+  }
+  const pct = Math.round(video.volume * 100);
+  el.textContent = video.muted ? "🔇 Muted" : `🔊 ${pct}%`;
+  el.style.opacity = "1";
+  clearTimeout(volumeToastTimer);
+  volumeToastTimer = setTimeout(() => {
+    el.style.opacity = "0";
+    setTimeout(() => el.remove(), 300);
+  }, 1200);
+}
+
+// Back/Forward browser → đồng bộ với ?ch
+window.addEventListener("popstate", () => {
+  const slug = new URL(window.location.href).searchParams.get("ch");
+  if (slug) {
+    const idx = CHANNELS.findIndex((c) => c.slug === slug);
+    if (idx >= 0) { playChannel(idx); return; }
+  }
+  showHome();
 });
 
 // Search debounce: rerender mỗi khi user gõ
@@ -1075,10 +1582,14 @@ searchInput.addEventListener("input", (e) => {
 renderTabs();
 renderHome();
 
-// Khôi phục kênh đang xem khi reload (optional)
-const lastIdx = localStorage.getItem(LS_KEY);
-if (lastIdx !== null && CHANNELS[+lastIdx]) {
-  playChannel(+lastIdx);
+// Init: ưu tiên ?ch=<slug> trong URL, fallback localStorage
+const urlSlug = new URL(window.location.href).searchParams.get("ch");
+if (urlSlug) {
+  const idx = CHANNELS.findIndex((c) => c.slug === urlSlug);
+  if (idx >= 0) playChannel(idx);
+} else {
+  const lastIdx = localStorage.getItem(LS_KEY);
+  if (lastIdx !== null && CHANNELS[+lastIdx]) playChannel(+lastIdx);
 }
 </script>
 </body>
