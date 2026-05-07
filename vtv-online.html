@@ -602,7 +602,7 @@
     <h1><span>VTV</span> Online</h1>
     <p>Xem trực tuyến — Local viewer</p>
     <p class="kbd-hint">
-      <kbd>/</kbd> tìm · <kbd>←</kbd> <kbd>→</kbd> đổi kênh · <kbd>↑</kbd> <kbd>↓</kbd> volume · <kbd>F</kbd> fullscreen · <kbd>M</kbd> tắt tiếng · <kbd>Esc</kbd> về trang chủ
+      <kbd>/</kbd> tìm · <kbd>←</kbd> <kbd>→</kbd> đổi kênh · <kbd>↑</kbd> <kbd>↓</kbd> volume · <kbd>L</kbd> live · <kbd>F</kbd> fullscreen · <kbd>M</kbd> tắt tiếng · <kbd>Esc</kbd> về trang chủ
     </p>
   </header>
 
@@ -640,6 +640,7 @@
     <div class="player-bar">
       <button id="backBtn" class="back-btn">← Quay lại danh sách</button>
       <div class="player-actions">
+        <button id="liveBtn" class="back-btn" title="Bắt kịp Live (L)">🔴 LIVE</button>
         <button id="pipBtn" class="back-btn" title="Picture-in-Picture (P)">📺 PIP</button>
         <button id="fsBtn" class="back-btn" title="Toàn màn hình (F)">⛶ Fullscreen</button>
         <button id="forceHlsBtn" class="back-btn" title="Bỏ qua iframe, dùng HLS ngay">Dùng HLS</button>
@@ -1104,13 +1105,37 @@ function escHtml(s) {
   return String(s || "").replace(/[<>&"]/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
 }
 
+// Đồng bộ chiều cao sidebar = chiều cao player (do player aspect-ratio 16:9
+// → sidebar không vượt quá đáy player; phần list dài thì scroll trong sidebar).
+let epgResizeObserver = null;
+function syncEpgHeight() {
+  if (!epgSidebar || epgSidebar.hidden) return;
+  const h = playerShell.offsetHeight;
+  if (h > 0) epgSidebar.style.maxHeight = h + "px";
+}
+function startEpgHeightSync() {
+  syncEpgHeight();
+  if (epgResizeObserver) epgResizeObserver.disconnect();
+  epgResizeObserver = new ResizeObserver(syncEpgHeight);
+  epgResizeObserver.observe(playerShell);
+}
+function stopEpgHeightSync() {
+  if (epgResizeObserver) {
+    epgResizeObserver.disconnect();
+    epgResizeObserver = null;
+  }
+  epgSidebar.style.maxHeight = "";
+}
+
 async function renderEpgFor(channel) {
   const tvKey = TV_KEY_MAP[channel.slug];
   if (!tvKey) {
     epgSidebar.hidden = true;
+    stopEpgHeightSync();
     return;
   }
   epgSidebar.hidden = false;
+  startEpgHeightSync();
   epgSidebar.classList.add("loading");
   epgSidebarList.innerHTML = "";
   epgSidebarStatus.textContent = "đang tải…";
@@ -1362,6 +1387,7 @@ function showHome() {
   setUrlChannel(null);
   currentChannel = null;
   epgSidebar.hidden = true;
+  stopEpgHeightSync();
 }
 
 function cleanupPlayer() {
@@ -1631,12 +1657,18 @@ function tryHls(channel) {
       // bật vào sẽ gây stall trên kênh có discontinuity (vd VTV3).
       lowLatencyMode: false,
       enableWorker: true,
-      backBufferLength: 30,
+      backBufferLength: 15, // giữ 15s phía sau (giảm từ 30s)
 
-      // Stall recovery: tự "nudge" currentTime khi video kẹt
+      // Bám live edge sát hơn để giảm delay từ ~40s → ~15s
+      liveSyncDurationCount: 2,        // bắt đầu 2 segment (≈8s) cách end-of-list
+      liveMaxLatencyDurationCount: 5,  // nếu >5 segs thì force sync về edge
+      liveDurationInfinity: true,
+      maxLiveSyncPlaybackRate: 1.1,    // tăng tốc nhẹ 10% nếu fall behind
+
+      // Stall recovery
       nudgeOffset: 0.2,
       nudgeMaxRetry: 10,
-      maxBufferHole: 1.0, // bỏ qua khoảng trống ≤1s do discontinuity
+      maxBufferHole: 1.0,
 
       // Retry khi mất network / segment lỗi tạm thời
       manifestLoadingMaxRetry: 6,
@@ -1653,6 +1685,9 @@ function tryHls(channel) {
       removeLoading();
       tryPlayWithSound(video);
       startStallWatchdog(video, channel);
+      // Seek đến gần live edge (ví dụ user reload sau khi tab pause lâu).
+      // Đợi 800ms cho buffer initial rồi seek.
+      setTimeout(() => seekToLiveEdge(video), 800);
     });
 
     // Khi error fire, KHÔNG hiện UI lỗi ngay — chỉ thử khôi phục im lặng.
@@ -1685,6 +1720,13 @@ function tryHls(channel) {
 backBtn.addEventListener("click", showHome);
 forceHlsBtn.addEventListener("click", () => {
   if (currentChannel) tryHls(currentChannel);
+});
+
+// LIVE catch-up — seek tới live edge
+const liveBtn = document.getElementById("liveBtn");
+liveBtn.addEventListener("click", () => {
+  const video = playerShell.querySelector("video");
+  if (video) seekToLiveEdge(video, 4);
 });
 
 // PIP / Fullscreen
@@ -1874,6 +1916,9 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
     video.volume = Math.max(0, Math.round((video.volume - 0.05) * 100) / 100);
     showVolumeToast(video);
+  } else if ((e.key === "l" || e.key === "L") && video) {
+    e.preventDefault();
+    seekToLiveEdge(video, 4);
   } else if ((e.key === "f" || e.key === "F") && video) {
     e.preventDefault();
     if (document.fullscreenElement) document.exitFullscreen();
@@ -1889,6 +1934,18 @@ window.addEventListener("keydown", (e) => {
     else video.pause();
   }
 });
+
+// Seek video tới gần live edge — hữu ích khi user pause lâu rồi resume,
+// hoặc khi vào kênh thấy delay nhiều giây so với realtime.
+function seekToLiveEdge(video, gapSeconds = 6) {
+  if (!video || !video.seekable || video.seekable.length === 0) return;
+  const edge = video.seekable.end(video.seekable.length - 1);
+  const target = Math.max(edge - gapSeconds, video.currentTime);
+  if (target > video.currentTime + 1) {
+    video.currentTime = target;
+    console.log("[VTV] seek to live edge:", target.toFixed(1), "(behind:", (edge-target).toFixed(1) + "s)");
+  }
+}
 
 // Toast hiện volume tạm thời (1.2s)
 let volumeToastTimer = null;
