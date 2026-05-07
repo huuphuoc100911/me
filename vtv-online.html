@@ -532,6 +532,12 @@ const CHANNELS = [
     m3u8Url: "https://liveh12.vtvprime.vn/hls/VTV5_TN/index.m3u8"
   },
   {
+    name: "VTV6", cat: "vtv",
+    desc: "Thể thao - Giải trí (VTVgo failover CDN)",
+    vtvgoUrl: "https://vtvgo.vn/",
+    m3u8Url: "https://vtvgolive-failover.vtvdigital.vn/vtvgo/vtv6-manifest.m3u8"
+  },
+  {
     name: "VTV7 HD", cat: "vtv",
     desc: "Giáo dục [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv7-1,27.html",
@@ -758,7 +764,8 @@ const CHANNELS = [
     desc: "Khoa học - Khám phá",
     vtvgoUrl: "https://davinci.tv/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/DAVINVY/04.m3u8"
-  }
+  },
+
 ];
 
 const LS_KEY = "vtv_last_channel";
@@ -1346,8 +1353,10 @@ pipBtn.addEventListener("click", async () => {
 if (!document.pictureInPictureEnabled) pipBtn.style.display = "none";
 
 fsBtn.addEventListener("click", () => {
-  const video = playerShell.querySelector("video");
-  const target = video || playerShell;
+  // Hỗ trợ cả video (HLS) lẫn iframe (YouTube)
+  const target = playerShell.querySelector("video")
+    || playerShell.querySelector("iframe")
+    || playerShell;
   if (document.fullscreenElement) document.exitFullscreen();
   else target.requestFullscreen?.();
 });
