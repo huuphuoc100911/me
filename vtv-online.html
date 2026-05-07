@@ -1203,16 +1203,22 @@ async function renderEpgFor(channel) {
     `;
   }).join("");
 
-  // Auto-scroll tới chương trình đang chiếu — căn giữa trong sidebar
-  setTimeout(() => {
-    const nowEl = epgSidebarList.querySelector(".now");
-    if (!nowEl) return;
-    // Tính offset thủ công để chỉ scroll TRONG sidebar, không scroll cả page.
-    // scrollIntoView({block:"center"}) trên 1 số trình duyệt có thể scroll
-    // ancestor → dùng scrollTop trực tiếp cho an toàn.
-    const targetTop = nowEl.offsetTop - (epgSidebarList.clientHeight / 2) + (nowEl.offsetHeight / 2);
-    epgSidebarList.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
-  }, 80);
+  // Auto-scroll tới chương trình đang chiếu — căn giữa trong sidebar.
+  // Phải đợi ResizeObserver fire để sidebar có max-height; nếu không,
+  // list sẽ ở natural height (clientHeight === scrollHeight) → scroll vô hiệu.
+  // Force sync 1 lần + double rAF để đảm bảo layout settled.
+  syncEpgHeight();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const nowEl = epgSidebarList.querySelector(".now");
+      if (!nowEl) return;
+      // Nếu list chưa scrollable (max-height chưa apply) → bỏ qua, EPG sẽ
+      // tự scroll khi user mở sidebar (hoặc next render).
+      if (epgSidebarList.scrollHeight <= epgSidebarList.clientHeight + 4) return;
+      const targetTop = nowEl.offsetTop - (epgSidebarList.clientHeight / 2) + (nowEl.offsetHeight / 2);
+      epgSidebarList.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+    });
+  });
 }
 
 // ===== Volume memory =====
