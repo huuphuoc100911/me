@@ -1,7 +1,7 @@
 // Service Worker — cache app shell (HTML/CSS/JS) cho install + offline,
 // KHÔNG cache HLS streams (live data luôn cần fresh).
 
-const CACHE_NAME = "vtv-online-v1";
+const CACHE_NAME = "vtv-online-v2";
 
 // Files cần cache trước khi SW activate (app shell tối thiểu để mở offline)
 const APP_SHELL = [
