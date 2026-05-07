@@ -30,6 +30,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "me.personal.io.vn" }],
       "destination": "/me.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "online.personal.io.vn" }],
+      "destination": "/vtv-online.html"
     }
   ]
 }

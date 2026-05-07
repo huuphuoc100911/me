@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VTV Online — Local viewer</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --bg-card: #1a1a1a;
+    --bg-card-2: #222;
+    --text: #f0f0f0;
+    --text-dim: #999;
+    --accent: #e60012;
+    --border: #2a2a2a;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+                 Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    color: var(--text-dim);
+    margin-top: 6px;
+    font-size: 14px;
+  }
+
+  /* ===== HOME — grid kênh ===== */
+  .channel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .channel-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
+  }
+  .channel-card:hover {
+    transform: scale(1.03);
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(230, 0, 18, 0.15);
+  }
+  .channel-card .name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .channel-card .desc {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ===== PLAYER ===== */
+  .player-view { display: none; }
+  .player-view.active { display: block; }
+  .home-view.hidden { display: none; }
+
+  .player-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .player-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .back-btn {
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .back-btn:hover {
+    background: var(--bg-card-2);
+    border-color: var(--accent);
+  }
+  .now-playing {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .now-playing .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-left: 8px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .player-shell {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .player-shell iframe,
+  .player-shell video {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .player-loading,
+  .player-error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.85);
+  }
+  .player-loading .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .player-loading p { color: var(--text-dim); font-size: 14px; }
+
+  .player-error h3 { font-size: 18px; margin-bottom: 8px; }
+  .player-error p {
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 480px;
+    margin-bottom: 16px;
+  }
+  .player-error a {
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.2s;
+  }
+  .player-error a:hover { opacity: 0.85; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 20px 14px; }
+    header h1 { font-size: 24px; }
+    .channel-card { padding: 16px; }
+    .channel-card .name { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><span>VTV</span> Online</h1>
+    <p>Xem trực tuyến — Local viewer</p>
+  </header>
+
+  <!-- ===== HOME VIEW ===== -->
+  <main id="homeView" class="home-view">
+    <div id="channelGrid" class="channel-grid"></div>
+  </main>
+
+  <!-- ===== PLAYER VIEW ===== -->
+  <main id="playerView" class="player-view">
+    <div class="player-bar">
+      <button id="backBtn" class="back-btn">← Quay lại danh sách</button>
+      <div class="player-actions">
+        <button id="forceHlsBtn" class="back-btn" title="Bỏ qua iframe, dùng HLS ngay">Dùng HLS</button>
+        <a id="openVtvgoBtn" class="back-btn" target="_blank" rel="noopener noreferrer" title="Mở vtvgo.vn ở tab mới">Mở vtvgo.vn ↗</a>
+      </div>
+      <div class="now-playing">
+        <span id="nowPlayingName">—</span>
+        <span id="modeBadge" class="badge">iframe</span>
+      </div>
+    </div>
+    <div id="playerShell" class="player-shell"></div>
+  </main>
+
+  <footer>
+    Nội dung thuộc bản quyền Đài Truyền Hình Việt Nam (VTV).<br />
+    Tool này chỉ để xem cá nhân.
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   DANH SÁCH KÊNH VTV
+   ------------------------------------------------------------
+   Field `m3u8Url` để TRỐNG mặc định.
+   Khi iframe vtvgo.vn bị block, code sẽ tự fallback sang HLS.
+   Để fallback hoạt động, dán link m3u8 vào field tương ứng.
+
+   Cách lấy link m3u8 cho mỗi kênh:
+     1. Mở vtvgo.vn/channel/<tên-kênh>.html trong Chrome
+     2. F12 → tab Network → lọc ".m3u8"
+     3. Copy URL m3u8 (thường là master playlist) → paste vào dưới
+
+   ⚠ Link m3u8 từ vtvgo.vn có token expire — sẽ chết sau vài giờ.
+   ============================================================ */
+// Link m3u8 lấy từ iptv-org/iptv + probe trực tiếp các CDN FPT/vtvprime.
+// [VN-only] = chỉ play được từ IP Việt Nam.
+// VTC1–9: KHÔNG tìm được public m3u8 (CDN VTC auth-protected) → để trống,
+//         iframe fallback dẫn về vtc.vn để xem ở tab mới hoặc bạn tự dán
+//         link m3u8 lấy từ DevTools (F12 → Network → .m3u8) vào.
+// VTV6: đã sáp nhập vào VTV3 từ 2022, không còn riêng.
+const CHANNELS = [
+  // ===== VTV =====
+  {
+    name: "VTV1 HD",
+    desc: "Thời sự - Chính luận [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv1-1,1.html",
+    m3u8Url: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    name: "VTV2 HD",
+    desc: "Khoa học - Giáo dục [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv2-1,2.html",
+    m3u8Url: "https://live.fptplay53.net/fnxch2/vtv2hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    name: "VTV3 HD",
+    desc: "Giải trí - Thể thao [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv3-1,3.html",
+    // Bỏ qua master playlist (chunklist.m3u8) — dùng thẳng variant 720p.
+    // Lý do: VTV3 có discontinuity-sequence cao (43+), nếu để hls.js
+    // tự switch level theo ABR sẽ gây stall liên tục. Pin 1 bitrate cố định.
+    m3u8Url: "https://live.fptplay53.net/fnxch2/vtv3hd_vhls.smil/chunklist_b1400000.m3u8"
+  },
+  {
+    name: "VTV4 HD",
+    desc: "Đối ngoại [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv4-1,4.html",
+    m3u8Url: "https://live.fptplay53.net/fnxch2/vtv4hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    name: "VTV5 Tây Nam Bộ HD",
+    desc: "Tiếng dân tộc - TNB",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv5-1,5.html",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/VTV5_TNB/index.m3u8"
+  },
+  {
+    name: "VTV5 Tây Nguyên HD",
+    desc: "Tiếng dân tộc - TN",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv5-1,5.html",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/VTV5_TN/index.m3u8"
+  },
+  {
+    name: "VTV7 HD",
+    desc: "Giáo dục [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv7-1,27.html",
+    m3u8Url: "https://live.fptplay53.net/fnxhd1/vtv7hd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "VTV8 HD",
+    desc: "Miền Trung - Tây Nguyên [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv8-1,8.html",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/vtv8hd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "VTV9 HD",
+    desc: "Miền Nam [VN-only]",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv9-1,9.html",
+    m3u8Url: "https://live.fptplay53.net/fnxhd1/vtv9_vhls.smil/chunklist.m3u8"
+  },
+
+  // ===== HTV (Đài TH TPHCM) — public trên FPT CDN =====
+  {
+    name: "HTV1",
+    desc: "Tổng hợp HTV [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htv1_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTV2",
+    desc: "Phim - Giải trí HD [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htv2hd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTV3",
+    desc: "Thiếu nhi [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htv3_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTV4",
+    desc: "Truyền thống - Âm nhạc [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htv4_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTV7 HD",
+    desc: "Giải trí (HTV chính) [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htv7hd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTV9 HD",
+    desc: "Tin tức [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htv9hd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTV Thể Thao",
+    desc: "Thể thao TPHCM [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd2/htvthethao_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTVC Thuần Việt",
+    desc: "Phim Việt [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTVC Du Lịch",
+    desc: "Du lịch [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist.m3u8"
+  },
+
+  // ===== Đài địa phương =====
+  {
+    name: "Hà Nội TV1",
+    desc: "Đài TH Hà Nội [VN-only]",
+    vtvgoUrl: "https://hanoitv.vn/",
+    m3u8Url: "https://live.fptplay53.net/fnxhd2/hanoitv1_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "Hà Nội TV2",
+    desc: "Đài TH Hà Nội kênh 2 [VN-only]",
+    vtvgoUrl: "https://hanoitv.vn/",
+    m3u8Url: "https://live.fptplay53.net/fnxhd1/hanoitv2hd_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "THVL1 Vĩnh Long",
+    desc: "Đài TH Vĩnh Long [VN-only]",
+    vtvgoUrl: "https://thvli.vn/live/thvl1",
+    m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong1_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "THVL2",
+    desc: "Vĩnh Long 2 [VN-only]",
+    vtvgoUrl: "https://thvli.vn/live/thvl2",
+    m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong2_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "THVL3",
+    desc: "Vĩnh Long 3 [VN-only]",
+    vtvgoUrl: "https://thvli.vn/live/thvl3",
+    m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong3_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "THVL4",
+    desc: "Vĩnh Long 4 [VN-only]",
+    vtvgoUrl: "https://thvli.vn/live/thvl4",
+    m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong4_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "Đồng Tháp TV",
+    desc: "Đài TH Đồng Tháp [VN-only]",
+    vtvgoUrl: "https://thdt.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzsd1/dongthap_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "Huế TV",
+    desc: "Đài TRT Thừa Thiên Huế [VN-only]",
+    vtvgoUrl: "https://trt.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzsd1/hue_hls.smil/chunklist.m3u8"
+  },
+  {
+    name: "Cần Thơ TV1",
+    desc: "Tây Nam Bộ",
+    vtvgoUrl: "https://vtvgo.vn/channel/vtv-can-tho-1,6.html",
+    m3u8Url: "https://live.canthotv.vn/live/tv/chunklist.m3u8"
+  },
+
+  // ===== HTVC mở rộng =====
+  {
+    name: "HTVC Gia Đình",
+    desc: "Phim/giải trí gia đình [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist.m3u8"
+  },
+  {
+    name: "HTVC+",
+    desc: "Tổng hợp HTVC [VN-only]",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://live.fptplay53.net/epzhd1/htvcplus_vhls.smil/chunklist.m3u8"
+  },
+
+  // ===== Tin tức / Quốc phòng VN (vtvprime CDN, hoạt động global) =====
+  {
+    name: "ANTV",
+    desc: "An ninh TV (Bộ Công an)",
+    vtvgoUrl: "https://antv.gov.vn/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/ANNINHTV/index.m3u8"
+  },
+  {
+    name: "QPVN HD",
+    desc: "Quốc phòng VN",
+    vtvgoUrl: "https://qpvn.vn/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/QPTV/index.m3u8"
+  },
+
+  // ===== SCTV (giải trí) =====
+  {
+    name: "SCTV1",
+    desc: "Giải trí tổng hợp",
+    vtvgoUrl: "https://sctv.com.vn/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/SCTV1/index.m3u8"
+  },
+  {
+    name: "SCTV2",
+    desc: "Giải trí - YouTV",
+    vtvgoUrl: "https://sctv.com.vn/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/SCTV2/index.m3u8"
+  },
+  {
+    name: "SCTV4",
+    desc: "Phim Việt",
+    vtvgoUrl: "https://sctv.com.vn/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/SCTV4/index.m3u8"
+  },
+  {
+    name: "HTV Key",
+    desc: "Phim - Giáo dục",
+    vtvgoUrl: "https://hplus.com.vn/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/HTVKey/index.m3u8"
+  },
+
+  // ===== Tin tức quốc tế =====
+  {
+    name: "DW",
+    desc: "Deutsche Welle (Đức) - English",
+    vtvgoUrl: "https://www.dw.com/en/live-tv/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/DW/03.m3u8"
+  },
+  {
+    name: "France 24",
+    desc: "Tin Pháp - English",
+    vtvgoUrl: "https://www.france24.com/en/live",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/FRANCE24/03.m3u8"
+  },
+  {
+    name: "NHK World",
+    desc: "Tin Nhật - English",
+    vtvgoUrl: "https://www3.nhk.or.jp/nhkworld/en/live/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/NHKWORLD/03.m3u8"
+  },
+  {
+    name: "KBS World",
+    desc: "Tin Hàn - tiếng Việt",
+    vtvgoUrl: "https://kbsworld.kbs.co.kr/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/KBS/03.m3u8"
+  },
+  {
+    name: "Arirang",
+    desc: "Văn hoá Hàn Quốc",
+    vtvgoUrl: "https://www.arirang.com/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/ARIRANG/03.m3u8"
+  },
+  {
+    name: "TV5Monde",
+    desc: "Tin Pháp ngữ",
+    vtvgoUrl: "https://www.tv5monde.com/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/TV5/03.m3u8"
+  },
+  {
+    name: "Da Vinci",
+    desc: "Khoa học - Khám phá",
+    vtvgoUrl: "https://davinci.tv/",
+    m3u8Url: "https://liveh12.vtvprime.vn/hls/DAVINVY/04.m3u8"
+  }
+];
+
+const LS_KEY = "vtv_last_channel";
+const IFRAME_TIMEOUT_MS = 5000;
+
+const homeView      = document.getElementById("homeView");
+const playerView    = document.getElementById("playerView");
+const channelGrid   = document.getElementById("channelGrid");
+const playerShell   = document.getElementById("playerShell");
+const backBtn       = document.getElementById("backBtn");
+const forceHlsBtn   = document.getElementById("forceHlsBtn");
+const openVtvgoBtn  = document.getElementById("openVtvgoBtn");
+const nowPlayingName= document.getElementById("nowPlayingName");
+const modeBadge     = document.getElementById("modeBadge");
+
+let currentChannel = null;   // kênh đang phát (để các nút action biết target)
+
+let currentHls = null;       // hls.js instance hiện tại (để destroy khi đổi kênh)
+let iframeTimer = null;      // timer kiểm tra iframe load
+let stallWatchdog = null;    // interval kiểm tra video có thật sự kẹt không
+
+// ===== Render grid kênh =====
+function renderHome() {
+  channelGrid.innerHTML = "";
+  CHANNELS.forEach((ch, idx) => {
+    const card = document.createElement("div");
+    card.className = "channel-card";
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `Xem ${ch.name}`);
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = ch.name;
+
+    const desc = document.createElement("div");
+    desc.className = "desc";
+    desc.textContent = ch.desc;
+
+    card.appendChild(name);
+    card.appendChild(desc);
+    card.addEventListener("click", () => playChannel(idx));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        playChannel(idx);
+      }
+    });
+
+    channelGrid.appendChild(card);
+  });
+}
+
+// ===== Chuyển sang view player =====
+function showPlayer(channel) {
+  homeView.classList.add("hidden");
+  playerView.classList.add("active");
+  nowPlayingName.textContent = channel.name;
+  openVtvgoBtn.href = channel.vtvgoUrl;
+}
+
+// ===== Quay về home — dọn iframe + hls =====
+function showHome() {
+  cleanupPlayer();
+  playerView.classList.remove("active");
+  homeView.classList.remove("hidden");
+  localStorage.removeItem(LS_KEY);
+}
+
+function cleanupPlayer() {
+  if (iframeTimer)   { clearTimeout(iframeTimer); iframeTimer = null; }
+  if (stallWatchdog) { clearInterval(stallWatchdog); stallWatchdog = null; }
+  if (currentHls)    { currentHls.destroy(); currentHls = null; }
+  playerShell.innerHTML = "";
+}
+
+// ===== UI helpers =====
+function showLoading(msg) {
+  const el = document.createElement("div");
+  el.className = "player-loading";
+  el.id = "playerLoading";
+  el.innerHTML = `<div class="spinner"></div><p>${msg}</p>`;
+  playerShell.appendChild(el);
+}
+function removeLoading() {
+  const el = document.getElementById("playerLoading");
+  if (el) el.remove();
+}
+function showError(channel, message) {
+  removeLoading();
+  removeError();
+  const el = document.createElement("div");
+  el.className = "player-error";
+  el.id = "playerError";
+  el.innerHTML = `
+    <h3>Không thể phát kênh</h3>
+    <p>${message}</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+      <button id="retryBtn" class="back-btn">Thử lại</button>
+      <a href="${channel.vtvgoUrl}" target="_blank" rel="noopener noreferrer">
+        Mở trên VTVgo
+      </a>
+    </div>
+  `;
+  playerShell.appendChild(el);
+  document.getElementById("retryBtn").addEventListener("click", () => {
+    tryHls(channel);
+  });
+}
+function removeError() {
+  const el = document.getElementById("playerError");
+  if (el) el.remove();
+}
+
+/* Thử play CÓ tiếng trước. Nếu browser từ chối (autoplay policy chặn
+   khi không có user-activation, vd reload page) → fallback mute để
+   ít nhất video chạy được, kèm overlay nhắc bấm "Bật tiếng". */
+function tryPlayWithSound(video) {
+  video.muted = false;
+  const p = video.play();
+  if (!p || typeof p.then !== "function") return;
+  p.catch((err) => {
+    console.warn("[VTV] autoplay với tiếng bị chặn:", err.name, "→ fallback mute");
+    video.muted = true;
+    video.play().catch(() => {});
+    showUnmuteHint(video);
+  });
+}
+
+/* Hiện overlay "🔊 Bật tiếng" — bấm sẽ unmute (click = user-activation). */
+function showUnmuteHint(video) {
+  removeUnmuteHint();
+  const btn = document.createElement("button");
+  btn.id = "unmuteHint";
+  btn.type = "button";
+  btn.textContent = "🔊 Bật tiếng";
+  Object.assign(btn.style, {
+    position: "absolute",
+    top: "12px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "var(--accent)",
+    color: "#fff",
+    border: "0",
+    padding: "10px 18px",
+    borderRadius: "999px",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+    zIndex: "10",
+    boxShadow: "0 4px 14px rgba(0,0,0,0.5)"
+  });
+  btn.addEventListener("click", () => {
+    video.muted = false;
+    video.play().catch(() => {});
+    removeUnmuteHint();
+  });
+  playerShell.appendChild(btn);
+
+  // Tự ẩn nếu user thao tác trên video controls để unmute (vd bấm volume)
+  video.addEventListener("volumechange", () => {
+    if (!video.muted) removeUnmuteHint();
+  }, { once: true });
+}
+function removeUnmuteHint() {
+  const el = document.getElementById("unmuteHint");
+  if (el) el.remove();
+}
+
+/* Stall watchdog — chỉ chạy sau khi MANIFEST_PARSED.
+   Mỗi 2s kiểm tra video.currentTime có tiến không.
+   Nếu video đang phải play (không pause, không ended, không bị user seek)
+   mà currentTime đứng yên >12s → coi như stall thật → show error UI.
+   Nếu video resume play sau khi đã show error → tự ẩn overlay error.   */
+function startStallWatchdog(video, channel) {
+  if (stallWatchdog) clearInterval(stallWatchdog);
+  let lastTime = video.currentTime;
+  let stalledFor = 0; // số giây đã đứng yên
+  const CHECK_MS = 2000;
+  const STALL_THRESHOLD_S = 12;
+
+  stallWatchdog = setInterval(() => {
+    if (!video.isConnected) { clearInterval(stallWatchdog); return; }
+
+    const playing = !video.paused && !video.ended && video.readyState >= 2;
+    const advanced = video.currentTime > lastTime + 0.05;
+
+    if (playing && advanced) {
+      // Video đang chạy bình thường — reset counter, ẩn error nếu có
+      stalledFor = 0;
+      removeError();
+    } else if (playing && !advanced) {
+      // Đáng lẽ phải play mà time không tiến → tích luỹ stall
+      stalledFor += CHECK_MS / 1000;
+      if (stalledFor >= STALL_THRESHOLD_S) {
+        console.warn("[VTV] watchdog: video stalled", stalledFor, "s → show error");
+        showError(channel, "Stream bị gián đoạn (video không tiến trong " + STALL_THRESHOLD_S + "s).");
+        // Để hls tự retry tiếp; nếu nó recover, watchdog sẽ ẩn lỗi
+        stalledFor = 0;
+      }
+    }
+    // Nếu pause (user) → bỏ qua, không tính stall
+    lastTime = video.currentTime;
+  }, CHECK_MS);
+}
+
+/* ============================================================
+   playChannel — logic chính
+   ------------------------------------------------------------
+   Cách A: thử iframe vtvgo.vn trước
+     - Nếu iframe `load` event không fire trong 5s → coi như fail
+     - (Lưu ý: với cross-origin block bằng X-Frame-Options, browser
+       vẫn có thể fire `load` event trên page rỗng. Đây là giới hạn
+       của iframe — không có cách 100% phát hiện block từ ngoài.)
+
+   Cách B (fallback): nếu fail → thử m3u8Url qua hls.js
+   Cách C (lỗi cuối): nếu m3u8Url trống → hiện UI lỗi + nút mở VTVgo
+   ============================================================ */
+function playChannel(idx) {
+  const channel = CHANNELS[idx];
+  if (!channel) return;
+
+  currentChannel = channel;
+  showPlayer(channel);
+  cleanupPlayer();
+  localStorage.setItem(LS_KEY, String(idx));
+
+  // Có link m3u8 → HLS thẳng (mượt, không bị VTVgo chặn).
+  // Không có → thử iframe vtvgo.vn (thường vẫn bị chặn bởi modal điều khoản).
+  if (channel.m3u8Url && channel.m3u8Url.trim() !== "") {
+    tryHls(channel);
+  } else {
+    tryIframe(channel);
+  }
+}
+
+function tryIframe(channel) {
+  modeBadge.textContent = "iframe";
+  showLoading("Đang thử nhúng từ VTVgo…");
+
+  const iframe = document.createElement("iframe");
+  iframe.allow = "autoplay; fullscreen; picture-in-picture";
+  iframe.allowFullscreen = true;
+  iframe.referrerPolicy = "no-referrer";
+
+  let loaded = false;
+  iframe.addEventListener("load", () => {
+    loaded = true;
+    removeLoading();
+    // Note: load event vẫn fire khi bị X-Frame-Options block.
+    // Người dùng nhìn page trắng → tự bấm Quay lại để fallback.
+  });
+
+  // Sau 5s nếu load chưa fire → coi như fail, fallback qua HLS
+  iframeTimer = setTimeout(() => {
+    if (!loaded) {
+      console.warn("[VTV] iframe load timeout → fallback m3u8");
+      tryHls(channel);
+    }
+  }, IFRAME_TIMEOUT_MS);
+
+  iframe.src = channel.vtvgoUrl;
+  playerShell.appendChild(iframe);
+}
+
+function tryHls(channel) {
+  cleanupPlayer();
+  modeBadge.textContent = "hls";
+
+  // Không có link m3u8 → bỏ qua sang lỗi cuối
+  if (!channel.m3u8Url || channel.m3u8Url.trim() === "") {
+    showError(
+      channel,
+      "Iframe bị block. Vui lòng thêm link m3u8 vào file HTML hoặc mở trên VTVgo."
+    );
+    return;
+  }
+
+  showLoading("Đang tải luồng HLS…");
+
+  const video = document.createElement("video");
+  video.controls = true;
+  video.playsInline = true;
+  // Mặc định KHÔNG mute. Khi user click card → có user-activation,
+  // browser cho phép phát có tiếng. Khi restore từ localStorage (reload)
+  // → play() sẽ reject vì autoplay policy → fallback mute + hint.
+  video.muted = false;
+  video.autoplay = true;
+  playerShell.appendChild(video);
+
+  // Safari có HLS native, các browser khác phải dùng hls.js
+  if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = channel.m3u8Url;
+    video.addEventListener("loadedmetadata", () => {
+      removeLoading();
+      tryPlayWithSound(video);
+    });
+    video.addEventListener("error", () => {
+      showError(channel, "Không tải được luồng m3u8 (có thể link đã hết hạn).");
+    });
+    return;
+  }
+
+  if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({
+      // KHÔNG bật lowLatencyMode: stream FPT/vtvprime không phải LL-HLS,
+      // bật vào sẽ gây stall trên kênh có discontinuity (vd VTV3).
+      lowLatencyMode: false,
+      enableWorker: true,
+      backBufferLength: 30,
+
+      // Stall recovery: tự "nudge" currentTime khi video kẹt
+      nudgeOffset: 0.2,
+      nudgeMaxRetry: 10,
+      maxBufferHole: 1.0, // bỏ qua khoảng trống ≤1s do discontinuity
+
+      // Retry khi mất network / segment lỗi tạm thời
+      manifestLoadingMaxRetry: 6,
+      manifestLoadingRetryDelay: 1000,
+      levelLoadingMaxRetry: 6,
+      levelLoadingRetryDelay: 1000,
+      fragLoadingMaxRetry: 6,
+      fragLoadingRetryDelay: 1000
+    });
+    currentHls = hls;
+    hls.loadSource(channel.m3u8Url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      removeLoading();
+      tryPlayWithSound(video);
+      startStallWatchdog(video, channel);
+    });
+
+    // Khi error fire, KHÔNG hiện UI lỗi ngay — chỉ thử khôi phục im lặng.
+    // Stall watchdog sẽ quyết định có hiện lỗi không (dựa vào currentTime
+    // có còn tiến hay không). Lý do: 1 segment fail → fatal error firing,
+    // nhưng video vẫn play từ buffer 30s — không nên show "lỗi" lúc đó.
+    hls.on(Hls.Events.ERROR, (_evt, data) => {
+      console.warn("[VTV] HLS error", data.type, data.details, "fatal=", data.fatal);
+      if (!data.fatal) return;
+
+      switch (data.type) {
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          console.log("[VTV] network fatal → startLoad");
+          try { hls.startLoad(); } catch(e) {}
+          break;
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          console.log("[VTV] media fatal → recoverMediaError");
+          try { hls.recoverMediaError(); } catch(e) {}
+          break;
+        default:
+          console.log("[VTV] other fatal:", data.details, "— để watchdog xử lý");
+      }
+    });
+  } else {
+    showError(channel, "Trình duyệt không hỗ trợ HLS.");
+  }
+}
+
+// ===== Wire up =====
+backBtn.addEventListener("click", showHome);
+forceHlsBtn.addEventListener("click", () => {
+  // Bỏ qua iframe (vd: VTVgo chặn modal điều khoản trong iframe do
+  // third-party cookie partitioning) → ép sang HLS ngay
+  if (currentChannel) tryHls(currentChannel);
+});
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && playerView.classList.contains("active")) {
+    showHome();
+  }
+});
+
+renderHome();
+
+// Khôi phục kênh đang xem khi reload (optional)
+const lastIdx = localStorage.getItem(LS_KEY);
+if (lastIdx !== null && CHANNELS[+lastIdx]) {
+  playChannel(+lastIdx);
+}
+</script>
+</body>
+</html>
