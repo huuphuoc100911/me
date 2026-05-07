@@ -51,12 +51,92 @@
     font-size: 14px;
   }
 
-  /* ===== HOME — grid kênh ===== */
+  /* ===== HOME — filter bar ===== */
+  .filter-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  #searchInput {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #searchInput:focus { border-color: var(--accent); }
+  #searchInput::placeholder { color: var(--text-dim); }
+
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tab {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); border-color: var(--accent); }
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .tab .count {
+    margin-left: 6px;
+    opacity: 0.7;
+    font-size: 11px;
+  }
+
+  /* ===== HOME — section + grid kênh ===== */
+  .channel-section { margin-bottom: 28px; }
+  .channel-section.empty { display: none; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .section-header .count {
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .empty-hint {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 32px 0;
+  }
+
   .channel-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
   }
+  .channel-card.hidden { display: none; }
 
   .channel-card {
     background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
@@ -223,7 +303,12 @@
 
   <!-- ===== HOME VIEW ===== -->
   <main id="homeView" class="home-view">
-    <div id="channelGrid" class="channel-grid"></div>
+    <div class="filter-bar">
+      <input id="searchInput" type="search" placeholder="🔍 Tìm theo tên kênh..." autocomplete="off" />
+      <div id="tabBar" class="tab-bar"></div>
+    </div>
+    <div id="channelSections"></div>
+    <p id="emptyHint" class="empty-hint" hidden>Không có kênh nào khớp.</p>
   </main>
 
   <!-- ===== PLAYER VIEW ===== -->
@@ -270,22 +355,33 @@
 //         iframe fallback dẫn về vtc.vn để xem ở tab mới hoặc bạn tự dán
 //         link m3u8 lấy từ DevTools (F12 → Network → .m3u8) vào.
 // VTV6: đã sáp nhập vào VTV3 từ 2022, không còn riêng.
+// Category groups — id phải khớp với `cat` field bên dưới.
+const CATEGORIES = [
+  { id: "all",      label: "Tất cả" },
+  { id: "vtv",      label: "VTV" },
+  { id: "htv",      label: "HTV / HTVC" },
+  { id: "local",    label: "Địa phương" },
+  { id: "news_vn",  label: "Tin tức VN" },
+  { id: "sctv",     label: "SCTV" },
+  { id: "intl",     label: "Quốc tế" }
+];
+
 const CHANNELS = [
   // ===== VTV =====
   {
-    name: "VTV1 HD",
+    name: "VTV1 HD", cat: "vtv",
     desc: "Thời sự - Chính luận [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv1-1,1.html",
     m3u8Url: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8"
   },
   {
-    name: "VTV2 HD",
+    name: "VTV2 HD", cat: "vtv",
     desc: "Khoa học - Giáo dục [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv2-1,2.html",
     m3u8Url: "https://live.fptplay53.net/fnxch2/vtv2hd_abr.smil/chunklist.m3u8"
   },
   {
-    name: "VTV3 HD",
+    name: "VTV3 HD", cat: "vtv",
     desc: "Giải trí - Thể thao [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv3-1,3.html",
     // Bỏ qua master playlist (chunklist.m3u8) — dùng thẳng variant 720p.
@@ -294,37 +390,37 @@ const CHANNELS = [
     m3u8Url: "https://live.fptplay53.net/fnxch2/vtv3hd_vhls.smil/chunklist_b1400000.m3u8"
   },
   {
-    name: "VTV4 HD",
+    name: "VTV4 HD", cat: "vtv",
     desc: "Đối ngoại [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv4-1,4.html",
     m3u8Url: "https://live.fptplay53.net/fnxch2/vtv4hd_abr.smil/chunklist.m3u8"
   },
   {
-    name: "VTV5 Tây Nam Bộ HD",
+    name: "VTV5 Tây Nam Bộ HD", cat: "vtv",
     desc: "Tiếng dân tộc - TNB",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv5-1,5.html",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/VTV5_TNB/index.m3u8"
   },
   {
-    name: "VTV5 Tây Nguyên HD",
+    name: "VTV5 Tây Nguyên HD", cat: "vtv",
     desc: "Tiếng dân tộc - TN",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv5-1,5.html",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/VTV5_TN/index.m3u8"
   },
   {
-    name: "VTV7 HD",
+    name: "VTV7 HD", cat: "vtv",
     desc: "Giáo dục [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv7-1,27.html",
     m3u8Url: "https://live.fptplay53.net/fnxhd1/vtv7hd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "VTV8 HD",
+    name: "VTV8 HD", cat: "vtv",
     desc: "Miền Trung - Tây Nguyên [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv8-1,8.html",
     m3u8Url: "https://live.fptplay53.net/epzhd1/vtv8hd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "VTV9 HD",
+    name: "VTV9 HD", cat: "vtv",
     desc: "Miền Nam [VN-only]",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv9-1,9.html",
     m3u8Url: "https://live.fptplay53.net/fnxhd1/vtv9_vhls.smil/chunklist.m3u8"
@@ -332,55 +428,55 @@ const CHANNELS = [
 
   // ===== HTV (Đài TH TPHCM) — public trên FPT CDN =====
   {
-    name: "HTV1",
+    name: "HTV1", cat: "htv",
     desc: "Tổng hợp HTV [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htv1_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTV2",
+    name: "HTV2", cat: "htv",
     desc: "Phim - Giải trí HD [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htv2hd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTV3",
+    name: "HTV3", cat: "htv",
     desc: "Thiếu nhi [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htv3_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTV4",
+    name: "HTV4", cat: "htv",
     desc: "Truyền thống - Âm nhạc [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htv4_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTV7 HD",
+    name: "HTV7 HD", cat: "htv",
     desc: "Giải trí (HTV chính) [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htv7hd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTV9 HD",
+    name: "HTV9 HD", cat: "htv",
     desc: "Tin tức [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htv9hd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTV Thể Thao",
+    name: "HTV Thể Thao", cat: "htv",
     desc: "Thể thao TPHCM [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd2/htvthethao_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTVC Thuần Việt",
+    name: "HTVC Thuần Việt", cat: "htv",
     desc: "Phim Việt [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTVC Du Lịch",
+    name: "HTVC Du Lịch", cat: "htv",
     desc: "Du lịch [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist.m3u8"
@@ -388,55 +484,55 @@ const CHANNELS = [
 
   // ===== Đài địa phương =====
   {
-    name: "Hà Nội TV1",
+    name: "Hà Nội TV1", cat: "local",
     desc: "Đài TH Hà Nội [VN-only]",
     vtvgoUrl: "https://hanoitv.vn/",
     m3u8Url: "https://live.fptplay53.net/fnxhd2/hanoitv1_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "Hà Nội TV2",
+    name: "Hà Nội TV2", cat: "local",
     desc: "Đài TH Hà Nội kênh 2 [VN-only]",
     vtvgoUrl: "https://hanoitv.vn/",
     m3u8Url: "https://live.fptplay53.net/fnxhd1/hanoitv2hd_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "THVL1 Vĩnh Long",
+    name: "THVL1 Vĩnh Long", cat: "local",
     desc: "Đài TH Vĩnh Long [VN-only]",
     vtvgoUrl: "https://thvli.vn/live/thvl1",
     m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong1_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "THVL2",
+    name: "THVL2", cat: "local",
     desc: "Vĩnh Long 2 [VN-only]",
     vtvgoUrl: "https://thvli.vn/live/thvl2",
     m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong2_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "THVL3",
+    name: "THVL3", cat: "local",
     desc: "Vĩnh Long 3 [VN-only]",
     vtvgoUrl: "https://thvli.vn/live/thvl3",
     m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong3_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "THVL4",
+    name: "THVL4", cat: "local",
     desc: "Vĩnh Long 4 [VN-only]",
     vtvgoUrl: "https://thvli.vn/live/thvl4",
     m3u8Url: "https://live.fptplay53.net/epzhd2/vinhlong4_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "Đồng Tháp TV",
+    name: "Đồng Tháp TV", cat: "local",
     desc: "Đài TH Đồng Tháp [VN-only]",
     vtvgoUrl: "https://thdt.vn/",
     m3u8Url: "https://live.fptplay53.net/epzsd1/dongthap_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "Huế TV",
+    name: "Huế TV", cat: "local",
     desc: "Đài TRT Thừa Thiên Huế [VN-only]",
     vtvgoUrl: "https://trt.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzsd1/hue_hls.smil/chunklist.m3u8"
   },
   {
-    name: "Cần Thơ TV1",
+    name: "Cần Thơ TV1", cat: "local",
     desc: "Tây Nam Bộ",
     vtvgoUrl: "https://vtvgo.vn/channel/vtv-can-tho-1,6.html",
     m3u8Url: "https://live.canthotv.vn/live/tv/chunklist.m3u8"
@@ -444,13 +540,13 @@ const CHANNELS = [
 
   // ===== HTVC mở rộng =====
   {
-    name: "HTVC Gia Đình",
+    name: "HTVC Gia Đình", cat: "htv",
     desc: "Phim/giải trí gia đình [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist.m3u8"
   },
   {
-    name: "HTVC+",
+    name: "HTVC+", cat: "htv",
     desc: "Tổng hợp HTVC [VN-only]",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://live.fptplay53.net/epzhd1/htvcplus_vhls.smil/chunklist.m3u8"
@@ -458,13 +554,13 @@ const CHANNELS = [
 
   // ===== Tin tức / Quốc phòng VN (vtvprime CDN, hoạt động global) =====
   {
-    name: "ANTV",
+    name: "ANTV", cat: "news_vn",
     desc: "An ninh TV (Bộ Công an)",
     vtvgoUrl: "https://antv.gov.vn/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/ANNINHTV/index.m3u8"
   },
   {
-    name: "QPVN HD",
+    name: "QPVN HD", cat: "news_vn",
     desc: "Quốc phòng VN",
     vtvgoUrl: "https://qpvn.vn/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/QPTV/index.m3u8"
@@ -472,25 +568,25 @@ const CHANNELS = [
 
   // ===== SCTV (giải trí) =====
   {
-    name: "SCTV1",
+    name: "SCTV1", cat: "sctv",
     desc: "Giải trí tổng hợp",
     vtvgoUrl: "https://sctv.com.vn/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/SCTV1/index.m3u8"
   },
   {
-    name: "SCTV2",
+    name: "SCTV2", cat: "sctv",
     desc: "Giải trí - YouTV",
     vtvgoUrl: "https://sctv.com.vn/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/SCTV2/index.m3u8"
   },
   {
-    name: "SCTV4",
+    name: "SCTV4", cat: "sctv",
     desc: "Phim Việt",
     vtvgoUrl: "https://sctv.com.vn/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/SCTV4/index.m3u8"
   },
   {
-    name: "HTV Key",
+    name: "HTV Key", cat: "htv",
     desc: "Phim - Giáo dục",
     vtvgoUrl: "https://hplus.com.vn/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/HTVKey/index.m3u8"
@@ -498,43 +594,43 @@ const CHANNELS = [
 
   // ===== Tin tức quốc tế =====
   {
-    name: "DW",
+    name: "DW", cat: "intl",
     desc: "Deutsche Welle (Đức) - English",
     vtvgoUrl: "https://www.dw.com/en/live-tv/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/DW/03.m3u8"
   },
   {
-    name: "France 24",
+    name: "France 24", cat: "intl",
     desc: "Tin Pháp - English",
     vtvgoUrl: "https://www.france24.com/en/live",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/FRANCE24/03.m3u8"
   },
   {
-    name: "NHK World",
+    name: "NHK World", cat: "intl",
     desc: "Tin Nhật - English",
     vtvgoUrl: "https://www3.nhk.or.jp/nhkworld/en/live/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/NHKWORLD/03.m3u8"
   },
   {
-    name: "KBS World",
+    name: "KBS World", cat: "intl",
     desc: "Tin Hàn - tiếng Việt",
     vtvgoUrl: "https://kbsworld.kbs.co.kr/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/KBS/03.m3u8"
   },
   {
-    name: "Arirang",
+    name: "Arirang", cat: "intl",
     desc: "Văn hoá Hàn Quốc",
     vtvgoUrl: "https://www.arirang.com/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/ARIRANG/03.m3u8"
   },
   {
-    name: "TV5Monde",
+    name: "TV5Monde", cat: "intl",
     desc: "Tin Pháp ngữ",
     vtvgoUrl: "https://www.tv5monde.com/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/TV5/03.m3u8"
   },
   {
-    name: "Da Vinci",
+    name: "Da Vinci", cat: "intl",
     desc: "Khoa học - Khám phá",
     vtvgoUrl: "https://davinci.tv/",
     m3u8Url: "https://liveh12.vtvprime.vn/hls/DAVINVY/04.m3u8"
@@ -544,9 +640,12 @@ const CHANNELS = [
 const LS_KEY = "vtv_last_channel";
 const IFRAME_TIMEOUT_MS = 5000;
 
-const homeView      = document.getElementById("homeView");
-const playerView    = document.getElementById("playerView");
-const channelGrid   = document.getElementById("channelGrid");
+const homeView         = document.getElementById("homeView");
+const playerView       = document.getElementById("playerView");
+const channelSections  = document.getElementById("channelSections");
+const tabBar           = document.getElementById("tabBar");
+const searchInput      = document.getElementById("searchInput");
+const emptyHint        = document.getElementById("emptyHint");
 const playerShell   = document.getElementById("playerShell");
 const backBtn       = document.getElementById("backBtn");
 const forceHlsBtn   = document.getElementById("forceHlsBtn");
@@ -560,36 +659,90 @@ let currentHls = null;       // hls.js instance hiện tại (để destroy khi 
 let iframeTimer = null;      // timer kiểm tra iframe load
 let stallWatchdog = null;    // interval kiểm tra video có thật sự kẹt không
 
-// ===== Render grid kênh =====
-function renderHome() {
-  channelGrid.innerHTML = "";
-  CHANNELS.forEach((ch, idx) => {
-    const card = document.createElement("div");
-    card.className = "channel-card";
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `Xem ${ch.name}`);
+// ===== State filter =====
+let currentCat = "all";
+let searchQuery = "";
 
-    const name = document.createElement("div");
-    name.className = "name";
-    name.textContent = ch.name;
-
-    const desc = document.createElement("div");
-    desc.className = "desc";
-    desc.textContent = ch.desc;
-
-    card.appendChild(name);
-    card.appendChild(desc);
-    card.addEventListener("click", () => playChannel(idx));
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        playChannel(idx);
-      }
+// ===== Render filter tabs (1 lần khi load) =====
+function renderTabs() {
+  tabBar.innerHTML = "";
+  CATEGORIES.forEach((c) => {
+    const count = c.id === "all"
+      ? CHANNELS.length
+      : CHANNELS.filter((ch) => ch.cat === c.id).length;
+    const btn = document.createElement("div");
+    btn.className = "tab" + (c.id === currentCat ? " active" : "");
+    btn.dataset.cat = c.id;
+    btn.innerHTML = `${c.label}<span class="count">${count}</span>`;
+    btn.addEventListener("click", () => {
+      currentCat = c.id;
+      tabBar.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.cat === c.id));
+      renderHome();
     });
-
-    channelGrid.appendChild(card);
+    tabBar.appendChild(btn);
   });
+}
+
+// ===== Render grid kênh — chia theo section + áp filter =====
+function renderHome() {
+  channelSections.innerHTML = "";
+  const q = searchQuery.trim().toLowerCase();
+  let totalVisible = 0;
+
+  CATEGORIES.filter((c) => c.id !== "all").forEach((c) => {
+    // Filter theo cat (nếu đang chọn 1 cat cụ thể) + theo search
+    if (currentCat !== "all" && currentCat !== c.id) return;
+    const items = CHANNELS
+      .map((ch, idx) => ({ ch, idx }))
+      .filter(({ ch }) => ch.cat === c.id)
+      .filter(({ ch }) => !q || ch.name.toLowerCase().includes(q) || ch.desc.toLowerCase().includes(q));
+    if (items.length === 0) return;
+
+    const section = document.createElement("section");
+    section.className = "channel-section";
+
+    const header = document.createElement("div");
+    header.className = "section-header";
+    header.innerHTML = `<h2>${c.label}</h2><span class="count">${items.length} kênh</span>`;
+    section.appendChild(header);
+
+    const grid = document.createElement("div");
+    grid.className = "channel-grid";
+    items.forEach(({ ch, idx }) => grid.appendChild(makeCard(ch, idx)));
+    section.appendChild(grid);
+
+    channelSections.appendChild(section);
+    totalVisible += items.length;
+  });
+
+  emptyHint.hidden = totalVisible > 0;
+}
+
+function makeCard(ch, idx) {
+  const card = document.createElement("div");
+  card.className = "channel-card";
+  card.tabIndex = 0;
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-label", `Xem ${ch.name}`);
+
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = ch.name;
+
+  const desc = document.createElement("div");
+  desc.className = "desc";
+  desc.textContent = ch.desc;
+
+  card.appendChild(name);
+  card.appendChild(desc);
+  card.addEventListener("click", () => playChannel(idx));
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      playChannel(idx);
+    }
+  });
+  return card;
 }
 
 // ===== Chuyển sang view player =====
@@ -911,6 +1064,15 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
+// Search debounce: rerender mỗi khi user gõ
+let searchDebounce = null;
+searchInput.addEventListener("input", (e) => {
+  searchQuery = e.target.value || "";
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(renderHome, 120);
+});
+
+renderTabs();
 renderHome();
 
 // Khôi phục kênh đang xem khi reload (optional)
