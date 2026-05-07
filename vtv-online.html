@@ -1428,6 +1428,7 @@ function cleanupPlayer() {
   if (stallWatchdog) { clearInterval(stallWatchdog); stallWatchdog = null; }
   if (currentHls)    { currentHls.destroy(); currentHls = null; }
   playerShell.innerHTML = "";
+  clearMediaSession();
 }
 
 // ===== UI helpers =====
@@ -1481,6 +1482,53 @@ function tryPlayWithSound(video) {
     video.play().catch(() => {});
     showUnmuteHint(video);
   });
+}
+
+/* MediaSession API — show controls trên lock screen + notification panel.
+   Cần thiết để Android Chrome cho phép phát audio khi tắt màn hình.
+   iOS Safari: hiển thị info nhưng background playback bị giới hạn nhiều
+   (chỉ hoạt động ổn với <audio> element ở PWA standalone). */
+function setupMediaSession(channel, video) {
+  if (!("mediaSession" in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: channel.name,
+      artist: channel.cat === "radio" ? "Đài Tiếng nói Việt Nam" : "Live TV",
+      album: channel.desc || "VTV Online",
+      artwork: [
+        { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+        { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" }
+      ]
+    });
+    navigator.mediaSession.setActionHandler("play",  () => video.play().catch(() => {}));
+    navigator.mediaSession.setActionHandler("pause", () => video.pause());
+    navigator.mediaSession.setActionHandler("stop",  () => { video.pause(); });
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      const nx = siblingChannel(+1);
+      if (nx) playChannel(CHANNELS.indexOf(nx));
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      const pv = siblingChannel(-1);
+      if (pv) playChannel(CHANNELS.indexOf(pv));
+    });
+    // Live stream — không seek
+    navigator.mediaSession.setActionHandler("seekbackward", null);
+    navigator.mediaSession.setActionHandler("seekforward", null);
+
+    video.addEventListener("playing", () => { navigator.mediaSession.playbackState = "playing"; });
+    video.addEventListener("pause",   () => { navigator.mediaSession.playbackState = "paused"; });
+  } catch (e) {
+    console.warn("[VTV] MediaSession setup failed:", e);
+  }
+}
+function clearMediaSession() {
+  if (!("mediaSession" in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = null;
+    navigator.mediaSession.playbackState = "none";
+    ["play","pause","stop","nexttrack","previoustrack","seekbackward","seekforward"]
+      .forEach((a) => navigator.mediaSession.setActionHandler(a, null));
+  } catch (e) {}
 }
 
 /* Hiện overlay "🔊 Bật tiếng" — bấm sẽ unmute (click = user-activation). */
@@ -1677,6 +1725,7 @@ function tryHls(channel) {
     video.addEventListener("loadedmetadata", () => {
       removeLoading();
       tryPlayWithSound(video);
+      setupMediaSession(channel, video);
     });
     video.addEventListener("error", () => {
       showError(channel, "Không tải được luồng m3u8 (có thể link đã hết hạn).");
@@ -1717,6 +1766,7 @@ function tryHls(channel) {
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       removeLoading();
       tryPlayWithSound(video);
+      setupMediaSession(channel, video);
       startStallWatchdog(video, channel);
       // Seek đến gần live edge (ví dụ user reload sau khi tab pause lâu).
       // Đợi 800ms cho buffer initial rồi seek.
