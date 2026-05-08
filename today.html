@@ -265,6 +265,16 @@
   /* ===== Tài chính card ===== */
   .fin-block { margin-bottom: 14px; }
   .fin-block:last-child { margin-bottom: 0; }
+  .fin-row-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .fin-row-wrap .fin-block { margin-bottom: 0; min-width: 0; }
+  .fin-row-wrap .fin-row { font-size: 12px; gap: 6px; grid-template-columns: 50px 1fr 1fr; }
+  @media (max-width: 600px) {
+    .fin-row-wrap { grid-template-columns: 1fr; gap: 12px; }
+  }
   .fin-title {
     font-size: 12px;
     color: var(--text-dim);
@@ -708,27 +718,29 @@
       <div class="hd-label" style="margin-top:8px">Giờ hoàng đạo:</div>
       <div class="hd-hours" id="hoangDao">—</div>
     </div>
-
-    <div class="card">
-      <h2><span class="icon">💰</span> Tỷ giá &amp; Vàng</h2>
-      <div class="fin-block" id="exchangeBlock">
-        <div class="loading-pulse">Đang tải tỷ giá Vietcombank…</div>
-      </div>
-      <div class="fin-block" id="goldBlock">
-        <div class="loading-pulse">Đang tải giá vàng PNJ…</div>
-      </div>
-    </div>
   </div>
 
-  <!-- Giá xăng dầu -->
+  <!-- Tỷ giá & Vàng | Giá xăng -->
   <div class="grid">
-    <div class="card" style="grid-column: 1 / -1">
+    <div class="card">
+      <h2><span class="icon">💰</span> Tỷ giá &amp; Vàng</h2>
+      <div class="fin-row-wrap">
+        <div class="fin-block" id="exchangeBlock">
+          <div class="loading-pulse">Đang tải tỷ giá Vietcombank…</div>
+        </div>
+        <div class="fin-block" id="goldBlock">
+          <div class="loading-pulse">Đang tải giá vàng PNJ…</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
       <h2><span class="icon">⛽</span> Giá xăng dầu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="fuelSrc">Saigon Petro</span></h2>
       <div class="fuel-grid" id="fuelBlock">
         <div class="loading-pulse">Đang tải giá xăng…</div>
       </div>
     </div>
   </div>
+
 
   <!-- Ngày này năm xưa | Sự kiện sắp tới -->
   <div class="grid">
