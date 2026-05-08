@@ -57,61 +57,47 @@
     font-size: 13px;
   }
   header h1 span { color: var(--accent); }
-  /* Banner ngày + giờ to nổi bật */
+  /* Banner ngày + giờ — gọn, một dòng */
   .date-banner {
-    margin-top: 10px;
+    margin-top: 14px;
     display: inline-flex;
-    align-items: center;
-    gap: 18px;
-    padding: 14px 28px;
-    background: linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(245,158,11,0.05) 100%);
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 22px;
+    background: rgba(255,255,255,0.02);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 999px;
     flex-wrap: wrap;
     justify-content: center;
   }
-  .date-banner .date-main {
-    text-align: left;
-  }
   .date-banner .weekday {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--accent);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1.5px;
   }
   .date-banner .date-num {
-    font-size: 32px;
-    font-weight: 800;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text);
-    line-height: 1;
-    margin-top: 4px;
-    letter-spacing: -0.5px;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
   }
-  .date-banner .clock-divider {
-    width: 1px;
-    height: 50px;
+  .date-banner .dot {
+    width: 4px; height: 4px; border-radius: 50%;
     background: var(--border);
+    align-self: center;
   }
   .date-banner .clock {
-    font-size: 38px;
-    font-weight: 800;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--accent-2);
-    line-height: 1;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 1px;
-    text-shadow: 0 0 24px rgba(245,158,11,0.3);
-  }
-  .date-banner .clock-sec {
-    font-size: 0.6em;
-    opacity: 0.7;
+    letter-spacing: 0.5px;
   }
   @media (max-width: 600px) {
-    .date-banner { padding: 12px 18px; gap: 12px; }
-    .date-banner .date-num { font-size: 24px; }
-    .date-banner .clock { font-size: 30px; }
-    .date-banner .clock-divider { height: 40px; }
+    .date-banner { padding: 8px 16px; gap: 10px; }
   }
 
   /* ===== Hero: Weather + Date ===== */
@@ -401,12 +387,10 @@
   <header>
     <h1><span>Hôm</span> Nay — Dashboard VN</h1>
     <div class="date-banner">
-      <div class="date-main">
-        <div class="weekday" id="weekday">—</div>
-        <div class="date-num" id="dateNum">—</div>
-      </div>
-      <div class="clock-divider"></div>
-      <div class="clock" id="clock">--:--<span class="clock-sec">:--</span></div>
+      <div class="weekday" id="weekday">—</div>
+      <div class="date-num" id="dateNum">—</div>
+      <div class="dot"></div>
+      <div class="clock" id="clock">--:--:--</div>
     </div>
   </header>
 
@@ -465,45 +449,6 @@
       <h2><span class="icon">📰</span> Tin nóng <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">VnExpress · Tuổi Trẻ · Dân Trí</span></h2>
       <div class="news-list" id="newsList">
         <div class="loading-pulse">Đang tải tin tức…</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Liên kết nhanh -->
-  <div class="grid">
-    <div class="card links-card">
-      <h2><span class="icon">🔗</span> Truy cập nhanh</h2>
-      <div class="links-grid">
-        <a class="link-tile" href="https://online.personal.io.vn" target="_blank" rel="noopener">
-          <div class="ic">📺</div>
-          <div class="nm">VTV Online</div>
-          <div class="sub">Xem TV trực tuyến</div>
-        </a>
-        <a class="link-tile" href="https://doibong.personal.io.vn" target="_blank" rel="noopener">
-          <div class="ic">⚽</div>
-          <div class="nm">FC Tổ 10</div>
-          <div class="sub">Đội bóng Thủy Châu</div>
-        </a>
-        <a class="link-tile" href="https://love.personal.io.vn" target="_blank" rel="noopener">
-          <div class="ic">💕</div>
-          <div class="nm">Love</div>
-          <div class="sub">Kỷ niệm yêu nhau</div>
-        </a>
-        <a class="link-tile" href="https://soc.personal.io.vn" target="_blank" rel="noopener">
-          <div class="ic">👶</div>
-          <div class="nm">Bé Sóc</div>
-          <div class="sub">Nguyễn Đức Thịnh</div>
-        </a>
-        <a class="link-tile" href="https://gia-dinh-nguyen-viet.personal.io.vn" target="_blank" rel="noopener">
-          <div class="ic">🏛️</div>
-          <div class="nm">Gia phả</div>
-          <div class="sub">Họ Nguyễn Việt</div>
-        </a>
-        <a class="link-tile" href="https://me.personal.io.vn" target="_blank" rel="noopener">
-          <div class="ic">👤</div>
-          <div class="nm">Hồ sơ cá nhân</div>
-          <div class="sub">About me</div>
-        </a>
       </div>
     </div>
   </div>
@@ -873,7 +818,7 @@ function tickClock() {
   const hh = pad(now.getHours());
   const mm = pad(now.getMinutes());
   const ss = pad(now.getSeconds());
-  document.getElementById("clock").innerHTML = `${hh}:${mm}<span class="clock-sec">:${ss}</span>`;
+  document.getElementById("clock").textContent = `${hh}:${mm}:${ss}`;
 
   // Khi qua ngày mới → render lại lich am
   const dayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
