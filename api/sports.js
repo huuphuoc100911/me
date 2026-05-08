@@ -3,7 +3,6 @@
 // Bổ sung badge cờ đội: TheSportsDB free (chỉ có ~15 trận đầu)
 
 const OPENFB_URL = "https://raw.githubusercontent.com/openfootball/world-cup.json/master/2026/worldcup.json";
-const SDB_URL = "https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2026";
 const TTL_MS = 6 * 60 * 60 * 1000;
 
 let cache = { ts: 0, data: null };
@@ -31,20 +30,24 @@ async function fetchOpenFb() {
   return r.json();
 }
 
-async function fetchBadges() {
-  try {
-    const r = await fetch(SDB_URL, { headers: { "User-Agent": "DashboardVN/1.0" } });
-    if (!r.ok) return {};
-    const j = await r.json();
-    const map = {};
-    for (const e of (j.events || [])) {
-      if (e.strHomeTeam && e.strHomeTeamBadge) map[e.strHomeTeam.toLowerCase()] = e.strHomeTeamBadge;
-      if (e.strAwayTeam && e.strAwayTeamBadge) map[e.strAwayTeam.toLowerCase()] = e.strAwayTeamBadge;
-    }
-    return map;
-  } catch {
-    return {};
-  }
+// Map tên đội (openfootball) → ISO code cho flagcdn.com
+const FLAG_ISO = {
+  "algeria":"dz","argentina":"ar","australia":"au","austria":"at","belgium":"be",
+  "bosnia & herzegovina":"ba","brazil":"br","canada":"ca","cape verde":"cv",
+  "colombia":"co","croatia":"hr","curaçao":"cw","czech republic":"cz","dr congo":"cd",
+  "ecuador":"ec","egypt":"eg","england":"gb-eng","france":"fr","germany":"de",
+  "ghana":"gh","haiti":"ht","iran":"ir","iraq":"iq","ivory coast":"ci","japan":"jp",
+  "jordan":"jo","mexico":"mx","morocco":"ma","netherlands":"nl","new zealand":"nz",
+  "norway":"no","panama":"pa","paraguay":"py","portugal":"pt","qatar":"qa",
+  "saudi arabia":"sa","scotland":"gb-sct","senegal":"sn","south africa":"za",
+  "south korea":"kr","spain":"es","sweden":"se","switzerland":"ch","tunisia":"tn",
+  "turkey":"tr","usa":"us","uruguay":"uy","uzbekistan":"uz"
+};
+
+function flagFor(name) {
+  if (!name) return null;
+  const iso = FLAG_ISO[name.toLowerCase()];
+  return iso ? `https://flagcdn.com/w40/${iso}.png` : null;
 }
 
 module.exports = async (req, res) => {
@@ -58,7 +61,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const [json, badges] = await Promise.all([fetchOpenFb(), fetchBadges()]);
+    const json = await fetchOpenFb();
     const all = (json.matches || []).map((m) => {
       const ts = parseKickoff(m.date, m.time);
       return {
@@ -69,8 +72,8 @@ module.exports = async (req, res) => {
         venue: m.ground || null,
         home: m.team1,
         away: m.team2,
-        homeBadge: badges[(m.team1 || "").toLowerCase()] || null,
-        awayBadge: badges[(m.team2 || "").toLowerCase()] || null,
+        homeBadge: flagFor(m.team1),
+        awayBadge: flagFor(m.team2),
         homeScore: m.score1 != null ? m.score1 : null,
         awayScore: m.score2 != null ? m.score2 : null
       };
