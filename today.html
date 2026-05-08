@@ -451,12 +451,27 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
+    table-layout: fixed;
   }
+  .bxh-table col.c-pos { width: 28px; }
+  .bxh-table col.c-team { width: auto; }
+  .bxh-table col.c-num { width: 36px; }
+  .bxh-table col.c-pts { width: 44px; }
   .bxh-table th, .bxh-table td {
     padding: 6px 4px;
     text-align: center;
     border-bottom: 1px solid var(--border);
     font-variant-numeric: tabular-nums;
+  }
+  .bxh-table .team-cell span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .bxh-table { font-size: 11px; }
+    .bxh-table col.c-num { width: 28px; }
+    .bxh-table col.c-pts { width: 36px; }
   }
   .bxh-table th {
     color: var(--text-fade);
@@ -1200,6 +1215,11 @@ function renderStandings(standings) {
     <div class="bxh-group">
       <h3>${g.group}</h3>
       <table class="bxh-table">
+        <colgroup>
+          <col class="c-pos"><col class="c-team">
+          <col class="c-num"><col class="c-num"><col class="c-num"><col class="c-num">
+          <col class="c-num"><col class="c-num"><col class="c-num"><col class="c-pts">
+        </colgroup>
         <thead>
           <tr><th class="pos">#</th><th style="text-align:left">Đội</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr>
         </thead>

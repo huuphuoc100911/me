@@ -91,7 +91,8 @@ async function fromFootballData(key) {
   const standings = [];
   for (const grp of (sj.standings || [])) {
     if (grp.type !== "TOTAL") continue;
-    const groupName = grp.group ? `Group ${grp.group.replace("GROUP_", "")}` : (grp.stage || "—");
+    const raw = grp.group ? String(grp.group).replace(/^GROUP[_\s]/i, "").replace(/^Group\s/i, "") : null;
+    const groupName = raw ? `Group ${raw}` : (grp.stage || "—");
     standings.push({
       group: groupName,
       table: (grp.table || []).map((t) => ({
