@@ -161,16 +161,22 @@ module.exports = async (req, res) => {
 
   try {
     const key = process.env.FOOTBALL_DATA_API_KEY;
+    console.log("[sports] env key present:", !!key, key ? `(len=${key.length})` : "");
     let result;
     if (key) {
-      try { result = await fromFootballData(key); }
-      catch (e) {
+      try {
+        result = await fromFootballData(key);
+        console.log("[sports] using football-data.org (live)");
+      } catch (e) {
         console.warn("[sports] FD fail, fallback openfootball:", e.message);
         result = await fromOpenFootball();
       }
     } else {
       result = await fromOpenFootball();
+      console.log("[sports] using openfootball (no key)");
     }
+    const withScore = result.matches.filter((m) => m.homeScore != null && m.awayScore != null).length;
+    console.log(`[sports] total=${result.matches.length} finished=${withScore}`);
 
     if (!result.standings) result.standings = computeStandings(result.matches);
     result.matches.sort((a, b) => (a.ts || 0) - (b.ts || 0));

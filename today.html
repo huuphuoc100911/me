@@ -1251,6 +1251,9 @@ async function loadSports() {
     const r = await fetch("/api/sports");
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json();
+    const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
+    console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
+    if (finished.length) console.log("[WC] sample finished:", finished.slice(0, 3).map((m) => `${m.home} ${m.homeScore}-${m.awayScore} ${m.away}`));
     renderStandings(d.standings);
     const all = d.matches || [];
     const nowMs = Date.now();
