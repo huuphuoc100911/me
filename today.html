@@ -71,11 +71,11 @@
     justify-content: center;
   }
   .date-banner .weekday {
-    font-size: 12px;
+    font-size: 18px;
     color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
   }
   .date-banner .date-num {
     font-size: 18px;
@@ -286,13 +286,104 @@
   .fin-row .sell { color: var(--bad); text-align: right; font-variant-numeric: tabular-nums; }
   .fin-row .head { color: var(--text-fade); font-size: 11px; text-transform: uppercase; }
 
+  /* ===== Giá xăng card ===== */
+  .fuel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .fuel-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .fuel-item .nm {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .fuel-item .pr {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .fuel-item .pr small {
+    font-size: 11px;
+    color: var(--text-fade);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+
+  /* ===== Ngày này năm xưa ===== */
+  .otd-list { display: flex; flex-direction: column; gap: 10px; }
+  .otd-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+  }
+  .otd-item .yr {
+    font-weight: 800;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 48px;
+    font-size: 14px;
+  }
+  .otd-item .tx {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ===== Sự kiện sắp tới ===== */
+  .ev-list { display: flex; flex-direction: column; gap: 8px; }
+  .ev-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .ev-item.today { border-color: var(--accent); background: rgba(6,182,212,0.08); }
+  .ev-item .ic { font-size: 18px; }
+  .ev-item .nm { font-size: 13px; font-weight: 600; color: var(--text); }
+  .ev-item .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .ev-item .dd {
+    text-align: right;
+    font-size: 12px;
+    color: var(--accent-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .ev-item.today .dd { color: var(--accent); }
+
   /* ===== Tin tức card ===== */
   .news-card { grid-column: 1 / -1; }
   .news-list {
     display: flex;
     flex-direction: column;
     gap: 0;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
   }
+  .news-list::-webkit-scrollbar { width: 6px; }
+  .news-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  .news-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
   .news-item {
     display: flex;
     gap: 14px;
@@ -439,6 +530,32 @@
       </div>
       <div class="fin-block" id="goldBlock">
         <div class="loading-pulse">Đang tải giá vàng PNJ…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Giá xăng dầu -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">⛽</span> Giá xăng dầu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="fuelSrc">Saigon Petro</span></h2>
+      <div class="fuel-grid" id="fuelBlock">
+        <div class="loading-pulse">Đang tải giá xăng…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ngày này năm xưa | Sự kiện sắp tới -->
+  <div class="grid">
+    <div class="card">
+      <h2><span class="icon">📜</span> Ngày này năm xưa</h2>
+      <div class="otd-list" id="otdBlock">
+        <div class="loading-pulse">Đang tải…</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="icon">🎉</span> Sự kiện sắp tới</h2>
+      <div class="ev-list" id="evBlock">
+        <div class="loading-pulse">Đang tính…</div>
       </div>
     </div>
   </div>
@@ -745,6 +862,151 @@ async function loadFinance() {
   }
 }
 
+async function loadOnThisDay() {
+  const block = document.getElementById("otdBlock");
+  try {
+    const r = await fetch("/api/onthisday");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const items = d.items || [];
+    if (!items.length) throw new Error("Trống");
+    block.innerHTML = items.map((it) => `
+      <div class="otd-item">
+        <div class="yr">${it.year || "—"}</div>
+        <div class="tx">${it.text}</div>
+      </div>
+    `).join("");
+  } catch (e) {
+    block.innerHTML = `<div class="err-msg">Không tải được (${e.message})</div>`;
+  }
+}
+
+/* ===== Sự kiện sắp tới ===== */
+const VN_HOLIDAYS_SOLAR = [
+  { m: 1,  d: 1,  name: "Tết Dương lịch",    icon: "🎊" },
+  { m: 2,  d: 14, name: "Valentine",          icon: "💝" },
+  { m: 3,  d: 8,  name: "Quốc tế Phụ nữ",     icon: "🌷" },
+  { m: 4,  d: 30, name: "Giải phóng miền Nam", icon: "🇻🇳" },
+  { m: 5,  d: 1,  name: "Quốc tế Lao động",   icon: "🛠️" },
+  { m: 5,  d: 19, name: "Sinh nhật Bác",      icon: "⭐" },
+  { m: 6,  d: 1,  name: "Quốc tế Thiếu nhi",  icon: "🧒" },
+  { m: 7,  d: 27, name: "Thương binh – Liệt sĩ", icon: "🕊️" },
+  { m: 9,  d: 2,  name: "Quốc khánh",         icon: "🇻🇳" },
+  { m: 10, d: 20, name: "Phụ nữ Việt Nam",    icon: "🌸" },
+  { m: 11, d: 20, name: "Nhà giáo Việt Nam",  icon: "👨‍🏫" },
+  { m: 12, d: 22, name: "Quân đội Nhân dân",  icon: "🎖️" },
+  { m: 12, d: 25, name: "Giáng sinh",         icon: "🎄" }
+];
+const VN_HOLIDAYS_LUNAR = [
+  { m: 1,  d: 1,  name: "Tết Nguyên Đán",     icon: "🧧" },
+  { m: 1,  d: 15, name: "Rằm tháng Giêng",    icon: "🌕" },
+  { m: 3,  d: 10, name: "Giỗ Tổ Hùng Vương",  icon: "🏯" },
+  { m: 5,  d: 5,  name: "Tết Đoan Ngọ",       icon: "🍡" },
+  { m: 7,  d: 15, name: "Vu Lan",             icon: "🪷" },
+  { m: 8,  d: 15, name: "Tết Trung Thu",      icon: "🥮" },
+  { m: 12, d: 23, name: "Ông Công Ông Táo",   icon: "🐠" }
+];
+
+function nextSolarOccurrence(month, day, today) {
+  const y = today.getFullYear();
+  const todayMidnight = new Date(y, today.getMonth(), today.getDate());
+  let dt = new Date(y, month - 1, day);
+  if (dt < todayMidnight) dt = new Date(y + 1, month - 1, day);
+  return dt;
+}
+
+function nextLunarOccurrence(lunarM, lunarD, today) {
+  // Quét tới 400 ngày, tìm ngày dương đầu tiên có lunar khớp
+  for (let i = 0; i < 420; i++) {
+    const dt = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    const lu = solarToLunar(dt.getDate(), dt.getMonth() + 1, dt.getFullYear());
+    if (lu.month === lunarM && lu.day === lunarD && !lu.leap) return dt;
+  }
+  return null;
+}
+
+function daysBetween(a, b) {
+  const ms = b.getTime() - new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime();
+  return Math.round(ms / 86400000);
+}
+
+async function loadEvents() {
+  const block = document.getElementById("evBlock");
+  const today = new Date();
+  const events = [];
+
+  for (const h of VN_HOLIDAYS_SOLAR) {
+    const dt = nextSolarOccurrence(h.m, h.d, today);
+    events.push({ name: h.name, icon: h.icon, date: dt, kind: "Dương lịch" });
+  }
+  for (const h of VN_HOLIDAYS_LUNAR) {
+    const dt = nextLunarOccurrence(h.m, h.d, today);
+    if (dt) events.push({ name: h.name, icon: h.icon, date: dt, kind: `Âm ${h.d}/${h.m}` });
+  }
+
+  // Sự kiện cá nhân từ /data/events.json
+  try {
+    const r = await fetch("/data/events.json");
+    if (r.ok) {
+      const j = await r.json();
+      for (const p of (j.personal || [])) {
+        if (!p.month || !p.day) continue;
+        const dt = (p.type === "lunar")
+          ? nextLunarOccurrence(p.month, p.day, today)
+          : nextSolarOccurrence(p.month, p.day, today);
+        if (dt) events.push({
+          name: p.name, icon: p.icon || "🎁",
+          date: dt,
+          kind: p.note || (p.type === "lunar" ? `Âm ${p.day}/${p.month}` : `${String(p.day).padStart(2,"0")}/${String(p.month).padStart(2,"0")}`)
+        });
+      }
+    }
+  } catch (_) {}
+
+  events.sort((a, b) => a.date - b.date);
+  const top = events.slice(0, 5);
+
+  if (!top.length) {
+    block.innerHTML = `<div class="err-msg">Không có sự kiện</div>`;
+    return;
+  }
+  block.innerHTML = top.map((e) => {
+    const days = daysBetween(today, e.date);
+    const label = days === 0 ? "Hôm nay" : days === 1 ? "Ngày mai" : `Còn ${days} ngày`;
+    const dateStr = `${String(e.date.getDate()).padStart(2,"0")}/${String(e.date.getMonth()+1).padStart(2,"0")}`;
+    return `
+      <div class="ev-item ${days === 0 ? "today" : ""}">
+        <div class="ic">${e.icon}</div>
+        <div>
+          <div class="nm">${e.name}</div>
+          <div class="sub">${dateStr} · ${e.kind}</div>
+        </div>
+        <div class="dd">${label}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function loadFuel() {
+  const block = document.getElementById("fuelBlock");
+  try {
+    const r = await fetch("/api/fuel");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const items = d.items || [];
+    if (!items.length) throw new Error("Không có dữ liệu");
+    block.innerHTML = items.map((it) => `
+      <div class="fuel-item">
+        <div class="nm">${it.name}</div>
+        <div class="pr">${it.price.toLocaleString("vi-VN")}<small>${it.unit || "đ/lít"}</small></div>
+      </div>
+    `).join("");
+    if (d.source) document.getElementById("fuelSrc").textContent = d.source;
+  } catch (e) {
+    block.innerHTML = `<div class="err-msg">Không tải được giá xăng (${e.message})</div>`;
+  }
+}
+
 /* =================================================================
    4. TIN TỨC qua /api/news
    ================================================================= */
@@ -804,6 +1066,9 @@ renderLunar();
 const savedCity = localStorage.getItem(LS_CITY) || "hue";
 setCity(savedCity);
 loadFinance();
+loadFuel();
+loadOnThisDay();
+loadEvents();
 loadNews();
 
 document.getElementById("updated").textContent = new Date().toLocaleTimeString("vi-VN");

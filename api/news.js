@@ -8,8 +8,8 @@ const SOURCES = [
 ];
 
 const TTL_MS = 10 * 60 * 1000;
-const PER_SOURCE = 6;
-const TOTAL_LIMIT = 15;
+const PER_SOURCE = 12;
+const TOTAL_LIMIT = 30;
 
 let cache = { ts: 0, data: null };
 
