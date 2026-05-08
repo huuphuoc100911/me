@@ -370,18 +370,44 @@
   .wc-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    max-height: 420px;
+    gap: 6px;
+    max-height: 480px;
     overflow-y: auto;
     padding-right: 6px;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
   }
+  .wc-day {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 4px 4px;
+    border-bottom: 1px solid var(--border);
+    margin-top: 6px;
+    z-index: 1;
+  }
+  .wc-day span {
+    color: var(--text-fade);
+    font-weight: 500;
+    margin-left: 8px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .wc-match .badge-fallback {
+    width: 24px; height: 24px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
   .wc-list::-webkit-scrollbar { width: 6px; }
   .wc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .wc-match {
     display: grid;
-    grid-template-columns: 70px 1fr auto 1fr;
+    grid-template-columns: 50px 1fr auto 1fr;
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
@@ -430,7 +456,7 @@
     font-variant-numeric: tabular-nums;
   }
   @media (max-width: 600px) {
-    .wc-match { grid-template-columns: 60px 1fr auto 1fr; gap: 6px; padding: 8px; }
+    .wc-match { grid-template-columns: 44px 1fr auto 1fr; gap: 6px; padding: 8px; }
     .wc-match .team .nm { font-size: 11px; }
     .wc-match .team img { width: 20px; height: 20px; }
   }
@@ -1073,12 +1099,14 @@ async function loadSports() {
     const r = await fetch("/api/sports");
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json();
-    const matches = d.upcoming || [];
+    const all = d.matches || [];
+    const nowMs = Date.now();
+    const matches = all.filter((m) => !m.ts || m.ts >= nowMs - 3 * 3600 * 1000);
     if (!matches.length) {
       block.innerHTML = `<div class="err-msg">Chưa có lịch thi đấu</div>`;
       return;
     }
-    meta.textContent = `${matches.length}/${d.total || matches.length} trận sắp tới`;
+    meta.textContent = `${matches.length}/${d.total || matches.length} trận còn lại`;
 
     const nowMs = Date.now();
     const fmt = (ts) => {
@@ -1091,8 +1119,19 @@ async function loadSports() {
       return { d: `${dd}/${mm}`, t: `${hh}:${mi}` };
     };
 
+    // Group theo ngày, chèn header
+    let lastDate = "";
     block.innerHTML = matches.map((m) => {
       const { d, t } = fmt(m.ts);
+      const dt = m.ts ? new Date(m.ts) : null;
+      const dKey = dt ? `${dt.getDate()}-${dt.getMonth()}` : "";
+      let header = "";
+      if (dKey !== lastDate && dt) {
+        lastDate = dKey;
+        const wd = ["CN","T2","T3","T4","T5","T6","T7"][dt.getDay()];
+        const tag = m.group || m.round || "";
+        header = `<div class="wc-day">${wd} ${d} <span>${tag}</span></div>`;
+      }
       const isLive = m.ts && nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
       const hasScore = m.homeScore != null && m.awayScore != null;
       const center = hasScore
@@ -1100,10 +1139,10 @@ async function loadSports() {
         : `<div class="vs">VS</div>`;
       const badge = (url) => url
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
-        : "";
-      return `
+        : `<div class="badge-fallback"></div>`;
+      return `${header}
         <div class="wc-match ${isLive ? "live" : ""}">
-          <div class="when"><div class="d">${d}</div><div class="t">${t}</div></div>
+          <div class="when"><div class="t">${t}</div></div>
           <div class="team">${badge(m.homeBadge)}<div class="nm">${m.home}</div></div>
           ${center}
           <div class="team away"><div class="nm">${m.away}</div>${badge(m.awayBadge)}</div>
