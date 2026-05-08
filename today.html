@@ -254,6 +254,9 @@
     padding: 12px;
   }
   .chart-wrap svg { display: block; width: 100%; height: auto; }
+  @media (max-width: 600px) {
+    .chart-wrap { padding: 8px; }
+  }
   .chart-legend {
     display: flex;
     gap: 16px;
@@ -794,7 +797,7 @@
         <div class="loading-pulse">Đang tải dự báo…</div>
       </div>
       <div class="chart-wrap">
-        <svg id="forecastChart" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
+        <svg id="forecastChart" viewBox="0 0 600 180"></svg>
         <div class="chart-legend">
           <span><span class="sw" style="background:#ef4444"></span>Nhiệt độ cao</span>
           <span><span class="sw" style="background:#06b6d4"></span>Nhiệt độ thấp</span>
@@ -1181,7 +1184,14 @@ function drawHourlyChart(dayIdx, isoDate) {
   const rains = (_hourlyData.precipitation || []).slice(start, end).map((v) => Math.round((v || 0) * 10) / 10);
   const probs = (_hourlyData.precipitation_probability || []).slice(start, end).map((v) => v ?? 0);
 
-  const W = 600, H = 180, padL = 36, padR = 40, padT = 16, padB = 28;
+  const isMobile = window.innerWidth < 600;
+  const W = 600, H = isMobile ? 480 : 180;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const padL = isMobile ? 60 : 36;
+  const padR = isMobile ? 70 : 40;
+  const padT = isMobile ? 28 : 16;
+  const padB = isMobile ? 50 : 28;
+  const FS = isMobile ? 18 : 10;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const n = times.length;
@@ -1207,19 +1217,19 @@ function drawHourlyChart(dayIdx, isoDate) {
     const t = Math.round(tMin + (tMax - tMin) * (1 - k / 3));
     const y = padT + (innerH * k) / 3;
     ticks.push(`<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="rgba(255,255,255,0.05)"/>`);
-    ticks.push(`<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="#94a3b8" text-anchor="end">${t}°</text>`);
+    ticks.push(`<text x="${padL - 6}" y="${y + FS/3}" font-size="${FS}" fill="#94a3b8" text-anchor="end">${t}°</text>`);
   }
 
   const rTicks = [];
   for (const p of [0, 50, 100]) {
     const y = yP(p);
-    rTicks.push(`<text x="${W - padR + 6}" y="${y + 3}" font-size="10" fill="rgba(6,182,212,0.85)" text-anchor="start">${p}%</text>`);
+    rTicks.push(`<text x="${W - padR + 6}" y="${y + FS/3}" font-size="${FS}" fill="rgba(6,182,212,0.85)" text-anchor="start">${p}%</text>`);
   }
 
   const xLabels = times.map((iso, i) => {
     if (i % 6 !== 0 && i !== n - 1) return "";
     const hh = String(new Date(iso).getHours()).padStart(2, "0");
-    return `<text x="${xAt(i)}" y="${H - 8}" font-size="10" fill="#94a3b8" text-anchor="middle">${hh}h</text>`;
+    return `<text x="${xAt(i)}" y="${H - 12}" font-size="${FS}" fill="#94a3b8" text-anchor="middle">${hh}h</text>`;
   }).join("");
 
   const maxProb = Math.max(...probs, 0);
@@ -1230,16 +1240,16 @@ function drawHourlyChart(dayIdx, isoDate) {
   svg.innerHTML = `
     ${ticks.join("")}
     ${bars}
-    <path d="${linePath}" fill="none" stroke="#ef4444" stroke-width="2"/>
+    <path d="${linePath}" fill="none" stroke="#ef4444" stroke-width="${isMobile ? 3 : 2}"/>
     ${rTicks.join("")}
     ${xLabels}
-    <text x="${W - padR}" y="${padT + 4}" font-size="10" fill="var(--accent)" text-anchor="end" font-weight="600">${dStr} · theo giờ · max ${maxProb}% mưa</text>
+    <text x="${W - padR}" y="${padT - 6}" font-size="${FS}" fill="var(--accent)" text-anchor="end" font-weight="600">${dStr} · theo giờ · max ${maxProb}% mưa</text>
     <g id="chartHover" style="display:none; pointer-events:none">
       <line id="hvLine" y1="${padT}" y2="${padT + innerH}" stroke="rgba(255,255,255,0.25)" stroke-width="1" stroke-dasharray="3 3"/>
       <circle id="hvDot" r="4" fill="#ef4444" stroke="#0a0e1a" stroke-width="2"/>
       <g id="hvBox">
         <rect id="hvRect" rx="6" ry="6" fill="#0f172a" stroke="var(--border)" stroke-width="1"/>
-        <text id="hvText" font-size="11" fill="#e2e8f0"></text>
+        <text id="hvText" font-size="${FS + 1}" fill="#e2e8f0"></text>
       </g>
     </g>
     <rect x="${padL}" y="${padT}" width="${innerW}" height="${innerH}" fill="transparent" id="chartCapture" style="cursor:crosshair"/>
@@ -1289,7 +1299,14 @@ function drawHourlyChart(dayIdx, isoDate) {
 
 function drawChart(days, tmax, tmin, rain) {
   const svg = document.getElementById("forecastChart");
-  const W = 600, H = 180, padL = 36, padR = 36, padT = 16, padB = 28;
+  const isMobile = window.innerWidth < 600;
+  const W = 600, H = isMobile ? 480 : 180;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const padL = isMobile ? 60 : 36;
+  const padR = isMobile ? 50 : 36;
+  const padT = isMobile ? 28 : 16;
+  const padB = isMobile ? 50 : 28;
+  const FS = isMobile ? 18 : 10;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const n = days.length;
@@ -1317,26 +1334,26 @@ function drawChart(days, tmax, tmin, rain) {
     const t = Math.round(tMin + (tMax - tMin) * (1 - k / 3));
     const y = padT + (innerH * k) / 3;
     ticks.push(`<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`);
-    ticks.push(`<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="#94a3b8" text-anchor="end">${t}°</text>`);
+    ticks.push(`<text x="${padL - 6}" y="${y + FS/3}" font-size="${FS}" fill="#94a3b8" text-anchor="end">${t}°</text>`);
   }
 
   // Nhãn trục x
   const WD = ["CN","T2","T3","T4","T5","T6","T7"];
   const xLabels = days.map((iso, i) => {
     const dt = new Date(iso);
-    return `<text x="${xAt(i)}" y="${H - 8}" font-size="10" fill="#94a3b8" text-anchor="middle">${WD[dt.getDay()]}</text>`;
+    return `<text x="${xAt(i)}" y="${H - 12}" font-size="${FS}" fill="#94a3b8" text-anchor="middle">${WD[dt.getDay()]}</text>`;
   }).join("");
 
-  // Điểm trên line
-  const dotMax = tmax.map((v, i) => `<circle cx="${xAt(i)}" cy="${yT(v)}" r="3" fill="#ef4444"/>`).join("");
-  const dotMin = tmin.map((v, i) => `<circle cx="${xAt(i)}" cy="${yT(v)}" r="3" fill="#06b6d4"/>`).join("");
-  const labelsMax = tmax.map((v, i) => `<text x="${xAt(i)}" y="${yT(v) - 8}" font-size="10" fill="#ef4444" text-anchor="middle" font-weight="600">${v}°</text>`).join("");
+  const dotR = isMobile ? 5 : 3;
+  const dotMax = tmax.map((v, i) => `<circle cx="${xAt(i)}" cy="${yT(v)}" r="${dotR}" fill="#ef4444"/>`).join("");
+  const dotMin = tmin.map((v, i) => `<circle cx="${xAt(i)}" cy="${yT(v)}" r="${dotR}" fill="#06b6d4"/>`).join("");
+  const labelsMax = tmax.map((v, i) => `<text x="${xAt(i)}" y="${yT(v) - FS - 2}" font-size="${FS}" fill="#ef4444" text-anchor="middle" font-weight="600">${v}°</text>`).join("");
 
   svg.innerHTML = `
     ${ticks.join("")}
     ${bars}
-    <path d="${linePath(tmax)}" fill="none" stroke="#ef4444" stroke-width="2"/>
-    <path d="${linePath(tmin)}" fill="none" stroke="#06b6d4" stroke-width="2"/>
+    <path d="${linePath(tmax)}" fill="none" stroke="#ef4444" stroke-width="${isMobile ? 3 : 2}"/>
+    <path d="${linePath(tmin)}" fill="none" stroke="#06b6d4" stroke-width="${isMobile ? 3 : 2}"/>
     ${dotMax}${dotMin}${labelsMax}
     ${xLabels}
   `;
@@ -1348,6 +1365,12 @@ document.querySelectorAll("#dayToggle button").forEach((btn) => {
     document.querySelectorAll("#dayToggle button").forEach((b) => b.classList.toggle("active", b === btn));
     renderForecast();
   });
+});
+
+let _resizeT;
+window.addEventListener("resize", () => {
+  clearTimeout(_resizeT);
+  _resizeT = setTimeout(() => { if (_forecastData) renderForecast(); }, 200);
 });
 
 /* =================================================================
