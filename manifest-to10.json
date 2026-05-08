@@ -1,0 +1,16 @@
+{
+  "name": "FC Tổ 10 — Thủy Châu, Huế",
+  "short_name": "FC Tổ 10",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f5132",
+  "theme_color": "#28a745",
+  "lang": "vi",
+  "icons": [
+    { "src": "/icons/to10/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/to10/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/to10/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
