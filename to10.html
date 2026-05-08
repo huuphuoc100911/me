@@ -522,6 +522,16 @@
       font-style: italic;
       margin-top: 4px;
     }
+    .player-card.placeholder {
+      opacity: 0.5;
+      border-style: dashed;
+      cursor: default;
+      pointer-events: none;
+    }
+    .player-card.placeholder .pc-avatar {
+      background: rgba(255,255,255,0.05);
+      color: var(--gray);
+    }
     .player-card.captain { border-color: rgba(245,158,11,0.4); }
     .player-card.captain::after {
       content: '©';
@@ -558,7 +568,46 @@
       font-size: 1.8rem;
       flex-shrink: 0;
     }
-    .legend-item .li-info { flex: 1; }
+    .legend-item .li-photo {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      overflow: visible;
+    }
+    .legend-item .li-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid rgba(245,158,11,0.4);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .legend-item .li-photo img:hover {
+      transform: scale(1.05);
+      border-color: var(--accent2);
+    }
+    .legend-item .li-number {
+      position: absolute;
+      bottom: -2px;
+      right: -4px;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 6px;
+      background: var(--accent2);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--soft);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .legend-item .li-info { flex: 1; min-width: 0; }
     .legend-item .li-name {
       font-size: 0.95rem;
       font-weight: 600;
@@ -576,6 +625,11 @@
       border-radius: 100px;
       color: var(--accent2);
       white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      .legend-item { padding: 12px; gap: 12px; }
+      .legend-item .li-photo { width: 52px; height: 52px; }
+      .legend-item .li-number { min-width: 20px; height: 20px; font-size: 0.7rem; }
     }
 
     /* ── PHOTO LIGHTBOX ─────────────────────────────────── */
@@ -940,7 +994,8 @@
     <li><a href="#history">Lịch sử</a></li>
     <li><a href="#trophies">Danh hiệu</a></li>
     <li><a href="#squad">Đội hình</a></li>
-    <li><a href="#legends">Huyền thoại</a></li>
+    <li><a href="#legends">Danh hiệu cá nhân</a></li>
+    <li><a href="#district">Đội tuyển phường</a></li>
     <li><a href="#matches">Trận đấu</a></li>
   </ul>
 </nav>
@@ -1067,12 +1122,27 @@
 <!-- LEGENDS -->
 <section class="section" id="legends">
   <div class="section-header">
-    <div class="sh-tag">Cựu cầu thủ</div>
-    <h2>Huyền thoại Tổ 10</h2>
-    <p>Những người đã cống hiến và để lại dấu ấn</p>
+    <div class="sh-tag">Vinh danh</div>
+    <h2>Danh hiệu cá nhân đạt được</h2>
+    <p>Những giải thưởng cá nhân của các cầu thủ Tổ 10</p>
     <div class="divider-line"></div>
   </div>
   <div class="legend-list" id="legendList"></div>
+</section>
+
+<!-- DISTRICT TEAM CALL-UPS -->
+<section class="section" id="district">
+  <div class="section-header">
+    <div class="sh-tag">Đội tuyển phường</div>
+    <h2>Cầu thủ lên đội tuyển phường</h2>
+    <p>Những cầu thủ Tổ 10 được triệu tập lên đội tuyển phường</p>
+    <div class="divider-line"></div>
+  </div>
+  <div class="ssv-header">Phường Hương Thủy (mới)</div>
+  <div class="player-grid" id="districtNewGrid"></div>
+
+  <div class="ssv-header">Phường Thủy Châu (cũ)</div>
+  <div class="player-grid" id="districtOldGrid"></div>
 </section>
 
 <!-- MATCHES / VIDEOS -->
@@ -1187,12 +1257,28 @@ const SSV = [
 
 // ★ CẬP NHẬT: Thêm/sửa cựu cầu thủ tại đây
 const LEGENDS = [
-  { name: 'Tên cựu cầu thủ 1', detail: 'Tiền đạo — Vua phá lưới 2021', years: '2018–2022', icon: '⭐' },
-  { name: 'Tên cựu cầu thủ 2', detail: 'Thủ môn — Bàn tay vàng', years: '2018–2023', icon: '🧤' },
-  { name: 'Tên cựu cầu thủ 3', detail: 'Hậu vệ — Bức tường thép', years: '2019–2024', icon: '🛡️' },
-  { name: 'Tên cựu cầu thủ 4', detail: 'Tiền vệ — Nhạc trưởng', years: '2018–2023', icon: '🎯' },
-  { name: 'Tên cựu cầu thủ 5', detail: 'Đội trưởng sáng lập', years: '2018–2022', icon: '👑' },
+  { name: 'Lê Trung Vũ', detail: 'Thủ môn xuất sắc nhất — Giải bóng đá phường 2024', position: 'Thủ môn', number: 1,  img: 'vu-1.JPG' },
+  { name: 'Hồ Duy Tân', detail: 'Cầu thủ xuất sắc nhất — Giải bóng đá sinh viên Toàn quốc', position: 'Tiền đạo', number: 18, img: 'tan-18.JPG' },
 ];
+
+// Cầu thủ lên đội tuyển phường — tách 2 phường (cũ/mới)
+const DISTRICT_PLAYERS = {
+  huongThuy: [
+    { placeholder: true },
+    { placeholder: true },
+  ],
+  thuyChau: [
+    { number: 1,  name: 'Trung Vũ',    img: 'vu-1.JPG',     gk: true },
+    { number: 18, name: 'Duy Tân',     img: 'tan-18.JPG' },
+    { number: 34, name: 'Văn Hưng',    img: 'hung-34.JPG' },
+    { number: 12, name: 'Hữu Phước',   img: 'phuoc-12.JPG' },
+    { number: 21, name: 'Đình Tâm',    img: 'tam-21.JPG' },
+    { number: 28, name: 'Văn Tấn',     img: 'tan-28.JPG' },
+    { number: 22, name: 'Văn Quý',     img: 'quy-25.JPG' },
+    { number: 23, name: 'Văn Đức',     img: 'duc-23.JPG' },
+    { number: 20, name: 'Phước Đồng',  img: 'dong-20.png',  gk: true },
+  ]
+};
 
 // ── RENDER ───────────────────────────────────────────────────────────────────
 
@@ -1302,15 +1388,60 @@ LEGENDS.forEach(l => {
   const div = document.createElement('div');
   div.className = 'legend-item';
   div.innerHTML = `
-    <div class="li-icon">${l.icon}</div>
+    <div class="li-photo">
+      <img src="${thumb(l.img)}" alt="${l.name}" data-full="${full(l.img)}" data-name="${l.name}">
+      <div class="li-number">${l.number}</div>
+    </div>
     <div class="li-info">
       <div class="li-name">${l.name}</div>
       <div class="li-detail">${l.detail}</div>
     </div>
-    <div class="li-years">${l.years}</div>
+    <div class="li-years">${l.position}</div>
   `;
   lgEl.appendChild(div);
 });
+
+// ── DISTRICT CALL-UPS ───────────────────────────────────────────────────────
+function renderDistrictPlayers(list, gridEl, emptyEl) {
+  if (!list || list.length === 0) {
+    if (emptyEl) emptyEl.style.display = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  list.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'player-card' + (p.placeholder ? ' placeholder' : '');
+    if (p.placeholder) {
+      div.innerHTML = `
+        <div class="pc-avatar">?</div>
+        <div class="pc-number">—</div>
+        <div class="pc-name">Sẽ cập nhật</div>
+      `;
+    } else {
+      const photoHtml = p.img
+        ? `<img class="pc-photo" src="${thumb(p.img)}" data-full="${full(p.img)}" alt="${p.name}">`
+        : `<div class="pc-avatar">⚽</div>`;
+      const gkHtml = p.gk ? `<div class="pc-gk">GK</div>` : '';
+      div.innerHTML = `
+        ${photoHtml}
+        <div class="pc-number">${p.number}</div>
+        <div class="pc-name">${p.name}</div>
+        ${gkHtml}
+      `;
+    }
+    gridEl.appendChild(div);
+  });
+}
+renderDistrictPlayers(
+  DISTRICT_PLAYERS.huongThuy,
+  document.getElementById('districtNewGrid'),
+  document.getElementById('districtNewEmpty')
+);
+renderDistrictPlayers(
+  DISTRICT_PLAYERS.thuyChau,
+  document.getElementById('districtOldGrid'),
+  null
+);
 
 // ── MATCHES / VIDEOS ────────────────────────────────────────────────────────
 const MATCHES = [
@@ -1503,6 +1634,14 @@ document.querySelectorAll('.player-card, .manager-card').forEach(card => {
     if (!img) return;
     const name = card.querySelector('.pc-name, .mg-name')?.textContent || '';
     openPhotoLightbox(img.dataset.full || img.src, name);
+  });
+});
+
+// Legend photos — click ảnh tròn để xem ảnh full
+document.querySelectorAll('.legend-item .li-photo img').forEach(img => {
+  img.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openPhotoLightbox(img.dataset.full || img.src, img.dataset.name || '');
   });
 });
 
