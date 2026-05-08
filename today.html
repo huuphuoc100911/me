@@ -1108,7 +1108,6 @@ async function loadSports() {
     }
     meta.textContent = `${matches.length}/${d.total || matches.length} trận còn lại`;
 
-    const nowMs = Date.now();
     const fmt = (ts) => {
       if (!ts) return { d: "—", t: "—" };
       const dt = new Date(ts);
