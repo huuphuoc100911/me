@@ -35,6 +35,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "online.personal.io.vn" }],
       "destination": "/vtv-online.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "today.personal.io.vn" }],
+      "destination": "/today.html"
     }
   ]
 }

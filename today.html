@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Hôm Nay — Dashboard VN</title>
+<meta name="description" content="Tổng hợp thông tin hằng ngày: thời tiết, lịch âm, giờ hoàng đạo, tỷ giá, vàng, tin nóng" />
+<link rel="icon" href="/icons/today/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/icons/today/apple-touch-icon.png">
+<link rel="manifest" href="/manifest-today.json">
+<meta name="theme-color" content="#06b6d4" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hôm Nay">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e1a;
+    --bg-card: #131826;
+    --bg-soft: #1a2030;
+    --border: #1f2937;
+    --accent: #06b6d4;
+    --accent-2: #f59e0b;
+    --good: #10b981;
+    --bad: #ef4444;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-fade: #64748b;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    padding-top: max(32px, env(safe-area-inset-top));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 13px;
+  }
+  header h1 span { color: var(--accent); }
+  /* Banner ngày + giờ to nổi bật */
+  .date-banner {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(245,158,11,0.05) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .date-banner .date-main {
+    text-align: left;
+  }
+  .date-banner .weekday {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .date-banner .date-num {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+    margin-top: 4px;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-banner .clock-divider {
+    width: 1px;
+    height: 50px;
+    background: var(--border);
+  }
+  .date-banner .clock {
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--accent-2);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    text-shadow: 0 0 24px rgba(245,158,11,0.3);
+  }
+  .date-banner .clock-sec {
+    font-size: 0.6em;
+    opacity: 0.7;
+  }
+  @media (max-width: 600px) {
+    .date-banner { padding: 12px 18px; gap: 12px; }
+    .date-banner .date-num { font-size: 24px; }
+    .date-banner .clock { font-size: 30px; }
+    .date-banner .clock-divider { height: 40px; }
+  }
+
+  /* ===== Hero: Weather + Date ===== */
+  .hero {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(6,182,212,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-info { position: relative; z-index: 1; }
+  .hero-info .greeting {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .hero-info .lunar {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .hero-info .canchi {
+    color: var(--accent-2);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .hero-weather { position: relative; z-index: 1; text-align: right; }
+  .weather-temp {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .weather-desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .weather-city {
+    font-size: 12px;
+    color: var(--text-fade);
+    margin-top: 2px;
+  }
+  .city-toggle {
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 2px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 100px;
+  }
+  .city-toggle button {
+    background: transparent;
+    border: 0;
+    color: var(--text-dim);
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .city-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  @media (max-width: 600px) {
+    .hero { grid-template-columns: 1fr; padding: 20px; }
+    .hero-weather { text-align: left; }
+    .weather-temp { font-size: 36px; }
+  }
+
+  /* ===== Grid cards ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(6,182,212,0.3); }
+  .card h2 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .icon { font-size: 18px; }
+
+  .loading-pulse {
+    color: var(--text-fade);
+    font-size: 13px;
+    font-style: italic;
+  }
+  .err-msg {
+    color: var(--bad);
+    font-size: 12px;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  /* ===== Lịch âm card ===== */
+  .lunar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .lunar-grid .stat {
+    background: var(--bg-soft);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .lunar-grid .stat .v {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .lunar-grid .stat .l {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .hd-hours {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .hd-hours b {
+    color: var(--good);
+    font-weight: 600;
+  }
+  .hd-label { color: var(--text-dim); font-size: 12px; }
+
+  /* ===== Tài chính card ===== */
+  .fin-block { margin-bottom: 14px; }
+  .fin-block:last-child { margin-bottom: 0; }
+  .fin-title {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .fin-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .fin-row:last-child { border-bottom: 0; }
+  .fin-row .code { font-weight: 600; color: var(--text); }
+  .fin-row .buy { color: var(--good); text-align: right; font-variant-numeric: tabular-nums; }
+  .fin-row .sell { color: var(--bad); text-align: right; font-variant-numeric: tabular-nums; }
+  .fin-row .head { color: var(--text-fade); font-size: 11px; text-transform: uppercase; }
+
+  /* ===== Tin tức card ===== */
+  .news-card { grid-column: 1 / -1; }
+  .news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .news-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.15s;
+    border-radius: 6px;
+  }
+  .news-item:hover {
+    background: rgba(6,182,212,0.05);
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .news-item:last-child { border-bottom: 0; }
+  .news-item img {
+    width: 90px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: var(--bg-soft);
+  }
+  .news-item-text { flex: 1; min-width: 0; }
+  .news-item .title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .news-item .meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-fade);
+  }
+  .news-item .meta .src {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ===== Liên kết nhanh ===== */
+  .links-card { grid-column: 1 / -1; }
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .link-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .link-tile:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: var(--bg-card);
+  }
+  .link-tile .ic { font-size: 30px; line-height: 1; }
+  .link-tile .nm { font-size: 13px; font-weight: 600; }
+  .link-tile .sub { font-size: 11px; color: var(--text-dim); text-align: center; }
+
+  /* ===== Footer ===== */
+  footer {
+    text-align: center;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-fade);
+    font-size: 11px;
+  }
+  footer .updated { font-style: italic; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><span>Hôm</span> Nay — Dashboard VN</h1>
+    <div class="date-banner">
+      <div class="date-main">
+        <div class="weekday" id="weekday">—</div>
+        <div class="date-num" id="dateNum">—</div>
+      </div>
+      <div class="clock-divider"></div>
+      <div class="clock" id="clock">--:--<span class="clock-sec">:--</span></div>
+    </div>
+  </header>
+
+  <!-- Hero: weather + lunar -->
+  <div class="hero">
+    <div class="hero-info">
+      <div class="greeting" id="greeting">Chào buổi sáng ☀️</div>
+      <div class="lunar" id="lunarDate">Đang tính lịch âm…</div>
+      <div class="canchi" id="canChiYear">—</div>
+    </div>
+    <div class="hero-weather">
+      <div class="weather-temp" id="weatherTemp">…°</div>
+      <div class="weather-desc" id="weatherDesc">Đang tải</div>
+      <div class="weather-city" id="weatherCity">—</div>
+      <div class="city-toggle" id="cityToggle">
+        <button data-city="hue" class="active">Huế</button>
+        <button data-city="hanoi">Hà Nội</button>
+        <button data-city="hcm">TP.HCM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid: Lich am | Tài chính -->
+  <div class="grid">
+    <div class="card">
+      <h2><span class="icon">📅</span> Lịch âm hôm nay</h2>
+      <div class="lunar-grid">
+        <div class="stat">
+          <div class="v" id="lunarDay">—</div>
+          <div class="l">Ngày âm</div>
+        </div>
+        <div class="stat">
+          <div class="v" id="lunarMonth">—</div>
+          <div class="l">Tháng âm</div>
+        </div>
+      </div>
+      <div class="hd-label">Ngày: <b id="canChiDay" style="color:var(--accent-2)">—</b></div>
+      <div class="hd-label" style="margin-top:8px">Giờ hoàng đạo:</div>
+      <div class="hd-hours" id="hoangDao">—</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="icon">💰</span> Tỷ giá &amp; Vàng</h2>
+      <div class="fin-block" id="exchangeBlock">
+        <div class="loading-pulse">Đang tải tỷ giá Vietcombank…</div>
+      </div>
+      <div class="fin-block" id="goldBlock">
+        <div class="loading-pulse">Đang tải giá vàng PNJ…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tin tức -->
+  <div class="grid">
+    <div class="card news-card">
+      <h2><span class="icon">📰</span> Tin nóng <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">VnExpress · Tuổi Trẻ · Dân Trí</span></h2>
+      <div class="news-list" id="newsList">
+        <div class="loading-pulse">Đang tải tin tức…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liên kết nhanh -->
+  <div class="grid">
+    <div class="card links-card">
+      <h2><span class="icon">🔗</span> Truy cập nhanh</h2>
+      <div class="links-grid">
+        <a class="link-tile" href="https://online.personal.io.vn" target="_blank" rel="noopener">
+          <div class="ic">📺</div>
+          <div class="nm">VTV Online</div>
+          <div class="sub">Xem TV trực tuyến</div>
+        </a>
+        <a class="link-tile" href="https://doibong.personal.io.vn" target="_blank" rel="noopener">
+          <div class="ic">⚽</div>
+          <div class="nm">FC Tổ 10</div>
+          <div class="sub">Đội bóng Thủy Châu</div>
+        </a>
+        <a class="link-tile" href="https://love.personal.io.vn" target="_blank" rel="noopener">
+          <div class="ic">💕</div>
+          <div class="nm">Love</div>
+          <div class="sub">Kỷ niệm yêu nhau</div>
+        </a>
+        <a class="link-tile" href="https://soc.personal.io.vn" target="_blank" rel="noopener">
+          <div class="ic">👶</div>
+          <div class="nm">Bé Sóc</div>
+          <div class="sub">Nguyễn Đức Thịnh</div>
+        </a>
+        <a class="link-tile" href="https://gia-dinh-nguyen-viet.personal.io.vn" target="_blank" rel="noopener">
+          <div class="ic">🏛️</div>
+          <div class="nm">Gia phả</div>
+          <div class="sub">Họ Nguyễn Việt</div>
+        </a>
+        <a class="link-tile" href="https://me.personal.io.vn" target="_blank" rel="noopener">
+          <div class="ic">👤</div>
+          <div class="nm">Hồ sơ cá nhân</div>
+          <div class="sub">About me</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="updated">Cập nhật lần cuối: <span id="updated">—</span></div>
+    <div style="margin-top:6px">Nguồn: Open-Meteo · Vietcombank · PNJ · VnExpress · Tuổi Trẻ · Dân Trí</div>
+  </footer>
+
+</div>
+
+<script>
+/* =================================================================
+   1. LỊCH ÂM (thuật toán Hồ Ngọc Đức) — public domain
+   ================================================================= */
+function INT(d) { return Math.floor(d); }
+
+function jdFromDate(dd, mm, yy) {
+  const a = INT((14 - mm) / 12);
+  const y = yy + 4800 - a;
+  const m = mm + 12 * a - 3;
+  let jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - INT(y / 100) + INT(y / 400) - 32045;
+  if (jd < 2299161) jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - 32083;
+  return jd;
+}
+
+function getNewMoonDay(k, tz) {
+  const T = k / 1236.85;
+  const T2 = T * T, T3 = T2 * T, dr = Math.PI / 180;
+  let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+  Jd1 += 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+  const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+  const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+  const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+  let C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+  C1 -= 0.4068 * Math.sin(Mpr * dr) - 0.0161 * Math.sin(dr * 2 * Mpr);
+  C1 -= 0.0004 * Math.sin(dr * 3 * Mpr);
+  C1 += 0.0104 * Math.sin(dr * 2 * F) - 0.0051 * Math.sin(dr * (M + Mpr));
+  C1 -= 0.0074 * Math.sin(dr * (M - Mpr)) - 0.0004 * Math.sin(dr * (2 * F + M));
+  C1 -= 0.0004 * Math.sin(dr * (2 * F - M)) + 0.0006 * Math.sin(dr * (2 * F + Mpr));
+  C1 += 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
+  let deltat;
+  if (T < -11) deltat = 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3;
+  else deltat = -0.000278 + 0.000265 * T + 0.000262 * T2;
+  return INT(Jd1 + C1 - deltat + 0.5 + tz / 24);
+}
+
+function getSunLongitude(jdn, tz) {
+  const T = (jdn - 2451545.5 - tz / 24) / 36525;
+  const T2 = T * T, dr = Math.PI / 180;
+  const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+  const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+  let DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
+  DL += (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+  let L = (L0 + DL) * dr;
+  L -= Math.PI * 2 * INT(L / (Math.PI * 2));
+  return INT(L / Math.PI * 6);
+}
+
+function getLunarMonth11(yy, tz) {
+  const off = jdFromDate(31, 12, yy) - 2415021;
+  const k = INT(off / 29.530588853);
+  let nm = getNewMoonDay(k, tz);
+  if (getSunLongitude(nm, tz) >= 9) nm = getNewMoonDay(k - 1, tz);
+  return nm;
+}
+
+function getLeapMonthOffset(a11, tz) {
+  const k = INT((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+  let last = 0, i = 1;
+  let arc = getSunLongitude(getNewMoonDay(k + i, tz), tz);
+  do {
+    last = arc; i++;
+    arc = getSunLongitude(getNewMoonDay(k + i, tz), tz);
+  } while (arc !== last && i < 14);
+  return i - 1;
+}
+
+function solarToLunar(dd, mm, yy, tz = 7) {
+  const dayNumber = jdFromDate(dd, mm, yy);
+  const k = INT((dayNumber - 2415021.076998695) / 29.530588853);
+  let monthStart = getNewMoonDay(k + 1, tz);
+  if (monthStart > dayNumber) monthStart = getNewMoonDay(k, tz);
+  let a11 = getLunarMonth11(yy, tz), b11 = a11, lunarYear;
+  if (a11 >= monthStart) {
+    lunarYear = yy;
+    a11 = getLunarMonth11(yy - 1, tz);
+  } else {
+    lunarYear = yy + 1;
+    b11 = getLunarMonth11(yy + 1, tz);
+  }
+  const lunarDay = dayNumber - monthStart + 1;
+  const diff = INT((monthStart - a11) / 29);
+  let leap = 0, lunarMonth = diff + 11;
+  if (b11 - a11 > 365) {
+    const lmo = getLeapMonthOffset(a11, tz);
+    if (diff >= lmo) {
+      lunarMonth = diff + 10;
+      if (diff === lmo) leap = 1;
+    }
+  }
+  if (lunarMonth > 12) lunarMonth -= 12;
+  if (lunarMonth >= 11 && diff < 4) lunarYear -= 1;
+  return { day: lunarDay, month: lunarMonth, year: lunarYear, leap, jd: dayNumber };
+}
+
+const CAN = ["Giáp","Ất","Bính","Đinh","Mậu","Kỷ","Canh","Tân","Nhâm","Quý"];
+const CHI = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
+
+function canChiYear(year) {
+  const c = CAN[(year + 6) % 10];
+  const z = CHI[(year + 8) % 12];
+  return `${c} ${z}`;
+}
+function canChiDay(jd) {
+  const c = CAN[(jd + 9) % 10];
+  const z = CHI[(jd + 1) % 12];
+  return { name: `${c} ${z}`, chi: z, chiIdx: (jd + 1) % 12 };
+}
+
+/* Bảng giờ hoàng đạo theo chi của ngày — 6 giờ tốt mỗi ngày.
+   Index = chi index của ngày (0=Tý, 1=Sửu, ...).
+   Mỗi mảng: tên chi của 6 giờ tốt. */
+const HOANG_DAO_TABLE = [
+  // Tý, Ngọ
+  ["Tý","Sửu","Mão","Ngọ","Thân","Dậu"],
+  // Sửu, Mùi
+  ["Dần","Mão","Tỵ","Thân","Tuất","Hợi"],
+  // Dần, Thân
+  ["Tý","Sửu","Thìn","Tỵ","Mùi","Tuất"],
+  // Mão, Dậu
+  ["Tý","Dần","Mão","Ngọ","Mùi","Dậu"],
+  // Thìn, Tuất
+  ["Dần","Thìn","Tỵ","Thân","Dậu","Hợi"],
+  // Tỵ, Hợi
+  ["Sửu","Thìn","Ngọ","Mùi","Tuất","Hợi"]
+];
+function hoangDaoForDay(chiIdx) {
+  // Map 12 chi → 6 nhóm (Tý-Ngọ, Sửu-Mùi, Dần-Thân, Mão-Dậu, Thìn-Tuất, Tỵ-Hợi)
+  const groupIdx = chiIdx % 6;
+  return HOANG_DAO_TABLE[groupIdx];
+}
+const CHI_HOUR_RANGE = {
+  "Tý":"23h-1h", "Sửu":"1h-3h", "Dần":"3h-5h", "Mão":"5h-7h",
+  "Thìn":"7h-9h", "Tỵ":"9h-11h", "Ngọ":"11h-13h", "Mùi":"13h-15h",
+  "Thân":"15h-17h", "Dậu":"17h-19h", "Tuất":"19h-21h", "Hợi":"21h-23h"
+};
+
+function renderLunar() {
+  const now = new Date();
+  const dd = now.getDate(), mm = now.getMonth() + 1, yy = now.getFullYear();
+  const lunar = solarToLunar(dd, mm, yy);
+  const cy = canChiYear(lunar.year);
+  const cd = canChiDay(lunar.jd);
+
+  const weekDays = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
+  const wd = weekDays[now.getDay()];
+  const pad = (n) => String(n).padStart(2, "0");
+  document.getElementById("weekday").textContent = wd;
+  document.getElementById("dateNum").textContent = `${pad(dd)} / ${pad(mm)} / ${yy}`;
+
+  const lunarStr = `Ngày ${lunar.day} tháng ${lunar.month}${lunar.leap ? " nhuận" : ""} năm ${cy}`;
+  document.getElementById("lunarDate").textContent = lunarStr;
+  document.getElementById("canChiYear").textContent = `Năm ${cy} · Ngày ${cd.name}`;
+
+  document.getElementById("lunarDay").textContent = lunar.day;
+  document.getElementById("lunarMonth").textContent = lunar.month + (lunar.leap ? " (nhuận)" : "");
+  document.getElementById("canChiDay").textContent = cd.name;
+
+  const hd = hoangDaoForDay(cd.chiIdx);
+  document.getElementById("hoangDao").innerHTML = hd
+    .map((chi) => `<b>${chi}</b> <span class="hd-label">(${CHI_HOUR_RANGE[chi]})</span>`)
+    .join(" · ");
+
+  // Greeting theo giờ
+  const h = now.getHours();
+  let greet = "Chào buổi sáng ☀️";
+  if (h >= 11 && h < 13) greet = "Chào buổi trưa 🌞";
+  else if (h >= 13 && h < 18) greet = "Chào buổi chiều 🌤️";
+  else if (h >= 18 || h < 5) greet = "Chào buổi tối 🌙";
+  document.getElementById("greeting").textContent = greet;
+}
+
+/* =================================================================
+   2. THỜI TIẾT (Open-Meteo, CORS-friendly)
+   ================================================================= */
+const CITIES = {
+  hue:    { name: "Huế",    lat: 16.46, lon: 107.59 },
+  hanoi:  { name: "Hà Nội", lat: 21.03, lon: 105.85 },
+  hcm:    { name: "TP.HCM", lat: 10.78, lon: 106.69 }
+};
+// WMO weather codes → mô tả tiếng Việt + emoji
+const WMO_DESC = {
+  0: ["Trời quang", "☀️"], 1: ["Hơi quang", "🌤️"], 2: ["Có mây", "⛅"], 3: ["Nhiều mây", "☁️"],
+  45: ["Sương mù", "🌫️"], 48: ["Sương mù dày", "🌫️"],
+  51: ["Mưa phùn nhẹ", "🌦️"], 53: ["Mưa phùn", "🌦️"], 55: ["Mưa phùn nặng", "🌧️"],
+  61: ["Mưa nhỏ", "🌧️"], 63: ["Mưa vừa", "🌧️"], 65: ["Mưa to", "🌧️"],
+  71: ["Tuyết nhẹ", "🌨️"], 73: ["Tuyết vừa", "🌨️"], 75: ["Tuyết dày", "❄️"],
+  80: ["Mưa rào nhẹ", "🌦️"], 81: ["Mưa rào", "🌧️"], 82: ["Mưa rào to", "⛈️"],
+  95: ["Dông", "⛈️"], 96: ["Dông kèm mưa đá", "⛈️"], 99: ["Dông to", "⛈️"]
+};
+
+async function loadWeather(cityKey = "hue") {
+  const c = CITIES[cityKey];
+  document.getElementById("weatherCity").textContent = c.name;
+  document.getElementById("weatherDesc").textContent = "Đang tải…";
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FBangkok`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const cur = d.current;
+    const wmo = WMO_DESC[cur.weather_code] || ["—", "🌡️"];
+    const max = d.daily ? Math.round(d.daily.temperature_2m_max[0]) : "—";
+    const min = d.daily ? Math.round(d.daily.temperature_2m_min[0]) : "—";
+    document.getElementById("weatherTemp").textContent = `${Math.round(cur.temperature_2m)}°`;
+    document.getElementById("weatherDesc").innerHTML =
+      `${wmo[1]} ${wmo[0]} · 💨 ${Math.round(cur.wind_speed_10m)} km/h · 💧 ${cur.relative_humidity_2m}%`;
+    document.getElementById("weatherCity").textContent = `${c.name} · Cao ${max}° / Thấp ${min}°`;
+  } catch (e) {
+    document.getElementById("weatherTemp").textContent = "—°";
+    document.getElementById("weatherDesc").textContent = "Lỗi tải thời tiết";
+    console.warn("[weather]", e);
+  }
+}
+
+/* =================================================================
+   3. TÀI CHÍNH (USD + Vàng) qua /api/finance
+   ================================================================= */
+function fmtNum(s) {
+  if (s == null || s === "" || s === "-") return "—";
+  return Number(String(s).replace(/,/g, "")).toLocaleString("vi-VN");
+}
+
+async function loadFinance() {
+  try {
+    const r = await fetch("/api/finance");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+
+    // Tỷ giá
+    const exBlock = document.getElementById("exchangeBlock");
+    if (d.exchange) {
+      const order = ["USD","EUR","JPY","CNY","GBP","KRW"];
+      const rows = order
+        .filter((k) => d.exchange[k])
+        .map((k) => {
+          const x = d.exchange[k];
+          return `<div class="fin-row">
+            <span class="code">${k}</span>
+            <span class="buy">${fmtNum(x.buy)}</span>
+            <span class="sell">${fmtNum(x.sell)}</span>
+          </div>`;
+        })
+        .join("");
+      exBlock.innerHTML = `
+        <div class="fin-title"><span>💱 Tỷ giá Vietcombank</span></div>
+        <div class="fin-row">
+          <span class="head">Mã</span>
+          <span class="buy head">Mua TM</span>
+          <span class="sell head">Bán</span>
+        </div>
+        ${rows}
+      `;
+    } else {
+      exBlock.innerHTML = `<div class="err-msg">Không tải được tỷ giá</div>`;
+    }
+
+    // Vàng — PNJ trả số trong nghìn VND/chỉ → ×1000 ra VND
+    const gBlock = document.getElementById("goldBlock");
+    if (d.gold && d.gold.length > 0) {
+      const rows = d.gold.map((g) => `
+        <div class="fin-row">
+          <span class="code">${g.code}</span>
+          <span class="buy">${fmtNum(Number(g.buy) * 1000)}</span>
+          <span class="sell">${fmtNum(Number(g.sell) * 1000)}</span>
+        </div>
+      `).join("");
+      gBlock.innerHTML = `
+        <div class="fin-title"><span>🪙 Giá vàng PNJ</span><span style="font-size:10px;color:var(--text-fade)">đ/chỉ</span></div>
+        <div class="fin-row">
+          <span class="head">Loại</span>
+          <span class="buy head">Mua</span>
+          <span class="sell head">Bán</span>
+        </div>
+        ${rows}
+      `;
+    } else {
+      gBlock.innerHTML = `<div class="err-msg">Không tải được giá vàng</div>`;
+    }
+  } catch (e) {
+    document.getElementById("exchangeBlock").innerHTML = `<div class="err-msg">Lỗi: ${e.message}</div>`;
+    document.getElementById("goldBlock").innerHTML = "";
+  }
+}
+
+/* =================================================================
+   4. TIN TỨC qua /api/news
+   ================================================================= */
+function timeAgo(ts) {
+  if (!ts) return "";
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "vừa xong";
+  if (m < 60) return `${m} phút trước`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} giờ trước`;
+  return `${Math.floor(h / 24)} ngày trước`;
+}
+
+async function loadNews() {
+  try {
+    const r = await fetch("/api/news");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    if (!d.items || d.items.length === 0) throw new Error("Không có tin");
+
+    const html = d.items.map((it) => `
+      <a class="news-item" href="${it.link}" target="_blank" rel="noopener">
+        ${it.image ? `<img src="${it.image}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
+        <div class="news-item-text">
+          <div class="title">${it.title}</div>
+          <div class="meta">
+            <span class="src">${it.source}</span>
+            <span>${timeAgo(it.ts)}</span>
+          </div>
+        </div>
+      </a>
+    `).join("");
+    document.getElementById("newsList").innerHTML = html;
+  } catch (e) {
+    document.getElementById("newsList").innerHTML = `<div class="err-msg">Lỗi tải tin: ${e.message}</div>`;
+  }
+}
+
+/* =================================================================
+   5. INIT + city toggle
+   ================================================================= */
+const LS_CITY = "today_city";
+function setCity(key) {
+  localStorage.setItem(LS_CITY, key);
+  document.querySelectorAll(".city-toggle button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.city === key);
+  });
+  loadWeather(key);
+}
+
+document.querySelectorAll(".city-toggle button").forEach((b) => {
+  b.addEventListener("click", () => setCity(b.dataset.city));
+});
+
+renderLunar();
+const savedCity = localStorage.getItem(LS_CITY) || "hue";
+setCity(savedCity);
+loadFinance();
+loadNews();
+
+document.getElementById("updated").textContent = new Date().toLocaleTimeString("vi-VN");
+
+/* =================================================================
+   6. ĐỒNG HỒ realtime — tick mỗi giây
+   ================================================================= */
+let lastDayKey = "";
+function tickClock() {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const hh = pad(now.getHours());
+  const mm = pad(now.getMinutes());
+  const ss = pad(now.getSeconds());
+  document.getElementById("clock").innerHTML = `${hh}:${mm}<span class="clock-sec">:${ss}</span>`;
+
+  // Khi qua ngày mới → render lại lich am
+  const dayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  if (dayKey !== lastDayKey) {
+    lastDayKey = dayKey;
+    renderLunar();
+  }
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+// Refresh tự động sau 10 phút
+setInterval(() => {
+  loadWeather(localStorage.getItem(LS_CITY) || "hue");
+  loadFinance();
+  loadNews();
+  document.getElementById("updated").textContent = new Date().toLocaleTimeString("vi-VN");
+}, 10 * 60 * 1000);
+</script>
+
+</body>
+</html>
