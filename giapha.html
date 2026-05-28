@@ -164,9 +164,9 @@
       margin-bottom: 12px;
     }
     .couple-card .cc-avatar {
-      width: 56px; height: 56px; border-radius: 50%;
+      width: 96px; height: 96px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem;
+      font-size: 2.4rem;
       border: 2px solid rgba(124,111,247,0.3);
     }
     .cc-avatar.male { background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1)); }
@@ -218,9 +218,9 @@
       border-color: rgba(124,111,247,0.4);
     }
     .person-card .pc-avatar {
-      width: 48px; height: 48px; border-radius: 50%;
+      width: 80px; height: 80px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; margin: 0 auto 8px;
+      font-size: 2rem; margin: 0 auto 10px;
       border: 2px solid rgba(124,111,247,0.3);
     }
     .person-card .pc-name {
@@ -260,9 +260,9 @@
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .branch-parent .bp-avatar {
-      width: 52px; height: 52px; border-radius: 50%;
+      width: 92px; height: 92px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem;
+      font-size: 2.2rem;
       border: 2px solid rgba(124,111,247,0.3);
     }
     .branch-parent .bp-heart { font-size: 0.9rem; color: var(--pink); }
@@ -313,9 +313,9 @@
       border-color: rgba(124,111,247,0.3);
     }
     .branch-child .bc-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
+      width: 72px; height: 72px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; margin: 0 auto 6px;
+      font-size: 1.7rem; margin: 0 auto 8px;
       border: 2px solid rgba(124,111,247,0.2);
     }
     .branch-child .bc-name {
@@ -339,6 +339,74 @@
       50% { transform: scale(1.2); }
     }
 
+    /* ── PHOTO AVATARS ───────────────────────────────────── */
+    .cc-avatar, .bp-avatar, .pc-avatar, .bc-avatar {
+      overflow: hidden;
+      position: relative;
+    }
+    .cc-avatar img, .bp-avatar img, .pc-avatar img, .bc-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .cc-avatar img:hover, .bp-avatar img:hover,
+    .pc-avatar img:hover, .bc-avatar img:hover {
+      transform: scale(1.08);
+    }
+
+    /* ── LIGHTBOX ────────────────────────────────────────── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 100000;
+      background: rgba(6, 6, 16, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      cursor: zoom-out;
+      padding: 40px 20px;
+    }
+    .lightbox.show { opacity: 1; visibility: visible; }
+    .lightbox-content {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      max-width: 95vw; max-height: 95vh;
+      animation: lbZoom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes lbZoom {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .lightbox img {
+      max-width: 90vw; max-height: 80vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(124,111,247,0.35), 0 0 0 1px rgba(124,111,247,0.2);
+      object-fit: contain;
+    }
+    .lightbox-caption {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--gold2);
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .lightbox-close {
+      position: absolute; top: 20px; right: 20px;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--white); font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.18);
+      transform: rotate(90deg);
+    }
+
     /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 768px) {
       .page-header { padding: 40px 16px 16px; }
@@ -346,8 +414,10 @@
       .section-title { margin: 36px 0 18px; }
       .section-title h2 { font-size: 1.3rem; }
       .couple-card { min-width: 160px; padding: 18px 14px; }
-      .couple-card .cc-avatar { width: 48px; height: 48px; font-size: 1.3rem; }
+      .couple-card .cc-avatar { width: 80px; height: 80px; font-size: 2rem; }
       .couple-card .cc-name { font-size: 0.85rem; }
+      .branch-parent .bp-avatar { width: 78px; height: 78px; font-size: 1.9rem; }
+      .branch-child .bc-avatar { width: 64px; height: 64px; font-size: 1.5rem; }
       .branch-card { padding: 22px 16px; }
     }
 
@@ -355,20 +425,21 @@
       .page-header h1 { font-size: 1.8rem; }
       .family-row { gap: 12px; }
       .couple-card { min-width: 140px; max-width: 100%; padding: 16px 12px; border-radius: 16px; }
-      .couple-card .cc-avatar { width: 42px; height: 42px; font-size: 1.1rem; }
+      .couple-card .cc-avatar { width: 68px; height: 68px; font-size: 1.7rem; }
       .couple-card .cc-name { font-size: 0.8rem; }
       .couple-card .cc-name-sub { font-size: 0.75rem; }
       .person-card { min-width: 100px; max-width: 140px; flex: 0 1 120px; padding: 12px 10px; }
-      .person-card .pc-avatar { width: 40px; height: 40px; font-size: 1.1rem; }
+      .person-card .pc-avatar { width: 64px; height: 64px; font-size: 1.6rem; }
       .person-card .pc-name { font-size: 0.75rem; }
       .person-grid { gap: 8px; }
       .ancestor-card { margin: 16px 12px; padding: 20px 14px; border-radius: 18px; }
       .ancestor-card .ac-name { font-size: 1.1rem; }
       .branch-card { padding: 18px 12px; border-radius: 18px; }
       .branch-parent .bp-name, .branch-parent .bp-spouse { font-size: 0.92rem; }
+      .branch-parent .bp-avatar { width: 68px; height: 68px; font-size: 1.7rem; }
       .branch-children { gap: 8px; }
       .branch-child { min-width: 0; max-width: none; flex: 0 0 calc(50% - 4px); padding: 10px 8px; box-sizing: border-box; }
-      .branch-child .bc-avatar { width: 36px; height: 36px; font-size: 1rem; }
+      .branch-child .bc-avatar { width: 60px; height: 60px; font-size: 1.4rem; }
       .branch-child .bc-name { font-size: 0.72rem; }
     }
   </style>
@@ -414,9 +485,9 @@
   <div class="family-row">
     <div class="couple-card">
       <div class="cc-avatars">
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvietdong.jpg" alt="Nguyễn Viết Đông" data-caption="Nguyễn Viết Đông"></div>
         <div class="cc-heart">♥</div>
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/vothibe.jpg" alt="Võ Thị Bé" data-caption="Võ Thị Bé"></div>
       </div>
       <div class="cc-name">Nguyễn Viết Đông</div>
       <div class="cc-name-sub">♥ Võ Thị Bé</div>
@@ -424,16 +495,16 @@
 
     <div class="couple-card single">
       <div class="cc-avatars">
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvietchau.jpg" alt="Nguyễn Viết Châu" data-caption="Nguyễn Viết Châu"></div>
       </div>
       <div class="cc-name">Nguyễn Viết Châu</div>
     </div>
 
     <div class="couple-card">
       <div class="cc-avatars">
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvietbinh.jpg" alt="Nguyễn Viết Bình" data-caption="Nguyễn Viết Bình"></div>
         <div class="cc-heart">♥</div>
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/nguyenthichau.jpg" alt="Hà Thị Kiều Châu" data-caption="Hà Thị Kiều Châu"></div>
       </div>
       <div class="cc-name">Nguyễn Viết Bình</div>
       <div class="cc-name-sub">♥ Hà Thị Kiều Châu</div>
@@ -441,9 +512,9 @@
 
     <div class="couple-card">
       <div class="cc-avatars">
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvietchung.jpg" alt="Nguyễn Viết Đừng (Chung)" data-caption="Nguyễn Viết Đừng (Chung)"></div>
         <div class="cc-heart">♥</div>
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/tranthithu.jpg" alt="Trần Thị Thu" data-caption="Trần Thị Thu"></div>
       </div>
       <div class="cc-name">Nguyễn Viết Đừng</div>
       <div class="cc-alias">(Chung)</div>
@@ -452,7 +523,7 @@
 
     <div class="couple-card single">
       <div class="cc-avatars">
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvietan.jpg" alt="Nguyễn Viết An" data-caption="Nguyễn Viết An"></div>
       </div>
       <div class="cc-name">Nguyễn Viết An</div>
     </div>
@@ -471,9 +542,9 @@
   <div class="family-row">
     <div class="couple-card">
       <div class="cc-avatars">
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/nguyenthitu.jpg" alt="Nguyễn Thị Tú" data-caption="Nguyễn Thị Tú"></div>
         <div class="cc-heart">♥</div>
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvankinh.jpg" alt="Nguyễn Văn Kính" data-caption="Nguyễn Văn Kính"></div>
       </div>
       <div class="cc-name">Nguyễn Thị Tú</div>
       <div class="cc-name-sub">♥ Nguyễn Văn Kính</div>
@@ -481,16 +552,16 @@
 
     <div class="couple-card single">
       <div class="cc-avatars">
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/nguyenthiloan.jpg" alt="Nguyễn Thị Loan" data-caption="Nguyễn Thị Loan"></div>
       </div>
       <div class="cc-name">Nguyễn Thị Loan</div>
     </div>
 
     <div class="couple-card">
       <div class="cc-avatars">
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/nguyenthiminh.jpg" alt="Nguyễn Thị Minh" data-caption="Nguyễn Thị Minh"></div>
         <div class="cc-heart">♥</div>
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/nguyenvancan.jpg" alt="Nguyễn Văn Cân" data-caption="Nguyễn Văn Cân"></div>
       </div>
       <div class="cc-name">Nguyễn Thị Minh</div>
       <div class="cc-name-sub">♥ Nguyễn Văn Cân</div>
@@ -498,9 +569,9 @@
 
     <div class="couple-card">
       <div class="cc-avatars">
-        <div class="cc-avatar female">👩</div>
+        <div class="cc-avatar female"><img src="images/giapha/nguyenthitam.jpg" alt="Nguyễn Thị Tâm" data-caption="Nguyễn Thị Tâm (Phượng)"></div>
         <div class="cc-heart">♥</div>
-        <div class="cc-avatar male">👨</div>
+        <div class="cc-avatar male"><img src="images/giapha/tonthatson.jpg" alt="Tôn Thất Sơn" data-caption="Tôn Thất Sơn"></div>
       </div>
       <div class="cc-name">Nguyễn Thị Tâm</div>
       <div class="cc-alias">(Phượng)</div>
@@ -521,9 +592,9 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/nguyenthitu.jpg" alt="Nguyễn Thị Tú" data-caption="Nguyễn Thị Tú"></div>
           <div class="bp-heart">♥</div>
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvankinh.jpg" alt="Nguyễn Văn Kính" data-caption="Nguyễn Văn Kính"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Thị Tú</div>
@@ -533,15 +604,15 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/nguyenthimung.jpg" alt="Nguyễn Thị Mừng" data-caption="Nguyễn Thị Mừng"></div>
           <div class="bc-name">Nguyễn Thị Mừng</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/nguyenthiman.jpg" alt="Nguyễn Thị Mẫn" data-caption="Nguyễn Thị Mẫn"></div>
           <div class="bc-name">Nguyễn Thị Mẫn</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/nguyenvanthien.jpg" alt="Nguyễn Văn Thiện" data-caption="Nguyễn Văn Thiện"></div>
           <div class="bc-name">Nguyễn Văn Thiện</div>
         </div>
         <div class="branch-child">
@@ -549,7 +620,7 @@
           <div class="bc-name">Nguyễn Thị Tưởng</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/nguyenvanthanh.jpg" alt="Nguyễn Văn Thành" data-caption="Nguyễn Văn Thành"></div>
           <div class="bc-name">Nguyễn Văn Thành</div>
         </div>
       </div>
@@ -561,7 +632,7 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/nguyenthiloan.jpg" alt="Nguyễn Thị Loan" data-caption="Nguyễn Thị Loan"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Thị Loan</div>
@@ -576,9 +647,9 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvietdong.jpg" alt="Nguyễn Viết Đông" data-caption="Nguyễn Viết Đông"></div>
           <div class="bp-heart">♥</div>
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/vothibe.jpg" alt="Võ Thị Bé" data-caption="Võ Thị Bé"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Viết Đông</div>
@@ -588,20 +659,20 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/bichdiem.jpg" alt="Nguyễn Thị Bích Diễm" data-caption="Nguyễn Thị Bích Diễm"></div>
           <div class="bc-name">Nguyễn Thị Bích Diễm</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/nguyenvietquoc.jpg" alt="Nguyễn Viết Quốc" data-caption="Nguyễn Viết Quốc"></div>
           <div class="bc-name">Nguyễn Viết Quốc</div>
           <div class="bc-badge">Đích Tôn</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/dieuhien.jpg" alt="Nguyễn Thị Diệu Hiền" data-caption="Nguyễn Thị Diệu Hiền"></div>
           <div class="bc-name">Nguyễn Thị Diệu Hiền</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/nguyenthikimchi.jpg" alt="Nguyễn Thị Kim Chi" data-caption="Nguyễn Thị Kim Chi"></div>
           <div class="bc-name">Nguyễn Thị Kim Chi</div>
         </div>
       </div>
@@ -613,7 +684,7 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvietchau.jpg" alt="Nguyễn Viết Châu" data-caption="Nguyễn Viết Châu"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Viết Châu</div>
@@ -622,15 +693,15 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/dieuai.jpg" alt="Nguyễn Mai Diệu Ái" data-caption="Nguyễn Mai Diệu Ái"></div>
           <div class="bc-name">Nguyễn Mai Diệu Ái</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/ngocyen.jpg" alt="Nguyễn Thị Ngọc Yến" data-caption="Nguyễn Thị Ngọc Yến"></div>
           <div class="bc-name">Nguyễn Thị Ngọc Yến</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/tieuna.jpg" alt="Nguyễn Tiểu Na" data-caption="Nguyễn Tiểu Na"></div>
           <div class="bc-name">Nguyễn Tiểu Na</div>
         </div>
       </div>
@@ -642,9 +713,9 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvietbinh.jpg" alt="Nguyễn Viết Bình" data-caption="Nguyễn Viết Bình"></div>
           <div class="bp-heart">♥</div>
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/nguyenthichau.jpg" alt="Hà Thị Kiều Châu" data-caption="Hà Thị Kiều Châu"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Viết Bình</div>
@@ -654,11 +725,11 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/truongphuong.jpg" alt="Nguyễn Viết Trường Phương" data-caption="Nguyễn Viết Trường Phương"></div>
           <div class="bc-name">Nguyễn Viết Trường Phương</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/truongnam.jpg" alt="Nguyễn Viết Trường Nam" data-caption="Nguyễn Viết Trường Nam"></div>
           <div class="bc-name">Nguyễn Viết Trường Nam</div>
         </div>
         <div class="branch-child">
@@ -666,7 +737,7 @@
           <div class="bc-name">Nguyễn Viết Trường Nhật</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/truonglong.jpg" alt="Nguyễn Viết Trường Long" data-caption="Nguyễn Viết Trường Long"></div>
           <div class="bc-name">Nguyễn Viết Trường Long</div>
         </div>
       </div>
@@ -678,9 +749,9 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/nguyenthiminh.jpg" alt="Nguyễn Thị Minh" data-caption="Nguyễn Thị Minh"></div>
           <div class="bp-heart">♥</div>
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvancan.jpg" alt="Nguyễn Văn Cân" data-caption="Nguyễn Văn Cân"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Thị Minh</div>
@@ -694,15 +765,15 @@
           <div class="bc-name">Nguyễn Văn Lộc</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/huuphuoc.jpg" alt="Nguyễn Văn Hữu Phước" data-caption="Nguyễn Văn Hữu Phước"></div>
           <div class="bc-name">Nguyễn Văn Hữu Phước</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/quynhthi.jpg" alt="Nguyễn Thị Quỳnh Thi" data-caption="Nguyễn Thị Quỳnh Thi"></div>
           <div class="bc-name">Nguyễn Thị Quỳnh Thi</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/thusuong.jpg" alt="Nguyễn Thị Thu Sương" data-caption="Nguyễn Thị Thu Sương"></div>
           <div class="bc-name">Nguyễn Thị Thu Sương</div>
         </div>
       </div>
@@ -714,9 +785,9 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvietchung.jpg" alt="Nguyễn Viết Đừng (Chung)" data-caption="Nguyễn Viết Đừng (Chung)"></div>
           <div class="bp-heart">♥</div>
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/tranthithu.jpg" alt="Trần Thị Thu" data-caption="Trần Thị Thu"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Viết Đừng (Chung)</div>
@@ -726,7 +797,7 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/hoaithuong.jpg" alt="Nguyễn Thị Hoài Thương" data-caption="Nguyễn Thị Hoài Thương"></div>
           <div class="bc-name">Nguyễn Thị Hoài Thương</div>
         </div>
         <div class="branch-child">
@@ -734,7 +805,7 @@
           <div class="bc-name">Nguyễn Thị Ngọc Trâm</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/quynhanh.jpg" alt="Nguyễn Thị Quỳnh Anh" data-caption="Nguyễn Thị Quỳnh Anh"></div>
           <div class="bc-name">Nguyễn Thị Quỳnh Anh</div>
         </div>
       </div>
@@ -746,9 +817,9 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.3), rgba(249,168,212,0.1));">👩</div>
+          <div class="bp-avatar female"><img src="images/giapha/nguyenthitam.jpg" alt="Nguyễn Thị Tâm" data-caption="Nguyễn Thị Tâm (Phượng)"></div>
           <div class="bp-heart">♥</div>
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/tonthatson.jpg" alt="Tôn Thất Sơn" data-caption="Tôn Thất Sơn"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Thị Tâm (Phượng)</div>
@@ -758,15 +829,15 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/doantrang.jpg" alt="Tôn Nữ Đoan Trang" data-caption="Tôn Nữ Đoan Trang"></div>
           <div class="bc-name">Tôn Nữ Đoan Trang</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/nhaquan.jpg" alt="Tôn Nữ Nhã Quân" data-caption="Tôn Nữ Nhã Quân"></div>
           <div class="bc-name">Tôn Nữ Nhã Quân</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/baokhanh.jpg" alt="Tôn Thất Bảo Khánh" data-caption="Tôn Thất Bảo Khánh"></div>
           <div class="bc-name">Tôn Thất Bảo Khánh</div>
         </div>
       </div>
@@ -778,7 +849,7 @@
     <div class="branch-card">
       <div class="branch-parent">
         <div class="bp-avatars">
-          <div class="bp-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.1));">👨</div>
+          <div class="bp-avatar male"><img src="images/giapha/nguyenvietan.jpg" alt="Nguyễn Viết An" data-caption="Nguyễn Viết An"></div>
         </div>
         <div class="bp-names">
           <div class="bp-name">Nguyễn Viết An</div>
@@ -805,10 +876,54 @@
   Gia phả dòng họ Nguyễn Viết — Lưu giữ với <span class="heart">💜</span> bởi con cháu
 </div>
 
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-close" id="lightboxClose" title="Đóng">✕</div>
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
 <script>
 setTimeout(() => {
   document.getElementById('loadingScreen').classList.add('hide');
 }, 2000);
+
+// Lightbox: click avatar to zoom
+(function() {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  const lightboxClose = document.getElementById('lightboxClose');
+
+  function openLightbox(src, caption) {
+    lightboxImg.src = src;
+    lightboxCaption.textContent = caption || '';
+    lightbox.classList.add('show');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('show');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.cc-avatar img, .bp-avatar img, .pc-avatar img, .bc-avatar img').forEach(img => {
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLightbox(img.src, img.dataset.caption || img.alt);
+    });
+  });
+
+  lightbox.addEventListener('click', closeLightbox);
+  lightboxClose.addEventListener('click', (e) => { e.stopPropagation(); closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('show')) closeLightbox();
+  });
+})();
 </script>
 
 </body>
