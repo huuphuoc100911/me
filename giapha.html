@@ -588,12 +588,12 @@
       .chap-card .chap-title { font-size: 1rem; margin-bottom: 2px; }
       .chap-card .chap-meta { font-size: 0.74rem; line-height: 1.5; }
       .chap-card .chap-cd {
-        font-size: 1.05rem;
+        font-size: 0.85rem;
         width: 100%;
         text-align: center;
-        padding-top: 14px;
+        padding-top: 10px;
         border-top: 1px dashed rgba(255,255,255,0.08);
-        margin-top: 10px;
+        margin-top: 8px;
       }
     }
 
@@ -706,38 +706,54 @@
 
     /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 768px) {
-      .page-header { padding: 40px 16px 16px; }
-      .ancestor-card { margin: 20px 16px; padding: 24px 18px; }
-      .section-title { margin: 36px 0 18px; }
-      .section-title h2 { font-size: 1.3rem; }
-      .couple-card { min-width: 160px; padding: 18px 14px; }
-      .couple-card .cc-avatar { width: 80px; height: 80px; font-size: 2rem; }
-      .couple-card .cc-name { font-size: 0.85rem; }
-      .branch-parent .bp-avatar { width: 78px; height: 78px; font-size: 1.9rem; }
-      .branch-child .bc-avatar { width: 64px; height: 64px; font-size: 1.5rem; }
-      .branch-card { padding: 22px 16px; }
+      .page-header { padding: 32px 12px 12px; }
+      .ancestor-card { margin: 16px 10px; padding: 18px 14px; }
+      .section-title { margin: 28px 0 14px; }
+      .section-title h2 { font-size: 1.25rem; }
+      .family-groups { padding: 0 8px; }
+      .family-row { gap: 12px; margin-bottom: 10px; }
+      .couple-card { min-width: 150px; padding: 12px 10px; }
+      .couple-card .cc-avatar { width: 72px; height: 72px; font-size: 1.8rem; }
+      .couple-card .cc-name { font-size: 0.82rem; }
+      .branch-section { padding: 0 8px; margin-bottom: 22px; }
+      .branch-card { padding: 14px 12px; }
+      .branch-parent { margin-bottom: 12px; }
+      .branch-parent .bp-avatar { width: 72px; height: 72px; font-size: 1.8rem; }
+      .branch-children { gap: 10px; }
+      .branch-child { padding: 10px 8px; }
+      .branch-child .bc-avatar { width: 60px; height: 60px; font-size: 1.4rem; }
     }
 
     @media (max-width: 520px) {
-      .page-header h1 { font-size: 1.8rem; }
-      .family-row { gap: 12px; }
-      .couple-card { min-width: 140px; max-width: 100%; padding: 16px 12px; border-radius: 16px; }
-      .couple-card .cc-avatar { width: 68px; height: 68px; font-size: 1.7rem; }
-      .couple-card .cc-name { font-size: 0.8rem; }
-      .couple-card .cc-name-sub { font-size: 0.75rem; }
-      .person-card { min-width: 100px; max-width: 140px; flex: 0 1 120px; padding: 12px 10px; }
-      .person-card .pc-avatar { width: 64px; height: 64px; font-size: 1.6rem; }
-      .person-card .pc-name { font-size: 0.75rem; }
-      .person-grid { gap: 8px; }
-      .ancestor-card { margin: 16px 12px; padding: 20px 14px; border-radius: 18px; }
-      .ancestor-card .ac-name { font-size: 1.1rem; }
-      .branch-card { padding: 18px 12px; border-radius: 18px; }
-      .branch-parent .bp-name, .branch-parent .bp-spouse { font-size: 0.92rem; }
-      .branch-parent .bp-avatar { width: 68px; height: 68px; font-size: 1.7rem; }
-      .branch-children { gap: 8px; }
-      .branch-child { min-width: 0; max-width: none; flex: 0 0 calc(50% - 4px); padding: 10px 8px; box-sizing: border-box; }
-      .branch-child .bc-avatar { width: 60px; height: 60px; font-size: 1.4rem; }
-      .branch-child .bc-name { font-size: 0.72rem; }
+      .page-header h1 { font-size: 1.7rem; }
+      .page-header .eyebrow { font-size: 0.7rem; }
+      .page-header .sub { font-size: 0.82rem; }
+      .family-row { gap: 8px; }
+      .family-groups { padding: 0 6px; }
+      .couple-card { min-width: 130px; max-width: 100%; padding: 10px 8px; border-radius: 14px; }
+      .couple-card .cc-avatar { width: 60px; height: 60px; font-size: 1.5rem; }
+      .couple-card .cc-name { font-size: 0.76rem; }
+      .couple-card .cc-name-sub { font-size: 0.72rem; }
+      .couple-card .cc-avatars { gap: 4px; margin-bottom: 8px; }
+      .person-card { min-width: 90px; max-width: 130px; flex: 0 1 110px; padding: 10px 8px; }
+      .person-card .pc-avatar { width: 60px; height: 60px; font-size: 1.5rem; }
+      .person-card .pc-name { font-size: 0.72rem; }
+      .person-grid { gap: 6px; }
+      .ancestor-card { margin: 12px 6px; padding: 14px 10px; border-radius: 16px; }
+      .ancestor-card .ac-icon { font-size: 2rem; margin-bottom: 8px; }
+      .ancestor-card .ac-avatar { width: 80px; height: 80px; }
+      .ancestor-card .ac-avatars { gap: 10px; margin-bottom: 10px; }
+      .ancestor-card .ac-name { font-size: 1rem; }
+      .branch-section { padding: 0 6px; margin-bottom: 18px; }
+      .branch-card { padding: 12px 8px; border-radius: 16px; }
+      .branch-parent { margin-bottom: 10px; }
+      .branch-parent .bp-name, .branch-parent .bp-spouse-name { font-size: 0.88rem; }
+      .branch-parent .bp-avatar { width: 60px; height: 60px; font-size: 1.5rem; }
+      .branch-parent .bp-avatars { gap: 6px; margin-bottom: 6px; }
+      .branch-children { gap: 6px; }
+      .branch-child { min-width: 0; max-width: none; flex: 0 0 calc(50% - 3px); padding: 8px 6px; border-radius: 10px; box-sizing: border-box; }
+      .branch-child .bc-avatar { width: 56px; height: 56px; font-size: 1.3rem; }
+      .branch-child .bc-name { font-size: 0.7rem; }
     }
   </style>
 </head>
