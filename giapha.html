@@ -100,6 +100,22 @@
       pointer-events: none;
     }
     .ancestor-card .ac-icon { font-size: 2.5rem; margin-bottom: 12px; position: relative; }
+    .ancestor-card .ac-avatars {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      margin-bottom: 14px; position: relative;
+    }
+    .ancestor-card .ac-avatar {
+      width: 110px; height: 110px; border-radius: 50%;
+      overflow: hidden; flex-shrink: 0; aspect-ratio: 1 / 1;
+      border: 2px solid rgba(251,191,36,0.4);
+      box-shadow: 0 4px 16px rgba(124,111,247,0.2);
+    }
+    .ancestor-card .ac-avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 50%; display: block; cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .ancestor-card .ac-avatar img:hover { transform: scale(1.08); }
     .ancestor-card .ac-couple {
       display: flex; align-items: center; justify-content: center; gap: 12px;
       flex-wrap: wrap; margin-bottom: 16px; position: relative;
@@ -343,6 +359,8 @@
     .cc-avatar, .bp-avatar, .pc-avatar, .bc-avatar {
       overflow: hidden;
       position: relative;
+      flex-shrink: 0;
+      aspect-ratio: 1 / 1;
     }
     .cc-avatar img, .bp-avatar img, .pc-avatar img, .bc-avatar img {
       width: 100%;
@@ -463,6 +481,10 @@
 <!-- ANCESTOR -->
 <div class="ancestor-card">
   <div class="ac-icon">🕯️</div>
+  <div class="ac-avatars">
+    <div class="ac-avatar"><img src="images/giapha/nguyenviettuan.jpg" alt="Nguyễn Viết Tuấn (Chỉnh)" data-caption="Nguyễn Viết Tuấn (Chỉnh)"></div>
+    <div class="ac-avatar"><img src="images/giapha/duongthicam.jpg" alt="Dương Thị Cam" data-caption="Dương Thị Cam"></div>
+  </div>
   <div class="ac-couple">
     <div class="ac-name">Nguyễn Viết Tuấn (Chỉnh)</div>
     <div class="ac-heart">♥</div>
@@ -761,7 +783,7 @@
       <div class="branch-connector"><div class="bc-line"></div></div>
       <div class="branch-children">
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/vanloc.jpg" alt="Nguyễn Văn Lộc" data-caption="Nguyễn Văn Lộc"></div>
           <div class="bc-name">Nguyễn Văn Lộc</div>
         </div>
         <div class="branch-child">
@@ -801,7 +823,7 @@
           <div class="bc-name">Nguyễn Thị Hoài Thương</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar female" style="background: linear-gradient(135deg, rgba(249,168,212,0.2), rgba(249,168,212,0.05));">👧</div>
+          <div class="bc-avatar female"><img src="images/giapha/ngoctram.jpg" alt="Nguyễn Thị Ngọc Trâm" data-caption="Nguyễn Thị Ngọc Trâm"></div>
           <div class="bc-name">Nguyễn Thị Ngọc Trâm</div>
         </div>
         <div class="branch-child">
@@ -911,7 +933,7 @@ setTimeout(() => {
     document.body.style.overflow = '';
   }
 
-  document.querySelectorAll('.cc-avatar img, .bp-avatar img, .pc-avatar img, .bc-avatar img').forEach(img => {
+  document.querySelectorAll('.ac-avatar img, .cc-avatar img, .bp-avatar img, .pc-avatar img, .bc-avatar img').forEach(img => {
     img.addEventListener('click', (e) => {
       e.stopPropagation();
       openLightbox(img.src, img.dataset.caption || img.alt);
