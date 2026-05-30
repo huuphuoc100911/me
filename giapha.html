@@ -380,6 +380,281 @@
       transform: scale(1.08);
     }
 
+    /* ── KỴ CARD (ngày giỗ) ───────────────────────────────── */
+    .ky-card {
+      max-width: 720px; margin: 18px auto 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(251,191,36,0.06), transparent 60%),
+        linear-gradient(180deg, rgba(40,32,72,0.6), rgba(20,15,40,0.6));
+      border: 1px solid rgba(148,163,184,0.18);
+      border-radius: 22px; padding: 22px 24px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .ky-card::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%); width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent);
+    }
+    .ky-card .ky-head {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--gold2); margin-bottom: 16px;
+      letter-spacing: 0.3px;
+    }
+    .ky-card .ky-head .ky-ic {
+      font-size: 1.5rem;
+      filter: drop-shadow(0 0 8px rgba(251,191,36,0.3));
+    }
+    .ky-card .ky-list {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .ky-card .ky-row {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 12px; align-items: center;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-left: 3px solid rgba(148,163,184,0.35);
+      border-radius: 10px;
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+    }
+    .ky-card .ky-row:hover {
+      background: rgba(255,255,255,0.04);
+      transform: translateX(2px);
+    }
+    .ky-card .ky-row .ky-bullet {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(148,163,184,0.12);
+      font-size: 0.95rem;
+    }
+    .ky-card .ky-row.soon {
+      border-left-color: var(--accent);
+      background: linear-gradient(90deg, rgba(124,111,247,0.06), rgba(255,255,255,0.02));
+    }
+    .ky-card .ky-row.soon .ky-bullet {
+      background: rgba(124,111,247,0.2);
+      box-shadow: 0 0 12px rgba(124,111,247,0.3);
+    }
+    .ky-card .ky-row.today {
+      border-left-color: var(--gold);
+      background: linear-gradient(90deg, rgba(251,191,36,0.12), rgba(255,255,255,0.02));
+    }
+    .ky-card .ky-row.today .ky-bullet {
+      background: rgba(251,191,36,0.25);
+      box-shadow: 0 0 16px rgba(251,191,36,0.4);
+      animation: kyPulse 2s ease-in-out infinite;
+    }
+    @keyframes kyPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .ky-card .ky-info { min-width: 0; }
+    .ky-card .ky-name {
+      color: rgba(255,255,255,0.95);
+      font-weight: 600;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .ky-card .ky-meta {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.78rem;
+      display: flex; gap: 6px; align-items: center;
+      flex-wrap: wrap;
+    }
+    .ky-card .ky-meta .ky-lunar {
+      color: var(--gold2);
+      background: rgba(251,191,36,0.08);
+      padding: 1px 7px; border-radius: 4px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .ky-card .ky-right {
+      text-align: right;
+      min-width: 110px;
+    }
+    .ky-card .ky-date {
+      color: rgba(255,255,255,0.7);
+      font-variant-numeric: tabular-nums;
+      font-size: 0.82rem;
+      margin-bottom: 2px;
+    }
+    .ky-card .ky-cd {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .ky-card .ky-row.today .ky-cd { color: var(--gold); }
+    .ky-card .ky-row.far .ky-cd { color: rgba(255,255,255,0.45); font-weight: 500; }
+    @media (max-width: 600px) {
+      .ky-card { padding: 18px 14px 16px; }
+      .ky-card .ky-list { gap: 12px; }
+      .ky-card .ky-row {
+        grid-template-columns: 26px 1fr;
+        grid-template-areas:
+          "bullet info"
+          "bullet right";
+        gap: 8px 10px;
+        padding: 14px 14px;
+      }
+      .ky-card .ky-row .ky-bullet {
+        grid-area: bullet;
+        align-self: start;
+        width: 26px; height: 26px;
+        font-size: 0.9rem;
+        margin-top: 2px;
+      }
+      .ky-card .ky-info { grid-area: info; }
+      .ky-card .ky-right {
+        grid-area: right;
+        text-align: left;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        min-width: 0;
+        margin-top: 8px;
+        padding-top: 10px;
+        border-top: 1px dashed rgba(255,255,255,0.08);
+      }
+      .ky-card .ky-date { font-size: 0.74rem; margin: 0; }
+      .ky-card .ky-date::after {
+        content: "·";
+        color: rgba(255,255,255,0.25);
+        margin: 0 4px;
+      }
+      .ky-card .ky-cd { font-size: 0.8rem; }
+      .ky-card .ky-name { font-size: 0.92rem; }
+      .ky-card .ky-meta { font-size: 0.72rem; }
+    }
+
+    /* ── CHẠP HỌ CARD ──────────────────────────────────────── */
+    .chap-card {
+      max-width: 720px; margin: 24px auto 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(251,191,36,0.15), transparent 60%),
+        linear-gradient(135deg, rgba(251,191,36,0.08), rgba(124,111,247,0.05));
+      border: 1px solid rgba(251,191,36,0.35);
+      border-radius: 22px; padding: 22px 26px;
+      display: flex; align-items: center; gap: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2), 0 0 40px rgba(251,191,36,0.05);
+      position: relative;
+    }
+    .chap-card::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%); width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(251,191,36,0.6), transparent);
+    }
+    .chap-card .chap-ic {
+      font-size: 2.4rem;
+      filter: drop-shadow(0 0 12px rgba(251,191,36,0.4));
+    }
+    .chap-card .chap-body { flex: 1; min-width: 0; }
+    .chap-card .chap-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 700; color: var(--gold2);
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
+    }
+    .chap-card .chap-meta {
+      font-size: 0.82rem; color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+    }
+    .chap-card .chap-meta strong {
+      color: var(--gold2);
+      background: rgba(251,191,36,0.1);
+      padding: 1px 7px; border-radius: 4px;
+      font-weight: 600;
+    }
+    .chap-card .chap-cd {
+      font-size: 1.15rem; font-weight: 700; color: var(--accent);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    @media (max-width: 600px) {
+      .chap-card {
+        padding: 16px 16px; gap: 10px;
+        flex-wrap: wrap;
+      }
+      .chap-card .chap-ic { font-size: 1.8rem; }
+      .chap-card .chap-body { flex: 1 1 calc(100% - 60px); }
+      .chap-card .chap-title { font-size: 1rem; margin-bottom: 2px; }
+      .chap-card .chap-meta { font-size: 0.74rem; line-height: 1.5; }
+      .chap-card .chap-cd {
+        font-size: 1.05rem;
+        width: 100%;
+        text-align: center;
+        padding-top: 14px;
+        border-top: 1px dashed rgba(255,255,255,0.08);
+        margin-top: 10px;
+      }
+    }
+
+    /* ── CLICKABLE CUE ────────────────────────────────────── */
+    .couple-card, .branch-parent, .branch-child, .ancestor-card .ac-couple {
+      cursor: pointer;
+    }
+    .couple-card:hover, .branch-child:hover {
+      transform: translateY(-2px);
+      transition: transform 0.15s;
+    }
+
+    /* ── INFO MODAL ───────────────────────────────────────── */
+    .info-modal {
+      position: fixed; inset: 0; background: rgba(8,5,20,0.85);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.25s, visibility 0.25s;
+      z-index: 1100; padding: 20px;
+      backdrop-filter: blur(6px);
+    }
+    .info-modal.show { opacity: 1; visibility: visible; }
+    .info-card {
+      background: linear-gradient(135deg, rgba(40,32,72,0.95), rgba(20,15,40,0.95));
+      border: 1px solid rgba(124,111,247,0.4);
+      border-radius: 20px;
+      max-width: 540px; width: 100%;
+      max-height: 85vh; overflow-y: auto;
+      padding: 28px 26px; position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    .info-card .info-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 0;
+      color: #fff; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .info-card .info-close:hover { background: rgba(255,255,255,0.15); }
+    .info-card .info-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: var(--gold2);
+      margin-bottom: 4px;
+    }
+    .info-card .info-sub {
+      color: var(--pink); font-size: 0.9rem; margin-bottom: 16px;
+    }
+    .info-card p { color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: 10px; }
+    .info-card .info-list {
+      list-style: none; padding: 0; margin: 6px 0 0;
+    }
+    .info-card .info-list li {
+      padding: 8px 12px; margin-bottom: 6px;
+      background: rgba(124,111,247,0.08);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.93rem;
+    }
+    .info-card .info-list li b { color: var(--gold2); }
+
     /* ── LIGHTBOX ────────────────────────────────────────── */
     .lightbox {
       position: fixed; inset: 0; z-index: 100000;
@@ -496,6 +771,22 @@
   </div>
 </div>
 
+<!-- CHẠP HỌ -->
+<div class="chap-card" id="chapCard">
+  <div class="chap-ic">🕯️</div>
+  <div class="chap-body">
+    <div class="chap-title">Chạp họ</div>
+    <div class="chap-meta">Ngày <strong>10/10 âm lịch</strong> hằng năm · <span id="chapSolar">—</span></div>
+  </div>
+  <div class="chap-cd" id="chapCountdown">—</div>
+</div>
+
+<!-- NGÀY KỴ -->
+<div class="ky-card" id="kyCard">
+  <div class="ky-head"><span class="ky-ic">🪔</span> Ngày kỵ sắp tới</div>
+  <ul class="ky-list" id="kyList"></ul>
+</div>
+
 <div class="family-groups">
 
   <!-- ═══════════════════════════════════════════════════════ -->
@@ -545,6 +836,14 @@
       <div class="cc-name">Nguyễn Viết Đừng</div>
       <div class="cc-alias">(Chung)</div>
       <div class="cc-name-sub">♥ Trần Thị Thu</div>
+    </div>
+
+    <div class="couple-card single">
+      <div class="cc-avatars">
+        <div class="cc-avatar male" style="background: linear-gradient(135deg, rgba(148,163,184,0.25), rgba(148,163,184,0.08));">🕯️</div>
+      </div>
+      <div class="cc-name">Nguyễn Viết Vô Danh</div>
+      <div class="cc-alias">(con của ôn Chỉnh)</div>
     </div>
 
     <div class="couple-card single">
@@ -759,7 +1058,7 @@
           <div class="bc-name">Nguyễn Viết Trường Nam</div>
         </div>
         <div class="branch-child">
-          <div class="bc-avatar male" style="background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));">👦</div>
+          <div class="bc-avatar male"><img src="images/giapha/truongnhat.jpeg" alt="Nguyễn Viết Trường Nhật" data-caption="Nguyễn Viết Trường Nhật"></div>
           <div class="bc-name">Nguyễn Viết Trường Nhật</div>
         </div>
         <div class="branch-child">
@@ -902,6 +1201,16 @@
   Gia phả dòng họ Nguyễn Viết — Lưu giữ với <span class="heart">💜</span> bởi con cháu
 </div>
 
+<!-- INFO MODAL -->
+<div class="info-modal" id="infoModal" aria-hidden="true">
+  <div class="info-card">
+    <button class="info-close" id="infoClose" aria-label="Đóng">✕</button>
+    <div class="info-title" id="infoTitle">—</div>
+    <div class="info-sub" id="infoSub"></div>
+    <div id="infoBody"></div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" aria-hidden="true">
   <div class="lightbox-close" id="lightboxClose" title="Đóng">✕</div>
@@ -949,6 +1258,271 @@ setTimeout(() => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && lightbox.classList.contains('show')) closeLightbox();
   });
+})();
+
+/* ─────────────────── LUNAR (Hồ Ngọc Đức) ─────────────────── */
+function INT(d){return Math.floor(d);}
+function jdFromDate(d,m,y){const a=INT((14-m)/12),yy=y+4800-a,mm=m+12*a-3;let jd=d+INT((153*mm+2)/5)+365*yy+INT(yy/4)-INT(yy/100)+INT(yy/400)-32045;if(jd<2299161)jd=d+INT((153*mm+2)/5)+365*yy+INT(yy/4)-32083;return jd;}
+function jdToDate(jd){let a,b,c;if(jd>2299160){a=jd+32044;b=INT((4*a+3)/146097);c=a-INT((146097*b)/4);}else{b=0;c=jd+32082;}const d=INT((4*c+3)/1461),e=c-INT((1461*d)/4),m=INT((5*e+2)/153),day=e-INT((153*m+2)/5)+1,month=m+3-12*INT(m/10),year=b*100+d-4800+INT(m/10);return [day,month,year];}
+function NewMoon(k){const T=k/1236.85,T2=T*T,T3=T2*T,dr=Math.PI/180;let Jd1=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3+0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*dr);const M=359.2242+29.10535608*k-0.0000333*T2-0.00000347*T3,Mpr=306.0253+385.81691806*k+0.0107306*T2+0.00001236*T3,F=21.2964+390.67050646*k-0.0016528*T2-0.00000239*T3;let C1=(0.1734-0.000393*T)*Math.sin(M*dr)+0.0021*Math.sin(2*M*dr);C1-=0.4068*Math.sin(Mpr*dr)+0.0161*Math.sin(2*Mpr*dr);C1-=0.0004*Math.sin(3*Mpr*dr);C1+=0.0104*Math.sin(2*F*dr)-0.0051*Math.sin((M+Mpr)*dr)-0.0074*Math.sin((M-Mpr)*dr)+0.0004*Math.sin((2*F+M)*dr)-0.0004*Math.sin((2*F-M)*dr)-0.0006*Math.sin((2*F+Mpr)*dr)+0.0010*Math.sin((2*F-Mpr)*dr)+0.0005*Math.sin((2*Mpr+M)*dr);let deltat;if(T<-11)deltat=0.001+0.000839*T+0.0002261*T2-0.00000845*T3-0.000000081*T*T3;else deltat=-0.000278+0.000265*T+0.000262*T2;const JdNew=Jd1+C1-deltat;return JdNew;}
+function getNewMoonDay(k,tz){return INT(NewMoon(k)+0.5+tz/24);}
+function SunLong(jdn){const T=(jdn-2451545.0)/36525,T2=T*T,dr=Math.PI/180,M=357.52910+35999.05030*T-0.0001559*T2-0.00000048*T*T2,L0=280.46645+36000.76983*T+0.0003032*T2;let DL=(1.914600-0.004817*T-0.000014*T2)*Math.sin(M*dr);DL+=(0.019993-0.000101*T)*Math.sin(2*M*dr)+0.000290*Math.sin(3*M*dr);let L=L0+DL;L=L*dr;L=L-Math.PI*2*INT(L/(Math.PI*2));return L;}
+function getSunLongitude(dayNumber,tz){return INT(SunLong(dayNumber-0.5-tz/24)/Math.PI*6);}
+function getLunarMonth11(yy,tz){const off=jdFromDate(31,12,yy)-2415021;const k=INT(off/29.530588853);let nm=getNewMoonDay(k,tz);const sunLong=getSunLongitude(nm,tz);if(sunLong>=9)nm=getNewMoonDay(k-1,tz);return nm;}
+function getLeapMonthOffset(a11,tz){const k=INT((a11-2415021.076998695)/29.530588853+0.5);let last,arc,i=1;arc=getSunLongitude(getNewMoonDay(k+i,tz),tz);do{last=arc;i++;arc=getSunLongitude(getNewMoonDay(k+i,tz),tz);}while(arc!=last&&i<14);return i-1;}
+function solarToLunar(dd,mm,yy,tz){tz=tz||7;const dayNumber=jdFromDate(dd,mm,yy),k=INT((dayNumber-2415021.076998695)/29.530588853);let monthStart=getNewMoonDay(k+1,tz);if(monthStart>dayNumber)monthStart=getNewMoonDay(k,tz);let a11=getLunarMonth11(yy,tz),b11=a11;let lunarYear;if(a11>=monthStart){lunarYear=yy;a11=getLunarMonth11(yy-1,tz);}else{lunarYear=yy+1;b11=getLunarMonth11(yy+1,tz);}const lunarDay=dayNumber-monthStart+1,diff=INT((monthStart-a11)/29);let leap=0,lunarMonth=diff+11;if(b11-a11>365){const leapMonthDiff=getLeapMonthOffset(a11,tz);if(diff>=leapMonthDiff){lunarMonth=diff+10;if(diff==leapMonthDiff)leap=1;}}if(lunarMonth>12)lunarMonth-=12;if(lunarMonth>=11&&diff<4)lunarYear-=1;return{day:lunarDay,month:lunarMonth,year:lunarYear,leap};}
+
+/* ─────────────────── NGÀY KỴ (âm lịch) ─────────────────── */
+const KIES = [
+  { name: "Cụ Nguyễn Viết Tuấn (Chỉnh)", note: "Cụ tổ",                  day: 30, month: 1,  endOfMonth: true },
+  { name: "Cụ Dương Thị Cam",            note: "Cụ tổ bà",               day: 27, month: 11 },
+  { name: "Cụ thân sinh ôn Chỉnh",       note: "Cha của cụ Chỉnh",       day: 11, month: 3  },
+  { name: "Cụ thân mẫu ôn Chỉnh",        note: "Mẹ của cụ Chỉnh",        day: 20, month: 7  },
+  { name: "Cụ bác (anh cả) ôn Chỉnh",    note: "Bác ruột của cụ Chỉnh",  day: 12, month: 4  },
+  { name: "Cụ bác (thứ 2) ôn Chỉnh",     note: "Bác ruột của cụ Chỉnh",  day: 17, month: 5  },
+  { name: "Nguyễn Viết Vô Danh",         note: "Con của ôn Chỉnh",       day: 12, month: 6  }
+];
+
+// Tìm số ngày của tháng âm lịch m, năm âm y (29 hoặc 30) bằng cách
+// chuyển 30/m sang dương: nếu trả về tháng âm khác → tháng m thiếu (29 ngày)
+function lunarMonthLength(lunarM, lunarY) {
+  // duyệt 32 ngày dương tính từ 1/m → tìm ngày lớn nhất
+  // Cách đơn giản: thử có ngày 30 không
+  // Quét 360 ngày từ 1/1 dương năm lunarY, tìm trùng (lunarM, 30, lunarY)
+  for (let i = 0; i < 400; i++) {
+    const dt = new Date(lunarY, 0, 1 + i);
+    const lu = solarToLunar(dt.getDate(), dt.getMonth() + 1, dt.getFullYear());
+    if (lu.year === lunarY && lu.month === lunarM && lu.day === 30 && !lu.leap) return 30;
+    if (lu.year > lunarY + 1) break;
+  }
+  return 29;
+}
+
+function nextLunarDate(targetM, targetD, today, endOfMonth) {
+  for (let i = 0; i < 420; i++) {
+    const dt = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    const lu = solarToLunar(dt.getDate(), dt.getMonth() + 1, dt.getFullYear());
+    if (lu.leap) continue;
+    if (lu.month !== targetM) continue;
+    if (endOfMonth) {
+      const last = lunarMonthLength(targetM, lu.year);
+      if (lu.day === last) return { dt, lunarDay: last };
+    } else if (lu.day === targetD) {
+      return { dt, lunarDay: targetD };
+    }
+  }
+  return null;
+}
+
+(function renderKies() {
+  const list = document.getElementById('kyList');
+  if (!list) return;
+  const today = new Date();
+  const today0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const items = KIES.map((k) => {
+    const r = nextLunarDate(k.month, k.day, today, k.endOfMonth);
+    if (!r) return null;
+    const days = Math.round((r.dt - today0) / 86400000);
+    return { ...k, solar: r.dt, lunarDay: r.lunarDay, days };
+  }).filter(Boolean).sort((a, b) => a.days - b.days);
+
+  const WD = ["CN","T2","T3","T4","T5","T6","T7"];
+  list.innerHTML = items.map((k) => {
+    const wd = WD[k.solar.getDay()];
+    const ds = `${String(k.solar.getDate()).padStart(2,'0')}/${String(k.solar.getMonth()+1).padStart(2,'0')}/${k.solar.getFullYear()}`;
+    const cd = k.days === 0 ? 'Hôm nay' : k.days === 1 ? 'Ngày mai' : `Còn ${k.days} ngày`;
+    const cls = k.days === 0 ? 'today' : (k.days <= 30 ? 'soon' : (k.days > 200 ? 'far' : ''));
+    const lunarStr = `${k.lunarDay}/${k.month} âm`;
+    return `
+      <li class="ky-row ${cls}">
+        <div class="ky-bullet">🕯️</div>
+        <div class="ky-info">
+          <div class="ky-name">${k.name}</div>
+          <div class="ky-meta"><span>${k.note}</span><span class="ky-lunar">${lunarStr}</span></div>
+        </div>
+        <div class="ky-right">
+          <div class="ky-date">${wd}, ${ds}</div>
+          <div class="ky-cd">${cd}</div>
+        </div>
+      </li>`;
+  }).join('');
+})();
+
+/* ─────────────────── CHẠP HỌ (10/10 âm lịch) ─────────────────── */
+(function(){
+  const today = new Date();
+  const today0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  let next = null;
+  for (let i = 0; i < 420; i++){
+    const dt = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+    const lu = solarToLunar(dt.getDate(), dt.getMonth()+1, dt.getFullYear());
+    if (lu.month === 10 && lu.day === 10 && !lu.leap){ next = dt; break; }
+  }
+  if (!next) return;
+  const days = Math.round((next - today0) / 86400000);
+  const wd = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"][next.getDay()];
+  document.getElementById('chapSolar').textContent =
+    `Năm nay rơi vào ${wd}, ${String(next.getDate()).padStart(2,'0')}/${String(next.getMonth()+1).padStart(2,'0')}/${next.getFullYear()}`;
+  document.getElementById('chapCountdown').textContent =
+    days === 0 ? 'Hôm nay' : days === 1 ? 'Ngày mai' : `Còn ${days} ngày`;
+})();
+
+/* ─────────────────── FAMILY INFO MODAL ─────────────────── */
+(function(){
+  const modal = document.getElementById('infoModal');
+  const titleEl = document.getElementById('infoTitle');
+  const subEl = document.getElementById('infoSub');
+  const bodyEl = document.getElementById('infoBody');
+  const closeBtn = document.getElementById('infoClose');
+
+  function open(title, sub, html){
+    titleEl.textContent = title;
+    subEl.textContent = sub || '';
+    bodyEl.innerHTML = html || '';
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('show')) close(); });
+
+  // Trích các từ cuối dùng làm tên ngắn
+  function shortName(full){ return full.split(/\s+/).slice(-2).join(' '); }
+
+  // Tìm "branch-section" tương ứng với một couple (theo tên người chồng hoặc người vợ)
+  function findBranchByName(name){
+    const sections = document.querySelectorAll('.branch-section');
+    for (const sec of sections){
+      const parents = [...sec.querySelectorAll('.bp-name, .bp-spouse-name strong')].map(e=>e.textContent.trim());
+      if (parents.some(p => p === name)) return sec;
+    }
+    return null;
+  }
+
+  function genderWord(avatarDiv){
+    if (!avatarDiv) return 'người con';
+    if (avatarDiv.classList.contains('male')) return 'con trai';
+    if (avatarDiv.classList.contains('female')) return 'con gái';
+    return 'người con';
+  }
+
+  function showCouple(card){
+    const names = [...card.querySelectorAll('.cc-name, .cc-name-sub')].map(e=>e.textContent.replace(/^♥\s*/,'').trim());
+    const husband = names[0];
+    const wife = names[1] || null;
+    const sec = findBranchByName(husband) || (wife && findBranchByName(wife));
+    let html = '';
+    if (sec){
+      const children = [...sec.querySelectorAll('.branch-child')];
+      const list = children.map(ch => {
+        const nm = ch.querySelector('.bc-name')?.textContent.trim() || '';
+        const g = genderWord(ch.querySelector('.bc-avatar'));
+        return `<li><b>${g.charAt(0).toUpperCase()+g.slice(1)}:</b> ${nm}</li>`;
+      }).join('');
+      const intro = wife
+        ? `<p><b>${husband}</b> kết hôn với <b>${wife}</b>.</p>`
+        : `<p><b>${husband}</b>.</p>`;
+      const count = children.length
+        ? `<p>Sinh được <b>${children.length}</b> người con theo thứ tự:</p><ul class="info-list">${list}</ul>`
+        : `<p><em>Chưa có thông tin về con cái.</em></p>`;
+      html = intro + count;
+    } else {
+      html = wife
+        ? `<p><b>${husband}</b> kết hôn với <b>${wife}</b>.</p><p><em>Chưa có thông tin chi tiết về gia đình.</em></p>`
+        : `<p><b>${husband}</b>.</p><p><em>Chưa có thông tin chi tiết.</em></p>`;
+    }
+    open(husband, wife ? `♥ ${wife}` : '', html);
+  }
+
+  function showBranchParent(bp){
+    const sec = bp.closest('.branch-section');
+    const names = [...bp.querySelectorAll('.bp-name, .bp-spouse-name strong')].map(e=>e.textContent.trim());
+    const alias = bp.querySelector('.bp-alias')?.textContent.trim() || '';
+    const main = names[0] || '';
+    const spouse = names[1] || null;
+    const children = sec ? [...sec.querySelectorAll('.branch-child')] : [];
+    const list = children.map(ch => {
+      const nm = ch.querySelector('.bc-name')?.textContent.trim() || '';
+      const g = genderWord(ch.querySelector('.bc-avatar'));
+      return `<li><b>${g.charAt(0).toUpperCase()+g.slice(1)}:</b> ${nm}</li>`;
+    }).join('');
+    const intro = spouse
+      ? `<p><b>${main}</b>${alias?' '+alias:''} kết hôn với <b>${spouse}</b>.</p>`
+      : `<p><b>${main}</b>${alias?' '+alias:''}.</p>`;
+    const body = children.length
+      ? `<p>Sinh được <b>${children.length}</b> người con theo thứ tự:</p><ul class="info-list">${list}</ul>`
+      : `<p><em>Chưa có thông tin về con cái.</em></p>`;
+    open(main, spouse ? `♥ ${spouse}` : alias, intro + body);
+  }
+
+  function showBranchChild(ch){
+    const name = ch.querySelector('.bc-name')?.textContent.trim() || '';
+    const sec = ch.closest('.branch-section');
+    const bp = sec?.querySelector('.branch-parent');
+    const parents = bp ? [...bp.querySelectorAll('.bp-name, .bp-spouse-name strong')].map(e=>e.textContent.trim()) : [];
+    const g = genderWord(ch.querySelector('.bc-avatar'));
+    let html = parents.length === 2
+      ? `<p>Là ${g} của <b>${parents[0]}</b> và <b>${parents[1]}</b>.</p>`
+      : parents.length === 1
+        ? `<p>Là ${g} của <b>${parents[0]}</b>.</p>`
+        : `<p>Là ${g}.</p>`;
+    // Nếu người này lại có gia đình riêng → tìm branch-section của họ
+    const ownSec = findBranchByName(name);
+    if (ownSec && ownSec !== sec){
+      const kids = [...ownSec.querySelectorAll('.branch-child')];
+      const ownBp = ownSec.querySelector('.branch-parent');
+      const ownParents = [...ownBp.querySelectorAll('.bp-name, .bp-spouse-name strong')].map(e=>e.textContent.trim());
+      const spouse = ownParents.find(p => p !== name);
+      if (spouse) html += `<p>Đã kết hôn với <b>${spouse}</b>.</p>`;
+      if (kids.length){
+        const li = kids.map(k => `<li>${k.querySelector('.bc-name')?.textContent.trim()}</li>`).join('');
+        html += `<p>Có <b>${kids.length}</b> người con: </p><ul class="info-list">${li}</ul>`;
+      }
+    }
+    open(name, '', html);
+  }
+
+  function showAncestor(){
+    const names = [...document.querySelectorAll('.ancestor-card .ac-name')].map(e=>e.textContent.trim());
+    const couples = [...document.querySelectorAll('.family-row .couple-card')];
+    const list = couples.map(c => {
+      const main = c.querySelector('.cc-name')?.textContent.trim();
+      const sub = c.querySelector('.cc-name-sub')?.textContent.replace(/^♥\s*/,'').trim();
+      return `<li>${sub ? `<b>${main}</b> — ♥ ${sub}` : `<b>${main}</b>`}</li>`;
+    }).join('');
+    const html = `
+      <p>Cụ tổ <b>${names[0]}</b> kết hôn với cụ <b>${names[1]}</b>.</p>
+      <p>Sinh được <b>${couples.length}</b> người con:</p>
+      <ul class="info-list">${list}</ul>`;
+    open(names.join(' ♥ '), 'Cụ tổ dòng họ', html);
+  }
+
+  // Bind clicks
+  document.querySelectorAll('.couple-card').forEach(c => {
+    c.addEventListener('click', (e) => {
+      if (e.target.tagName === 'IMG') return; // dùng cho lightbox
+      showCouple(c);
+    });
+  });
+  document.querySelectorAll('.branch-parent').forEach(bp => {
+    bp.addEventListener('click', (e) => {
+      if (e.target.tagName === 'IMG') return;
+      showBranchParent(bp);
+    });
+  });
+  document.querySelectorAll('.branch-child').forEach(ch => {
+    ch.addEventListener('click', (e) => {
+      if (e.target.tagName === 'IMG') return;
+      showBranchChild(ch);
+    });
+  });
+  document.querySelector('.ancestor-card .ac-couple')?.addEventListener('click', showAncestor);
 })();
 </script>
 
