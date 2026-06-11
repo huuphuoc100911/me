@@ -1247,11 +1247,36 @@ function flagURL(team) {
 }
 function getFav() { return localStorage.getItem("wc-fav-team"); }
 function setFav(team) {
-  if (getFav() === team) localStorage.removeItem("wc-fav-team");
+  const prev = getFav();
+  if (prev === team) localStorage.removeItem("wc-fav-team");
   else localStorage.setItem("wc-fav-team", team);
-  renderTeams();
+  const next = getFav();
+
+  // Toggle .fav trên các team-tile (không re-render → không nhấp ảnh)
+  document.querySelectorAll(".team-tile.fav").forEach((el) => el.classList.remove("fav"));
+  if (next) {
+    document.querySelector(`.team-tile[data-team="${CSS.escape(next)}"]`)?.classList.add("fav");
+  }
+
+  // Toggle .fav trên các trận đấu hiển thị
+  document.querySelectorAll(".wc-match.fav").forEach((el) => el.classList.remove("fav"));
+  if (next) {
+    (window._allMatches || []).forEach((m) => {
+      if (m.home === next || m.away === next) {
+        document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`)?.classList.add("fav");
+      }
+    });
+  }
+
+  // Toggle .fav-row trên BXH
+  document.querySelectorAll(".bxh-table tr.fav-row").forEach((el) => el.classList.remove("fav-row"));
+  if (next) {
+    document.querySelectorAll(".bxh-table .team-cell span").forEach((sp) => {
+      if (sp.textContent === next) sp.closest("tr")?.classList.add("fav-row");
+    });
+  }
+
   renderFavBadge();
-  loadSports();
   scheduleNotifs();
 }
 function renderFavBadge() {
