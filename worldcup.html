@@ -1107,7 +1107,6 @@ document.querySelectorAll("#themeBar button").forEach((b) =>
   b.addEventListener("click", () => applyTheme(b.dataset.theme))
 );
 applyTheme(localStorage.getItem("wc-theme") || "gold");
-if ("Notification" in window) updateNotifBtn();
 
 /* ===== Notifications ===== */
 let _notifEnabled = localStorage.getItem("wc-notif") === "1";
@@ -1419,6 +1418,7 @@ document.getElementById("h2hModal").addEventListener("click", (e) => {
   if (e.target.id === "h2hModal") e.currentTarget.classList.remove("show");
 });
 
+if ("Notification" in window) updateNotifBtn();
 loadSports();
 </script>
 </body>
