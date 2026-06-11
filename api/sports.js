@@ -11,17 +11,21 @@ let cache = { ts: 0, data: null };
 
 const FLAG_ISO = {
   "algeria":"dz","argentina":"ar","australia":"au","austria":"at","belgium":"be",
-  "bosnia & herzegovina":"ba","bosnia and herzegovina":"ba","bosnia-herzegovina":"ba",
+  "bosnia & herzegovina":"ba","bosnia and herzegovina":"ba","bosnia-herzegovina":"ba","bosnia":"ba",
   "brazil":"br","canada":"ca","cape verde":"cv","cabo verde":"cv",
-  "colombia":"co","croatia":"hr","curaçao":"cw","curacao":"cw","czech republic":"cz","czechia":"cz",
-  "dr congo":"cd","democratic republic of the congo":"cd",
+  "colombia":"co","croatia":"hr","curaçao":"cw","curacao":"cw",
+  "czech republic":"cz","czechia":"cz",
+  "dr congo":"cd","democratic republic of the congo":"cd","congo dr":"cd",
   "ecuador":"ec","egypt":"eg","england":"gb-eng","france":"fr","germany":"de",
-  "ghana":"gh","haiti":"ht","iran":"ir","iraq":"iq","ivory coast":"ci","côte d'ivoire":"ci",
-  "japan":"jp","jordan":"jo","mexico":"mx","morocco":"ma","netherlands":"nl","new zealand":"nz",
-  "norway":"no","panama":"pa","paraguay":"py","portugal":"pt","qatar":"qa",
-  "saudi arabia":"sa","scotland":"gb-sct","senegal":"sn","south africa":"za",
-  "south korea":"kr","korea republic":"kr","spain":"es","sweden":"se","switzerland":"ch",
-  "tunisia":"tn","turkey":"tr","türkiye":"tr","usa":"us","united states":"us",
+  "ghana":"gh","haiti":"ht","iran":"ir","iraq":"iq",
+  "ivory coast":"ci","côte d'ivoire":"ci","cote d'ivoire":"ci",
+  "italy":"it","japan":"jp","jordan":"jo","mexico":"mx","morocco":"ma",
+  "netherlands":"nl","new zealand":"nz","norway":"no","panama":"pa","paraguay":"py",
+  "portugal":"pt","qatar":"qa","saudi arabia":"sa","scotland":"gb-sct","senegal":"sn",
+  "south africa":"za","south korea":"kr","korea republic":"kr","republic of korea":"kr",
+  "spain":"es","sweden":"se","switzerland":"ch","tunisia":"tn",
+  "turkey":"tr","türkiye":"tr","turkiye":"tr",
+  "usa":"us","united states":"us","united states of america":"us",
   "uruguay":"uy","uzbekistan":"uz"
 };
 const flag = (n) => {
