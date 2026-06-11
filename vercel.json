@@ -40,6 +40,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "today.personal.io.vn" }],
       "destination": "/today.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "worldcup.personal.io.vn" }],
+      "destination": "/worldcup.html"
     }
   ]
 }
