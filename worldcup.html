@@ -405,7 +405,7 @@
   .history-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     max-height: 480px;
     overflow-y: auto;
     padding-right: 6px;
@@ -415,43 +415,270 @@
   .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .history-row {
     display: grid;
-    grid-template-columns: 56px 1fr auto;
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "year winner"
+      "year detail";
+    column-gap: 14px;
+    row-gap: 2px;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    transition: background 0.15s;
   }
-  .history-row.special {
-    border-color: rgba(245,158,11,0.4);
-    background: linear-gradient(90deg, rgba(245,158,11,0.08), transparent);
+  .history-row:hover {
+    background: rgba(245,158,11,0.04);
   }
+  .history-row.special .year { color: var(--accent-2); }
+  .history-row.special .winner-name { color: var(--accent-2); }
   .history-row .year {
+    grid-area: year;
     font-weight: 800;
-    color: var(--accent-2);
+    color: var(--text-dim);
     font-variant-numeric: tabular-nums;
-    font-size: 14px;
+    font-size: 15px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    padding-right: 14px;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .history-row .winner {
+    grid-area: winner;
     display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--text); font-weight: 600;
+    font-size: 14px; color: var(--text); font-weight: 700;
   }
-  .history-row .winner img { width: 22px; height: 22px; object-fit: contain; }
-  .history-row .winner small {
-    display: block; color: var(--text-fade); font-size: 10px;
-    font-weight: 400; margin-top: 1px;
-  }
-  .history-row .host {
+  .history-row .winner img { width: 22px; height: 16px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+  .history-row .winner-name { white-space: nowrap; }
+  .history-row .winner-host {
     color: var(--text-dim);
     font-size: 11px;
-    text-align: right;
+    margin-left: auto;
+    white-space: nowrap;
   }
+  .history-row .detail {
+    grid-area: detail;
+    color: var(--text-fade);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .history-row .detail b { color: var(--text-dim); font-weight: 500; }
   @media (max-width: 600px) {
     .next-hero { padding: 16px; }
     .next-hero .nh-team { font-size: 15px; }
     .scorers-table { font-size: 12px; }
     .history-row { grid-template-columns: 48px 1fr auto; padding: 8px 10px; gap: 8px; }
+  }
+
+  /* ===== Theme switch ===== */
+  .theme-bar {
+    display: flex; gap: 6px; justify-content: center;
+    margin-top: 10px;
+  }
+  .theme-bar button {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .theme-bar button.active { border-color: #fff; transform: scale(1.15); }
+  .theme-bar button[data-theme="gold"]  { background: #f59e0b; }
+  .theme-bar button[data-theme="cyan"]  { background: #06b6d4; }
+  .theme-bar button[data-theme="green"] { background: #10b981; }
+  .theme-bar button[data-theme="pink"]  { background: #ec4899; }
+
+  /* ===== Notification button ===== */
+  .notif-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 10px; border-radius: 999px;
+    font-size: 11px; cursor: pointer; margin-left: 8px;
+    transition: all 0.15s;
+  }
+  .notif-btn:hover { color: var(--text); border-color: var(--accent-2); }
+  .notif-btn.enabled { background: var(--accent-2); color: #0a0e1a; border-color: var(--accent-2); }
+
+  /* ===== Sân vận động ===== */
+  .stadium-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  .stadium-item {
+    padding: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .stadium-item:hover { border-color: var(--accent-2); }
+  .stadium-item .nm {
+    font-weight: 700; color: var(--text); font-size: 12px;
+    margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .stadium-item .ci { color: var(--text-dim); font-size: 10px; }
+  .stadium-item .ci .country { color: var(--accent-2); }
+  .stadium-item .stats {
+    display: flex; gap: 8px; margin-top: 4px;
+    color: var(--text-fade); font-size: 10px;
+  }
+
+  /* ===== Teams grid (48 đội) ===== */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
+  .team-tile {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.15s;
+  }
+  .team-tile:hover { border-color: var(--accent-2); transform: translateY(-1px); }
+  .team-tile.fav {
+    border-color: var(--accent-2);
+    background: rgba(245,158,11,0.1);
+  }
+  .team-tile img { width: 18px; height: 13px; object-fit: cover; flex-shrink: 0; border-radius: 2px; }
+  .team-tile .tnm {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--text); font-weight: 600;
+  }
+  .team-tile .star {
+    margin-left: auto; opacity: 0.3; font-size: 12px;
+  }
+  .team-tile.fav .star { opacity: 1; color: var(--accent-2); }
+  .group-section { margin-bottom: 14px; }
+  .group-section h4 {
+    font-size: 11px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 6px; font-weight: 700;
+  }
+  .wc-match.fav { border-color: var(--accent-2); background: rgba(245,158,11,0.06); }
+  .bxh-table tr.fav-row { background: rgba(245,158,11,0.08); }
+
+  /* ===== Knockout bracket ===== */
+  .bracket-wrap {
+    overflow-x: auto;
+    padding: 12px 0;
+  }
+  .bracket-svg { display: block; min-width: 720px; }
+  .bracket-svg .b-team {
+    font-size: 11px; font-weight: 600;
+  }
+  .bracket-svg .b-score {
+    font-size: 11px; font-weight: 700;
+    fill: var(--accent-2);
+  }
+  .bracket-svg .b-box {
+    fill: rgba(255,255,255,0.02);
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  .bracket-svg .b-line {
+    stroke: var(--border);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .bracket-svg .b-stage {
+    font-size: 10px;
+    fill: var(--accent-2);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== So sánh kỳ WC chart ===== */
+  .compare-chart svg { width: 100%; display: block; }
+  .compare-legend {
+    display: flex; gap: 12px; font-size: 11px;
+    color: var(--text-dim); margin-top: 8px; flex-wrap: wrap;
+  }
+
+  /* ===== Modal head-to-head ===== */
+  .h2h-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .h2h-modal.show { display: flex; }
+  .h2h-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+    max-width: 460px; width: 100%; max-height: 85vh; overflow-y: auto;
+    position: relative;
+  }
+  .h2h-card .h2h-close {
+    position: absolute; top: 8px; right: 8px;
+    background: none; border: 0; color: var(--text-dim);
+    font-size: 20px; cursor: pointer; width: 32px; height: 32px;
+    border-radius: 50%;
+  }
+  .h2h-card .h2h-close:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  .h2h-vs {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; gap: 12px; margin-bottom: 16px;
+  }
+  .h2h-vs .side { text-align: center; }
+  .h2h-vs .side img { width: 44px; height: 32px; object-fit: cover; border-radius: 4px; }
+  .h2h-vs .side .nm { font-size: 13px; font-weight: 700; margin-top: 6px; color: var(--text); }
+  .h2h-vs .center { font-size: 18px; font-weight: 800; color: var(--accent-2); }
+  .h2h-meta {
+    padding: 10px; background: rgba(255,255,255,0.02);
+    border-radius: 8px; font-size: 12px; color: var(--text-dim);
+    line-height: 1.6; margin-bottom: 12px;
+  }
+  .h2h-meta b { color: var(--text); }
+  .h2h-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .h2h-stat {
+    padding: 10px; background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border); border-radius: 8px;
+    text-align: center;
+  }
+  .h2h-stat .v {
+    font-size: 18px; font-weight: 800; color: var(--accent-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .h2h-stat .l { font-size: 10px; color: var(--text-fade); text-transform: uppercase; margin-top: 2px; }
+  .predict-btn {
+    display: inline-block; margin-top: 12px; width: 100%;
+    padding: 10px; background: var(--accent-2); color: #0a0e1a;
+    border: 0; border-radius: 8px; font-weight: 700;
+    cursor: pointer; font-size: 13px;
+  }
+  .predict-btn:hover { opacity: 0.9; }
+  .predict-inputs {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    gap: 8px; align-items: center; margin-top: 8px;
+  }
+  .predict-inputs input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text); padding: 8px; border-radius: 6px;
+    font-size: 16px; text-align: center; width: 100%;
+    font-variant-numeric: tabular-nums;
+  }
+  .predict-saved {
+    font-size: 11px; color: var(--good); text-align: center;
+    margin-top: 6px;
   }
 
   footer {
@@ -469,7 +696,13 @@
 
   <header>
     <h1><span class="trophy">🏆</span> World Cup 2026</h1>
-    <div class="sub">Lịch thi đấu · <b id="wcMeta">đang tải…</b></div>
+    <div class="sub">Lịch thi đấu · <b id="wcMeta">đang tải…</b><button class="notif-btn" id="notifBtn">🔔 Bật nhắc trận</button></div>
+    <div class="theme-bar" id="themeBar">
+      <button data-theme="gold"  class="active" title="Vàng (mặc định)"></button>
+      <button data-theme="cyan"  title="Xanh dương"></button>
+      <button data-theme="green" title="Xanh lá"></button>
+      <button data-theme="pink"  title="Hồng"></button>
+    </div>
   </header>
 
   <!-- Trận sắp tới (hero) -->
@@ -515,6 +748,50 @@
     </div>
   </div>
 
+  <div class="grid">
+    <!-- Knockout bracket -->
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🥊</span> Sơ đồ knockout</h2>
+      <div class="bracket-wrap" id="bracketBlock">
+        <div class="loading-pulse">Sẽ hiển thị sau vòng bảng</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- 48 đội tham dự -->
+    <div class="card">
+      <h2><span class="icon">🌍</span> 48 đội tham dự <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">Click để chọn đội yêu thích</span></h2>
+      <div id="teamsBlock"><div class="loading-pulse">Đang tải…</div></div>
+    </div>
+
+    <!-- Sân vận động -->
+    <div class="card">
+      <h2><span class="icon">🏟️</span> 16 sân tổ chức</h2>
+      <div class="stadium-grid" id="stadiumsBlock"></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- So sánh các kỳ WC -->
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">📊</span> So sánh các kỳ World Cup</h2>
+      <div class="compare-chart"><svg id="compareSvg" viewBox="0 0 800 240"></svg></div>
+      <div class="compare-legend">
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent-2);border-radius:2px;margin-right:4px"></span>Số bàn thắng</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;margin-right:4px"></span>Số trận</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Head-to-head modal -->
+  <div class="h2h-modal" id="h2hModal">
+    <div class="h2h-card">
+      <button class="h2h-close" id="h2hClose">✕</button>
+      <div id="h2hBody"></div>
+    </div>
+  </div>
+
   <footer>
     Nguồn: openfootball / Football-Data.org · TheSportsDB · flagcdn · Wikipedia
   </footer>
@@ -553,7 +830,7 @@ function renderStandings(standings) {
         </thead>
         <tbody>
           ${g.table.map((t) => `
-            <tr class="${t.pos <= 2 ? "qualified" : ""}">
+            <tr class="${t.pos <= 2 ? "qualified" : ""} ${getFav() === t.team ? "fav-row" : ""}">
               <td class="pos">${t.pos}</td>
               <td><div class="team-cell">${badge(t.badge)}<span>${t.team}</span></div></td>
               <td>${t.played}</td>
@@ -579,6 +856,11 @@ async function loadSports() {
     const r = await fetch("/api/sports");
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json();
+    // Gắn id ổn định cho mỗi trận
+    (d.matches || []).forEach((m, i) => { m.id = m.id || `${m.home}-${m.away}-${m.ts || i}`; });
+    window._allMatches = d.matches || [];
+    scheduleNotifs();
+    renderBracket(d.matches || []);
     const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
     console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
     if (finished.length) console.log("[WC] sample finished:", finished.slice(0, 3).map((m) => `${m.home} ${m.homeScore}-${m.awayScore} ${m.away}`));
@@ -591,6 +873,7 @@ async function loadSports() {
       return;
     }
     meta.textContent = `${matches.length}/${d.total || matches.length} trận còn lại${d.source === "football-data" ? " · live" : ""}`;
+    const fav = getFav();
 
     const fmt = (ts) => {
       if (!ts) return { d: "—", t: "—" };
@@ -615,6 +898,7 @@ async function loadSports() {
         header = `<div class="wc-day">${wd} ${d} <span>${tag}</span></div>`;
       }
       const isLive = m.ts && nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
+      const isFav = fav && (m.home === fav || m.away === fav);
       const hasScore = m.homeScore != null && m.awayScore != null;
       const center = hasScore
         ? `<div class="score">${m.homeScore} - ${m.awayScore}</div>`
@@ -623,7 +907,7 @@ async function loadSports() {
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
         : `<div class="badge-fallback"></div>`;
       return `${header}
-        <div class="wc-match ${isLive ? "live" : ""}">
+        <div class="wc-match ${isLive ? "live" : ""} ${isFav ? "fav" : ""}" data-mid="${m.id}">
           <div class="when"><div class="t">${t}</div></div>
           <div class="team">${badge(m.homeBadge)}<div class="nm">${m.home}</div></div>
           ${center}
@@ -631,6 +915,15 @@ async function loadSports() {
         </div>
       `;
     }).join("");
+
+    // Click trận → H2H modal
+    block.querySelectorAll(".wc-match").forEach((el) => {
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => {
+        const m = (window._allMatches || []).find((x) => x.id === el.dataset.mid);
+        if (m) openH2H(m);
+      });
+    });
   } catch (e) {
     block.innerHTML = `<div class="err-msg">Không tải được lịch (${e.message})</div>`;
   }
@@ -638,14 +931,16 @@ async function loadSports() {
 
 /* ===== Trận sắp tới (countdown live) ===== */
 let _nextMatch = null;
-function renderNextHero() {
+let _nextRendered = null; // id trận đã render static
+
+function setupNextHero() {
   const hero = document.getElementById("nextHero");
-  if (!_nextMatch || !_nextMatch.ts) { hero.style.display = "none"; return; }
+  if (!_nextMatch || !_nextMatch.ts) { hero.style.display = "none"; _nextRendered = null; return; }
   hero.style.display = "block";
   const m = _nextMatch;
-  const nowMs = Date.now();
-  const isLive = nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
-  hero.classList.toggle("live", isLive);
+  if (_nextRendered === m.id) return; // đã render rồi, không re-paint
+  _nextRendered = m.id;
+
   const dt = new Date(m.ts);
   const wd = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"][dt.getDay()];
   const ds = `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`;
@@ -663,8 +958,16 @@ function renderNextHero() {
     m.venue ? `📍 ${m.venue}` : ""
   ].filter(Boolean).join(" · ");
   document.getElementById("nhMeta").innerHTML = meta;
+}
 
+function tickCountdown() {
+  if (!_nextMatch || !_nextMatch.ts) return;
+  const m = _nextMatch;
+  const hero = document.getElementById("nextHero");
   const cd = document.getElementById("nhCd");
+  const nowMs = Date.now();
+  const isLive = nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
+  hero.classList.toggle("live", isLive);
   if (isLive) {
     cd.textContent = "🔴 ĐANG ĐÁ";
   } else if (m.ts < nowMs) {
@@ -681,7 +984,7 @@ function renderNextHero() {
       : `Còn ${mins}p ${secs}s`;
   }
 }
-setInterval(renderNextHero, 1000);
+setInterval(tickCountdown, 1000);
 
 /* ===== Vua phá lưới ===== */
 function renderScorers(scorers) {
@@ -757,8 +1060,11 @@ function renderHistory() {
     return `
       <div class="history-row ${special}">
         <div class="year">${h.year}</div>
-        <div class="winner">${badge}<div>${h.winner}<small>thắng ${h.runnerUp} · ${h.score}</small></div></div>
-        <div class="host">📍 ${h.host}</div>
+        <div class="winner">
+          ${badge}<span class="winner-name">${h.winner}</span>
+          <span class="winner-host">📍 ${h.host}</span>
+        </div>
+        <div class="detail">vs <b>${h.runnerUp}</b> · ${h.score}</div>
       </div>`;
   }).join("");
 }
@@ -774,12 +1080,344 @@ async function bootstrapExtras() {
     const nowMs = Date.now();
     const future = (d.matches || []).filter((m) => m.ts && m.ts >= nowMs - 2 * 3600 * 1000);
     _nextMatch = future[0] || null;
-    renderNextHero();
+    setupNextHero();
+    tickCountdown();
   } catch (e) {
     console.warn("[wc-extras]", e);
   }
 }
 bootstrapExtras();
+
+/* ===== Theme switch ===== */
+const THEMES = {
+  gold:  { a2: "#f59e0b" },
+  cyan:  { a2: "#06b6d4" },
+  green: { a2: "#10b981" },
+  pink:  { a2: "#ec4899" }
+};
+function applyTheme(name) {
+  const t = THEMES[name] || THEMES.gold;
+  document.documentElement.style.setProperty("--accent-2", t.a2);
+  document.querySelectorAll("#themeBar button").forEach((b) =>
+    b.classList.toggle("active", b.dataset.theme === name)
+  );
+  localStorage.setItem("wc-theme", name);
+}
+document.querySelectorAll("#themeBar button").forEach((b) =>
+  b.addEventListener("click", () => applyTheme(b.dataset.theme))
+);
+applyTheme(localStorage.getItem("wc-theme") || "gold");
+if ("Notification" in window) updateNotifBtn();
+
+/* ===== Notifications ===== */
+let _notifEnabled = localStorage.getItem("wc-notif") === "1";
+const _notifTimers = [];
+function updateNotifBtn() {
+  const btn = document.getElementById("notifBtn");
+  if (_notifEnabled && Notification.permission === "granted") {
+    btn.textContent = "🔔 Đang nhắc";
+    btn.classList.add("enabled");
+  } else {
+    btn.textContent = "🔔 Bật nhắc trận";
+    btn.classList.remove("enabled");
+  }
+}
+document.getElementById("notifBtn").addEventListener("click", async () => {
+  if (!("Notification" in window)) return alert("Trình duyệt không hỗ trợ thông báo");
+  if (_notifEnabled) {
+    _notifEnabled = false;
+    localStorage.setItem("wc-notif", "0");
+    _notifTimers.forEach(clearTimeout);
+    _notifTimers.length = 0;
+  } else {
+    const p = await Notification.requestPermission();
+    if (p !== "granted") return;
+    _notifEnabled = true;
+    localStorage.setItem("wc-notif", "1");
+    scheduleNotifs();
+  }
+  updateNotifBtn();
+});
+function scheduleNotifs() {
+  _notifTimers.forEach(clearTimeout);
+  _notifTimers.length = 0;
+  if (!_notifEnabled || !window._allMatches) return;
+  const nowMs = Date.now();
+  for (const m of window._allMatches) {
+    if (!m.ts) continue;
+    const fav = localStorage.getItem("wc-fav-team");
+    const isFav = fav && (m.home === fav || m.away === fav);
+    const lead = isFav ? 30 * 60 * 1000 : 15 * 60 * 1000;
+    const fireAt = m.ts - lead;
+    if (fireAt > nowMs && fireAt < nowMs + 7 * 86400000) {
+      _notifTimers.push(setTimeout(() => {
+        new Notification(`⚽ ${m.home} vs ${m.away}`, {
+          body: `Bắt đầu trong ${isFav ? "30" : "15"} phút${isFav ? " (đội bạn yêu thích!)" : ""}`,
+          icon: "/icons/worldcup/icon-192.png"
+        });
+      }, fireAt - nowMs));
+    }
+  }
+}
+
+/* ===== 16 sân vận động WC 2026 ===== */
+const STADIUMS = [
+  { name: "Estadio Azteca",         city: "Thành phố Mexico",   country: "Mexico", cap: 87000, host: 13 },
+  { name: "MetLife Stadium",        city: "New York/NJ",        country: "Mỹ",     cap: 82500, host: 8  },
+  { name: "AT&T Stadium",           city: "Dallas",             country: "Mỹ",     cap: 80000, host: 9  },
+  { name: "SoFi Stadium",           city: "Los Angeles",        country: "Mỹ",     cap: 70240, host: 8  },
+  { name: "Mercedes-Benz Stadium",  city: "Atlanta",            country: "Mỹ",     cap: 71000, host: 8  },
+  { name: "NRG Stadium",            city: "Houston",            country: "Mỹ",     cap: 72220, host: 7  },
+  { name: "Lincoln Financial Field",city: "Philadelphia",       country: "Mỹ",     cap: 67594, host: 6  },
+  { name: "Hard Rock Stadium",      city: "Miami",              country: "Mỹ",     cap: 64767, host: 7  },
+  { name: "Levi's Stadium",         city: "San Francisco",      country: "Mỹ",     cap: 68500, host: 6  },
+  { name: "GEHA Field",             city: "Kansas City",        country: "Mỹ",     cap: 76416, host: 6  },
+  { name: "Gillette Stadium",       city: "Boston",             country: "Mỹ",     cap: 65878, host: 7  },
+  { name: "Lumen Field",            city: "Seattle",            country: "Mỹ",     cap: 68740, host: 6  },
+  { name: "BMO Field",              city: "Toronto",            country: "Canada", cap: 30000, host: 6  },
+  { name: "BC Place",               city: "Vancouver",          country: "Canada", cap: 54500, host: 7  },
+  { name: "Estadio Akron",          city: "Guadalajara",        country: "Mexico", cap: 49850, host: 4  },
+  { name: "Estadio BBVA",           city: "Monterrey",          country: "Mexico", cap: 53500, host: 4  }
+];
+function renderStadiums() {
+  document.getElementById("stadiumsBlock").innerHTML = STADIUMS.map((s) => `
+    <div class="stadium-item">
+      <div class="nm">${s.name}</div>
+      <div class="ci">${s.city} · <span class="country">${s.country}</span></div>
+      <div class="stats">⚽ ${s.host} trận · 👥 ${(s.cap/1000).toFixed(0)}k</div>
+    </div>
+  `).join("");
+}
+renderStadiums();
+
+/* ===== 48 đội tham dự + favorite ===== */
+const TEAM_GROUPS = {
+  "A": ["Mexico","South Africa","Czech Republic","South Korea"],
+  "B": ["Canada","Bosnia & Herzegovina","Qatar","Switzerland"],
+  "C": ["USA","Brazil","Cape Verde","Scotland"],
+  "D": ["Spain","Belgium","Australia","Netherlands"],
+  "E": ["Argentina","Algeria","Austria","Jordan"],
+  "F": ["Italy","Iran","Iraq","Norway"],
+  "G": ["Portugal","DR Congo","England","Croatia"],
+  "H": ["Germany","Senegal","Colombia","Ecuador"],
+  "I": ["France","Senegal","Iraq","Norway"],
+  "J": ["Saudi Arabia","Uruguay","Iran","New Zealand"],
+  "K": ["Portugal","DR Congo","England","Croatia"],
+  "L": ["Morocco","Ivory Coast","Sweden","Turkey"]
+};
+function flagURL(team) {
+  const ISO = {
+    "algeria":"dz","argentina":"ar","australia":"au","austria":"at","belgium":"be",
+    "bosnia & herzegovina":"ba","brazil":"br","canada":"ca","cape verde":"cv",
+    "colombia":"co","croatia":"hr","czech republic":"cz","dr congo":"cd",
+    "ecuador":"ec","egypt":"eg","england":"gb-eng","france":"fr","germany":"de",
+    "ghana":"gh","haiti":"ht","iran":"ir","iraq":"iq","ivory coast":"ci","japan":"jp",
+    "jordan":"jo","mexico":"mx","morocco":"ma","netherlands":"nl","new zealand":"nz",
+    "norway":"no","panama":"pa","paraguay":"py","portugal":"pt","qatar":"qa",
+    "saudi arabia":"sa","scotland":"gb-sct","senegal":"sn","south africa":"za",
+    "south korea":"kr","spain":"es","sweden":"se","switzerland":"ch","tunisia":"tn",
+    "turkey":"tr","usa":"us","uruguay":"uy","uzbekistan":"uz","italy":"it"
+  };
+  const iso = ISO[team.toLowerCase()];
+  return iso ? `https://flagcdn.com/w40/${iso}.png` : null;
+}
+function getFav() { return localStorage.getItem("wc-fav-team"); }
+function setFav(team) {
+  if (getFav() === team) localStorage.removeItem("wc-fav-team");
+  else localStorage.setItem("wc-fav-team", team);
+  renderTeams();
+  loadSports();
+  scheduleNotifs();
+}
+function renderTeams() {
+  const fav = getFav();
+  const html = Object.entries(TEAM_GROUPS).map(([g, teams]) => `
+    <div class="group-section">
+      <h4>Group ${g}</h4>
+      <div class="teams-grid">
+        ${teams.map((t) => {
+          const url = flagURL(t);
+          return `<div class="team-tile ${fav === t ? 'fav' : ''}" data-team="${t}">
+            ${url ? `<img src="${url}" alt="">` : '<div style="width:18px;height:13px;background:#1f2937;border-radius:2px"></div>'}
+            <span class="tnm">${t}</span>
+            <span class="star">★</span>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+  `).join("");
+  document.getElementById("teamsBlock").innerHTML = html;
+  document.querySelectorAll("#teamsBlock .team-tile").forEach((el) =>
+    el.addEventListener("click", () => setFav(el.dataset.team))
+  );
+}
+renderTeams();
+
+/* ===== Knockout bracket ===== */
+function renderBracket(matches) {
+  const block = document.getElementById("bracketBlock");
+  const knockoutRounds = ["Round of 32","Round of 16","Quarter-finals","Quarterfinals","Quarter","Semi-finals","Semifinals","Semi","Final","Third-place"];
+  const ko = matches.filter((m) => m.round && knockoutRounds.some((r) => m.round.includes(r) || m.round.includes("Matchday") === false && m.round.toLowerCase().includes(r.toLowerCase().slice(0, 4))));
+  if (!ko.length) {
+    block.innerHTML = `<div class="loading-pulse">Sẽ hiển thị sau khi kết thúc vòng bảng (28/06/2026)</div>`;
+    return;
+  }
+  // Group by round
+  const stages = {};
+  ko.forEach((m) => {
+    const r = m.round || "—";
+    if (!stages[r]) stages[r] = [];
+    stages[r].push(m);
+  });
+  const ORDER = ["Round of 32","Round of 16","Quarter-finals","Quarterfinals","Semi-finals","Semifinals","Final"];
+  const sorted = ORDER.filter((r) => stages[r] && stages[r].length).map((r) => ({ stage: r, matches: stages[r] }));
+  if (!sorted.length) {
+    block.innerHTML = `<div class="loading-pulse">Sẽ hiển thị sau khi kết thúc vòng bảng</div>`;
+    return;
+  }
+  // Render simple bracket SVG
+  const colW = 180, rowH = 60, padX = 20, padY = 20;
+  const W = padX*2 + colW * sorted.length;
+  const H = padY*2 + rowH * Math.max(...sorted.map((s) => s.matches.length));
+  let svg = `<svg class="bracket-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  sorted.forEach((stage, ci) => {
+    svg += `<text x="${padX + ci*colW + colW/2}" y="14" class="b-stage" text-anchor="middle">${stage.stage}</text>`;
+    stage.matches.forEach((m, ri) => {
+      const x = padX + ci*colW;
+      const y = padY + ri*rowH;
+      const score = m.homeScore != null && m.awayScore != null ? `${m.homeScore}-${m.awayScore}` : "—";
+      svg += `<rect class="b-box" x="${x}" y="${y}" width="${colW-20}" height="${rowH-12}" rx="6"/>`;
+      svg += `<text x="${x+8}" y="${y+18}" class="b-team" fill="#e2e8f0">${m.home || "?"}</text>`;
+      svg += `<text x="${x+8}" y="${y+36}" class="b-team" fill="#e2e8f0">${m.away || "?"}</text>`;
+      svg += `<text x="${x+colW-26}" y="${y+28}" class="b-score" text-anchor="end">${score}</text>`;
+    });
+  });
+  svg += `</svg>`;
+  block.innerHTML = svg;
+}
+
+/* ===== So sánh các kỳ WC ===== */
+const COMPARE = [
+  { year: 1994, goals: 141, matches: 52 },
+  { year: 1998, goals: 171, matches: 64 },
+  { year: 2002, goals: 161, matches: 64 },
+  { year: 2006, goals: 147, matches: 64 },
+  { year: 2010, goals: 145, matches: 64 },
+  { year: 2014, goals: 171, matches: 64 },
+  { year: 2018, goals: 169, matches: 64 },
+  { year: 2022, goals: 172, matches: 64 },
+  { year: 2026, goals: null, matches: 104 }
+];
+function renderCompare() {
+  const svg = document.getElementById("compareSvg");
+  const W = 800, H = 240, padL = 36, padR = 16, padT = 20, padB = 36;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const maxG = Math.max(...COMPARE.map((c) => c.goals || 0));
+  const maxM = Math.max(...COMPARE.map((c) => c.matches));
+  const n = COMPARE.length;
+  const xAt = (i) => padL + (innerW * (i + 0.5)) / n;
+  const groupW = innerW / n;
+  const barW = (groupW - 12) / 2;
+  let html = "";
+  // grid lines
+  for (let k = 0; k <= 4; k++) {
+    const y = padT + innerH - (innerH * k) / 4;
+    html += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(255,255,255,0.06)"/>`;
+    html += `<text x="${padL-4}" y="${y+3}" font-size="10" fill="#64748b" text-anchor="end">${Math.round(maxG*k/4)}</text>`;
+  }
+  COMPARE.forEach((c, i) => {
+    const cx = xAt(i);
+    if (c.goals != null) {
+      const h1 = (c.goals / maxG) * innerH;
+      html += `<rect x="${cx - barW - 3}" y="${padT + innerH - h1}" width="${barW}" height="${h1}" fill="var(--accent-2)" rx="2"/>`;
+      html += `<text x="${cx - barW/2 - 3}" y="${padT + innerH - h1 - 4}" font-size="9" fill="var(--accent-2)" text-anchor="middle" font-weight="700">${c.goals}</text>`;
+    }
+    const h2 = (c.matches / maxM) * innerH;
+    html += `<rect x="${cx + 3}" y="${padT + innerH - h2}" width="${barW}" height="${h2}" fill="var(--accent)" opacity="0.7" rx="2"/>`;
+    html += `<text x="${cx + barW/2 + 3}" y="${padT + innerH - h2 - 4}" font-size="9" fill="var(--accent)" text-anchor="middle" font-weight="700">${c.matches}</text>`;
+    html += `<text x="${cx}" y="${H - 14}" font-size="11" fill="#94a3b8" text-anchor="middle" font-weight="600">${c.year}</text>`;
+  });
+  svg.innerHTML = html;
+}
+renderCompare();
+
+/* ===== Head-to-head + đoán tỉ số modal ===== */
+let _h2hMatch = null;
+function openH2H(match) {
+  _h2hMatch = match;
+  const all = window._allMatches || [];
+  const home = match.home, away = match.away;
+  const past = all.filter((m) => {
+    if (m === match) return false;
+    if (m.homeScore == null || m.awayScore == null) return false;
+    return (m.home === home && m.away === away) || (m.home === away && m.away === home);
+  });
+  // Form (last 5 finished)
+  const formOf = (team) => all
+    .filter((m) => (m.home === team || m.away === team) && m.homeScore != null && m.awayScore != null)
+    .slice(-5).map((m) => {
+      const isHome = m.home === team;
+      const my = isHome ? m.homeScore : m.awayScore;
+      const op = isHome ? m.awayScore : m.homeScore;
+      return my > op ? "T" : my < op ? "B" : "H";
+    }).join(" ") || "—";
+
+  const predKey = `wc-pred-${match.id || match.ts}`;
+  const saved = JSON.parse(localStorage.getItem(predKey) || "null");
+  const dt = match.ts ? new Date(match.ts) : null;
+  const when = dt ? `${["CN","T2","T3","T4","T5","T6","T7"][dt.getDay()]} ${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")} · ${String(dt.getHours()).padStart(2,"0")}:${String(dt.getMinutes()).padStart(2,"0")}` : "—";
+
+  document.getElementById("h2hBody").innerHTML = `
+    <div class="h2h-vs">
+      <div class="side">
+        ${match.homeBadge ? `<img src="${match.homeBadge}">` : ""}
+        <div class="nm">${home}</div>
+      </div>
+      <div class="center">VS</div>
+      <div class="side">
+        ${match.awayBadge ? `<img src="${match.awayBadge}">` : ""}
+        <div class="nm">${away}</div>
+      </div>
+    </div>
+    <div class="h2h-meta">
+      <b>${match.group || match.round || ""}</b> · ${when}${match.venue ? ` · 📍 ${match.venue}` : ""}
+    </div>
+    <div class="h2h-stats">
+      <div class="h2h-stat"><div class="v">${past.length}</div><div class="l">Lần gặp</div></div>
+      <div class="h2h-stat"><div class="v">${formOf(home)}</div><div class="l">Form ${home}</div></div>
+    </div>
+    <div style="margin-top:8px"></div>
+    <div class="h2h-stats">
+      <div class="h2h-stat"><div class="v">${formOf(away)}</div><div class="l">Form ${away}</div></div>
+      <div class="h2h-stat"><div class="v">${past.length ? past.map((m) => `${m.homeScore}-${m.awayScore}`).join(", ") : "—"}</div><div class="l">Tỉ số gần nhất</div></div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:6px">🎯 Đoán tỉ số</div>
+      <div class="predict-inputs">
+        <input type="number" min="0" max="20" id="predHome" placeholder="0" value="${saved?.h ?? ''}">
+        <span style="color:var(--text-fade)">–</span>
+        <input type="number" min="0" max="20" id="predAway" placeholder="0" value="${saved?.a ?? ''}">
+      </div>
+      <button class="predict-btn" id="predSave">${saved ? "Cập nhật dự đoán" : "Lưu dự đoán"}</button>
+      <div class="predict-saved" id="predMsg"></div>
+    </div>
+  `;
+  document.getElementById("h2hModal").classList.add("show");
+
+  document.getElementById("predSave").addEventListener("click", () => {
+    const h = parseInt(document.getElementById("predHome").value);
+    const a = parseInt(document.getElementById("predAway").value);
+    if (isNaN(h) || isNaN(a)) return;
+    localStorage.setItem(predKey, JSON.stringify({ h, a, savedAt: Date.now() }));
+    document.getElementById("predMsg").textContent = `✓ Đã lưu: ${h}-${a}`;
+  });
+}
+document.getElementById("h2hClose").addEventListener("click", () =>
+  document.getElementById("h2hModal").classList.remove("show")
+);
+document.getElementById("h2hModal").addEventListener("click", (e) => {
+  if (e.target.id === "h2hModal") e.currentTarget.classList.remove("show");
+});
 
 loadSports();
 </script>
