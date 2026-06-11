@@ -292,15 +292,38 @@
     .bxh-table col.c-pts { width: 36px; }
   }
 
-  /* ===== Trận sắp tới (hero) ===== */
+  /* ===== Trận sắp tới (hero carousel) ===== */
   .next-hero {
     background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(15,23,42,0.6) 100%);
     border: 1px solid rgba(245,158,11,0.3);
     border-radius: 16px;
-    padding: 20px 24px;
+    padding: 20px 24px 16px;
     margin-bottom: 16px;
     position: relative;
     overflow: hidden;
+    user-select: none;
+  }
+  .nh-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+  .nh-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+  .nh-dots {
+    display: flex; gap: 6px; justify-content: center;
+    margin-top: 12px;
+  }
+  .nh-dots button {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 0; background: rgba(255,255,255,0.2);
+    cursor: pointer; padding: 0;
+    transition: background 0.2s, width 0.2s;
+  }
+  .nh-dots button.active {
+    background: var(--accent-2); width: 20px; border-radius: 4px;
   }
   .next-hero::before {
     content: "";
@@ -721,12 +744,11 @@
     </div>
   </header>
 
-  <!-- Trận sắp tới (hero) -->
+  <!-- Trận sắp tới (carousel 4 trận) -->
   <div class="next-hero" id="nextHero" style="display:none">
-    <div class="lbl">⚡ Trận tiếp theo</div>
-    <div class="nh-match" id="nhMatch"></div>
-    <div class="nh-meta" id="nhMeta"></div>
-    <div class="nh-cd" id="nhCd"></div>
+    <div class="lbl">⚡ <span id="nhLbl">Trận tiếp theo</span></div>
+    <div class="nh-track" id="nhTrack"></div>
+    <div class="nh-dots" id="nhDots"></div>
   </div>
 
   <div class="grid">
@@ -946,60 +968,133 @@ async function loadSports() {
   }
 }
 
-/* ===== Trận sắp tới (countdown live) ===== */
-let _nextMatch = null;
-let _nextRendered = null; // id trận đã render static
+/* ===== Trận sắp tới — carousel 4 trận ===== */
+let _nextMatches = [];
+let _nextRenderedIds = "";
+let _slideIdx = 0;
+let _autoTimer = null;
+const AUTO_MS = 4000;
 
 function setupNextHero() {
   const hero = document.getElementById("nextHero");
-  if (!_nextMatch || !_nextMatch.ts) { hero.style.display = "none"; _nextRendered = null; return; }
+  if (!_nextMatches.length) { hero.style.display = "none"; _nextRenderedIds = ""; return; }
   hero.style.display = "block";
-  const m = _nextMatch;
-  if (_nextRendered === m.id) return; // đã render rồi, không re-paint
-  _nextRendered = m.id;
+  const ids = _nextMatches.map((m) => m.id).join("|");
+  if (_nextRenderedIds === ids) return; // không re-paint cờ
+  _nextRenderedIds = ids;
 
-  const dt = new Date(m.ts);
-  const wd = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"][dt.getDay()];
-  const ds = `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`;
-  const hh = String(dt.getHours()).padStart(2,"0");
-  const mi = String(dt.getMinutes()).padStart(2,"0");
   const badge = (url) => url ? `<img src="${url}" alt="" onerror="this.style.display='none'">` : "";
-  document.getElementById("nhMatch").innerHTML = `
-    <div class="nh-team">${badge(m.homeBadge)}<span>${m.home}</span></div>
-    <div class="nh-vs">VS</div>
-    <div class="nh-team">${badge(m.awayBadge)}<span>${m.away}</span></div>
-  `;
-  const meta = [
-    m.group || m.round ? `<b>${m.group || m.round}</b>` : "",
-    `🗓️ ${wd}, <b>${ds}</b> · 🕐 <b>${hh}:${mi}</b>`,
-    m.venue ? `📍 ${m.venue}` : ""
-  ].filter(Boolean).join(" · ");
-  document.getElementById("nhMeta").innerHTML = meta;
+  const track = document.getElementById("nhTrack");
+  track.innerHTML = _nextMatches.map((m, i) => {
+    const dt = new Date(m.ts);
+    const wd = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"][dt.getDay()];
+    const ds = `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`;
+    const hh = String(dt.getHours()).padStart(2,"0");
+    const mi = String(dt.getMinutes()).padStart(2,"0");
+    const meta = [
+      m.group || m.round ? `<b>${m.group || m.round}</b>` : "",
+      `🗓️ ${wd}, <b>${ds}</b> · 🕐 <b>${hh}:${mi}</b>`,
+      m.venue ? `📍 ${m.venue}` : ""
+    ].filter(Boolean).join(" · ");
+    return `
+      <div class="nh-slide" data-idx="${i}">
+        <div class="nh-match">
+          <div class="nh-team">${badge(m.homeBadge)}<span>${m.home}</span></div>
+          <div class="nh-vs">VS</div>
+          <div class="nh-team">${badge(m.awayBadge)}<span>${m.away}</span></div>
+        </div>
+        <div class="nh-meta">${meta}</div>
+        <div class="nh-cd" data-cd="${m.id}">—</div>
+      </div>`;
+  }).join("");
+
+  // Dots
+  const dots = document.getElementById("nhDots");
+  dots.innerHTML = _nextMatches.map((_, i) =>
+    `<button data-i="${i}" class="${i === _slideIdx ? "active" : ""}"></button>`
+  ).join("");
+  dots.querySelectorAll("button").forEach((b) =>
+    b.addEventListener("click", () => goSlide(Number(b.dataset.i), true))
+  );
+
+  goSlide(_slideIdx, false);
+  startAuto();
 }
 
-function tickCountdown() {
-  if (!_nextMatch || !_nextMatch.ts) return;
-  const m = _nextMatch;
+function goSlide(i, userTriggered) {
+  if (!_nextMatches.length) return;
+  _slideIdx = (i + _nextMatches.length) % _nextMatches.length;
+  const track = document.getElementById("nhTrack");
+  if (track) track.style.transform = `translateX(-${_slideIdx * 100}%)`;
+  document.querySelectorAll("#nhDots button").forEach((b, k) =>
+    b.classList.toggle("active", k === _slideIdx)
+  );
+  // Update label "Trận tiếp theo / Trận 2 / Trận 3..."
+  const lbl = document.getElementById("nhLbl");
+  if (lbl) lbl.textContent = _slideIdx === 0 ? "Trận tiếp theo" : `Trận sắp tới #${_slideIdx + 1}`;
+  if (userTriggered) restartAuto();
+}
+
+function startAuto() {
+  stopAuto();
+  if (_nextMatches.length <= 1) return;
+  _autoTimer = setInterval(() => goSlide(_slideIdx + 1, false), AUTO_MS);
+}
+function stopAuto() { if (_autoTimer) { clearInterval(_autoTimer); _autoTimer = null; } }
+function restartAuto() { stopAuto(); startAuto(); }
+
+// Pause khi hover hoặc touch
+(function bindCarouselEvents() {
   const hero = document.getElementById("nextHero");
-  const cd = document.getElementById("nhCd");
+  if (!hero) return;
+  hero.addEventListener("mouseenter", stopAuto);
+  hero.addEventListener("mouseleave", startAuto);
+  // Swipe
+  let startX = 0, dx = 0, dragging = false;
+  const onStart = (x) => { startX = x; dx = 0; dragging = true; stopAuto(); };
+  const onMove = (x) => { if (dragging) dx = x - startX; };
+  const onEnd = () => {
+    if (!dragging) return;
+    dragging = false;
+    if (Math.abs(dx) > 50) goSlide(_slideIdx + (dx < 0 ? 1 : -1), true);
+    else startAuto();
+  };
+  hero.addEventListener("touchstart", (e) => onStart(e.touches[0].clientX), { passive: true });
+  hero.addEventListener("touchmove",  (e) => onMove(e.touches[0].clientX),  { passive: true });
+  hero.addEventListener("touchend",   onEnd);
+  hero.addEventListener("mousedown",  (e) => onStart(e.clientX));
+  hero.addEventListener("mousemove",  (e) => onMove(e.clientX));
+  hero.addEventListener("mouseup",    onEnd);
+  hero.addEventListener("mouseleave", onEnd);
+})();
+
+function tickCountdown() {
+  if (!_nextMatches.length) return;
+  const hero = document.getElementById("nextHero");
   const nowMs = Date.now();
-  const isLive = nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
-  hero.classList.toggle("live", isLive);
-  if (isLive) {
-    cd.textContent = "🔴 ĐANG ĐÁ";
-  } else if (m.ts < nowMs) {
-    cd.textContent = "Đã kết thúc";
-  } else {
-    const diff = m.ts - nowMs;
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins = Math.floor((diff % 3600000) / 60000);
-    const secs = Math.floor((diff % 60000) / 1000);
-    cd.textContent = days > 0
-      ? `Còn ${days} ngày ${hours}h ${mins}p`
-      : hours > 0 ? `Còn ${hours}h ${mins}p ${secs}s`
-      : `Còn ${mins}p ${secs}s`;
-  }
+  let anyLive = false;
+  _nextMatches.forEach((m) => {
+    const el = hero.querySelector(`[data-cd="${CSS.escape(m.id)}"]`);
+    if (!el) return;
+    const isLive = m.ts && nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
+    if (isLive && _slideIdx === _nextMatches.indexOf(m)) anyLive = true;
+    if (isLive) {
+      el.textContent = "🔴 ĐANG ĐÁ";
+    } else if (m.ts < nowMs) {
+      el.textContent = "Đã kết thúc";
+    } else {
+      const diff = m.ts - nowMs;
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      el.textContent = days > 0
+        ? `Còn ${days} ngày ${hours}h ${mins}p`
+        : hours > 0 ? `Còn ${hours}h ${mins}p ${secs}s`
+        : `Còn ${mins}p ${secs}s`;
+    }
+  });
+  hero.classList.toggle("live", anyLive);
 }
 setInterval(tickCountdown, 1000);
 
@@ -1095,8 +1190,12 @@ async function bootstrapExtras() {
     const d = await r.json();
     renderScorers(d.scorers || []);
     const nowMs = Date.now();
-    const future = (d.matches || []).filter((m) => m.ts && m.ts >= nowMs - 2 * 3600 * 1000);
-    _nextMatch = future[0] || null;
+    const future = (d.matches || [])
+      .filter((m) => m.ts && m.ts >= nowMs - 2 * 3600 * 1000)
+      .sort((a, b) => a.ts - b.ts);
+    // Gắn id ổn định để DOM mapping
+    future.forEach((m, i) => { m.id = m.id || `${m.home}-${m.away}-${m.ts || i}`; });
+    _nextMatches = future.slice(0, 4);
     setupNextHero();
     tickCountdown();
   } catch (e) {
@@ -1500,7 +1599,11 @@ async function openH2H(match) {
           </div>
           ${recent}`;
       } else {
-        h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">${d.note || "Chưa có dữ liệu đối đầu trước đó"}</div>`;
+        h2hEl.innerHTML = `
+          <div style="font-size:11px; color:var(--text-fade); text-align:center; padding:10px;
+                      background:rgba(255,255,255,0.02); border:1px dashed var(--border); border-radius:6px; line-height:1.5">
+            ℹ️ ${d.note || "Chưa có dữ liệu đối đầu trước đó"}
+          </div>`;
       }
     } else {
       h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">Không có dữ liệu lịch sử (HTTP ${r.status})</div>`;
