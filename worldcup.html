@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>World Cup 2026 — Lịch thi đấu & BXH</title>
 <meta name="description" content="Lịch thi đấu và bảng xếp hạng FIFA World Cup 2026 — cập nhật real-time" />
-<link rel="icon" href="/icons/worldcup/icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="/icons/worldcup/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/worldcup/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/worldcup/favicon-64.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/worldcup/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/worldcup/icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/worldcup/apple-touch-icon.png">
 <link rel="manifest" href="/manifest-worldcup.json">
 <meta name="theme-color" content="#f59e0b" />
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -289,6 +292,168 @@
     .bxh-table col.c-pts { width: 36px; }
   }
 
+  /* ===== Trận sắp tới (hero) ===== */
+  .next-hero {
+    background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(15,23,42,0.6) 100%);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .next-hero::before {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(245,158,11,0.2), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .next-hero .lbl {
+    font-size: 11px;
+    color: var(--accent-2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+  .next-hero .nh-match {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0 6px;
+    flex-wrap: wrap;
+  }
+  .next-hero .nh-team {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 18px; font-weight: 700; color: var(--text);
+  }
+  .next-hero .nh-team img { width: 32px; height: 32px; object-fit: contain; }
+  .next-hero .nh-vs {
+    font-size: 14px;
+    color: var(--text-fade);
+    font-weight: 600;
+    padding: 0 8px;
+  }
+  .next-hero .nh-meta {
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .next-hero .nh-meta b { color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .next-hero .nh-cd {
+    display: inline-block;
+    margin-top: 6px;
+    background: var(--accent-2);
+    color: #0a0e1a;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .next-hero.live .nh-cd {
+    background: var(--bad); color: #fff;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.6 } }
+
+  /* ===== Vua phá lưới ===== */
+  .scorers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+  }
+  .scorers-table col.s-pos { width: 30px; }
+  .scorers-table col.s-player { width: auto; }
+  .scorers-table col.s-num { width: 40px; }
+  .scorers-table th, .scorers-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+  .scorers-table th {
+    color: var(--text-fade);
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .scorers-table .pos { color: var(--text-dim); }
+  .scorers-table tr.top1 .pos { color: var(--accent-2); font-weight: 800; }
+  .scorers-table .player-cell {
+    text-align: left;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text); font-weight: 600;
+    min-width: 0;
+  }
+  .scorers-table .player-cell img { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
+  .scorers-table .player-cell .nm {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .scorers-table .player-cell small {
+    color: var(--text-fade); font-weight: 400; font-size: 11px;
+    margin-top: 1px; display: block;
+  }
+  .scorers-table .goals { color: var(--accent-2); font-weight: 800; font-size: 14px; }
+
+  /* ===== Lịch sử WC ===== */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+  }
+  .history-list::-webkit-scrollbar { width: 6px; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .history-row {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .history-row.special {
+    border-color: rgba(245,158,11,0.4);
+    background: linear-gradient(90deg, rgba(245,158,11,0.08), transparent);
+  }
+  .history-row .year {
+    font-weight: 800;
+    color: var(--accent-2);
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+  }
+  .history-row .winner {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text); font-weight: 600;
+  }
+  .history-row .winner img { width: 22px; height: 22px; object-fit: contain; }
+  .history-row .winner small {
+    display: block; color: var(--text-fade); font-size: 10px;
+    font-weight: 400; margin-top: 1px;
+  }
+  .history-row .host {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-align: right;
+  }
+  @media (max-width: 600px) {
+    .next-hero { padding: 16px; }
+    .next-hero .nh-team { font-size: 15px; }
+    .scorers-table { font-size: 12px; }
+    .history-row { grid-template-columns: 48px 1fr auto; padding: 8px 10px; gap: 8px; }
+  }
+
   footer {
     text-align: center;
     color: var(--text-fade);
@@ -306,6 +471,14 @@
     <h1><span class="trophy">🏆</span> World Cup 2026</h1>
     <div class="sub">Lịch thi đấu · <b id="wcMeta">đang tải…</b></div>
   </header>
+
+  <!-- Trận sắp tới (hero) -->
+  <div class="next-hero" id="nextHero" style="display:none">
+    <div class="lbl">⚡ Trận tiếp theo</div>
+    <div class="nh-match" id="nhMatch"></div>
+    <div class="nh-meta" id="nhMeta"></div>
+    <div class="nh-cd" id="nhCd"></div>
+  </div>
 
   <div class="grid">
     <div class="card" style="grid-column: 1 / -1">
@@ -326,8 +499,24 @@
     </div>
   </div>
 
+  <div class="grid">
+    <!-- Vua phá lưới -->
+    <div class="card">
+      <h2><span class="icon">⚽</span> Vua phá lưới <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="scorersMeta">—</span></h2>
+      <div id="scorersBlock">
+        <div class="loading-pulse">Đang tải…</div>
+      </div>
+    </div>
+
+    <!-- Lịch sử WC -->
+    <div class="card">
+      <h2><span class="icon">🏛️</span> Lịch sử nhà vô địch</h2>
+      <div class="history-list" id="historyBlock"></div>
+    </div>
+  </div>
+
   <footer>
-    Nguồn: openfootball / Football-Data.org · TheSportsDB · flagcdn
+    Nguồn: openfootball / Football-Data.org · TheSportsDB · flagcdn · Wikipedia
   </footer>
 
 </div>
@@ -446,6 +635,151 @@ async function loadSports() {
     block.innerHTML = `<div class="err-msg">Không tải được lịch (${e.message})</div>`;
   }
 }
+
+/* ===== Trận sắp tới (countdown live) ===== */
+let _nextMatch = null;
+function renderNextHero() {
+  const hero = document.getElementById("nextHero");
+  if (!_nextMatch || !_nextMatch.ts) { hero.style.display = "none"; return; }
+  hero.style.display = "block";
+  const m = _nextMatch;
+  const nowMs = Date.now();
+  const isLive = nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
+  hero.classList.toggle("live", isLive);
+  const dt = new Date(m.ts);
+  const wd = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"][dt.getDay()];
+  const ds = `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`;
+  const hh = String(dt.getHours()).padStart(2,"0");
+  const mi = String(dt.getMinutes()).padStart(2,"0");
+  const badge = (url) => url ? `<img src="${url}" alt="" onerror="this.style.display='none'">` : "";
+  document.getElementById("nhMatch").innerHTML = `
+    <div class="nh-team">${badge(m.homeBadge)}<span>${m.home}</span></div>
+    <div class="nh-vs">VS</div>
+    <div class="nh-team">${badge(m.awayBadge)}<span>${m.away}</span></div>
+  `;
+  const meta = [
+    m.group || m.round ? `<b>${m.group || m.round}</b>` : "",
+    `🗓️ ${wd}, <b>${ds}</b> · 🕐 <b>${hh}:${mi}</b>`,
+    m.venue ? `📍 ${m.venue}` : ""
+  ].filter(Boolean).join(" · ");
+  document.getElementById("nhMeta").innerHTML = meta;
+
+  const cd = document.getElementById("nhCd");
+  if (isLive) {
+    cd.textContent = "🔴 ĐANG ĐÁ";
+  } else if (m.ts < nowMs) {
+    cd.textContent = "Đã kết thúc";
+  } else {
+    const diff = m.ts - nowMs;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    cd.textContent = days > 0
+      ? `Còn ${days} ngày ${hours}h ${mins}p`
+      : hours > 0 ? `Còn ${hours}h ${mins}p ${secs}s`
+      : `Còn ${mins}p ${secs}s`;
+  }
+}
+setInterval(renderNextHero, 1000);
+
+/* ===== Vua phá lưới ===== */
+function renderScorers(scorers) {
+  const block = document.getElementById("scorersBlock");
+  const meta = document.getElementById("scorersMeta");
+  if (!scorers || !scorers.length) {
+    block.innerHTML = `<p class="loading-pulse">Chưa có dữ liệu (giải chưa khai mạc hoặc chưa cấu hình Football-Data API key).</p>`;
+    return;
+  }
+  meta.textContent = `Top ${scorers.length}`;
+  block.innerHTML = `
+    <table class="scorers-table">
+      <colgroup>
+        <col class="s-pos"><col class="s-player">
+        <col class="s-num"><col class="s-num"><col class="s-num">
+      </colgroup>
+      <thead>
+        <tr><th>#</th><th style="text-align:left">Cầu thủ</th><th>⚽</th><th>🅰️</th><th>Trận</th></tr>
+      </thead>
+      <tbody>
+        ${scorers.map((s, i) => `
+          <tr class="${i === 0 ? "top1" : ""}">
+            <td class="pos">${i + 1}</td>
+            <td><div class="player-cell">
+              ${s.teamBadge ? `<img src="${s.teamBadge}" alt="" onerror="this.style.display='none'">` : ""}
+              <div class="nm">${s.player || "—"}<small>${s.team || s.nationality || ""}</small></div>
+            </div></td>
+            <td class="goals">${s.goals ?? 0}</td>
+            <td>${s.assists ?? 0}</td>
+            <td>${s.matches ?? 0}</td>
+          </tr>`).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+/* ===== Lịch sử WC ===== */
+const WC_HISTORY = [
+  { year: 2022, host: "Qatar",        winner: "Argentina",    runnerUp: "France",    score: "3–3 (4–2 pen)" },
+  { year: 2018, host: "Nga",          winner: "France",       runnerUp: "Croatia",   score: "4–2" },
+  { year: 2014, host: "Brazil",       winner: "Germany",      runnerUp: "Argentina", score: "1–0 (s.h.p)" },
+  { year: 2010, host: "Nam Phi",      winner: "Spain",        runnerUp: "Netherlands", score: "1–0 (s.h.p)" },
+  { year: 2006, host: "Đức",          winner: "Italy",        runnerUp: "France",    score: "1–1 (5–3 pen)" },
+  { year: 2002, host: "Hàn Quốc / Nhật", winner: "Brazil",    runnerUp: "Germany",   score: "2–0" },
+  { year: 1998, host: "Pháp",         winner: "France",       runnerUp: "Brazil",    score: "3–0" },
+  { year: 1994, host: "Mỹ",           winner: "Brazil",       runnerUp: "Italy",     score: "0–0 (3–2 pen)" },
+  { year: 1990, host: "Ý",            winner: "Germany",      runnerUp: "Argentina", score: "1–0" },
+  { year: 1986, host: "Mexico",       winner: "Argentina",    runnerUp: "Germany",   score: "3–2" },
+  { year: 1982, host: "Tây Ban Nha",  winner: "Italy",        runnerUp: "Germany",   score: "3–1" },
+  { year: 1978, host: "Argentina",    winner: "Argentina",    runnerUp: "Netherlands", score: "3–1 (s.h.p)" },
+  { year: 1974, host: "Tây Đức",      winner: "Germany",      runnerUp: "Netherlands", score: "2–1" },
+  { year: 1970, host: "Mexico",       winner: "Brazil",       runnerUp: "Italy",     score: "4–1" },
+  { year: 1966, host: "Anh",          winner: "England",      runnerUp: "Germany",   score: "4–2 (s.h.p)" },
+  { year: 1962, host: "Chile",        winner: "Brazil",       runnerUp: "Czech Republic", score: "3–1" },
+  { year: 1958, host: "Thụy Điển",    winner: "Brazil",       runnerUp: "Sweden",    score: "5–2" },
+  { year: 1954, host: "Thụy Sĩ",      winner: "Germany",      runnerUp: "Hungary",   score: "3–2" },
+  { year: 1950, host: "Brazil",       winner: "Uruguay",      runnerUp: "Brazil",    score: "vòng tròn" },
+  { year: 1938, host: "Pháp",         winner: "Italy",        runnerUp: "Hungary",   score: "4–2" },
+  { year: 1934, host: "Ý",            winner: "Italy",        runnerUp: "Czech Republic", score: "2–1 (s.h.p)" },
+  { year: 1930, host: "Uruguay",      winner: "Uruguay",      runnerUp: "Argentina", score: "4–2" }
+];
+const FLAG_ISO = {
+  "argentina":"ar","france":"fr","germany":"de","brazil":"br","italy":"it",
+  "spain":"es","uruguay":"uy","england":"gb-eng","croatia":"hr","netherlands":"nl",
+  "czech republic":"cz","hungary":"hu","sweden":"se"
+};
+function renderHistory() {
+  const block = document.getElementById("historyBlock");
+  block.innerHTML = WC_HISTORY.map((h) => {
+    const iso = FLAG_ISO[h.winner.toLowerCase()];
+    const badge = iso ? `<img src="https://flagcdn.com/w40/${iso}.png" alt="" loading="lazy">` : "";
+    const special = h.winner === "Brazil" || h.winner === "Germany" || h.winner === "Italy" ? "special" : "";
+    return `
+      <div class="history-row ${special}">
+        <div class="year">${h.year}</div>
+        <div class="winner">${badge}<div>${h.winner}<small>thắng ${h.runnerUp} · ${h.score}</small></div></div>
+        <div class="host">📍 ${h.host}</div>
+      </div>`;
+  }).join("");
+}
+renderHistory();
+
+/* ===== Cập nhật từ loadSports ===== */
+async function bootstrapExtras() {
+  try {
+    const r = await fetch("/api/sports");
+    if (!r.ok) return;
+    const d = await r.json();
+    renderScorers(d.scorers || []);
+    const nowMs = Date.now();
+    const future = (d.matches || []).filter((m) => m.ts && m.ts >= nowMs - 2 * 3600 * 1000);
+    _nextMatch = future[0] || null;
+    renderNextHero();
+  } catch (e) {
+    console.warn("[wc-extras]", e);
+  }
+}
+bootstrapExtras();
 
 loadSports();
 </script>

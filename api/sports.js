@@ -65,13 +65,15 @@ async function fromOpenFootball() {
 /* ===== Nguồn 2: Football-Data.org (cần key) ===== */
 async function fromFootballData(key) {
   const headers = { "X-Auth-Token": key, "User-Agent": "DashboardVN/1.0" };
-  const [mr, sr] = await Promise.all([
+  const [mr, sr, tr] = await Promise.all([
     fetch(FD_BASE + "/matches", { headers }),
-    fetch(FD_BASE + "/standings", { headers })
+    fetch(FD_BASE + "/standings", { headers }),
+    fetch(FD_BASE + "/scorers?limit=20", { headers })
   ]);
   if (!mr.ok) throw new Error("FD matches " + mr.status);
   const mj = await mr.json();
   const sj = sr.ok ? await sr.json() : { standings: [] };
+  const tj = tr.ok ? await tr.json() : { scorers: [] };
 
   const matches = (mj.matches || []).map((m) => ({
     ts: m.utcDate ? Date.parse(m.utcDate) : null,
@@ -105,7 +107,18 @@ async function fromFootballData(key) {
     });
   }
 
-  return { matches, standings, source: "football-data" };
+  const scorers = (tj.scorers || []).map((s) => ({
+    player: s.player?.name,
+    nationality: s.player?.nationality || s.team?.name,
+    teamBadge: flag(s.team?.name) || s.team?.crest || null,
+    team: s.team?.name,
+    goals: s.goals,
+    assists: s.assists,
+    penalties: s.penalties,
+    matches: s.playedMatches
+  }));
+
+  return { matches, standings, scorers, source: "football-data" };
 }
 
 /* ===== BXH tự tính từ tỉ số (khi không có Football-Data) ===== */
@@ -186,7 +199,8 @@ module.exports = async (req, res) => {
       total: result.matches.length,
       source: result.source,
       matches: result.matches,
-      standings: result.standings
+      standings: result.standings,
+      scorers: result.scorers || []
     };
     cache = { ts: now, data };
     res.setHeader("X-Cache", "MISS");
