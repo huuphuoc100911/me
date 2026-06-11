@@ -1500,10 +1500,10 @@ async function openH2H(match) {
           </div>
           ${recent}`;
       } else {
-        h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">Chưa có dữ liệu đối đầu trước đó</div>`;
+        h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">${d.note || "Chưa có dữ liệu đối đầu trước đó"}</div>`;
       }
     } else {
-      h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">Không có dữ liệu lịch sử (cần Football-Data API key)</div>`;
+      h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">Không có dữ liệu lịch sử (HTTP ${r.status})</div>`;
     }
   } catch (err) {
     const h2hEl = document.getElementById("h2hHistorical");
