@@ -639,8 +639,29 @@
     font-size: 14px; flex-shrink: 0;
   }
   .live-bar.live .cd { color: var(--bad); font-size: 16px; }
+  /* Mobile: pin bar xuống ĐÁY (tránh thanh URL/status bar che ở trên) */
+  @media (max-width: 768px) {
+    .live-bar {
+      position: fixed;
+      top: auto; bottom: 0; left: 0; right: 0;
+      margin: 0;
+      border-bottom: none;
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      z-index: 1000;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    }
+    .live-bar.live {
+      background: linear-gradient(0deg, rgba(239,68,68,0.18), rgba(20,25,38,0.95) 50%);
+      border-top-color: var(--bad);
+    }
+    /* Chừa khoảng dưới cho .container để content cuối không bị bar che */
+    .container { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  }
   @media (max-width: 520px) {
     .live-bar { gap: 8px; padding: 8px 12px; font-size: 12px; }
+    .live-bar { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
     .live-bar .teams .nm { max-width: 70px; font-size: 12px; }
     .live-bar .lbl { display: none; }
     .live-bar .cd { font-size: 13px; }
