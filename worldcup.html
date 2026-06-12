@@ -1860,8 +1860,13 @@ function tickLiveBar() {
   const cd = bar.querySelector(".cd");
   if (!cd) return;
   if (target.mode === "live") {
-    const elapsed = Math.floor((now - target.m.ts) / 60000) + 1;
-    cd.textContent = formatLiveMinute(elapsed);
+    // Ưu tiên phút từ ESPN (chính xác hiệp 1/2, bù giờ). Fallback heuristic nếu chưa có.
+    if (target.m.espnClock) {
+      cd.textContent = target.m.espnClock; // "82'" hoặc "90'+8'"
+    } else {
+      const elapsed = Math.floor((now - target.m.ts) / 60000) + 1;
+      cd.textContent = formatLiveMinute(elapsed);
+    }
   } else {
     const diff = target.m.ts - now;
     const days = Math.floor(diff / 86400000);
@@ -2863,14 +2868,66 @@ if ("Notification" in window) updateNotifBtn();
 loadSports();
 
 /* ===== Auto-refresh khi có trận đang đá =====
- * Mỗi 45s: nếu có ít nhất 1 trận trong window đang đá → refetch sports & update DOM.
- * Không refetch khi không có live (tiết kiệm rate-limit FD: 10 req/phút).
+ * Chiến lược 2 nguồn:
+ *  - /api/sports-live  (ESPN, ~15s): chỉ tỉ số + phút trận → nhanh, không tốn quota FD
+ *  - /api/sports       (FD, 30s):     fixture + standings + scorers → chậm, đầy đủ
+ * Live bar + lịch thi đấu lấy tỉ số live từ ESPN; BXH/scorers từ FD.
  */
-async function refreshLiveScores() {
+function patchScoreCell(el, hasScore, homeScore, awayScore) {
+  if (!el) return;
+  const center = el.children[2];
+  if (!center) return;
+  const newText = hasScore ? `${homeScore} - ${awayScore}` : "VS";
+  if (center.textContent.trim() === newText) return;
+  if (hasScore && center.classList.contains("vs")) {
+    center.className = "score"; center.textContent = newText;
+  } else if (!hasScore && center.classList.contains("score")) {
+    center.className = "vs"; center.textContent = "VS";
+  } else {
+    center.textContent = newText;
+  }
+}
+
+// Nguồn 1: ESPN — nhanh (~10-15s sau bàn thắng), free, không cần key
+async function refreshLiveFromESPN() {
   const all = window._allMatches || [];
   const now = Date.now();
-  const hasLive = all.some((m) => m.ts && m.ts <= now && now < m.ts + 115 * 60000
-    && !(m.homeScore != null && m.awayScore != null && m.status === "FINISHED"));
+  const hasLive = all.some((m) => m.ts && m.ts <= now && now < m.ts + 115 * 60000);
+  if (!hasLive) return;
+  try {
+    const r = await fetch("/api/sports-live", { cache: "no-store" });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d.matches) return;
+    for (const live of d.matches) {
+      if (!live.home || !live.away) continue;
+      // Ghép với match trong _allMatches theo cặp home/away
+      const match = all.find((m) =>
+        (m.home === live.home && m.away === live.away) ||
+        (m.home === live.away && m.away === live.home)
+      );
+      if (!match) continue;
+      // Update _allMatches in-place để live bar pick up
+      if (live.state === "LIVE" || live.state === "FINISHED") {
+        match.homeScore = live.homeScore;
+        match.awayScore = live.awayScore;
+        match.status = live.state === "LIVE" ? "IN_PLAY" : "FINISHED";
+        match.espnClock = live.clock; // dùng cho display phút chính xác
+      }
+      patchScoreCell(
+        document.querySelector(`.wc-match[data-mid="${CSS.escape(match.id)}"]`),
+        match.homeScore != null && match.awayScore != null,
+        match.homeScore, match.awayScore
+      );
+    }
+  } catch {}
+}
+
+// Nguồn 2: FD — chậm hơn, nhưng có BXH + scorers (chỉ refresh khi live đang diễn ra)
+async function refreshLiveFromFD() {
+  const all = window._allMatches || [];
+  const now = Date.now();
+  const hasLive = all.some((m) => m.ts && m.ts <= now && now < m.ts + 115 * 60000);
   if (!hasLive) return;
   try {
     const r = await fetch("/api/sports", { cache: "no-store" });
@@ -2878,30 +2935,28 @@ async function refreshLiveScores() {
     const d = await r.json();
     if (!d.matches) return;
     d.matches.forEach((m, i) => { m.id = m.id || `${m.home}-${m.away}-${m.ts || i}`; });
+    // Giữ các trường ESPN đã merge (espnClock) bằng cách re-ghép
+    const espnByPair = new Map();
+    (window._allMatches || []).forEach((m) => {
+      if (m.espnClock) espnByPair.set(`${m.home}|${m.away}`, m.espnClock);
+    });
+    d.matches.forEach((m) => {
+      const c = espnByPair.get(`${m.home}|${m.away}`);
+      if (c) m.espnClock = c;
+    });
     window._allMatches = d.matches;
-
-    // Patch tỉ số trong lịch thi đấu (chỉ update score, không re-render toàn bộ)
     for (const m of d.matches) {
-      const el = document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`);
-      if (!el) continue;
-      const center = el.children[2];
-      if (!center) continue;
-      const hasScore = m.homeScore != null && m.awayScore != null;
-      const newText = hasScore ? `${m.homeScore} - ${m.awayScore}` : "VS";
-      if (center.textContent.trim() === newText) continue;
-      // Đổi class nếu cần (vs ↔ score)
-      if (hasScore && center.classList.contains("vs")) {
-        center.className = "score"; center.textContent = newText;
-      } else if (!hasScore && center.classList.contains("score")) {
-        center.className = "vs"; center.textContent = "VS";
-      } else {
-        center.textContent = newText;
-      }
+      patchScoreCell(
+        document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`),
+        m.homeScore != null && m.awayScore != null,
+        m.homeScore, m.awayScore
+      );
     }
-    // tickLiveBar sẽ tự nhận tỉ số mới ở tick kế (signature thay đổi → re-paint)
   } catch {}
 }
-setInterval(refreshLiveScores, 45000);
+
+setInterval(refreshLiveFromESPN, 15000); // 15s — nhanh, không tốn quota
+setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/scorers
 </script>
 </body>
 </html>
