@@ -740,6 +740,8 @@
     display: none; align-items: center; justify-content: center;
     z-index: 1000; padding: 20px;
   }
+  .team-modal { z-index: 1000; }
+  .player-modal { z-index: 1100; }   /* player luôn nằm trên team squad */
   .player-modal.show, .team-modal.show { display: flex; }
   .player-card, .team-card-modal {
     background: var(--bg-card); border: 1px solid var(--border);
@@ -819,19 +821,31 @@
     margin-bottom: 8px; font-weight: 700;
   }
   .team-card-modal .player-row {
-    display: grid; grid-template-columns: 32px 1fr auto;
-    align-items: center; gap: 10px;
+    display: grid; grid-template-columns: 40px 1fr auto;
+    align-items: center; gap: 12px;
     padding: 8px 10px; border-radius: 8px;
     cursor: pointer; transition: background 0.15s;
     border-bottom: 1px solid var(--border);
   }
   .team-card-modal .player-row:hover { background: rgba(255,255,255,0.04); }
   .team-card-modal .player-row:last-child { border-bottom: 0; }
-  .team-card-modal .player-row .num {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(255,255,255,0.06); color: var(--accent-2);
+  .team-card-modal .player-row .avatar {
+    position: relative;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 12px;
+    color: #0a0e1a; font-weight: 800; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .team-card-modal .player-row .avatar .num {
+    position: absolute; right: -4px; bottom: -4px;
+    min-width: 20px; height: 20px; padding: 0 5px;
+    border-radius: 999px;
+    background: #0a0e1a; color: var(--accent-2);
+    border: 2px solid var(--bg-card);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 10px;
+    line-height: 1;
   }
   .team-card-modal .player-row .pname {
     color: var(--text); font-weight: 600; font-size: 13px;
@@ -1345,9 +1359,20 @@ function renderScorers(scorers) {
   const meta = document.getElementById("scorersMeta");
   if (!_scorersData || !_scorersData.length) {
     block.innerHTML = `<p style="font-size:12px;color:var(--text-fade);font-style:italic">Chưa có dữ liệu (giải chưa khai mạc).</p>`;
+    meta.textContent = "";
     return;
   }
-  const sorted = [..._scorersData].sort((a, b) =>
+  const pool = _scorersMode === "assists"
+    ? _scorersData.filter((s) => (s.assists ?? 0) > 0)
+    : _scorersData.filter((s) => (s.goals ?? 0) > 0);
+  if (!pool.length) {
+    block.innerHTML = `<p style="font-size:12px;color:var(--text-fade);font-style:italic">
+      ${_scorersMode === "assists" ? "Chưa có cầu thủ nào có pha kiến tạo." : "Chưa có cầu thủ nào ghi bàn."}
+    </p>`;
+    meta.textContent = "";
+    return;
+  }
+  const sorted = pool.sort((a, b) =>
     _scorersMode === "assists" ? (b.assists ?? 0) - (a.assists ?? 0) : (b.goals ?? 0) - (a.goals ?? 0)
   );
   meta.textContent = `Top ${sorted.length}`;
@@ -1518,9 +1543,11 @@ async function openTeam(teamName) {
             <h4>${POS_LABEL[pos] || pos}</h4>
             ${groups[pos].sort((a,b) => (a.shirtNumber || 99) - (b.shirtNumber || 99)).map((p) => {
               const age = ageOf(p.dateOfBirth);
+              const parts = (p.name || "").trim().split(/\s+/);
+              const initials = ((parts[0]?.[0] || "") + (parts[parts.length - 1]?.[0] || "")).toUpperCase() || "?";
               return `
                 <div class="player-row" data-player="${(p.name || "").replace(/"/g, "&quot;")}">
-                  <div class="num">${p.shirtNumber ?? "?"}</div>
+                  <div class="avatar">${initials}${p.shirtNumber ? `<div class="num">${p.shirtNumber}</div>` : ""}</div>
                   <div class="pname">${p.name}${age ? `<div style="color:var(--text-fade); font-size:11px; font-weight:400; margin-top:2px">${age} tuổi</div>` : ""}</div>
                   <div class="pnat">${p.nationality || ""}</div>
                 </div>`;
