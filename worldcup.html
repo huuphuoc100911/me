@@ -409,11 +409,14 @@
     color: var(--text-dim);
     font-size: 12px;
     line-height: 1.6;
+    text-align: center;
+    margin-top: 4px;
   }
   .next-hero .nh-meta b { color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .next-hero .nh-slide { text-align: center; }
   .next-hero .nh-cd {
     display: inline-block;
-    margin-top: 6px;
+    margin-top: 10px;
     background: var(--accent-2);
     color: #0a0e1a;
     font-weight: 800;
@@ -694,6 +697,150 @@
     color: var(--text-dim); margin-top: 8px; flex-wrap: wrap;
   }
 
+  /* ===== Skeleton loading ===== */
+  .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.04) 100%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.6s ease-in-out infinite;
+    border-radius: 6px;
+  }
+  @keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .skel-row {
+    display: flex; gap: 10px; align-items: center;
+    padding: 10px 8px; border-bottom: 1px solid var(--border);
+  }
+  .skel-row:last-child { border-bottom: 0; }
+  .skel-circle { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
+  .skel-line { height: 12px; flex: 1; }
+  .skel-line.short { flex: 0 0 60px; }
+
+  /* ===== Tabs phụ trong card (scorers) ===== */
+  .subtabs {
+    display: flex; gap: 4px; margin-bottom: 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 999px; padding: 3px; width: fit-content;
+  }
+  .subtabs button {
+    background: none; border: 0;
+    color: var(--text-dim); font-size: 11px; font-weight: 600;
+    padding: 5px 12px; border-radius: 999px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .subtabs button.active {
+    background: var(--accent-2); color: #0a0e1a;
+  }
+
+  /* ===== Modal cầu thủ + đội (chung) ===== */
+  .player-modal, .team-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .player-modal.show, .team-modal.show { display: flex; }
+  .player-card, .team-card-modal {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; max-width: 520px; width: 100%;
+    max-height: 85vh; overflow-y: auto; position: relative;
+    padding: 0;
+  }
+  .player-card .close-btn, .team-card-modal .close-btn {
+    position: absolute; top: 8px; right: 8px; z-index: 1;
+    background: rgba(0,0,0,0.5); border: 0; color: #fff;
+    font-size: 18px; cursor: pointer; width: 30px; height: 30px;
+    border-radius: 50%;
+  }
+  .player-card .close-btn:hover, .team-card-modal .close-btn:hover { background: rgba(0,0,0,0.8); }
+  .player-card .ph {
+    height: 200px; background: linear-gradient(180deg, var(--bg-soft), transparent);
+    position: relative; overflow: hidden;
+  }
+  .player-card .ph img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: top center;
+  }
+  .player-card .ph .placeholder {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 64px; opacity: 0.3;
+  }
+  .player-card .pbody { padding: 16px 20px 20px; }
+  .player-card h3 {
+    font-size: 20px; font-weight: 800;
+    margin-bottom: 4px; color: var(--text);
+  }
+  .player-card .pmeta {
+    color: var(--accent-2); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+  .player-card .pextract {
+    color: var(--text-dim); font-size: 13px; line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .player-card .pwiki {
+    display: inline-block; font-size: 11px;
+    color: var(--accent); text-decoration: none;
+  }
+  .player-card .pwiki:hover { text-decoration: underline; }
+
+  /* ===== Team squad modal ===== */
+  .team-card-modal .thead {
+    padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .team-card-modal .thead img {
+    width: 48px; height: 36px; object-fit: cover; border-radius: 4px;
+  }
+  .team-card-modal .thead h3 {
+    font-size: 20px; font-weight: 800; color: var(--text);
+    margin-bottom: 2px;
+  }
+  .team-card-modal .thead .tmeta {
+    color: var(--text-dim); font-size: 12px;
+  }
+  .team-card-modal .fav-toggle {
+    margin-left: auto;
+    background: rgba(245,158,11,0.1); border: 1px solid var(--accent-2);
+    color: var(--accent-2); padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    white-space: nowrap;
+  }
+  .team-card-modal .fav-toggle.active {
+    background: var(--accent-2); color: #0a0e1a;
+  }
+  .team-card-modal .tbody { padding: 16px 20px 20px; }
+  .team-card-modal .pos-group { margin-bottom: 16px; }
+  .team-card-modal .pos-group h4 {
+    font-size: 11px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px; font-weight: 700;
+  }
+  .team-card-modal .player-row {
+    display: grid; grid-template-columns: 32px 1fr auto;
+    align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    cursor: pointer; transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .team-card-modal .player-row:hover { background: rgba(255,255,255,0.04); }
+  .team-card-modal .player-row:last-child { border-bottom: 0; }
+  .team-card-modal .player-row .num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); color: var(--accent-2);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px;
+  }
+  .team-card-modal .player-row .pname {
+    color: var(--text); font-weight: 600; font-size: 13px;
+  }
+  .team-card-modal .player-row .pnat {
+    color: var(--text-fade); font-size: 11px;
+    text-align: right;
+  }
+
   /* ===== Modal head-to-head ===== */
   .h2h-modal {
     position: fixed; inset: 0;
@@ -808,12 +955,18 @@
       </div>
       <div class="tab-pane active" data-pane="schedule">
         <div class="wc-list" id="wcBlock">
-          <div class="loading-pulse">Đang tải lịch thi đấu…</div>
+          <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
+          <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
+          <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
+          <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
         </div>
       </div>
       <div class="tab-pane" data-pane="standings">
         <div class="bxh-wrap" id="bxhBlock">
-          <div class="loading-pulse">Đang tải bảng xếp hạng…</div>
+          <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div></div>
+          <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div></div>
+          <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div></div>
+          <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div></div>
         </div>
       </div>
     </div>
@@ -823,8 +976,15 @@
     <!-- Vua phá lưới -->
     <div class="card">
       <h2><span class="icon">⚽</span> Vua phá lưới <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="scorersMeta">—</span></h2>
+      <div class="subtabs" id="scorersTabs">
+        <button class="active" data-stab="goals">⚽ Ghi bàn</button>
+        <button data-stab="assists">🅰️ Kiến tạo</button>
+      </div>
       <div id="scorersBlock">
-        <div class="loading-pulse">Đang tải…</div>
+        <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
+        <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
+        <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
+        <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
       </div>
     </div>
 
@@ -876,6 +1036,22 @@
     <div class="h2h-card">
       <button class="h2h-close" id="h2hClose">✕</button>
       <div id="h2hBody"></div>
+    </div>
+  </div>
+
+  <!-- Player profile modal -->
+  <div class="player-modal" id="playerModal">
+    <div class="player-card">
+      <button class="close-btn" id="playerClose">✕</button>
+      <div id="playerBody"></div>
+    </div>
+  </div>
+
+  <!-- Team squad modal -->
+  <div class="team-modal" id="teamModal">
+    <div class="team-card-modal">
+      <button class="close-btn" id="teamClose">✕</button>
+      <div id="teamBody"></div>
     </div>
   </div>
 
@@ -1161,14 +1337,20 @@ function tickCountdown() {
 setInterval(tickCountdown, 1000);
 
 /* ===== Vua phá lưới ===== */
+let _scorersData = null;
+let _scorersMode = "goals";
 function renderScorers(scorers) {
+  if (scorers) _scorersData = scorers;
   const block = document.getElementById("scorersBlock");
   const meta = document.getElementById("scorersMeta");
-  if (!scorers || !scorers.length) {
-    block.innerHTML = `<p class="loading-pulse">Chưa có dữ liệu (giải chưa khai mạc hoặc chưa cấu hình Football-Data API key).</p>`;
+  if (!_scorersData || !_scorersData.length) {
+    block.innerHTML = `<p style="font-size:12px;color:var(--text-fade);font-style:italic">Chưa có dữ liệu (giải chưa khai mạc).</p>`;
     return;
   }
-  meta.textContent = `Top ${scorers.length}`;
+  const sorted = [..._scorersData].sort((a, b) =>
+    _scorersMode === "assists" ? (b.assists ?? 0) - (a.assists ?? 0) : (b.goals ?? 0) - (a.goals ?? 0)
+  );
+  meta.textContent = `Top ${sorted.length}`;
   block.innerHTML = `
     <table class="scorers-table">
       <colgroup>
@@ -1179,8 +1361,8 @@ function renderScorers(scorers) {
         <tr><th>#</th><th style="text-align:left">Cầu thủ</th><th>⚽</th><th>🅰️</th><th>Trận</th></tr>
       </thead>
       <tbody>
-        ${scorers.map((s, i) => `
-          <tr class="${i === 0 ? "top1" : ""}">
+        ${sorted.map((s, i) => `
+          <tr class="${i === 0 ? "top1" : ""}" data-player="${(s.player || "").replace(/"/g, "&quot;")}" style="cursor:pointer">
             <td class="pos">${i + 1}</td>
             <td><div class="player-cell">
               ${s.teamBadge ? `<img src="${s.teamBadge}" alt="" onerror="this.style.display='none'">` : ""}
@@ -1193,7 +1375,177 @@ function renderScorers(scorers) {
       </tbody>
     </table>
   `;
+  block.querySelectorAll("tr[data-player]").forEach((tr) => {
+    tr.addEventListener("click", () => openPlayer(tr.dataset.player));
+  });
 }
+document.querySelectorAll("#scorersTabs button").forEach((b) => {
+  b.addEventListener("click", () => {
+    _scorersMode = b.dataset.stab;
+    document.querySelectorAll("#scorersTabs button").forEach((x) => x.classList.toggle("active", x === b));
+    renderScorers();
+  });
+});
+
+/* ===== Player profile modal (Wikipedia) ===== */
+async function openPlayer(name) {
+  if (!name) return;
+  const modal = document.getElementById("playerModal");
+  const body = document.getElementById("playerBody");
+  body.innerHTML = `
+    <div class="ph"><div class="placeholder">⚽</div></div>
+    <div class="pbody">
+      <div class="skeleton" style="height:24px;width:60%;margin-bottom:8px"></div>
+      <div class="skeleton" style="height:14px;width:40%;margin-bottom:12px"></div>
+      <div class="skeleton" style="height:12px;width:100%;margin-bottom:4px"></div>
+      <div class="skeleton" style="height:12px;width:90%;margin-bottom:4px"></div>
+      <div class="skeleton" style="height:12px;width:80%"></div>
+    </div>`;
+  modal.classList.add("show");
+
+  // Try VI Wikipedia first, then EN
+  const fetchWiki = async (lang, q) => {
+    try {
+      const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`);
+      if (!r.ok) return null;
+      const d = await r.json();
+      if (d.type === "disambiguation") return null;
+      return d;
+    } catch { return null; }
+  };
+  let info = await fetchWiki("vi", name);
+  let lang = "vi";
+  if (!info || !info.extract) {
+    info = await fetchWiki("en", name);
+    lang = "en";
+  }
+  if (!info) {
+    body.innerHTML = `
+      <div class="ph"><div class="placeholder">⚽</div></div>
+      <div class="pbody">
+        <h3>${name}</h3>
+        <div class="pextract" style="text-align:center; padding:20px">Không tìm thấy thông tin Wikipedia.</div>
+      </div>`;
+    return;
+  }
+  const img = info.thumbnail?.source || info.originalimage?.source;
+  body.innerHTML = `
+    <div class="ph">${img ? `<img src="${img}" alt="">` : `<div class="placeholder">⚽</div>`}</div>
+    <div class="pbody">
+      <h3>${info.title || name}</h3>
+      ${info.description ? `<div class="pmeta">${info.description}</div>` : ""}
+      <div class="pextract">${info.extract || ""}</div>
+      <a href="${info.content_urls?.desktop?.page || `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(name)}`}"
+         target="_blank" rel="noopener" class="pwiki">📖 Đọc đầy đủ trên Wikipedia →</a>
+    </div>`;
+}
+document.getElementById("playerClose").addEventListener("click", () =>
+  document.getElementById("playerModal").classList.remove("show"));
+document.getElementById("playerModal").addEventListener("click", (e) => {
+  if (e.target.id === "playerModal") e.currentTarget.classList.remove("show");
+});
+
+/* ===== Team squad modal ===== */
+const POS_LABEL = {
+  "Goalkeeper": "🧤 Thủ môn",
+  "Defence": "🛡️ Hậu vệ",
+  "Midfield": "⚙️ Tiền vệ",
+  "Offence": "⚽ Tiền đạo",
+  "Attacker": "⚽ Tiền đạo"
+};
+const POS_ORDER = ["Goalkeeper", "Defence", "Midfield", "Offence", "Attacker"];
+function ageOf(dob) {
+  if (!dob) return null;
+  const d = new Date(dob);
+  return Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000));
+}
+async function openTeam(teamName) {
+  const modal = document.getElementById("teamModal");
+  const body = document.getElementById("teamBody");
+  body.innerHTML = `
+    <div class="thead">
+      <div class="skeleton" style="width:48px;height:36px;border-radius:4px"></div>
+      <div style="flex:1">
+        <div class="skeleton" style="height:22px;width:60%;margin-bottom:6px"></div>
+        <div class="skeleton" style="height:12px;width:40%"></div>
+      </div>
+    </div>
+    <div class="tbody">
+      ${Array(6).fill('<div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>').join("")}
+    </div>`;
+  modal.classList.add("show");
+
+  try {
+    const r = await fetch(`/api/sports-squad?team=${encodeURIComponent(teamName)}`);
+    const d = await r.json();
+    if (!d.squad || !d.squad.length) {
+      body.innerHTML = `
+        <div class="thead">
+          <div>
+            <h3>${teamName}</h3>
+            <div class="tmeta">${d.note || "Không có dữ liệu"}</div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    // Group by position
+    const groups = {};
+    for (const p of d.squad) {
+      const pos = p.position || "—";
+      if (!groups[pos]) groups[pos] = [];
+      groups[pos].push(p);
+    }
+    const ordered = [...POS_ORDER.filter((p) => groups[p]), ...Object.keys(groups).filter((p) => !POS_ORDER.includes(p))];
+
+    const flag = flagURL(teamName) || d.crest;
+    const fav = getFav();
+    body.innerHTML = `
+      <div class="thead">
+        ${flag ? `<img src="${flag}" alt="">` : ""}
+        <div>
+          <h3>${d.team || teamName}</h3>
+          <div class="tmeta">
+            ${d.coach?.name ? `👔 HLV: <b>${d.coach.name}</b> · ` : ""}
+            ${d.squad.length} cầu thủ
+          </div>
+        </div>
+        <button class="fav-toggle ${fav === teamName ? 'active' : ''}" id="teamFavToggle">⭐ ${fav === teamName ? "Đã chọn" : "Chọn đội"}</button>
+      </div>
+      <div class="tbody">
+        ${ordered.map((pos) => `
+          <div class="pos-group">
+            <h4>${POS_LABEL[pos] || pos}</h4>
+            ${groups[pos].sort((a,b) => (a.shirtNumber || 99) - (b.shirtNumber || 99)).map((p) => {
+              const age = ageOf(p.dateOfBirth);
+              return `
+                <div class="player-row" data-player="${(p.name || "").replace(/"/g, "&quot;")}">
+                  <div class="num">${p.shirtNumber ?? "?"}</div>
+                  <div class="pname">${p.name}${age ? `<div style="color:var(--text-fade); font-size:11px; font-weight:400; margin-top:2px">${age} tuổi</div>` : ""}</div>
+                  <div class="pnat">${p.nationality || ""}</div>
+                </div>`;
+            }).join("")}
+          </div>
+        `).join("")}
+      </div>`;
+
+    body.querySelectorAll(".player-row").forEach((r) =>
+      r.addEventListener("click", () => openPlayer(r.dataset.player))
+    );
+    document.getElementById("teamFavToggle").addEventListener("click", () => {
+      setFav(teamName);
+      document.getElementById("teamFavToggle").classList.toggle("active");
+      document.getElementById("teamFavToggle").innerHTML = getFav() === teamName ? "⭐ Đã chọn" : "⭐ Chọn đội";
+    });
+  } catch (e) {
+    body.innerHTML = `<div class="tbody" style="padding:20px; text-align:center; color:var(--bad)">Lỗi: ${e.message}</div>`;
+  }
+}
+document.getElementById("teamClose").addEventListener("click", () =>
+  document.getElementById("teamModal").classList.remove("show"));
+document.getElementById("teamModal").addEventListener("click", (e) => {
+  if (e.target.id === "teamModal") e.currentTarget.classList.remove("show");
+});
 
 /* ===== Lịch sử WC ===== */
 const WC_HISTORY = [
@@ -1479,7 +1831,11 @@ function renderTeams() {
   `).join("");
   block.innerHTML = html;
   block.querySelectorAll(".team-tile").forEach((el) =>
-    el.addEventListener("click", () => setFav(el.dataset.team))
+    el.addEventListener("click", (e) => {
+      // Click ngôi sao = toggle fav, click chỗ khác = mở squad modal
+      if (e.target.classList.contains("star")) setFav(el.dataset.team);
+      else openTeam(el.dataset.team);
+    })
   );
 }
 renderTeams();
