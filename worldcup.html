@@ -1794,9 +1794,11 @@
 
       <div class="about-intro">
         Trang này là <b>dashboard cá nhân theo dõi FIFA World Cup 2026</b> (Mỹ · Canada · Mexico, 11/6 – 19/7/2026).
-        Tất cả dữ liệu được tổng hợp realtime từ <b>Football-Data.org</b> (lịch · BXH · vua phá lưới · diễn biến trận),
-        <b>openfootball</b> (lịch backup) và <b>Wikipedia</b> (ảnh + tiểu sử cầu thủ).
-        Toàn bộ tuỳ chọn cá nhân (đội yêu thích, dự đoán tỉ số, theme, thông báo) được lưu cục bộ trên máy của bạn — không có tài khoản, không có server lưu data người dùng.
+        Dữ liệu realtime kết hợp <b>3 nguồn</b>: <b>ESPN</b> (tỉ số live + phút trận, refresh 15s, không cần key),
+        <b>Football-Data.org</b> (lịch · BXH · vua phá lưới · diễn biến chi tiết, refresh 30s),
+        <b>Wikipedia</b> (ảnh + tiểu sử cầu thủ) + <b>openfootball</b> (lịch backup).
+        Toàn bộ tuỳ chọn cá nhân (đội yêu thích, dự đoán, bracket challenge, theme, thông báo) được lưu cục bộ trên máy bạn —
+        <b>không tài khoản, không server, không thu thập dữ liệu</b>.
       </div>
 
       <div class="about-grid">
@@ -1804,15 +1806,16 @@
           <div class="gh"><span class="gi">⚡</span> Live ticker đầu trang</div>
           <div class="gd">
             Thanh dính ở trên (desktop) hoặc dưới (mobile) hiển thị <b>đếm ngược tới trận tiếp theo</b> theo HH:MM:SS.
-            Khi có trận đang đá: chuyển thành <code>🔴 LIVE</code> với cờ + tỉ số + phút thi đấu. Bấm vào để mở chi tiết trận.
+            Khi có trận live: chuyển thành <code>🔴 LIVE</code> với cờ + tỉ số + <b>phút thi đấu chính xác từ ESPN</b>
+            (kể cả <code>45+3</code>, <code>HT</code>, <code>90+5</code>). Bấm vào → mở chi tiết trận.
           </div>
         </div>
 
         <div class="guide-item">
           <div class="gh"><span class="gi">⭐</span> Chọn đội yêu thích (tối đa 3)</div>
           <div class="gd">
-            Trong card <b>48 đội tham dự</b>, bấm ngôi sao <code>★</code> ở tile đội để thêm/bỏ. Đội yêu thích được làm nổi bật ở BXH,
-            lịch thi đấu, và hiển thị chip ở header. Bấm <code>✕</code> trên chip để bỏ chọn nhanh.
+            Trong card <b>48 đội tham dự</b>, bấm ngôi sao <code>★</code> trên tile đội. Đội yêu thích nổi bật ở BXH,
+            lịch (viền hồng + ❤️), và hiển thị chip ở header. Bấm <code>✕</code> trên chip để bỏ chọn.
           </div>
         </div>
 
@@ -1827,24 +1830,68 @@
         <div class="guide-item">
           <div class="gh"><span class="gi">🔔</span> Thông báo trận đấu</div>
           <div class="gd">
-            Bấm <code>🔔 Bật nhắc trận</code> ở header và cho phép thông báo. Trình duyệt sẽ ping <b>15 phút</b> trước mỗi trận,
-            riêng đội yêu thích được nhắc trước <b>30 phút</b>. Tắt bằng cách bấm lại nút.
+            Bấm <code>🔔 Bật nhắc trận</code> ở header, cho phép thông báo. Trình duyệt ping <b>15 phút</b> trước mỗi trận,
+            riêng đội yêu thích nhắc trước <b>30 phút</b>. Tắt bằng bấm lại nút.
           </div>
         </div>
 
         <div class="guide-item">
-          <div class="gh"><span class="gi">🎯</span> Dự đoán tỉ số</div>
+          <div class="gh"><span class="gi">⚡</span> Confetti khi đội fav ghi bàn</div>
           <div class="gd">
-            Bấm vào bất kỳ trận nào trong lịch để mở modal <b>Đối đầu</b>. Nhập tỉ số dự đoán → <code>Lưu</code>.
-            Dự đoán lưu offline trên máy. Khi trận đã đá, có thể xem lại độ chính xác.
+            Khi ESPN phát hiện đội yêu thích vừa ghi bàn → toast giữa màn hình <code>⚽ GOOOOAL!</code> + cờ + tỉ số,
+            kèm <b>confetti 140 hạt</b> bắn từ 2 góc dưới. Chỉ chạy khi tab đang mở (đỡ phiền).
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🎯</span> Dự đoán W/D/L</div>
+          <div class="gd">
+            Bấm 1 trận trong lịch → modal Đối đầu, chọn 1 trong 3 nút lớn: <b>Đội nhà thắng · Hoà · Đội khách thắng</b>.
+            Save instant (không cần nút Lưu). Sau khi trận đá xong: nút <code style="background:rgba(16,185,129,0.18); color:var(--good)">xanh ✓</code>
+            nếu đúng, <code style="background:rgba(239,68,68,0.15); color:var(--bad)">đỏ gạch ✗</code> nếu sai.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">📊</span> Bảng điểm dự đoán</div>
+          <div class="gd">
+            Card tổng kết accuracy: số trận đã đoán / đoán đúng / sai / chờ. Thanh gradient hiển thị <b>% chính xác</b>
+            tính trên các trận đã có kết quả + danh sách 5 trận dự đoán gần nhất.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🥊</span> Bracket Challenge</div>
+          <div class="gd">
+            Sau khi vòng bảng kết thúc, mở thử thách <b>chọn đội thắng knockout từ 1/16 → CK</b>. Scroll ngang qua 5 cột.
+            Pick đúng → xanh, sai → đỏ gạch. Cuối cùng hiện <b>card "Nhà vô địch bạn chọn"</b> gradient vàng-hồng,
+            tự so sánh với thực tế.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🏆</span> Cuộc đua giải thưởng</div>
+          <div class="gd">
+            2 thanh progress: <b>⚽ Golden Boot</b> (top scorer hiện tại / kỷ lục Klose 16 bàn) và
+            <b>🧤 Golden Glove</b> (đội cleansheet nhiều nhất / kỷ lục Casillas–Buffon 5).
+            Tự cập nhật sau mỗi trận.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🏅</span> Bảng vàng mọi thời đại</div>
+          <div class="gd">
+            3 tab: <code>Top 25 ghi bàn</code> (Klose 16, R9 15, G.Müller 14, Fontaine/Messi 13…) ·
+            <code>Hat-trick lịch sử</code> (Pelé 17 tuổi 1958, Hurst CK 1966, Salenko 5 bàn 1 trận 1994, Mbappé CK 2022…) ·
+            <code>Kỷ lục</code> (bàn nhanh nhất, già nhất, bàn muộn nhất CK…). Click cầu thủ → tiểu sử Wikipedia.
           </div>
         </div>
 
         <div class="guide-item">
           <div class="gh"><span class="gi">📋</span> Diễn biến trận đấu</div>
           <div class="gd">
-            Modal đối đầu của trận đã đá / đang đá có section <b>Diễn biến</b>: liệt kê <code>⚽ bàn thắng</code>,
-            <code>🟨/🟥 thẻ phạt</code>, <code>🔄 thay người</code> theo phút, kèm tỉ số sau mỗi bàn.
+            Modal đối đầu của trận đã/đang đá có section <b>Diễn biến</b>: <code>⚽ bàn thắng</code> kèm tỉ số,
+            <code>🟨/🟥 thẻ phạt</code>, <code>🔄 thay người</code> theo phút từ Football-Data.org.
           </div>
         </div>
 
@@ -1852,22 +1899,22 @@
           <div class="gh"><span class="gi">📊</span> Form 5 trận W-D-L</div>
           <div class="gd">
             Trong modal đối đầu, mỗi đội có 5 vòng tròn xanh (thắng) / vàng (hoà) / đỏ (thua) của 5 trận quốc tế gần nhất.
-            Hover vào từng vòng để xem đối thủ + tỉ số + giải đấu.
+            Hover vòng → tooltip đối thủ + tỉ số + giải đấu.
           </div>
         </div>
 
         <div class="guide-item">
           <div class="gh"><span class="gi">🌍</span> Xem đội + cầu thủ</div>
           <div class="gd">
-            Bấm vào tile đội (không phải ngôi sao) → mở danh sách 26 cầu thủ + HLV. Bấm tiếp 1 cầu thủ → modal tiểu sử
-            (ảnh + intro Wikipedia tiếng Việt, fallback tiếng Anh).
+            Bấm vào tile đội (không phải ★) → modal danh sách 26 cầu thủ + HLV, lazy-load <b>ảnh thật từ Wikipedia</b>.
+            Bấm 1 cầu thủ → tiểu sử Wikipedia tiếng Việt (fallback EN). Squad cache localStorage 24h.
           </div>
         </div>
 
         <div class="guide-item">
-          <div class="gh"><span class="gi">🥊</span> Knockout bracket</div>
+          <div class="gh"><span class="gi">🥊</span> Sơ đồ knockout</div>
           <div class="gd">
-            Sơ đồ 16 đội nhì-vòng-bảng → tứ kết → bán kết → chung kết. Khi giải bắt đầu, dữ liệu live tự cập nhật vào các ô.
+            Sơ đồ 16 đội nhì-vòng-bảng → tứ kết → bán kết → chung kết. Khi giải tiến triển, dữ liệu live tự fill các ô.
           </div>
         </div>
 
@@ -1897,12 +1944,12 @@
       </div>
 
       <div class="about-meta">
-        💡 <b>Mẹo</b>: Trên mobile, kéo các trận sắp tới ở banner đầu trang để xem 4 trận gần nhất.
-        Lịch thi đấu tự cuộn tới trận sắp đá đầu tiên khi mở trang.
+        💡 <b>Mẹo</b>: Trên mobile, kéo carousel các trận sắp tới để xem 4 trận gần nhất.
+        Lịch thi đấu tự cuộn tới trận sắp đá đầu tiên khi mở trang. Bracket challenge có thể bấm lại đội đã chọn để bỏ chọn.
         <br>
-        🔄 Dữ liệu live cache 10 phút (lịch &amp; BXH), 5 phút (diễn biến trận), 24h (squad).
+        🔄 <b>Cache</b>: ESPN realtime <b>15s</b> (tỉ số + phút) · FD <b>30s</b> (lịch + BXH + scorers) · Squad cầu thủ <b>24h localStorage</b> · Diễn biến trận <b>5 phút</b> · Form 5 trận <b>24h</b>.
         <br>
-        Made with ❤️ · Data: Football-Data.org · openfootball · Wikipedia · flagcdn
+        Made with ❤️ · Data: ESPN · Football-Data.org · openfootball · Wikipedia · flagcdn
       </div>
     </div>
   </div>
