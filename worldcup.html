@@ -1436,84 +1436,6 @@
     font-size: 13px; font-style: italic;
   }
 
-  /* ===== Award race (Golden Boot/Glove) ===== */
-  .award-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  }
-  @media (max-width: 600px) {
-    .award-grid { grid-template-columns: 1fr; }
-  }
-  .award-card {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px;
-    position: relative; overflow: hidden;
-  }
-  .award-card::before {
-    content: ""; position: absolute; top: 0; right: 0;
-    width: 80px; height: 80px;
-    background: radial-gradient(circle, rgba(245,158,11,0.18), transparent 70%);
-    pointer-events: none;
-  }
-  .award-card .aw-title {
-    font-size: 11px; color: var(--accent-2);
-    text-transform: uppercase; letter-spacing: 1.2px;
-    font-weight: 700; margin-bottom: 6px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .award-card .aw-record {
-    font-size: 11px; color: var(--text-fade);
-    margin-bottom: 12px;
-  }
-  .award-card .aw-leader {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 10px;
-  }
-  .award-card .aw-leader img {
-    width: 24px; height: 18px; object-fit: cover;
-    border-radius: 2px; flex-shrink: 0;
-  }
-  .award-card .aw-leader .lnm {
-    font-size: 14px; font-weight: 700; color: var(--text);
-    flex: 1; min-width: 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .award-card .aw-leader .lnum {
-    font-size: 28px; font-weight: 800; color: var(--accent-2);
-    font-variant-numeric: tabular-nums; line-height: 1;
-  }
-  .award-card .aw-progress {
-    height: 8px; background: rgba(255,255,255,0.06);
-    border-radius: 999px; overflow: hidden;
-    margin-bottom: 6px;
-  }
-  .award-card .aw-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    transition: width 0.8s;
-    border-radius: 999px;
-  }
-  .award-card .aw-meta {
-    font-size: 10px; color: var(--text-fade);
-    text-align: right;
-  }
-  .award-card .aw-runners {
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-  }
-  .award-card .aw-runner {
-    display: flex; justify-content: space-between;
-    font-size: 12px; padding: 3px 0;
-    color: var(--text-dim);
-  }
-  .award-card .aw-runner b { color: var(--text); }
-  .award-card .aw-empty {
-    font-size: 12px; color: var(--text-fade);
-    text-align: center; padding: 12px 0;
-    font-style: italic;
-  }
-
   /* ===== Bracket Challenge ===== */
   .br-rounds {
     display: flex; gap: 14px;
@@ -1684,9 +1606,9 @@
 
   <!-- ============= 🌟 WORLD CUP 2026 ============= -->
 
-  <!-- Vua phá lưới + Award Race (đều liên quan scorer WC 2026) -->
+  <!-- Vua phá lưới -->
   <div class="grid">
-    <div class="card">
+    <div class="card" style="grid-column: 1 / -1">
       <h2><span class="icon">⚽</span> Vua phá lưới <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="scorersMeta">—</span></h2>
       <div class="subtabs" id="scorersTabs">
         <button class="active" data-stab="goals">⚽ Ghi bàn</button>
@@ -1697,12 +1619,6 @@
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
-      </div>
-    </div>
-    <div class="card">
-      <h2><span class="icon">🏆</span> Cuộc đua giải thưởng</h2>
-      <div id="awardRaceBody">
-        <div class="pred-empty">Đang chờ dữ liệu giải đấu…</div>
       </div>
     </div>
   </div>
@@ -1866,15 +1782,6 @@
             Sau khi vòng bảng kết thúc, mở thử thách <b>chọn đội thắng knockout từ 1/16 → CK</b>. Scroll ngang qua 5 cột.
             Pick đúng → xanh, sai → đỏ gạch. Cuối cùng hiện <b>card "Nhà vô địch bạn chọn"</b> gradient vàng-hồng,
             tự so sánh với thực tế.
-          </div>
-        </div>
-
-        <div class="guide-item">
-          <div class="gh"><span class="gi">🏆</span> Cuộc đua giải thưởng</div>
-          <div class="gd">
-            2 thanh progress: <b>⚽ Golden Boot</b> (top scorer hiện tại / kỷ lục Klose 16 bàn) và
-            <b>🧤 Golden Glove</b> (đội cleansheet nhiều nhất / kỷ lục Casillas–Buffon 5).
-            Tự cập nhật sau mỗi trận.
           </div>
         </div>
 
@@ -2049,7 +1956,6 @@ async function loadSports() {
     scheduleNotifs();
     renderBracket(d.matches || []);
     if (typeof renderPredScore === "function") renderPredScore();
-    if (typeof renderAwardRace === "function") renderAwardRace(d.scorers || [], d.standings || []);
     if (typeof renderBracketChallenge === "function") renderBracketChallenge(d.matches || []);
     const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
     console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
@@ -2936,73 +2842,6 @@ function renderPredScore() {
         }).join("")}
       </div>` : ""}
   `;
-}
-
-/* ===== 🏆 Cuộc đua giải thưởng (Golden Boot/Glove tracker) =====
- * - Golden Boot: top scorer hiện tại vs kỷ lục Klose 16 bàn
- * - Golden Glove: đội cleansheet nhiều nhất vs Casillas/Buffon 5
- */
-function computeCleansheets(matches) {
-  const cs = new Map();
-  for (const m of matches) {
-    if (m.homeScore == null || m.awayScore == null) continue;
-    if (m.awayScore === 0) cs.set(m.home, (cs.get(m.home) || 0) + 1);
-    if (m.homeScore === 0) cs.set(m.away, (cs.get(m.away) || 0) + 1);
-  }
-  return [...cs.entries()].sort((a, b) => b[1] - a[1]);
-}
-function renderAwardRace(scorers) {
-  const body = document.getElementById("awardRaceBody");
-  if (!body) return;
-  const all = window._allMatches || [];
-  if (!all.length) return;
-
-  const goalScorers = (scorers || []).filter((s) => (s.goals ?? 0) > 0)
-    .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0));
-  const KLOSE = 16;
-  const cs = computeCleansheets(all);
-  const CASILLAS = 5;
-
-  const flagImg = (team) => {
-    const url = flagURL(team);
-    return url ? `<img src="${url}" alt="">` : "";
-  };
-
-  body.innerHTML = `<div class="award-grid">
-    <div class="award-card">
-      <div class="aw-title">⚽ Golden Boot</div>
-      <div class="aw-record">Kỷ lục mọi thời đại: <b style="color:var(--text)">Miroslav Klose · 16 bàn</b> (qua 4 kỳ WC)</div>
-      ${goalScorers.length ? `
-        <div class="aw-leader">
-          ${goalScorers[0].teamBadge ? `<img src="${goalScorers[0].teamBadge}">` : ""}
-          <div class="lnm">${goalScorers[0].player || "—"} <span style="font-size:11px; color:var(--text-fade); font-weight:500">${goalScorers[0].team || ""}</span></div>
-          <div class="lnum">${goalScorers[0].goals}</div>
-        </div>
-        <div class="aw-progress"><div class="aw-fill" style="width:${Math.min(100, (goalScorers[0].goals / KLOSE) * 100)}%"></div></div>
-        <div class="aw-meta">${goalScorers[0].goals}/${KLOSE} bàn để phá kỷ lục Klose</div>
-        ${goalScorers.length > 1 ? `<div class="aw-runners">
-          ${goalScorers.slice(1, 4).map((s, i) => `<div class="aw-runner"><span>${i+2}. <b>${s.player}</b> · ${s.team || ""}</span><span>${s.goals}</span></div>`).join("")}
-        </div>` : ""}
-      ` : `<div class="aw-empty">Chưa có cầu thủ nào ghi bàn</div>`}
-    </div>
-
-    <div class="award-card">
-      <div class="aw-title">🧤 Golden Glove · Clean sheets</div>
-      <div class="aw-record">Kỷ lục 1 kỳ: <b style="color:var(--text)">Casillas / Buffon · 5 cleansheets</b></div>
-      ${cs.length ? `
-        <div class="aw-leader">
-          ${flagImg(cs[0][0])}
-          <div class="lnm">${cs[0][0]}</div>
-          <div class="lnum">${cs[0][1]}</div>
-        </div>
-        <div class="aw-progress"><div class="aw-fill" style="width:${Math.min(100, (cs[0][1] / CASILLAS) * 100)}%"></div></div>
-        <div class="aw-meta">${cs[0][1]}/${CASILLAS} cleansheets để phá kỷ lục</div>
-        ${cs.length > 1 ? `<div class="aw-runners">
-          ${cs.slice(1, 4).map((c, i) => `<div class="aw-runner"><span>${i+2}. <b>${c[0]}</b></span><span>${c[1]}</span></div>`).join("")}
-        </div>` : ""}
-      ` : `<div class="aw-empty">Chưa có đội nào giữ sạch lưới</div>`}
-    </div>
-  </div>`;
 }
 
 /* ===== 🥊 Bracket Challenge =====
