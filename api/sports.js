@@ -5,7 +5,7 @@
 
 const OPENFB_URL = "https://raw.githubusercontent.com/openfootball/world-cup.json/master/2026/worldcup.json";
 const FD_BASE = "https://api.football-data.org/v4/competitions/WC";
-const TTL_MS = 10 * 60 * 1000; // 10 phút (đỡ live)
+const TTL_MS = 45 * 1000; // 45s — cần ngắn để tỉ số live cập nhật kịp
 
 let cache = { ts: 0, data: null };
 
@@ -189,7 +189,7 @@ function computeStandings(matches) {
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=300");
+  res.setHeader("Cache-Control", "public, s-maxage=45, stale-while-revalidate=30");
 
   const now = Date.now();
   if (cache.data && now - cache.ts < TTL_MS) {

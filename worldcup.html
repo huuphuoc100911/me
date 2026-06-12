@@ -2861,6 +2861,47 @@ document.getElementById("h2hModal").addEventListener("click", (e) => {
 
 if ("Notification" in window) updateNotifBtn();
 loadSports();
+
+/* ===== Auto-refresh khi có trận đang đá =====
+ * Mỗi 45s: nếu có ít nhất 1 trận trong window đang đá → refetch sports & update DOM.
+ * Không refetch khi không có live (tiết kiệm rate-limit FD: 10 req/phút).
+ */
+async function refreshLiveScores() {
+  const all = window._allMatches || [];
+  const now = Date.now();
+  const hasLive = all.some((m) => m.ts && m.ts <= now && now < m.ts + 115 * 60000
+    && !(m.homeScore != null && m.awayScore != null && m.status === "FINISHED"));
+  if (!hasLive) return;
+  try {
+    const r = await fetch("/api/sports", { cache: "no-store" });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d.matches) return;
+    d.matches.forEach((m, i) => { m.id = m.id || `${m.home}-${m.away}-${m.ts || i}`; });
+    window._allMatches = d.matches;
+
+    // Patch tỉ số trong lịch thi đấu (chỉ update score, không re-render toàn bộ)
+    for (const m of d.matches) {
+      const el = document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`);
+      if (!el) continue;
+      const center = el.children[2];
+      if (!center) continue;
+      const hasScore = m.homeScore != null && m.awayScore != null;
+      const newText = hasScore ? `${m.homeScore} - ${m.awayScore}` : "VS";
+      if (center.textContent.trim() === newText) continue;
+      // Đổi class nếu cần (vs ↔ score)
+      if (hasScore && center.classList.contains("vs")) {
+        center.className = "score"; center.textContent = newText;
+      } else if (!hasScore && center.classList.contains("score")) {
+        center.className = "vs"; center.textContent = "VS";
+      } else {
+        center.textContent = newText;
+      }
+    }
+    // tickLiveBar sẽ tự nhận tỉ số mới ở tick kế (signature thay đổi → re-paint)
+  } catch {}
+}
+setInterval(refreshLiveScores, 45000);
 </script>
 </body>
 </html>
