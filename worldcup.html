@@ -181,6 +181,9 @@
     border-radius: 10px;
   }
   .wc-match.live { border-color: var(--bad); background: rgba(239,68,68,0.06); }
+  .wc-match.done { opacity: 0.65; }
+  .wc-match.done:hover { opacity: 1; }
+  .wc-match.next { border-color: var(--accent-2); }
   .wc-match .when {
     font-size: 11px;
     color: var(--text-dim);
@@ -909,12 +912,14 @@ async function loadSports() {
     renderStandings(d.standings);
     const all = d.matches || [];
     const nowMs = Date.now();
-    const matches = all.filter((m) => !m.ts || m.ts >= nowMs - 3 * 3600 * 1000);
+    const matches = all.slice().sort((a, b) => (a.ts || 0) - (b.ts || 0));
     if (!matches.length) {
       block.innerHTML = `<div class="err-msg">Chưa có lịch thi đấu</div>`;
       return;
     }
-    meta.textContent = `${matches.length}/${d.total || matches.length} trận còn lại${d.source === "football-data" ? " · live" : ""}`;
+    const finishedCount = matches.filter((m) => m.homeScore != null && m.awayScore != null).length;
+    const upcomingCount = matches.length - finishedCount;
+    meta.textContent = `${finishedCount} đã đá · ${upcomingCount} sắp tới · ${d.total || matches.length} tổng${d.source === "football-data" ? " · live" : ""}`;
     const fav = getFav();
 
     const fmt = (ts) => {
@@ -942,6 +947,7 @@ async function loadSports() {
       const isLive = m.ts && nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
       const isFav = fav && (m.home === fav || m.away === fav);
       const hasScore = m.homeScore != null && m.awayScore != null;
+      const isDone = hasScore || (m.ts && m.ts + 3 * 3600 * 1000 < nowMs);
       const center = hasScore
         ? `<div class="score">${m.homeScore} - ${m.awayScore}</div>`
         : `<div class="vs">VS</div>`;
@@ -949,7 +955,7 @@ async function loadSports() {
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
         : `<div class="badge-fallback"></div>`;
       return `${header}
-        <div class="wc-match ${isLive ? "live" : ""} ${isFav ? "fav" : ""}" data-mid="${m.id}">
+        <div class="wc-match ${isLive ? "live" : ""} ${isFav ? "fav" : ""} ${isDone && !isLive ? "done" : ""}" data-mid="${m.id}" data-ts="${m.ts || 0}">
           <div class="when"><div class="t">${t}</div></div>
           <div class="team">${badge(m.homeBadge)}<div class="nm">${m.home}</div></div>
           ${center}
@@ -957,6 +963,16 @@ async function loadSports() {
         </div>
       `;
     }).join("");
+
+    // Auto-scroll đến trận sắp đá đầu tiên (hoặc trận live)
+    requestAnimationFrame(() => {
+      const upcoming = block.querySelector(".wc-match.live") ||
+        [...block.querySelectorAll(".wc-match")].find((el) => Number(el.dataset.ts) > nowMs);
+      if (upcoming) {
+        upcoming.classList.add("next");
+        upcoming.scrollIntoView({ block: "start", behavior: "auto" });
+      }
+    });
 
     // Click trận → H2H modal
     block.querySelectorAll(".wc-match").forEach((el) => {
