@@ -1775,6 +1775,21 @@ setInterval(tickCountdown, 1000);
  * Tách 2 pha: paintLiveBar() chỉ chạy khi nội dung tĩnh đổi (cờ, tên đội, tỉ số live),
  * tickLiveBar() chỉ update text của .cd để cờ không nhấp nháy mỗi giây.
  */
+// Format phút theo chuẩn FIFA — assume H1 stoppage ~5p + halftime ~15p
+//   elapsed = số phút thực tế từ kickoff
+//   1–45   → '1' … '45'
+//   46–50  → '45+1' … '45+5'   (bù giờ hiệp 1)
+//   51–65  → 'HT'               (nghỉ giữa hiệp ~15p)
+//   66–110 → '46' … '90'        (hiệp 2, trừ 20 phút nghỉ)
+//   111+   → '90+1' …          (bù giờ hiệp 2)
+function formatLiveMinute(elapsed) {
+  if (elapsed <= 0) return "1'";
+  if (elapsed <= 45) return `${elapsed}'`;
+  if (elapsed <= 50) return `45+${elapsed - 45}'`;
+  if (elapsed <= 65) return "HT";
+  if (elapsed <= 110) return `${elapsed - 20}'`;
+  return `90+${elapsed - 110}'`;
+}
 let _liveBarSig = "";
 function paintLiveBar(target) {
   const bar = document.getElementById("liveBar");
@@ -1845,8 +1860,8 @@ function tickLiveBar() {
   const cd = bar.querySelector(".cd");
   if (!cd) return;
   if (target.mode === "live") {
-    const minute = Math.max(1, Math.min(90, Math.floor((now - target.m.ts) / 60000) + 1));
-    cd.textContent = `${minute}'`;
+    const elapsed = Math.floor((now - target.m.ts) / 60000) + 1;
+    cd.textContent = formatLiveMinute(elapsed);
   } else {
     const diff = target.m.ts - now;
     const days = Math.floor(diff / 86400000);
