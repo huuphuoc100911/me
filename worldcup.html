@@ -546,6 +546,60 @@
   }
 
   /* ===== Theme switch ===== */
+  /* ===== About + Hướng dẫn sử dụng ===== */
+  .about-intro {
+    font-size: 13px; color: var(--text-dim); line-height: 1.7;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    background: rgba(245,158,11,0.04);
+    border-left: 3px solid var(--accent-2);
+    border-radius: 0 8px 8px 0;
+  }
+  .about-intro b { color: var(--text); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .guide-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .guide-item:hover {
+    border-color: var(--accent-2);
+    transform: translateY(-2px);
+  }
+  .guide-item .gh {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 6px;
+  }
+  .guide-item .gh .gi { font-size: 18px; flex-shrink: 0; }
+  .guide-item .gd {
+    font-size: 12px; color: var(--text-dim); line-height: 1.6;
+  }
+  .guide-item .gd b { color: var(--text); }
+  .guide-item .gd code {
+    background: rgba(255,255,255,0.06); padding: 1px 5px;
+    border-radius: 3px; color: var(--accent-2);
+    font-family: ui-monospace, "SF Mono", monospace; font-size: 11px;
+    font-weight: 600;
+  }
+  .about-meta {
+    font-size: 11px; color: var(--text-fade);
+    text-align: center; margin-top: 18px;
+    padding-top: 14px; border-top: 1px dashed var(--border);
+    line-height: 1.8;
+  }
+  .about-meta b { color: var(--text-dim); }
+  @media (max-width: 520px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .about-intro { font-size: 12px; padding: 12px; }
+  }
+
   /* ===== Schedule toolbar (favorite filter) ===== */
   .sched-toolbar {
     display: flex; gap: 8px; padding: 0 0 12px;
@@ -1267,6 +1321,126 @@
       <div class="compare-legend">
         <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent-2);border-radius:2px;margin-right:4px"></span>Số bàn thắng</span>
         <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;margin-right:4px"></span>Số trận</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Giới thiệu + Hướng dẫn sử dụng -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">ℹ️</span> Giới thiệu &amp; Hướng dẫn sử dụng</h2>
+
+      <div class="about-intro">
+        Trang này là <b>dashboard cá nhân theo dõi FIFA World Cup 2026</b> (Mỹ · Canada · Mexico, 11/6 – 19/7/2026).
+        Tất cả dữ liệu được tổng hợp realtime từ <b>Football-Data.org</b> (lịch · BXH · vua phá lưới · diễn biến trận),
+        <b>openfootball</b> (lịch backup) và <b>Wikipedia</b> (ảnh + tiểu sử cầu thủ).
+        Toàn bộ tuỳ chọn cá nhân (đội yêu thích, dự đoán tỉ số, theme, thông báo) được lưu cục bộ trên máy của bạn — không có tài khoản, không có server lưu data người dùng.
+      </div>
+
+      <div class="about-grid">
+        <div class="guide-item">
+          <div class="gh"><span class="gi">⚡</span> Live ticker đầu trang</div>
+          <div class="gd">
+            Thanh dính ở trên (desktop) hoặc dưới (mobile) hiển thị <b>đếm ngược tới trận tiếp theo</b> theo HH:MM:SS.
+            Khi có trận đang đá: chuyển thành <code>🔴 LIVE</code> với cờ + tỉ số + phút thi đấu. Bấm vào để mở chi tiết trận.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">⭐</span> Chọn đội yêu thích (tối đa 3)</div>
+          <div class="gd">
+            Trong card <b>48 đội tham dự</b>, bấm ngôi sao <code>★</code> ở tile đội để thêm/bỏ. Đội yêu thích được làm nổi bật ở BXH,
+            lịch thi đấu, và hiển thị chip ở header. Bấm <code>✕</code> trên chip để bỏ chọn nhanh.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">❤️</span> Lọc lịch theo đội yêu thích</div>
+          <div class="gd">
+            Trong tab <b>Lịch thi đấu</b>, bấm pill <code>❤️ Chỉ đội yêu thích</code> để ẩn các trận không liên quan.
+            Cần chọn ít nhất 1 đội yêu thích trước.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🔔</span> Thông báo trận đấu</div>
+          <div class="gd">
+            Bấm <code>🔔 Bật nhắc trận</code> ở header và cho phép thông báo. Trình duyệt sẽ ping <b>15 phút</b> trước mỗi trận,
+            riêng đội yêu thích được nhắc trước <b>30 phút</b>. Tắt bằng cách bấm lại nút.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🎯</span> Dự đoán tỉ số</div>
+          <div class="gd">
+            Bấm vào bất kỳ trận nào trong lịch để mở modal <b>Đối đầu</b>. Nhập tỉ số dự đoán → <code>Lưu</code>.
+            Dự đoán lưu offline trên máy. Khi trận đã đá, có thể xem lại độ chính xác.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">📋</span> Diễn biến trận đấu</div>
+          <div class="gd">
+            Modal đối đầu của trận đã đá / đang đá có section <b>Diễn biến</b>: liệt kê <code>⚽ bàn thắng</code>,
+            <code>🟨/🟥 thẻ phạt</code>, <code>🔄 thay người</code> theo phút, kèm tỉ số sau mỗi bàn.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">📊</span> Form 5 trận W-D-L</div>
+          <div class="gd">
+            Trong modal đối đầu, mỗi đội có 5 vòng tròn xanh (thắng) / vàng (hoà) / đỏ (thua) của 5 trận quốc tế gần nhất.
+            Hover vào từng vòng để xem đối thủ + tỉ số + giải đấu.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🌍</span> Xem đội + cầu thủ</div>
+          <div class="gd">
+            Bấm vào tile đội (không phải ngôi sao) → mở danh sách 26 cầu thủ + HLV. Bấm tiếp 1 cầu thủ → modal tiểu sử
+            (ảnh + intro Wikipedia tiếng Việt, fallback tiếng Anh).
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🥊</span> Knockout bracket</div>
+          <div class="gd">
+            Sơ đồ 16 đội nhì-vòng-bảng → tứ kết → bán kết → chung kết. Khi giải bắt đầu, dữ liệu live tự cập nhật vào các ô.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">⚽</span> Vua phá lưới &amp; kiến tạo</div>
+          <div class="gd">
+            2 tab trong card <b>Vua phá lưới</b>: <code>Ghi bàn</code> sort theo bàn, <code>Kiến tạo</code> sort theo assist.
+            Bấm tên cầu thủ → mở tiểu sử Wikipedia.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🎨</span> Đổi tông màu</div>
+          <div class="gd">
+            Hàng 4 chấm nhỏ dưới header: vàng (mặc định) / xanh dương / xanh lá / hồng. Chọn để đổi accent color toàn site.
+            Theme lưu cục bộ, lần vào sau tự nhớ.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">📱</span> Thêm vào màn hình chính</div>
+          <div class="gd">
+            <b>iOS</b>: Safari → Share → "Add to Home Screen". <b>Android</b>: Chrome → ⋮ → "Cài đặt ứng dụng".
+            Mở như app native, icon FIFA WC 2026 chính thức, full-screen.
+          </div>
+        </div>
+      </div>
+
+      <div class="about-meta">
+        💡 <b>Mẹo</b>: Trên mobile, kéo các trận sắp tới ở banner đầu trang để xem 4 trận gần nhất.
+        Lịch thi đấu tự cuộn tới trận sắp đá đầu tiên khi mở trang.
+        <br>
+        🔄 Dữ liệu live cache 10 phút (lịch &amp; BXH), 5 phút (diễn biến trận), 24h (squad).
+        <br>
+        Made with ❤️ · Data: Football-Data.org · openfootball · Wikipedia · flagcdn
       </div>
     </div>
   </div>
