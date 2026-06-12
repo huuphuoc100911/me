@@ -757,12 +757,20 @@
   }
   .player-card .close-btn:hover, .team-card-modal .close-btn:hover { background: rgba(0,0,0,0.8); }
   .player-card .ph {
-    height: 200px; background: linear-gradient(180deg, var(--bg-soft), transparent);
+    height: 260px; background: #050810;
     position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .player-card .ph .blur-bg {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    filter: blur(28px) brightness(0.55) saturate(1.2);
+    transform: scale(1.2);
   }
   .player-card .ph img {
-    width: 100%; height: 100%; object-fit: cover;
-    object-position: top center;
+    position: relative;
+    max-width: 100%; max-height: 100%;
+    object-fit: contain;
   }
   .player-card .ph .placeholder {
     width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
@@ -836,6 +844,14 @@
     display: flex; align-items: center; justify-content: center;
     color: #0a0e1a; font-weight: 800; font-size: 14px;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+  .team-card-modal .player-row .avatar img.ava-photo {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 18%;
+    border-radius: 50%;
+    background: #1a1f2e;
   }
   .team-card-modal .player-row .avatar .num {
     position: absolute; right: -4px; bottom: -4px;
@@ -1453,9 +1469,12 @@ async function openPlayer(name) {
       </div>`;
     return;
   }
-  const img = info.thumbnail?.source || info.originalimage?.source;
+  const img = info.originalimage?.source || info.thumbnail?.source;
   body.innerHTML = `
-    <div class="ph">${img ? `<img src="${img}" alt="">` : `<div class="placeholder">⚽</div>`}</div>
+    <div class="ph">
+      ${img ? `<div class="blur-bg" style="background-image:url('${img}')"></div><img src="${img}" alt="">`
+            : `<div class="placeholder">⚽</div>`}
+    </div>
     <div class="pbody">
       <h3>${info.title || name}</h3>
       ${info.description ? `<div class="pmeta">${info.description}</div>` : ""}
@@ -1484,6 +1503,51 @@ function ageOf(dob) {
   const d = new Date(dob);
   return Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000));
 }
+// Fetch Wikipedia thumbnail (cache sessionStorage), gắn vào avatar nếu có
+const _avaInflight = new Map();
+async function fetchWikiThumb(name) {
+  if (!name) return null;
+  const key = "wcph:" + name;
+  try {
+    const cached = sessionStorage.getItem(key);
+    if (cached !== null) return cached || null;   // chuỗi rỗng = đã thử fail
+  } catch {}
+  if (_avaInflight.has(name)) return _avaInflight.get(name);
+  const job = (async () => {
+    const tryLang = async (lang) => {
+      try {
+        const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`);
+        if (!r.ok) return null;
+        const d = await r.json();
+        if (d.type === "disambiguation") return null;
+        return d.thumbnail?.source || d.originalimage?.source || null;
+      } catch { return null; }
+    };
+    const url = await tryLang("en") || await tryLang("vi");
+    try { sessionStorage.setItem(key, url || ""); } catch {}
+    return url;
+  })();
+  _avaInflight.set(name, job);
+  return job;
+}
+async function loadAvaPhoto(av) {
+  const name = av.dataset.pn;
+  const url = await fetchWikiThumb(name);
+  if (!url || !av.isConnected) return;
+  const img = document.createElement("img");
+  img.className = "ava-photo";
+  img.alt = "";
+  img.loading = "lazy";
+  img.referrerPolicy = "no-referrer";
+  img.onerror = () => img.remove();
+  img.onload = () => {
+    const init = av.querySelector(".ava-init");
+    if (init) init.style.display = "none";
+  };
+  img.src = url;
+  av.insertBefore(img, av.firstChild);
+}
+
 async function openTeam(teamName) {
   const modal = document.getElementById("teamModal");
   const body = document.getElementById("teamBody");
@@ -1545,9 +1609,13 @@ async function openTeam(teamName) {
               const age = ageOf(p.dateOfBirth);
               const parts = (p.name || "").trim().split(/\s+/);
               const initials = ((parts[0]?.[0] || "") + (parts[parts.length - 1]?.[0] || "")).toUpperCase() || "?";
+              const safeName = (p.name || "").replace(/"/g, "&quot;");
               return `
-                <div class="player-row" data-player="${(p.name || "").replace(/"/g, "&quot;")}">
-                  <div class="avatar">${initials}${p.shirtNumber ? `<div class="num">${p.shirtNumber}</div>` : ""}</div>
+                <div class="player-row" data-player="${safeName}">
+                  <div class="avatar" data-pn="${safeName}">
+                    <span class="ava-init">${initials}</span>
+                    ${p.shirtNumber ? `<div class="num">${p.shirtNumber}</div>` : ""}
+                  </div>
                   <div class="pname">${p.name}${age ? `<div style="color:var(--text-fade); font-size:11px; font-weight:400; margin-top:2px">${age} tuổi</div>` : ""}</div>
                   <div class="pnat">${p.nationality || ""}</div>
                 </div>`;
@@ -1559,6 +1627,8 @@ async function openTeam(teamName) {
     body.querySelectorAll(".player-row").forEach((r) =>
       r.addEventListener("click", () => openPlayer(r.dataset.player))
     );
+    // Lazy-load Wikipedia thumbnails for avatars (background, không chặn UI)
+    body.querySelectorAll(".avatar[data-pn]").forEach((av) => loadAvaPhoto(av));
     document.getElementById("teamFavToggle").addEventListener("click", () => {
       setFav(teamName);
       document.getElementById("teamFavToggle").classList.toggle("active");
