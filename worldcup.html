@@ -469,6 +469,109 @@
   }
   .scorers-table .goals { color: var(--accent-2); font-weight: 800; font-size: 14px; }
 
+  /* ===== Bảng vàng mọi thời đại ===== */
+  .hall-row {
+    display: grid; grid-template-columns: 32px 40px 1fr auto;
+    gap: 12px; align-items: center;
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hall-row:last-child { border-bottom: 0; }
+  .hall-row.gold { background: linear-gradient(90deg, rgba(245,158,11,0.12), transparent 60%); border-radius: 6px; }
+  .hall-row.silver { background: linear-gradient(90deg, rgba(192,192,192,0.08), transparent 60%); border-radius: 6px; }
+  .hall-row.bronze { background: linear-gradient(90deg, rgba(205,127,50,0.1), transparent 60%); border-radius: 6px; }
+  .hall-row .rank {
+    font-weight: 800; font-size: 16px;
+    color: var(--text-dim); text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .hall-row.gold   .rank { color: #fbbf24; font-size: 18px; }
+  .hall-row.silver .rank { color: #cbd5e1; }
+  .hall-row.bronze .rank { color: #d97706; }
+  .hall-row .ava {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    color: #0a0e1a; font-weight: 800; font-size: 13px;
+    position: relative; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .hall-row .ava img.ava-photo {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 18%;
+    border-radius: 50%;
+  }
+  .hall-row .info { min-width: 0; }
+  .hall-row .info .nm {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hall-row .info .nm img.flag { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+  .hall-row .info .sub {
+    font-size: 11px; color: var(--text-fade); margin-top: 2px;
+    line-height: 1.3;
+  }
+  .hall-row .stat {
+    color: var(--accent-2); font-weight: 800; font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .hall-row .stat .lbl { display: block; font-size: 9px; color: var(--text-fade); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .hall-records {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .hall-rec {
+    display: flex; gap: 12px; padding: 12px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .hall-rec .ic { font-size: 22px; flex-shrink: 0; line-height: 1; }
+  .hall-rec .body { min-width: 0; }
+  .hall-rec .body .ti { font-size: 10px; color: var(--text-fade); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+  .hall-rec .body .va { font-size: 16px; color: var(--accent-2); font-weight: 800; margin: 2px 0; }
+  .hall-rec .body .who { font-size: 12px; color: var(--text); font-weight: 600; }
+  .hall-rec .body .when { font-size: 11px; color: var(--text-dim); margin-top: 2px; line-height: 1.4; }
+
+  /* ===== Confetti canvas + Goal toast ===== */
+  #confettiCanvas {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 99998;
+  }
+  .goal-toast {
+    position: fixed;
+    top: 25%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0a0e1a;
+    padding: 20px 32px;
+    border-radius: 18px;
+    font-weight: 800;
+    text-align: center;
+    z-index: 99999;
+    box-shadow: 0 12px 50px rgba(245,158,11,0.55), 0 0 0 4px rgba(245,158,11,0.15);
+    animation: goalPop 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    min-width: 280px;
+    pointer-events: none;
+  }
+  .goal-toast .gt-title { font-size: 32px; letter-spacing: 2px; line-height: 1; margin-bottom: 6px; }
+  .goal-toast .gt-team { font-size: 16px; }
+  .goal-toast .gt-score { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  @keyframes goalPop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-8deg); }
+    14%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(2deg); }
+    22%  { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    85%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.85) translateY(-30px); }
+  }
+  @media (max-width: 520px) {
+    .goal-toast { min-width: 200px; padding: 16px 22px; }
+    .goal-toast .gt-title { font-size: 26px; }
+    .goal-toast .gt-team { font-size: 14px; }
+  }
+
   /* ===== Lịch sử WC ===== */
   .history-list {
     display: flex;
@@ -1306,6 +1409,19 @@
     <div class="card">
       <h2><span class="icon">🏛️</span> Lịch sử nhà vô địch</h2>
       <div class="history-list" id="historyBlock"></div>
+    </div>
+  </div>
+
+  <!-- Bảng vàng mọi thời đại -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🏅</span> Bảng vàng mọi thời đại</h2>
+      <div class="subtabs" id="hallTabs">
+        <button class="active" data-htab="goals">⚽ Top ghi bàn</button>
+        <button data-htab="hattrick">🎩 Hat-trick lịch sử</button>
+        <button data-htab="records">🏆 Kỷ lục</button>
+      </div>
+      <div id="hallBody"></div>
     </div>
   </div>
 
@@ -2236,6 +2352,132 @@ function renderHistory() {
 }
 renderHistory();
 
+/* ===== 🏅 Bảng vàng mọi thời đại ===== */
+const HALL_GOALS = [
+  { name: "Miroslav Klose",   country: "Đức",         flag: "de",     n: 16, years: "2002–2014" },
+  { name: "Ronaldo (R9)",     country: "Brazil",      flag: "br",     n: 15, years: "1994–2006" },
+  { name: "Gerd Müller",      country: "Đức",         flag: "de",     n: 14, years: "1970–1974" },
+  { name: "Just Fontaine",    country: "Pháp",        flag: "fr",     n: 13, years: "1958 (1 kỳ duy nhất)" },
+  { name: "Lionel Messi",     country: "Argentina",   flag: "ar",     n: 13, years: "2006–2022" },
+  { name: "Pelé",             country: "Brazil",      flag: "br",     n: 12, years: "1958–1970" },
+  { name: "Kylian Mbappé",    country: "Pháp",        flag: "fr",     n: 12, years: "2018–2022" },
+  { name: "Sándor Kocsis",    country: "Hungary",     flag: "hu",     n: 11, years: "1954" },
+  { name: "Jürgen Klinsmann", country: "Đức",         flag: "de",     n: 11, years: "1990–1998" },
+  { name: "Thomas Müller",    country: "Đức",         flag: "de",     n: 10, years: "2010–2022" },
+  { name: "Gabriel Batistuta",country: "Argentina",   flag: "ar",     n: 10, years: "1994–2002" },
+  { name: "Gary Lineker",     country: "Anh",         flag: "gb-eng", n: 10, years: "1986–1990" },
+  { name: "Teófilo Cubillas", country: "Peru",        flag: "pe",     n: 10, years: "1970–1978" },
+  { name: "Grzegorz Lato",    country: "Ba Lan",      flag: "pl",     n: 10, years: "1974–1982" },
+  { name: "Helmut Rahn",      country: "Đức",         flag: "de",     n: 10, years: "1954–1958" }
+];
+
+const HALL_HATTRICKS = [
+  { player: "Bert Patenaude",  country: "Mỹ",        flag: "us",     year: 1930, vs: "Paraguay",        note: "Hat-trick đầu tiên trong lịch sử WC" },
+  { player: "Pelé",            country: "Brazil",    flag: "br",     year: 1958, vs: "Pháp (BK)",       note: "Trẻ nhất – 17 tuổi" },
+  { player: "Just Fontaine",   country: "Pháp",      flag: "fr",     year: 1958, vs: "Tây Đức",          note: "Lập 4 bàn 1 trận tranh hạng 3" },
+  { player: "Sándor Kocsis",   country: "Hungary",   flag: "hu",     year: 1954, vs: "Tây Đức (BK)",    note: "2 hat-trick trong 1 kỳ WC" },
+  { player: "Eusébio",         country: "Bồ Đào Nha",flag: "pt",     year: 1966, vs: "CHDCND Triều Tiên",note: "Gỡ từ 0-3 thắng 5-3, 4 bàn" },
+  { player: "Geoff Hurst",     country: "Anh",       flag: "gb-eng", year: 1966, vs: "Tây Đức (CK)",    note: "Hat-trick CHUNG KẾT duy nhất trong lịch sử" },
+  { player: "Gerd Müller",     country: "Tây Đức",   flag: "de",     year: 1970, vs: "Bulgaria & Peru", note: "2 hat-trick liên tiếp" },
+  { player: "Paolo Rossi",     country: "Italy",     flag: "it",     year: 1982, vs: "Brazil",          note: "Trận kinh điển 3-2 tại Sarriá" },
+  { player: "Oleg Salenko",    country: "Nga",       flag: "ru",     year: 1994, vs: "Cameroon",        note: "🔥 5 bàn 1 trận – kỷ lục mọi thời đại" },
+  { player: "Gabriel Batistuta",country: "Argentina",flag: "ar",     year: 1998, vs: "Jamaica",         note: "Cầu thủ duy nhất hat-trick ở 2 kỳ WC khác nhau" },
+  { player: "Tomáš Skuhravý",  country: "Tiệp Khắc", flag: "cz",     year: 1990, vs: "Costa Rica",      note: "" },
+  { player: "Cristiano Ronaldo",country: "Bồ Đào Nha",flag: "pt",    year: 2018, vs: "Tây Ban Nha",     note: "3-3 trận mở màn nghẹt thở" },
+  { player: "Harry Kane",      country: "Anh",       flag: "gb-eng", year: 2018, vs: "Panama",          note: "" },
+  { player: "Kylian Mbappé",   country: "Pháp",      flag: "fr",     year: 2022, vs: "Argentina (CK)",  note: "Hat-trick CK thứ 2 lịch sử (sau Hurst 1966)" }
+];
+
+const HALL_RECORDS = [
+  { ic: "⚡", title: "Bàn nhanh nhất 1 trận",   value: "10,8 giây",     who: "Hakan Şükür (Thổ Nhĩ Kỳ)",   when: "WC 2002 vs Hàn Quốc" },
+  { ic: "🎯", title: "Nhiều bàn nhất 1 trận",   value: "5 bàn",         who: "Oleg Salenko (Nga)",         when: "WC 1994 vs Cameroon (6-1)" },
+  { ic: "👶", title: "Cầu thủ ghi bàn trẻ nhất",value: "17t 239 ngày",  who: "Pelé (Brazil)",              when: "WC 1958 vs Wales (TK)" },
+  { ic: "👴", title: "Cầu thủ ghi bàn già nhất",value: "42t 39 ngày",   who: "Roger Milla (Cameroon)",     when: "WC 1994 vs Nga" },
+  { ic: "🏆", title: "Vô địch nhiều nhất",       value: "5 lần",         who: "Brazil",                      when: "1958, 1962, 1970, 1994, 2002" },
+  { ic: "🎖️", title: "Cầu thủ tham dự nhiều WC", value: "5 kỳ",          who: "Messi · Ronaldo · Carbajal · Matthäus · Marquez", when: "Messi (06–22) · Ronaldo (06–22)" },
+  { ic: "🥅", title: "Trận đông bàn nhất",       value: "12 bàn",        who: "Áo 7-5 Thuỵ Sĩ",              when: "WC 1954 – Tứ kết" },
+  { ic: "📊", title: "Đội thắng đậm nhất",       value: "10-1",          who: "Hungary vs El Salvador",     when: "WC 1982" },
+  { ic: "🛡️", title: "Cleansheet liên tiếp dài nhất",value:"517 phút",  who: "Walter Zenga (Italy)",       when: "WC 1990" },
+  { ic: "⏱️", title: "Bàn muộn nhất 1 trận CK",  value: "Phút 113",      who: "Mario Götze (Đức)",          when: "WC 2014 CK – hiệp phụ" },
+  { ic: "🏅", title: "Vua phá lưới mọi thời đại",value: "16 bàn",        who: "Miroslav Klose (Đức)",       when: "Qua 4 kỳ WC 2002-2014" },
+  { ic: "🌟", title: "Quả bóng vàng WC trẻ nhất",value: "21 tuổi",       who: "Pelé (Brazil)",              when: "WC 1962 (chấn thương, từ chối)" }
+];
+
+let _hallTab = "goals";
+function renderHall() {
+  const body = document.getElementById("hallBody");
+  if (!body) return;
+  const flagImg = (iso) => iso ? `<img class="flag" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.display='none'">` : "";
+  const initialsOf = (n) => {
+    const p = (n || "").trim().split(/\s+/);
+    return ((p[0]?.[0] || "") + (p[p.length-1]?.[0] || "")).toUpperCase() || "?";
+  };
+
+  if (_hallTab === "goals") {
+    body.innerHTML = HALL_GOALS.map((p, i) => {
+      const cls = i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
+      const safeName = (p.name || "").replace(/"/g, "&quot;");
+      return `
+        <div class="hall-row ${cls}" data-player="${safeName}" style="cursor:pointer">
+          <div class="rank">${i + 1}</div>
+          <div class="ava" data-pn="${safeName}">
+            <span class="ava-init">${initialsOf(p.name)}</span>
+          </div>
+          <div class="info">
+            <div class="nm">${flagImg(p.flag)}<span>${p.name}</span></div>
+            <div class="sub">${p.country} · ${p.years}</div>
+          </div>
+          <div class="stat">${p.n}<span class="lbl">bàn</span></div>
+        </div>`;
+    }).join("");
+    body.querySelectorAll(".hall-row[data-player]").forEach((r) =>
+      r.addEventListener("click", () => openPlayer(r.dataset.player))
+    );
+    body.querySelectorAll(".ava[data-pn]").forEach((av) => loadAvaPhoto(av));
+
+  } else if (_hallTab === "hattrick") {
+    body.innerHTML = HALL_HATTRICKS.sort((a, b) => a.year - b.year).map((h) => {
+      const safeName = (h.player || "").replace(/"/g, "&quot;");
+      return `
+        <div class="hall-row" data-player="${safeName}" style="cursor:pointer">
+          <div class="rank">${h.year}</div>
+          <div class="ava" data-pn="${safeName}">
+            <span class="ava-init">${initialsOf(h.player)}</span>
+          </div>
+          <div class="info">
+            <div class="nm">${flagImg(h.flag)}<span>${h.player}</span></div>
+            <div class="sub">vs ${h.vs}${h.note ? " · " + h.note : ""}</div>
+          </div>
+          <div class="stat" style="font-size:13px">${h.country}</div>
+        </div>`;
+    }).join("");
+    body.querySelectorAll(".hall-row[data-player]").forEach((r) =>
+      r.addEventListener("click", () => openPlayer(r.dataset.player))
+    );
+    body.querySelectorAll(".ava[data-pn]").forEach((av) => loadAvaPhoto(av));
+
+  } else if (_hallTab === "records") {
+    body.innerHTML = `<div class="hall-records">${HALL_RECORDS.map((r) => `
+      <div class="hall-rec">
+        <div class="ic">${r.ic}</div>
+        <div class="body">
+          <div class="ti">${r.title}</div>
+          <div class="va">${r.value}</div>
+          <div class="who">${r.who}</div>
+          <div class="when">${r.when}</div>
+        </div>
+      </div>`).join("")}</div>`;
+  }
+}
+document.querySelectorAll("#hallTabs button").forEach((b) => {
+  b.addEventListener("click", () => {
+    _hallTab = b.dataset.htab;
+    document.querySelectorAll("#hallTabs button").forEach((x) => x.classList.toggle("active", x === b));
+    renderHall();
+  });
+});
+renderHall();
+
 /* ===== Cập nhật từ loadSports ===== */
 async function bootstrapExtras() {
   try {
@@ -2889,6 +3131,8 @@ function patchScoreCell(el, hasScore, homeScore, awayScore) {
 }
 
 // Nguồn 1: ESPN — nhanh (~10-15s sau bàn thắng), free, không cần key
+// Map mid → {h, a} để detect bàn thắng mới (chống re-celebrate cùng 1 bàn)
+const _lastSeenScore = new Map();
 async function refreshLiveFromESPN() {
   const all = window._allMatches || [];
   const now = Date.now();
@@ -2909,10 +3153,22 @@ async function refreshLiveFromESPN() {
       if (!match) continue;
       // Update _allMatches in-place để live bar pick up
       if (live.state === "LIVE" || live.state === "FINISHED") {
+        // Phát hiện bàn thắng cho đội fav (so với lần seen trước)
+        const prev = _lastSeenScore.get(match.id);
+        if (prev && live.state === "LIVE") {
+          if (isFav(match.home) && live.homeScore > prev.h) {
+            celebrateGoal(match.home, match, live);
+          }
+          if (isFav(match.away) && live.awayScore > prev.a) {
+            celebrateGoal(match.away, match, live);
+          }
+        }
+        _lastSeenScore.set(match.id, { h: live.homeScore, a: live.awayScore });
+
         match.homeScore = live.homeScore;
         match.awayScore = live.awayScore;
         match.status = live.state === "LIVE" ? "IN_PLAY" : "FINISHED";
-        match.espnClock = live.clock; // dùng cho display phút chính xác
+        match.espnClock = live.clock;
       }
       patchScoreCell(
         document.querySelector(`.wc-match[data-mid="${CSS.escape(match.id)}"]`),
@@ -2921,6 +3177,103 @@ async function refreshLiveFromESPN() {
       );
     }
   } catch {}
+}
+
+/* ===== 🎉 Goal celebration: toast + confetti =====
+ * Trigger khi đội yêu thích ghi bàn (so với tỉ số seen trước).
+ */
+function celebrateGoal(team, match, live) {
+  showGoalToast(team, match, live);
+  launchConfetti();
+}
+function showGoalToast(team, match, live) {
+  // Xoá toast cũ nếu có
+  document.querySelectorAll(".goal-toast").forEach((t) => t.remove());
+  const opp = match.home === team ? match.away : match.home;
+  const score = `${live.homeScore} - ${live.awayScore}`;
+  const flag = flagURL(team);
+  const toast = document.createElement("div");
+  toast.className = "goal-toast";
+  toast.innerHTML = `
+    <div class="gt-title">⚽ GOOOOAL!</div>
+    <div class="gt-team">${flag ? `<img src="${flag}" style="width:22px;height:16px;object-fit:cover;border-radius:2px;vertical-align:middle;margin-right:6px">` : ""}${team} vừa ghi bàn!</div>
+    <div class="gt-score">vs ${opp} · ${score}${live.clock ? " · " + live.clock : ""}</div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3700);
+}
+function launchConfetti() {
+  // Chỉ chạy khi tab visible (đỡ tốn CPU + đỡ phiền)
+  if (document.visibilityState !== "visible") return;
+  let canvas = document.getElementById("confettiCanvas");
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    canvas.id = "confettiCanvas";
+    document.body.appendChild(canvas);
+  }
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  const ctx = canvas.getContext("2d");
+  const colors = ["#f59e0b", "#ec4899", "#10b981", "#06b6d4", "#ffffff", "#fbbf24"];
+  const particles = [];
+  // Bắn 2 luồng từ 2 góc dưới
+  const origins = [
+    { x: 0, y: innerHeight, vxBase: 8 },
+    { x: innerWidth, y: innerHeight, vxBase: -8 }
+  ];
+  for (const o of origins) {
+    for (let i = 0; i < 70; i++) {
+      particles.push({
+        x: o.x, y: o.y,
+        vx: o.vxBase + (Math.random() - 0.5) * 6,
+        vy: -14 - Math.random() * 10,
+        g: 0.35,
+        size: 4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.4,
+        shape: Math.random() < 0.5 ? "rect" : "circle"
+      });
+    }
+  }
+  let frame = 0;
+  const maxFrames = 180;
+  function tick() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = 0;
+    const fadeStart = 120;
+    const alpha = frame < fadeStart ? 1 : Math.max(0, 1 - (frame - fadeStart) / (maxFrames - fadeStart));
+    for (const p of particles) {
+      p.vy += p.g;
+      p.vx *= 0.99;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      if (p.y < innerHeight + 40 && alpha > 0) {
+        alive++;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if (p.shape === "rect") {
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+    frame++;
+    if (alive > 0 && frame < maxFrames) {
+      requestAnimationFrame(tick);
+    } else {
+      canvas.remove();
+    }
+  }
+  requestAnimationFrame(tick);
 }
 
 // Nguồn 2: FD — chậm hơn, nhưng có BXH + scorers (chỉ refresh khi live đang diễn ra)
