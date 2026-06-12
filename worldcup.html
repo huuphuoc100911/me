@@ -1319,6 +1319,250 @@
     font-size: 11px; color: var(--good); text-align: center;
     margin-top: 6px;
   }
+  /* ===== Pick W/D/L buttons trong modal ===== */
+  .pick-buttons {
+    display: grid; grid-template-columns: 1fr 80px 1fr;
+    gap: 8px; margin-top: 8px;
+  }
+  .pick-btn {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid var(--border);
+    color: var(--text-dim);
+    padding: 12px 8px; border-radius: 10px;
+    cursor: pointer; font-weight: 700;
+    text-align: center; transition: all 0.15s;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    min-height: 78px;
+  }
+  .pick-btn:hover:not(:disabled) {
+    border-color: var(--accent-2);
+    background: rgba(245,158,11,0.05);
+  }
+  .pick-btn.active {
+    border-color: var(--accent-2);
+    background: rgba(245,158,11,0.12);
+    color: var(--accent-2);
+  }
+  .pick-btn.correct {
+    border-color: var(--good);
+    background: rgba(16,185,129,0.18);
+    color: var(--good);
+  }
+  .pick-btn.wrong {
+    border-color: var(--bad);
+    background: rgba(239,68,68,0.15);
+    color: var(--bad);
+  }
+  .pick-btn img.pf { width: 32px; height: 24px; object-fit: cover; border-radius: 3px; }
+  .pick-btn .pic { font-size: 22px; line-height: 1; }
+  .pick-btn .pl { font-size: 11px; line-height: 1.2; font-weight: 600; }
+  .pick-btn .pn { font-size: 12px; line-height: 1.2; font-weight: 800; }
+  .pick-result {
+    margin-top: 10px; padding: 8px 10px;
+    border-radius: 6px; font-size: 12px;
+    text-align: center; font-weight: 700;
+  }
+  .pick-result.correct { background: rgba(16,185,129,0.18); color: var(--good); }
+  .pick-result.wrong { background: rgba(239,68,68,0.18); color: var(--bad); }
+  .pick-result.pending { background: rgba(255,255,255,0.04); color: var(--text-fade); }
+
+  /* ===== Card tổng kết accuracy ===== */
+  .pred-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-bottom: 14px;
+  }
+  .ps-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 6px;
+    text-align: center;
+  }
+  .ps-stat .v {
+    font-size: 22px; font-weight: 800;
+    color: var(--text); font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .ps-stat .l {
+    font-size: 10px; color: var(--text-fade);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 4px; font-weight: 600;
+  }
+  .ps-stat.correct .v { color: var(--good); }
+  .ps-stat.wrong   .v { color: var(--bad); }
+  .ps-stat.pending .v { color: var(--accent-2); }
+  .pa-bar {
+    height: 12px; background: rgba(255,255,255,0.05);
+    border-radius: 999px; overflow: hidden;
+  }
+  .pa-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--good), var(--accent-2));
+    transition: width 0.6s ease;
+    border-radius: 999px;
+  }
+  .pa-label {
+    text-align: center; margin-top: 8px;
+    font-size: 13px; color: var(--text-dim); font-weight: 600;
+  }
+  .pa-label b { color: var(--accent-2); font-size: 16px; }
+  .pred-empty {
+    text-align: center; padding: 16px; color: var(--text-fade);
+    font-size: 13px; font-style: italic;
+  }
+
+  /* ===== Award race (Golden Boot/Glove) ===== */
+  .award-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .award-grid { grid-template-columns: 1fr; }
+  }
+  .award-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    position: relative; overflow: hidden;
+  }
+  .award-card::before {
+    content: ""; position: absolute; top: 0; right: 0;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(245,158,11,0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .award-card .aw-title {
+    font-size: 11px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-weight: 700; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .award-card .aw-record {
+    font-size: 11px; color: var(--text-fade);
+    margin-bottom: 12px;
+  }
+  .award-card .aw-leader {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .award-card .aw-leader img {
+    width: 24px; height: 18px; object-fit: cover;
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .award-card .aw-leader .lnm {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .award-card .aw-leader .lnum {
+    font-size: 28px; font-weight: 800; color: var(--accent-2);
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .award-card .aw-progress {
+    height: 8px; background: rgba(255,255,255,0.06);
+    border-radius: 999px; overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .award-card .aw-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    transition: width 0.8s;
+    border-radius: 999px;
+  }
+  .award-card .aw-meta {
+    font-size: 10px; color: var(--text-fade);
+    text-align: right;
+  }
+  .award-card .aw-runners {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+  .award-card .aw-runner {
+    display: flex; justify-content: space-between;
+    font-size: 12px; padding: 3px 0;
+    color: var(--text-dim);
+  }
+  .award-card .aw-runner b { color: var(--text); }
+  .award-card .aw-empty {
+    font-size: 12px; color: var(--text-fade);
+    text-align: center; padding: 12px 0;
+    font-style: italic;
+  }
+
+  /* ===== Bracket Challenge ===== */
+  .br-rounds {
+    display: flex; gap: 14px;
+    overflow-x: auto; padding: 8px 4px;
+    scrollbar-width: thin;
+  }
+  .br-rounds::-webkit-scrollbar { height: 6px; }
+  .br-rounds::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .br-round {
+    min-width: 240px; flex-shrink: 0;
+  }
+  .br-round h4 {
+    font-size: 11px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin: 0 0 10px; font-weight: 700;
+    text-align: center;
+  }
+  .br-match {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px;
+    margin-bottom: 8px;
+  }
+  .br-match .br-when {
+    font-size: 10px; color: var(--text-fade);
+    margin-bottom: 4px; text-align: center;
+  }
+  .br-team {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+    color: var(--text-dim);
+    border: 1px solid transparent;
+    transition: all 0.12s;
+    margin-bottom: 3px;
+  }
+  .br-team:hover:not(.disabled) {
+    background: rgba(245,158,11,0.06);
+    color: var(--text);
+  }
+  .br-team.picked {
+    background: rgba(245,158,11,0.15);
+    color: var(--accent-2);
+    border-color: var(--accent-2);
+    font-weight: 700;
+  }
+  .br-team.actual {
+    background: rgba(16,185,129,0.15);
+    color: var(--good);
+    border-color: var(--good);
+  }
+  .br-team.picked.correct {
+    background: rgba(16,185,129,0.2);
+    border-color: var(--good);
+    color: var(--good);
+  }
+  .br-team.picked.wrong {
+    background: rgba(239,68,68,0.15);
+    border-color: var(--bad);
+    color: var(--bad);
+    text-decoration: line-through;
+  }
+  .br-team.disabled { cursor: not-allowed; opacity: 0.55; }
+  .br-team img { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+  .br-team .tnm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .br-champ-pick {
+    margin-top: 16px; padding: 16px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(236,72,153,0.06));
+    border: 2px solid var(--accent-2);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .br-champ-pick .ct { font-size: 12px; color: var(--text-fade); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+  .br-champ-pick .cn { font-size: 24px; font-weight: 800; color: var(--accent-2); }
+  .br-champ-pick .cn img { width: 30px; height: 22px; object-fit: cover; border-radius: 3px; vertical-align: middle; margin-right: 8px; }
 
   footer {
     text-align: center;
@@ -1409,6 +1653,32 @@
     <div class="card">
       <h2><span class="icon">🏛️</span> Lịch sử nhà vô địch</h2>
       <div class="history-list" id="historyBlock"></div>
+    </div>
+  </div>
+
+  <!-- Bảng điểm dự đoán + Award Race -->
+  <div class="grid">
+    <div class="card">
+      <h2><span class="icon">🎯</span> Bảng điểm dự đoán</h2>
+      <div id="predScoreBody">
+        <div class="pred-empty">Chưa có dự đoán nào. Click vào 1 trận trong Lịch thi đấu để bắt đầu.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="icon">🏆</span> Cuộc đua giải thưởng</h2>
+      <div id="awardRaceBody">
+        <div class="pred-empty">Đang chờ dữ liệu giải đấu…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bracket Challenge -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🥊</span> Bracket Challenge <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">Chọn đội thắng từng trận knockout</span></h2>
+      <div id="bracketChallenge">
+        <div class="pred-empty">Chờ vòng bảng kết thúc để mở…</div>
+      </div>
     </div>
   </div>
 
@@ -1675,6 +1945,9 @@ async function loadSports() {
     renderTeams();
     scheduleNotifs();
     renderBracket(d.matches || []);
+    if (typeof renderPredScore === "function") renderPredScore();
+    if (typeof renderAwardRace === "function") renderAwardRace(d.scorers || [], d.standings || []);
+    if (typeof renderBracketChallenge === "function") renderBracketChallenge(d.matches || []);
     const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
     console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
     if (finished.length) console.log("[WC] sample finished:", finished.slice(0, 3).map((m) => `${m.home} ${m.homeScore}-${m.awayScore} ${m.away}`));
@@ -2478,6 +2751,280 @@ document.querySelectorAll("#hallTabs button").forEach((b) => {
 });
 renderHall();
 
+/* ===== 🎯 Bảng điểm dự đoán =====
+ * Scan tất cả localStorage keys wc-pick-{matchId}, so với kết quả thực tế từ _allMatches.
+ * Show: tổng số dự đoán / đoán đúng / sai / chờ kết quả + thanh accuracy.
+ */
+function getActualResult(m) {
+  if (m.homeScore == null || m.awayScore == null) return null;
+  return m.homeScore > m.awayScore ? "H" : m.homeScore < m.awayScore ? "A" : "D";
+}
+function renderPredScore() {
+  const body = document.getElementById("predScoreBody");
+  if (!body) return;
+  const all = window._allMatches || [];
+  if (!all.length) return;
+
+  let totalPicks = 0, correct = 0, wrong = 0, pending = 0;
+  const recent = []; // (date desc) 5 most recent picks for display
+  for (const m of all) {
+    if (!m.id) continue;
+    const pick = localStorage.getItem(`wc-pick-${m.id}`);
+    if (!pick) continue;
+    totalPicks++;
+    const actual = getActualResult(m);
+    if (actual == null) {
+      pending++;
+      recent.push({ m, pick, actual: null, status: "pending" });
+    } else if (actual === pick) {
+      correct++;
+      recent.push({ m, pick, actual, status: "correct" });
+    } else {
+      wrong++;
+      recent.push({ m, pick, actual, status: "wrong" });
+    }
+  }
+
+  if (!totalPicks) {
+    body.innerHTML = `<div class="pred-empty">Chưa có dự đoán nào.<br>Click vào 1 trận trong Lịch thi đấu để bắt đầu.</div>`;
+    return;
+  }
+
+  const decided = correct + wrong;
+  const pct = decided > 0 ? Math.round((correct / decided) * 100) : 0;
+  // Sort recent: pending first, then by ts desc
+  recent.sort((a, b) => (b.m.ts || 0) - (a.m.ts || 0));
+  const showRecent = recent.slice(0, 5);
+
+  const pickLabel = (p, m) => p === "H" ? `${m.home} thắng` : p === "A" ? `${m.away} thắng` : "Hoà";
+  body.innerHTML = `
+    <div class="pred-stats">
+      <div class="ps-stat"><div class="v">${totalPicks}</div><div class="l">Đã đoán</div></div>
+      <div class="ps-stat correct"><div class="v">${correct}</div><div class="l">Đúng</div></div>
+      <div class="ps-stat wrong"><div class="v">${wrong}</div><div class="l">Sai</div></div>
+      <div class="ps-stat pending"><div class="v">${pending}</div><div class="l">Chờ</div></div>
+    </div>
+    <div class="pa-bar"><div class="pa-fill" style="width:${pct}%"></div></div>
+    <div class="pa-label">Độ chính xác: <b>${pct}%</b> (${correct}/${decided > 0 ? decided : "—"})</div>
+    ${showRecent.length ? `
+      <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--border)">
+        <div style="font-size:11px; color:var(--text-fade); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; font-weight:700">Gần đây</div>
+        ${showRecent.map((r) => {
+          const icon = r.status === "correct" ? "✓" : r.status === "wrong" ? "✗" : "⏳";
+          const color = r.status === "correct" ? "var(--good)" : r.status === "wrong" ? "var(--bad)" : "var(--accent-2)";
+          const teams = `${r.m.home} vs ${r.m.away}`;
+          return `<div style="display:flex; align-items:center; gap:8px; font-size:12px; padding:4px 0; border-bottom:1px solid var(--border)">
+            <span style="color:${color}; font-weight:800; width:14px">${icon}</span>
+            <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-dim)">${teams}</span>
+            <span style="color:var(--text); font-weight:600">${pickLabel(r.pick, r.m)}</span>
+          </div>`;
+        }).join("")}
+      </div>` : ""}
+  `;
+}
+
+/* ===== 🏆 Cuộc đua giải thưởng (Golden Boot/Glove tracker) =====
+ * - Golden Boot: top scorer hiện tại vs kỷ lục Klose 16 bàn
+ * - Golden Glove: đội cleansheet nhiều nhất vs Casillas/Buffon 5
+ */
+function computeCleansheets(matches) {
+  const cs = new Map();
+  for (const m of matches) {
+    if (m.homeScore == null || m.awayScore == null) continue;
+    if (m.awayScore === 0) cs.set(m.home, (cs.get(m.home) || 0) + 1);
+    if (m.homeScore === 0) cs.set(m.away, (cs.get(m.away) || 0) + 1);
+  }
+  return [...cs.entries()].sort((a, b) => b[1] - a[1]);
+}
+function renderAwardRace(scorers) {
+  const body = document.getElementById("awardRaceBody");
+  if (!body) return;
+  const all = window._allMatches || [];
+  if (!all.length) return;
+
+  const goalScorers = (scorers || []).filter((s) => (s.goals ?? 0) > 0)
+    .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0));
+  const KLOSE = 16;
+  const cs = computeCleansheets(all);
+  const CASILLAS = 5;
+
+  const flagImg = (team) => {
+    const url = flagURL(team);
+    return url ? `<img src="${url}" alt="">` : "";
+  };
+
+  body.innerHTML = `<div class="award-grid">
+    <div class="award-card">
+      <div class="aw-title">⚽ Golden Boot</div>
+      <div class="aw-record">Kỷ lục mọi thời đại: <b style="color:var(--text)">Miroslav Klose · 16 bàn</b> (qua 4 kỳ WC)</div>
+      ${goalScorers.length ? `
+        <div class="aw-leader">
+          ${goalScorers[0].teamBadge ? `<img src="${goalScorers[0].teamBadge}">` : ""}
+          <div class="lnm">${goalScorers[0].player || "—"} <span style="font-size:11px; color:var(--text-fade); font-weight:500">${goalScorers[0].team || ""}</span></div>
+          <div class="lnum">${goalScorers[0].goals}</div>
+        </div>
+        <div class="aw-progress"><div class="aw-fill" style="width:${Math.min(100, (goalScorers[0].goals / KLOSE) * 100)}%"></div></div>
+        <div class="aw-meta">${goalScorers[0].goals}/${KLOSE} bàn để phá kỷ lục Klose</div>
+        ${goalScorers.length > 1 ? `<div class="aw-runners">
+          ${goalScorers.slice(1, 4).map((s, i) => `<div class="aw-runner"><span>${i+2}. <b>${s.player}</b> · ${s.team || ""}</span><span>${s.goals}</span></div>`).join("")}
+        </div>` : ""}
+      ` : `<div class="aw-empty">Chưa có cầu thủ nào ghi bàn</div>`}
+    </div>
+
+    <div class="award-card">
+      <div class="aw-title">🧤 Golden Glove · Clean sheets</div>
+      <div class="aw-record">Kỷ lục 1 kỳ: <b style="color:var(--text)">Casillas / Buffon · 5 cleansheets</b></div>
+      ${cs.length ? `
+        <div class="aw-leader">
+          ${flagImg(cs[0][0])}
+          <div class="lnm">${cs[0][0]}</div>
+          <div class="lnum">${cs[0][1]}</div>
+        </div>
+        <div class="aw-progress"><div class="aw-fill" style="width:${Math.min(100, (cs[0][1] / CASILLAS) * 100)}%"></div></div>
+        <div class="aw-meta">${cs[0][1]}/${CASILLAS} cleansheets để phá kỷ lục</div>
+        ${cs.length > 1 ? `<div class="aw-runners">
+          ${cs.slice(1, 4).map((c, i) => `<div class="aw-runner"><span>${i+2}. <b>${c[0]}</b></span><span>${c[1]}</span></div>`).join("")}
+        </div>` : ""}
+      ` : `<div class="aw-empty">Chưa có đội nào giữ sạch lưới</div>`}
+    </div>
+  </div>`;
+}
+
+/* ===== 🥊 Bracket Challenge =====
+ * User pick đội thắng từng trận knockout. Pick lưu localStorage wc-br-{matchId}.
+ * So với kết quả thật → correct/wrong/pending. Champion = pick của trận FINAL.
+ */
+const _BR_PICK_PREFIX = "wc-br-";
+const _BR_ROUND_ORDER = ["Round of 32","Round of 16","Quarter-finals","Quarterfinals","Quarter","Semi-finals","Semifinals","Semi","Final"];
+const _BR_LABEL = {
+  "Round of 32": "🟦 Vòng 1/16",
+  "Round of 16": "🟪 Vòng 1/8",
+  "Quarter-finals": "🟧 Tứ kết", "Quarterfinals": "🟧 Tứ kết", "Quarter": "🟧 Tứ kết",
+  "Semi-finals": "🟨 Bán kết", "Semifinals": "🟨 Bán kết", "Semi": "🟨 Bán kết",
+  "Final": "🏆 Chung kết"
+};
+function _isBrPlaceholder(n) {
+  return !n || /^([0-9][A-L]\b|3[A-L\/]+|W\d+|L\d+|RU\w+|Winner|Loser)/i.test(n);
+}
+function renderBracketChallenge(matches) {
+  const block = document.getElementById("bracketChallenge");
+  if (!block) return;
+
+  const ko = (matches || []).filter((m) => {
+    if (!m.round) return false;
+    return _BR_ROUND_ORDER.some((r) => m.round.includes(r));
+  });
+  if (!ko.length) {
+    block.innerHTML = `<div class="pred-empty">Chờ vòng bảng kết thúc (~28/06/2026) để mở bracket challenge.</div>`;
+    return;
+  }
+
+  // Group by stage theo thứ tự
+  const stages = {};
+  ko.forEach((m) => {
+    const key = _BR_ROUND_ORDER.find((r) => m.round.includes(r)) || m.round;
+    if (!stages[key]) stages[key] = [];
+    stages[key].push(m);
+  });
+  const orderedStages = _BR_ROUND_ORDER.filter((r) => stages[r] && stages[r].length);
+
+  // Compute accuracy + champion
+  let totalDecided = 0, correctPicks = 0, totalPicks = 0;
+  let championPick = null, championActual = null;
+
+  const flagImg = (team) => {
+    const url = flagURL(team);
+    return url ? `<img src="${url}" alt="">` : "";
+  };
+
+  const rounds = orderedStages.map((stageKey) => {
+    const stageMatches = stages[stageKey];
+    const label = _BR_LABEL[stageKey] || stageKey;
+    const matchesHTML = stageMatches.map((m) => {
+      const homeUnknown = _isBrPlaceholder(m.home);
+      const awayUnknown = _isBrPlaceholder(m.away);
+      const matchUnknown = homeUnknown || awayUnknown;
+      const pickKey = _BR_PICK_PREFIX + (m.id || "");
+      const userPick = matchUnknown ? null : localStorage.getItem(pickKey);
+      const matchDone = m.homeScore != null && m.awayScore != null;
+      const actual = matchDone ? (m.homeScore > m.awayScore ? m.home : m.homeScore < m.awayScore ? m.away : null) : null;
+
+      if (userPick) totalPicks++;
+      if (matchDone && userPick) {
+        totalDecided++;
+        if (userPick === actual) correctPicks++;
+      }
+      if (stageKey === "Final") {
+        if (userPick) championPick = userPick;
+        if (actual) championActual = actual;
+      }
+
+      const teamRow = (team, isHome) => {
+        const isUnknown = isHome ? homeUnknown : awayUnknown;
+        let cls = "";
+        if (userPick === team) cls += " picked";
+        if (matchDone && actual === team) cls += " actual";
+        if (matchDone && userPick === team) cls += actual === team ? " correct" : " wrong";
+        if (isUnknown || matchDone) cls += " disabled";
+        const displayName = isUnknown ? `<i style="opacity:0.7">${team || "?"}</i>` : team;
+        return `<div class="br-team${cls}" data-mid="${m.id || ""}" data-team="${(team || "").replace(/"/g, "&quot;")}">
+          ${isUnknown ? "" : flagImg(team)}
+          <span class="tnm">${displayName}</span>
+        </div>`;
+      };
+      const when = m.ts ? new Date(m.ts) : null;
+      const whenStr = when ? `${String(when.getDate()).padStart(2,"0")}/${String(when.getMonth()+1).padStart(2,"0")}` : "";
+      const scoreStr = matchDone ? `${m.homeScore}-${m.awayScore}` : "";
+
+      return `<div class="br-match">
+        <div class="br-when">${whenStr}${scoreStr ? " · " + scoreStr : ""}</div>
+        ${teamRow(m.home, true)}
+        ${teamRow(m.away, false)}
+      </div>`;
+    }).join("");
+    return `<div class="br-round"><h4>${label}</h4>${matchesHTML}</div>`;
+  }).join("");
+
+  const accuracyPct = totalDecided > 0 ? Math.round((correctPicks / totalDecided) * 100) : 0;
+  const summary = `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; margin-bottom:10px; border-bottom:1px dashed var(--border); flex-wrap:wrap; gap:8px">
+    <div style="font-size:12px; color:var(--text-dim)">
+      <b style="color:var(--text)">${totalPicks}</b> trận đã chọn ·
+      <b style="color:var(--good)">${correctPicks}</b> đúng /
+      <b style="color:var(--text)">${totalDecided}</b> đã đá
+    </div>
+    ${totalDecided ? `<div style="font-size:13px; font-weight:700">
+      Độ chính xác knockout: <b style="color:var(--accent-2)">${accuracyPct}%</b>
+    </div>` : `<div style="font-size:11px; color:var(--text-fade)">Chưa có trận knockout nào đá xong</div>`}
+  </div>`;
+
+  const championBlock = championPick ? `
+    <div class="br-champ-pick">
+      <div class="ct">🏆 Nhà vô địch bạn chọn</div>
+      <div class="cn">${flagImg(championPick).replace('alt=""','alt="" style="vertical-align:middle"')}${championPick}</div>
+      ${championActual ? `<div style="margin-top:8px; font-size:12px; color:${championActual === championPick ? "var(--good)" : "var(--bad)"}; font-weight:700">
+        ${championActual === championPick ? "✓ ĐÚNG! Nhà vô địch thật là " + championActual : "✗ Sai · Vô địch thật: " + championActual}
+      </div>` : '<div style="margin-top:6px; font-size:11px; color:var(--text-fade)">Đợi trận chung kết để biết kết quả</div>'}
+    </div>` : "";
+
+  block.innerHTML = summary + `<div class="br-rounds">${rounds}</div>` + championBlock;
+
+  // Click handlers
+  block.querySelectorAll(".br-team:not(.disabled)").forEach((el) => {
+    el.addEventListener("click", () => {
+      const mid = el.dataset.mid, team = el.dataset.team;
+      if (!mid || !team) return;
+      const key = _BR_PICK_PREFIX + mid;
+      const current = localStorage.getItem(key);
+      if (current === team) {
+        localStorage.removeItem(key); // toggle off
+      } else {
+        localStorage.setItem(key, team);
+      }
+      renderBracketChallenge(window._allMatches || []);
+    });
+  });
+}
+
 /* ===== Cập nhật từ loadSports ===== */
 async function bootstrapExtras() {
   try {
@@ -2904,8 +3451,12 @@ async function openH2H(match) {
   _h2hMatch = match;
   const home = match.home, away = match.away;
 
-  const predKey = `wc-pred-${match.id || match.ts}`;
-  const saved = JSON.parse(localStorage.getItem(predKey) || "null");
+  const pickKey = `wc-pick-${match.id || match.ts}`;
+  const savedPick = (localStorage.getItem(pickKey) || "").trim(); // "H" | "D" | "A" | ""
+  const matchDone = match.homeScore != null && match.awayScore != null;
+  const actualResult = matchDone
+    ? (match.homeScore > match.awayScore ? "H" : match.homeScore < match.awayScore ? "A" : "D")
+    : null;
   const dt = match.ts ? new Date(match.ts) : null;
   const when = dt ? `${["CN","T2","T3","T4","T5","T6","T7"][dt.getDay()]} ${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")} · ${String(dt.getHours()).padStart(2,"0")}:${String(dt.getMinutes()).padStart(2,"0")}` : "—";
 
@@ -2954,14 +3505,34 @@ async function openH2H(match) {
     })()}
     <div id="h2hHistorical" style="margin-bottom:12px"><div class="loading-pulse" style="font-size:12px">🔍 Đang tải lịch sử đối đầu…</div></div>
     <div style="margin-top:14px">
-      <div style="font-size:12px; color:var(--text-dim); margin-bottom:6px">🎯 Đoán tỉ số</div>
-      <div class="predict-inputs">
-        <input type="number" min="0" max="20" id="predHome" placeholder="0" value="${saved?.h ?? ''}">
-        <span style="color:var(--text-fade)">–</span>
-        <input type="number" min="0" max="20" id="predAway" placeholder="0" value="${saved?.a ?? ''}">
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:6px">🎯 Dự đoán kết quả</div>
+      <div class="pick-buttons">
+        ${["H","D","A"].map((p) => {
+          let cls = savedPick === p ? "active" : "";
+          if (matchDone && savedPick === p) cls = actualResult === p ? "correct" : "wrong";
+          else if (matchDone && actualResult === p && savedPick && savedPick !== p) cls = "correct";
+          const disabled = matchDone ? "disabled" : "";
+          if (p === "H") return `<button class="pick-btn ${cls}" data-pick="H" ${disabled}>
+            ${match.homeBadge ? `<img class="pf" src="${match.homeBadge}">` : '<div class="pic">🏠</div>'}
+            <div class="pn">${home}<br><span class="pl">thắng</span></div>
+          </button>`;
+          if (p === "D") return `<button class="pick-btn ${cls}" data-pick="D" ${disabled}>
+            <div class="pic">⚖️</div>
+            <div class="pn">Hoà</div>
+          </button>`;
+          return `<button class="pick-btn ${cls}" data-pick="A" ${disabled}>
+            ${match.awayBadge ? `<img class="pf" src="${match.awayBadge}">` : '<div class="pic">✈️</div>'}
+            <div class="pn">${away}<br><span class="pl">thắng</span></div>
+          </button>`;
+        }).join("")}
       </div>
-      <button class="predict-btn" id="predSave">${saved ? "Cập nhật dự đoán" : "Lưu dự đoán"}</button>
-      <div class="predict-saved" id="predMsg"></div>
+      <div class="pick-result" id="pickResult">${(() => {
+        if (!savedPick) return matchDone ? '<span class="pending" style="color:var(--text-fade)">Bạn chưa dự đoán trận này</span>' : "";
+        if (!matchDone) return `<span style="color:var(--accent-2)">📝 Đã dự đoán · chờ kết quả</span>`;
+        return savedPick === actualResult
+          ? `<span style="color:var(--good)">✓ Đoán đúng! Kết quả: ${match.homeScore}-${match.awayScore}</span>`
+          : `<span style="color:var(--bad)">✗ Đoán sai · Kết quả thật: ${match.homeScore}-${match.awayScore}</span>`;
+      })()}</div>
     </div>
   `;
   document.getElementById("h2hModal").classList.add("show");
@@ -3091,12 +3662,18 @@ async function openH2H(match) {
     })();
   }
 
-  document.getElementById("predSave").addEventListener("click", () => {
-    const h = parseInt(document.getElementById("predHome").value);
-    const a = parseInt(document.getElementById("predAway").value);
-    if (isNaN(h) || isNaN(a)) return;
-    localStorage.setItem(predKey, JSON.stringify({ h, a, savedAt: Date.now() }));
-    document.getElementById("predMsg").textContent = `✓ Đã lưu: ${h}-${a}`;
+  // Pick W/D/L handlers
+  document.querySelectorAll("#h2hBody .pick-btn").forEach((b) => {
+    if (b.disabled) return;
+    b.addEventListener("click", () => {
+      const p = b.dataset.pick;
+      localStorage.setItem(pickKey, p);
+      document.querySelectorAll("#h2hBody .pick-btn").forEach((x) => x.classList.remove("active"));
+      b.classList.add("active");
+      const res = document.getElementById("pickResult");
+      if (res) res.innerHTML = `<span style="color:var(--accent-2)">📝 Đã dự đoán · chờ kết quả</span>`;
+      if (typeof renderPredScore === "function") renderPredScore();
+    });
   });
 }
 document.getElementById("h2hClose").addEventListener("click", () =>
