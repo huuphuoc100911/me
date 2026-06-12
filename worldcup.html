@@ -5,11 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>World Cup 2026 — Lịch thi đấu & BXH</title>
 <meta name="description" content="Lịch thi đấu và bảng xếp hạng FIFA World Cup 2026 — cập nhật real-time" />
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/worldcup/favicon-32.png">
-<link rel="icon" type="image/png" sizes="64x64" href="/icons/worldcup/favicon-64.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/icons/worldcup/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/icons/worldcup/icon-512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/worldcup/apple-touch-icon.png">
+<link rel="icon" type="image/jpeg" href="/images/worldcup/images.jpeg">
+<link rel="apple-touch-icon" href="/images/worldcup/images.jpeg">
 <link rel="manifest" href="/manifest-worldcup.json">
 <meta name="theme-color" content="#f59e0b" />
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2272,7 +2269,7 @@ function scheduleNotifs() {
       _notifTimers.push(setTimeout(() => {
         new Notification(`⚽ ${m.home} vs ${m.away}`, {
           body: `Bắt đầu trong ${isFavMatch ? "30" : "15"} phút${isFavMatch ? " (đội bạn yêu thích!)" : ""}`,
-          icon: "/icons/worldcup/icon-192.png"
+          icon: "/images/worldcup/images.jpeg"
         });
       }, fireAt - nowMs));
     }
