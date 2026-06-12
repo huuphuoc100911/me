@@ -546,6 +546,106 @@
   }
 
   /* ===== Theme switch ===== */
+  /* ===== Schedule toolbar (favorite filter) ===== */
+  .sched-toolbar {
+    display: flex; gap: 8px; padding: 0 0 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .fav-filter-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 11px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .fav-filter-btn:hover:not(:disabled) {
+    color: var(--text); border-color: var(--accent-2);
+  }
+  .fav-filter-btn.on {
+    background: rgba(245,158,11,0.18);
+    color: var(--accent-2); border-color: var(--accent-2);
+  }
+  .fav-filter-btn:disabled {
+    opacity: 0.5; cursor: not-allowed;
+  }
+  .fav-filter-btn .cnt {
+    background: rgba(0,0,0,0.3); padding: 1px 6px;
+    border-radius: 999px; font-size: 10px; font-weight: 800;
+  }
+  .fav-filter-btn .cnt:empty { display: none; }
+  .sched-empty {
+    padding: 32px 16px; text-align: center;
+    color: var(--text-fade); font-size: 13px;
+  }
+
+  /* ===== Sticky live/countdown bar ===== */
+  .live-bar {
+    position: sticky; top: 0; z-index: 100;
+    margin: -32px -20px 20px;
+    padding: 10px 16px;
+    display: none; align-items: center; gap: 10px;
+    background: rgba(20, 25, 38, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; cursor: pointer;
+    transition: background 0.3s;
+  }
+  .live-bar.show { display: flex; }
+  .live-bar.live {
+    background: linear-gradient(90deg, rgba(239,68,68,0.18), rgba(20,25,38,0.95) 50%);
+    border-bottom-color: var(--bad);
+  }
+  .live-bar .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent-2); flex-shrink: 0;
+  }
+  .live-bar.live .dot { background: var(--bad); animation: livepulse 1.2s infinite; }
+  @keyframes livepulse {
+    50% { opacity: 0.3; transform: scale(1.4); }
+  }
+  .live-bar .lbl {
+    color: var(--text-fade); text-transform: uppercase;
+    letter-spacing: 1px; font-size: 10px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .live-bar.live .lbl { color: var(--bad); }
+  .live-bar .teams {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--text); font-weight: 700; min-width: 0;
+    overflow: hidden;
+  }
+  .live-bar .teams img {
+    width: 18px; height: 13px; object-fit: cover;
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .live-bar .teams .nm {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 110px;
+  }
+  .live-bar .teams .sc {
+    background: rgba(255,255,255,0.08); padding: 2px 8px;
+    border-radius: 6px; font-weight: 800;
+    font-variant-numeric: tabular-nums; margin: 0 4px;
+  }
+  .live-bar .teams .vs {
+    color: var(--text-fade); font-weight: 500; margin: 0 2px;
+  }
+  .live-bar .cd {
+    margin-left: auto; color: var(--accent-2);
+    font-weight: 800; font-variant-numeric: tabular-nums;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .live-bar.live .cd { color: var(--bad); font-size: 16px; }
+  @media (max-width: 520px) {
+    .live-bar { gap: 8px; padding: 8px 12px; font-size: 12px; }
+    .live-bar .teams .nm { max-width: 70px; font-size: 12px; }
+    .live-bar .lbl { display: none; }
+    .live-bar .cd { font-size: 13px; }
+  }
+
   .theme-bar {
     display: flex; gap: 6px; justify-content: center;
     margin-top: 10px;
@@ -852,22 +952,16 @@
     border-radius: 50%;
     background: #1a1f2e;
   }
-  .team-card-modal .player-row .avatar .num {
-    position: absolute; right: -4px; bottom: -4px;
-    min-width: 20px; height: 20px; padding: 0 5px;
-    border-radius: 999px;
-    background: #0a0e1a; color: var(--accent-2);
-    border: 2px solid var(--bg-card);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 10px;
-    line-height: 1;
-  }
   .team-card-modal .player-row .pname {
     color: var(--text); font-weight: 600; font-size: 13px;
   }
-  .team-card-modal .player-row .pnat {
-    color: var(--text-fade); font-size: 11px;
-    text-align: right;
+  .team-card-modal .player-row .pnum {
+    color: var(--accent-2); font-weight: 800; font-size: 18px;
+    text-align: right; min-width: 32px;
+    font-variant-numeric: tabular-nums;
+  }
+  .team-card-modal .player-row .pnum.empty {
+    color: var(--text-fade); font-size: 13px; font-weight: 400;
   }
 
   /* ===== Modal head-to-head ===== */
@@ -918,6 +1012,86 @@
     font-variant-numeric: tabular-nums;
   }
   .h2h-stat .l { font-size: 10px; color: var(--text-fade); text-transform: uppercase; margin-top: 2px; }
+  .h2h-form-wrap {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    padding: 12px; background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .h2h-form-side { min-width: 0; }
+  .h2h-form-side .flbl {
+    font-size: 10px; color: var(--text-fade);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .h2h-form-side .flbl b { color: var(--text); }
+  .form-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .form-b {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #0a0e1a;
+    flex-shrink: 0; cursor: help;
+  }
+  .form-b.w { background: var(--good); }
+  .form-b.d { background: #facc15; }
+  .form-b.l { background: var(--bad); color: #fff; }
+  .form-b.q { background: rgba(255,255,255,0.08); color: var(--text-fade); }
+  .form-b.skel {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* ===== Events timeline trong H2H modal ===== */
+  .events-section {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .events-section .ev-title {
+    font-size: 11px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px; font-weight: 700;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .events-section .ev-title .ev-stat {
+    font-size: 10px; color: var(--text-fade);
+    letter-spacing: 0.5px; font-weight: 600;
+  }
+  .ev-row {
+    display: grid;
+    grid-template-columns: 42px 22px 1fr auto;
+    gap: 8px; align-items: center;
+    padding: 6px 4px;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+    font-size: 12px;
+  }
+  .ev-row:last-child { border-bottom: 0; }
+  .ev-row.goal { background: rgba(245,158,11,0.06); border-radius: 4px; }
+  .ev-row.red { background: rgba(239,68,68,0.06); border-radius: 4px; }
+  .ev-row .ev-min {
+    color: var(--accent-2); font-weight: 800;
+    font-variant-numeric: tabular-nums; font-size: 11px;
+  }
+  .ev-row .ev-icon { font-size: 14px; text-align: center; }
+  .ev-row .ev-detail { line-height: 1.4; }
+  .ev-row .ev-detail b { color: var(--text); font-weight: 700; }
+  .ev-row .ev-detail .ev-asst { color: var(--text-fade); font-size: 11px; }
+  .ev-row .ev-detail .ev-sub-out { color: var(--bad); font-size: 11px; }
+  .ev-row .ev-detail .ev-sub-in { color: var(--good); font-size: 11px; }
+  .ev-row .ev-score {
+    background: var(--accent-2); color: #0a0e1a;
+    padding: 2px 7px; border-radius: 4px;
+    font-weight: 800; font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .ev-row .ev-team {
+    font-size: 10px; color: var(--text-fade);
+    margin-left: 4px; white-space: nowrap;
+  }
   .predict-btn {
     display: inline-block; margin-top: 12px; width: 100%;
     padding: 10px; background: var(--accent-2); color: #0a0e1a;
@@ -954,6 +1128,9 @@
 <body>
 <div class="container">
 
+  <!-- Sticky countdown / live ticker -->
+  <div class="live-bar" id="liveBar"></div>
+
   <header>
     <h1><span class="trophy">🏆</span> World Cup 2026</h1>
     <div class="sub" id="wcMeta">đang tải…</div>
@@ -983,6 +1160,12 @@
         <button data-tab="standings">Bảng xếp hạng</button>
       </div>
       <div class="tab-pane active" data-pane="schedule">
+        <div class="sched-toolbar">
+          <button class="fav-filter-btn" id="favFilterBtn" title="Lọc chỉ đội yêu thích">
+            <span>❤️ Chỉ đội yêu thích</span>
+            <span class="cnt" id="favFilterCnt"></span>
+          </button>
+        </div>
         <div class="wc-list" id="wcBlock">
           <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
           <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
@@ -1122,7 +1305,7 @@ function renderStandings(standings) {
         </thead>
         <tbody>
           ${g.table.map((t) => `
-            <tr class="${t.pos <= 2 ? "qualified" : ""} ${getFav() === t.team ? "fav-row" : ""}">
+            <tr class="${t.pos <= 2 ? "qualified" : ""} ${isFav(t.team) ? "fav-row" : ""}">
               <td class="pos">${t.pos}</td>
               <td><div class="team-cell">${badge(t.badge)}<span>${t.team}</span></div></td>
               <td>${t.played}</td>
@@ -1168,8 +1351,6 @@ async function loadSports() {
     const finishedCount = matches.filter((m) => m.homeScore != null && m.awayScore != null).length;
     const upcomingCount = matches.length - finishedCount;
     meta.innerHTML = `<b>${finishedCount}</b> đã đá · <b>${upcomingCount}</b> sắp tới · <b>${d.total || matches.length}</b> tổng${d.source === "football-data" ? ` · <span style="color:var(--bad)">● LIVE</span>` : ""}`;
-    const fav = getFav();
-
     const fmt = (ts) => {
       if (!ts) return { d: "—", t: "—" };
       const dt = new Date(ts);
@@ -1193,7 +1374,7 @@ async function loadSports() {
       }
       const grpTag = (m.group || m.round || "").replace(/^GROUP[_\s]/i, "Bảng ").replace(/^Group\s/i, "Bảng ");
       const isLive = m.ts && nowMs >= m.ts && nowMs < m.ts + 2 * 3600 * 1000;
-      const isFav = fav && (m.home === fav || m.away === fav);
+      const isFavMatch = isFav(m.home) || isFav(m.away);
       const hasScore = m.homeScore != null && m.awayScore != null;
       const isDone = hasScore || (m.ts && m.ts + 3 * 3600 * 1000 < nowMs);
       const center = hasScore
@@ -1203,7 +1384,7 @@ async function loadSports() {
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
         : `<div class="badge-fallback"></div>`;
       return `${header}
-        <div class="wc-match ${isLive ? "live" : ""} ${isFav ? "fav" : ""} ${isDone && !isLive ? "done" : ""}" data-mid="${m.id}" data-ts="${m.ts || 0}">
+        <div class="wc-match ${isLive ? "live" : ""} ${isFavMatch ? "fav" : ""} ${isDone && !isLive ? "done" : ""}" data-mid="${m.id}" data-ts="${m.ts || 0}">
           <div class="when"><div class="t">${t}</div>${grpTag ? `<div class="grp">${grpTag}</div>` : ""}</div>
           <div class="team">${badge(m.homeBadge)}<div class="nm">${m.home}</div></div>
           ${center}
@@ -1230,6 +1411,9 @@ async function loadSports() {
         if (m) openH2H(m);
       });
     });
+
+    // Áp filter "Chỉ đội yêu thích" nếu đang bật
+    if (typeof applyFavFilter === "function") applyFavFilter();
   } catch (e) {
     block.innerHTML = `<div class="err-msg">Không tải được lịch (${e.message})</div>`;
   }
@@ -1364,6 +1548,72 @@ function tickCountdown() {
   hero.classList.toggle("live", anyLive);
 }
 setInterval(tickCountdown, 1000);
+
+/* ===== Sticky live bar / next-match countdown ===== */
+function tickLiveBar() {
+  const bar = document.getElementById("liveBar");
+  if (!bar) return;
+  const all = window._allMatches || [];
+  if (!all.length) { bar.classList.remove("show"); return; }
+  const now = Date.now();
+
+  // Live: kickoff <= now < kickoff + 115min, and không có tỉ số final OR status IN_PLAY/LIVE/PAUSED
+  const isLiveStatus = (s) => s === "IN_PLAY" || s === "LIVE" || s === "PAUSED" || s === "TIMED";
+  const live = all.find((m) =>
+    m.ts && m.ts <= now && now < m.ts + 115 * 60000 &&
+    !(m.homeScore != null && m.awayScore != null && !isLiveStatus(m.status))
+  );
+
+  if (live) {
+    const minute = Math.max(1, Math.min(90, Math.floor((now - live.ts) / 60000) + 1));
+    bar.dataset.mid = live.id;
+    bar.className = "live-bar show live";
+    bar.innerHTML = `
+      <div class="dot"></div>
+      <div class="lbl">LIVE</div>
+      <div class="teams">
+        ${live.homeBadge ? `<img src="${live.homeBadge}" alt="">` : ""}
+        <span class="nm">${live.home}</span>
+        <span class="sc">${live.homeScore ?? 0} - ${live.awayScore ?? 0}</span>
+        <span class="nm">${live.away}</span>
+        ${live.awayBadge ? `<img src="${live.awayBadge}" alt="">` : ""}
+      </div>
+      <div class="cd">${minute}'</div>
+    `;
+    return;
+  }
+
+  // Else next match
+  const next = all.find((m) => m.ts && m.ts > now);
+  if (!next) { bar.classList.remove("show"); return; }
+  const diff = next.ts - now;
+  const days = Math.floor(diff / 86400000);
+  const hh = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
+  const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+  const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+  const cd = days > 0 ? `${days}n ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
+  bar.dataset.mid = next.id;
+  bar.className = "live-bar show";
+  bar.innerHTML = `
+    <div class="dot"></div>
+    <div class="lbl">Trận tiếp theo</div>
+    <div class="teams">
+      ${next.homeBadge ? `<img src="${next.homeBadge}" alt="">` : ""}
+      <span class="nm">${next.home}</span>
+      <span class="vs">vs</span>
+      <span class="nm">${next.away}</span>
+      ${next.awayBadge ? `<img src="${next.awayBadge}" alt="">` : ""}
+    </div>
+    <div class="cd">${cd}</div>
+  `;
+}
+setInterval(tickLiveBar, 1000);
+document.getElementById("liveBar").addEventListener("click", () => {
+  const mid = document.getElementById("liveBar").dataset.mid;
+  if (!mid) return;
+  const m = (window._allMatches || []).find((x) => x.id === mid);
+  if (m) openH2H(m);
+});
 
 /* ===== Vua phá lưới ===== */
 let _scorersData = null;
@@ -1587,7 +1837,6 @@ async function openTeam(teamName) {
     const ordered = [...POS_ORDER.filter((p) => groups[p]), ...Object.keys(groups).filter((p) => !POS_ORDER.includes(p))];
 
     const flag = flagURL(teamName) || d.crest;
-    const fav = getFav();
     body.innerHTML = `
       <div class="thead">
         ${flag ? `<img src="${flag}" alt="">` : ""}
@@ -1598,7 +1847,7 @@ async function openTeam(teamName) {
             ${d.squad.length} cầu thủ
           </div>
         </div>
-        <button class="fav-toggle ${fav === teamName ? 'active' : ''}" id="teamFavToggle">⭐ ${fav === teamName ? "Đã chọn" : "Chọn đội"}</button>
+        <button class="fav-toggle ${isFav(teamName) ? 'active' : ''}" id="teamFavToggle">⭐ ${isFav(teamName) ? "Đã chọn" : "Chọn đội"}</button>
       </div>
       <div class="tbody">
         ${ordered.map((pos) => `
@@ -1613,10 +1862,9 @@ async function openTeam(teamName) {
                 <div class="player-row" data-player="${safeName}">
                   <div class="avatar" data-pn="${safeName}">
                     <span class="ava-init">${initials}</span>
-                    ${p.shirtNumber ? `<div class="num">${p.shirtNumber}</div>` : ""}
                   </div>
                   <div class="pname">${p.name}${age ? `<div style="color:var(--text-fade); font-size:11px; font-weight:400; margin-top:2px">${age} tuổi</div>` : ""}</div>
-                  <div class="pnat">${p.nationality || ""}</div>
+                  <div class="pnum${p.shirtNumber ? "" : " empty"}">${p.shirtNumber ? "#" + p.shirtNumber : "—"}</div>
                 </div>`;
             }).join("")}
           </div>
@@ -1629,9 +1877,11 @@ async function openTeam(teamName) {
     // Lazy-load Wikipedia thumbnails for avatars (background, không chặn UI)
     body.querySelectorAll(".avatar[data-pn]").forEach((av) => loadAvaPhoto(av));
     document.getElementById("teamFavToggle").addEventListener("click", () => {
-      setFav(teamName);
-      document.getElementById("teamFavToggle").classList.toggle("active");
-      document.getElementById("teamFavToggle").innerHTML = getFav() === teamName ? "⭐ Đã chọn" : "⭐ Chọn đội";
+      if (toggleFav(teamName)) {
+        const btn = document.getElementById("teamFavToggle");
+        btn.classList.toggle("active", isFav(teamName));
+        btn.innerHTML = isFav(teamName) ? "⭐ Đã chọn" : "⭐ Chọn đội";
+      }
     });
   } catch (e) {
     body.innerHTML = `<div class="tbody" style="padding:20px; text-align:center; color:var(--bad)">Lỗi: ${e.message}</div>`;
@@ -1770,14 +2020,13 @@ function scheduleNotifs() {
   const nowMs = Date.now();
   for (const m of window._allMatches) {
     if (!m.ts) continue;
-    const fav = localStorage.getItem("wc-fav-team");
-    const isFav = fav && (m.home === fav || m.away === fav);
-    const lead = isFav ? 30 * 60 * 1000 : 15 * 60 * 1000;
+    const isFavMatch = isFav(m.home) || isFav(m.away);
+    const lead = isFavMatch ? 30 * 60 * 1000 : 15 * 60 * 1000;
     const fireAt = m.ts - lead;
     if (fireAt > nowMs && fireAt < nowMs + 7 * 86400000) {
       _notifTimers.push(setTimeout(() => {
         new Notification(`⚽ ${m.home} vs ${m.away}`, {
-          body: `Bắt đầu trong ${isFav ? "30" : "15"} phút${isFav ? " (đội bạn yêu thích!)" : ""}`,
+          body: `Bắt đầu trong ${isFavMatch ? "30" : "15"} phút${isFavMatch ? " (đội bạn yêu thích!)" : ""}`,
           icon: "/icons/worldcup/icon-192.png"
         });
       }, fireAt - nowMs));
@@ -1854,54 +2103,144 @@ function flagURL(team) {
   const iso = ISO[team.toLowerCase().trim()];
   return iso ? `https://flagcdn.com/w40/${iso}.png` : null;
 }
-function getFav() { return localStorage.getItem("wc-fav-team"); }
-function setFav(team) {
-  const prev = getFav();
-  if (prev === team) localStorage.removeItem("wc-fav-team");
-  else localStorage.setItem("wc-fav-team", team);
-  const next = getFav();
-
-  // Toggle .fav trên các team-tile (không re-render → không nhấp ảnh)
-  document.querySelectorAll(".team-tile.fav").forEach((el) => el.classList.remove("fav"));
-  if (next) {
-    document.querySelector(`.team-tile[data-team="${CSS.escape(next)}"]`)?.classList.add("fav");
+const FAV_KEY = "wc-favs";
+const MAX_FAVS = 3;
+function getFavs() {
+  try {
+    const raw = localStorage.getItem(FAV_KEY);
+    if (raw) return JSON.parse(raw) || [];
+  } catch {}
+  // migrate single-fav cũ
+  const old = localStorage.getItem("wc-fav-team");
+  if (old) {
+    localStorage.setItem(FAV_KEY, JSON.stringify([old]));
+    localStorage.removeItem("wc-fav-team");
+    return [old];
   }
-
-  // Toggle .fav trên các trận đấu hiển thị
-  document.querySelectorAll(".wc-match.fav").forEach((el) => el.classList.remove("fav"));
-  if (next) {
-    (window._allMatches || []).forEach((m) => {
-      if (m.home === next || m.away === next) {
-        document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`)?.classList.add("fav");
-      }
-    });
-  }
-
-  // Toggle .fav-row trên BXH
-  document.querySelectorAll(".bxh-table tr.fav-row").forEach((el) => el.classList.remove("fav-row"));
-  if (next) {
-    document.querySelectorAll(".bxh-table .team-cell span").forEach((sp) => {
-      if (sp.textContent === next) sp.closest("tr")?.classList.add("fav-row");
-    });
-  }
-
-  renderFavBadge();
-  scheduleNotifs();
+  return [];
 }
-function renderFavBadge() {
+function isFav(team) { return team ? getFavs().includes(team) : false; }
+function toggleFav(team) {
+  let favs = getFavs();
+  const idx = favs.indexOf(team);
+  if (idx >= 0) favs.splice(idx, 1);
+  else {
+    if (favs.length >= MAX_FAVS) {
+      alert(`Tối đa ${MAX_FAVS} đội yêu thích. Hãy bỏ chọn 1 đội trước khi thêm đội mới.`);
+      return false;
+    }
+    favs.push(team);
+  }
+  localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+
+  // Toggle .fav trên team-tile chứa team này
+  document.querySelectorAll(`.team-tile[data-team="${CSS.escape(team)}"]`).forEach((el) =>
+    el.classList.toggle("fav", isFav(team))
+  );
+  // Toggle .fav trên các trận có team này
+  (window._allMatches || []).forEach((m) => {
+    if (m.home === team || m.away === team) {
+      const mEl = document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`);
+      if (mEl) mEl.classList.toggle("fav", isFav(m.home) || isFav(m.away));
+    }
+  });
+  // Toggle .fav-row trên BXH
+  document.querySelectorAll(".bxh-table .team-cell span").forEach((sp) => {
+    if (sp.textContent === team) sp.closest("tr")?.classList.toggle("fav-row", isFav(team));
+  });
+
+  renderFavBadges();
+  scheduleNotifs();
+  if (typeof applyFavFilter === "function") applyFavFilter();
+  return true;
+}
+function renderFavBadges() {
   const wrap = document.getElementById("favBadgeWrap");
-  const fav = getFav();
-  if (!fav) { wrap.innerHTML = ""; return; }
-  const url = flagURL(fav);
-  wrap.innerHTML = `
-    <span class="fav-badge">
+  const favs = getFavs();
+  if (!favs.length) { wrap.innerHTML = ""; return; }
+  wrap.innerHTML = favs.map((fav) => {
+    const url = flagURL(fav);
+    return `<span class="fav-badge">
       ${url ? `<img src="${url}" style="width:14px;height:10px;object-fit:cover;border-radius:1px">` : ""}
       ⭐ ${fav}
-      <button id="clearFav" title="Bỏ chọn đội yêu thích">✕</button>
+      <button class="clearFav" data-team="${fav.replace(/"/g, "&quot;")}" title="Bỏ chọn">✕</button>
     </span>`;
-  document.getElementById("clearFav").addEventListener("click", () => setFav(fav));
+  }).join("");
+  wrap.querySelectorAll(".clearFav").forEach((b) =>
+    b.addEventListener("click", () => toggleFav(b.dataset.team))
+  );
 }
-renderFavBadge();
+renderFavBadges();
+
+/* ===== Favorite filter trong Lịch thi đấu ===== */
+let _favFilterOn = localStorage.getItem("wc-fav-filter") === "1";
+function applyFavFilter() {
+  const btn = document.getElementById("favFilterBtn");
+  const cntEl = document.getElementById("favFilterCnt");
+  if (!btn) return;
+  const favs = getFavs();
+  if (cntEl) cntEl.textContent = favs.length ? String(favs.length) : "";
+  if (!favs.length) {
+    btn.disabled = true;
+    btn.classList.remove("on");
+    _favFilterOn = false;
+    localStorage.removeItem("wc-fav-filter");
+  } else {
+    btn.disabled = false;
+  }
+  btn.classList.toggle("on", _favFilterOn);
+
+  const block = document.getElementById("wcBlock");
+  if (!block) return;
+  block.querySelectorAll(".wc-match, .wc-day").forEach((el) => { el.style.display = ""; });
+
+  if (!_favFilterOn) {
+    const empty = block.querySelector(".sched-empty");
+    if (empty) empty.remove();
+    return;
+  }
+  let visibleCount = 0;
+  block.querySelectorAll(".wc-match").forEach((el) => {
+    const show = el.classList.contains("fav");
+    el.style.display = show ? "" : "none";
+    if (show) visibleCount++;
+  });
+  const days = [...block.querySelectorAll(".wc-day")];
+  days.forEach((dh, i) => {
+    const next = days[i + 1];
+    let hasVisible = false;
+    let sib = dh.nextElementSibling;
+    while (sib && sib !== next) {
+      if (sib.classList.contains("wc-match") && sib.style.display !== "none") {
+        hasVisible = true; break;
+      }
+      sib = sib.nextElementSibling;
+    }
+    dh.style.display = hasVisible ? "" : "none";
+  });
+  let empty = block.querySelector(".sched-empty");
+  if (!visibleCount) {
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.className = "sched-empty";
+      empty.textContent = "Chưa có trận nào của đội bạn yêu thích trong lịch.";
+      block.appendChild(empty);
+    }
+  } else if (empty) {
+    empty.remove();
+  }
+}
+const _favFilterBtn = document.getElementById("favFilterBtn");
+if (_favFilterBtn) {
+  _favFilterBtn.addEventListener("click", () => {
+    if (!getFavs().length) return;
+    _favFilterOn = !_favFilterOn;
+    if (_favFilterOn) localStorage.setItem("wc-fav-filter", "1");
+    else localStorage.removeItem("wc-fav-filter");
+    applyFavFilter();
+  });
+}
+applyFavFilter();
 function renderTeams() {
   const block = document.getElementById("teamsBlock");
   const TEAM_GROUPS = buildTeamGroups(window._allMatches);
@@ -1909,14 +2248,13 @@ function renderTeams() {
     block.innerHTML = `<div class="loading-pulse">Đang tải đội…</div>`;
     return;
   }
-  const fav = getFav();
   const html = Object.entries(TEAM_GROUPS).map(([g, teams]) => `
     <div class="group-section">
       <h4>Group ${g}</h4>
       <div class="teams-grid">
         ${teams.map((t) => {
           const url = flagURL(t);
-          return `<div class="team-tile ${fav === t ? 'fav' : ''}" data-team="${t}">
+          return `<div class="team-tile ${isFav(t) ? 'fav' : ''}" data-team="${t}">
             ${url ? `<img src="${url}" alt="">` : '<div style="width:18px;height:13px;background:#1f2937;border-radius:2px"></div>'}
             <span class="tnm">${t}</span>
             <span class="star">★</span>
@@ -1929,7 +2267,7 @@ function renderTeams() {
   block.querySelectorAll(".team-tile").forEach((el) =>
     el.addEventListener("click", (e) => {
       // Click ngôi sao = toggle fav, click chỗ khác = mở squad modal
-      if (e.target.classList.contains("star")) setFav(el.dataset.team);
+      if (e.target.classList.contains("star")) toggleFav(el.dataset.team);
       else openTeam(el.dataset.team);
     })
   );
@@ -2028,24 +2366,7 @@ renderCompare();
 let _h2hMatch = null;
 async function openH2H(match) {
   _h2hMatch = match;
-  const all = window._allMatches || [];
   const home = match.home, away = match.away;
-
-  // Form (last 5 finished) trong WC 2026
-  const formOf = (team) => all
-    .filter((m) => (m.home === team || m.away === team) && m.homeScore != null && m.awayScore != null)
-    .slice(-5).map((m) => {
-      const isHome = m.home === team;
-      const my = isHome ? m.homeScore : m.awayScore;
-      const op = isHome ? m.awayScore : m.homeScore;
-      return my > op ? "T" : my < op ? "B" : "H";
-    }).join(" ") || "Chưa có";
-
-  // Tại WC 2026
-  const wcMeet = all.filter((m) => {
-    if (m === match || m.homeScore == null || m.awayScore == null) return false;
-    return (m.home === home && m.away === away) || (m.home === away && m.away === home);
-  });
 
   const predKey = `wc-pred-${match.id || match.ts}`;
   const saved = JSON.parse(localStorage.getItem(predKey) || "null");
@@ -2067,11 +2388,35 @@ async function openH2H(match) {
     <div class="h2h-meta">
       <b>${match.group || match.round || ""}</b> · ${when}${match.venue ? ` · 📍 ${match.venue}` : ""}
     </div>
-    <div id="h2hHistorical" style="margin-bottom:12px"><div class="loading-pulse" style="font-size:12px">🔍 Đang tải lịch sử đối đầu…</div></div>
-    <div class="h2h-stats">
-      <div class="h2h-stat"><div class="v" style="font-size:14px">${formOf(home)}</div><div class="l">Form ${home} (WC 2026)</div></div>
-      <div class="h2h-stat"><div class="v" style="font-size:14px">${formOf(away)}</div><div class="l">Form ${away} (WC 2026)</div></div>
+    <div class="h2h-form-wrap">
+      <div class="h2h-form-side">
+        <div class="flbl">Form gần đây · <b>${home}</b></div>
+        <div class="form-badges" id="formHome">
+          ${Array(5).fill('<div class="form-b skel"></div>').join("")}
+        </div>
+      </div>
+      <div class="h2h-form-side">
+        <div class="flbl">Form gần đây · <b>${away}</b></div>
+        <div class="form-badges" id="formAway">
+          ${Array(5).fill('<div class="form-b skel"></div>').join("")}
+        </div>
+      </div>
     </div>
+    ${(() => {
+      const hasFdId = !!match.fdId;
+      const wasPlayed = match.homeScore != null || ["IN_PLAY","LIVE","PAUSED","FINISHED"].includes(match.status);
+      return hasFdId && wasPlayed ? `
+        <div class="events-section" id="eventsSection">
+          <div class="ev-title">
+            📋 Diễn biến trận
+            <span class="ev-stat" id="evStat"></span>
+          </div>
+          <div id="eventsBody">
+            <div class="loading-pulse" style="font-size:11px">Đang tải sự kiện…</div>
+          </div>
+        </div>` : "";
+    })()}
+    <div id="h2hHistorical" style="margin-bottom:12px"><div class="loading-pulse" style="font-size:12px">🔍 Đang tải lịch sử đối đầu…</div></div>
     <div style="margin-top:14px">
       <div style="font-size:12px; color:var(--text-dim); margin-bottom:6px">🎯 Đoán tỉ số</div>
       <div class="predict-inputs">
@@ -2093,6 +2438,23 @@ async function openH2H(match) {
     if (!h2hEl) return;
     if (r.ok) {
       const d = await r.json();
+      // Populate form 5 trận
+      const renderForm = (id, form) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (!form || !form.length) {
+          el.innerHTML = `<span style="font-size:11px;color:var(--text-fade)">Chưa có dữ liệu</span>`;
+          return;
+        }
+        el.innerHTML = form.map((f) => {
+          const cls = f.result === "W" ? "w" : f.result === "L" ? "l" : f.result === "D" ? "d" : "q";
+          const tip = `${f.isHome ? "🏠" : "✈️"} vs ${f.opponent || "?"} (${f.score})${f.competition ? " · " + f.competition : ""}${f.date ? " · " + f.date : ""}`;
+          return `<div class="form-b ${cls}" title="${tip.replace(/"/g, "&quot;")}">${f.result}</div>`;
+        }).join("");
+      };
+      renderForm("formHome", d.formHome);
+      renderForm("formAway", d.formAway);
+
       if (d.matches && d.matches.length) {
         const h = d.stats || { homeWins: 0, awayWins: 0, draws: 0 };
         const recent = d.matches.slice(0, 5).map((p) => {
@@ -2121,10 +2483,76 @@ async function openH2H(match) {
       }
     } else {
       h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">Không có dữ liệu lịch sử (HTTP ${r.status})</div>`;
+      ["formHome", "formAway"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<span style="font-size:11px;color:var(--text-fade)">—</span>`;
+      });
     }
   } catch (err) {
     const h2hEl = document.getElementById("h2hHistorical");
     if (h2hEl) h2hEl.innerHTML = `<div style="font-size:11px; color:var(--text-fade); text-align:center; padding:8px">Lỗi tải H2H</div>`;
+    ["formHome", "formAway"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<span style="font-size:11px;color:var(--text-fade)">—</span>`;
+    });
+  }
+
+  // Fetch + render events timeline (chỉ nếu match có fdId & đã/đang đá)
+  if (match.fdId && (match.homeScore != null || ["IN_PLAY","LIVE","PAUSED","FINISHED"].includes(match.status))) {
+    (async () => {
+      try {
+        const r = await fetch(`/api/sports-match?id=${encodeURIComponent(match.fdId)}`);
+        const d = await r.json();
+        const body = document.getElementById("eventsBody");
+        const stat = document.getElementById("evStat");
+        if (!body) return;
+        if (!d.events || !d.events.length) {
+          body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">
+            ${d.note || "Chưa có sự kiện chi tiết"}
+          </div>`;
+          return;
+        }
+        // Đếm goals/cards
+        const goals = d.events.filter((e) => e.type === "goal").length;
+        const cards = d.events.filter((e) => e.type === "yellow" || e.type === "red" || e.type === "yellowred").length;
+        const subs = d.events.filter((e) => e.type === "sub").length;
+        if (stat) stat.textContent = `${goals} ⚽ · ${cards} 🟨🟥 · ${subs} 🔄`;
+
+        const renderEv = (e) => {
+          const min = e.minute != null ? `${e.minute}${e.added ? "+" + e.added : ""}'` : "—";
+          const teamLbl = e.team || "";
+          let icon = "•", cls = e.type, detail = "";
+          if (e.type === "goal") {
+            icon = e.kind === "OWN" ? "🥅" : e.kind === "PENALTY" ? "🎯" : "⚽";
+            detail = `<b>${e.player || "—"}</b>${e.assist ? ` <span class="ev-asst">(KT: ${e.assist})</span>` : ""}
+              ${e.kind === "OWN" ? ' <span class="ev-asst">(phản lưới)</span>' : ""}
+              ${e.kind === "PENALTY" ? ' <span class="ev-asst">(pen)</span>' : ""}
+              <span class="ev-team">— ${teamLbl}</span>`;
+          } else if (e.type === "yellow") {
+            icon = "🟨"; detail = `<b>${e.player || "—"}</b> <span class="ev-team">— ${teamLbl}</span>`;
+          } else if (e.type === "red") {
+            icon = "🟥"; detail = `<b>${e.player || "—"}</b> <span class="ev-asst">(thẻ đỏ trực tiếp)</span> <span class="ev-team">— ${teamLbl}</span>`;
+          } else if (e.type === "yellowred") {
+            icon = "🟨🟥"; detail = `<b>${e.player || "—"}</b> <span class="ev-asst">(2 thẻ vàng)</span> <span class="ev-team">— ${teamLbl}</span>`;
+          } else if (e.type === "sub") {
+            icon = "🔄";
+            detail = `<span class="ev-sub-in">↑ ${e.playerIn || "?"}</span><br>
+              <span class="ev-sub-out">↓ ${e.playerOut || "?"}</span>
+              <span class="ev-team">— ${teamLbl}</span>`;
+          }
+          return `<div class="ev-row ${cls}">
+            <div class="ev-min">${min}</div>
+            <div class="ev-icon">${icon}</div>
+            <div class="ev-detail">${detail}</div>
+            ${e.type === "goal" && e.score ? `<div class="ev-score">${e.score}</div>` : "<div></div>"}
+          </div>`;
+        };
+        body.innerHTML = d.events.map(renderEv).join("");
+      } catch {
+        const body = document.getElementById("eventsBody");
+        if (body) body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Lỗi tải diễn biến</div>`;
+      }
+    })();
   }
 
   document.getElementById("predSave").addEventListener("click", () => {

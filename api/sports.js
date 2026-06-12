@@ -80,6 +80,7 @@ async function fromFootballData(key) {
   const tj = tr.ok ? await tr.json() : { scorers: [] };
 
   const matches = (mj.matches || []).map((m) => ({
+    fdId: m.id || null,
     ts: m.utcDate ? Date.parse(m.utcDate) : null,
     date: m.utcDate ? m.utcDate.slice(0, 10) : null,
     round: m.matchday ? `Matchday ${m.matchday}` : (m.stage || null),

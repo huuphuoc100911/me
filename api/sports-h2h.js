@@ -94,26 +94,46 @@ module.exports = async (req, res) => {
   if (!homeId) return empty(`Không tìm thấy ID đội ${home} trên FD`);
   if (!awayId) return empty(`Không tìm thấy ID đội ${away} trên FD`);
 
-  // 2. Fetch match history của đội home (giới hạn 50 trận finished gần nhất)
-  const hr = await safeFetch(
-    `https://api.football-data.org/v4/teams/${homeId}/matches?status=FINISHED&limit=50`,
-    { headers }
-  );
-  if (!hr.ok) return empty(`Không gọi được team matches (${hr.status || hr.error})`);
+  // 2. Fetch match history của CẢ 2 đội (song song)
+  const [hr, ar] = await Promise.all([
+    safeFetch(`https://api.football-data.org/v4/teams/${homeId}/matches?status=FINISHED&limit=50`, { headers }),
+    safeFetch(`https://api.football-data.org/v4/teams/${awayId}/matches?status=FINISHED&limit=50`, { headers })
+  ]);
+  if (!hr.ok && !ar.ok) return empty(`Không gọi được team matches (${hr.status || ar.status || "?"})`);
 
-  // 3. Filter các trận có đối thủ là away
-  const all = hr.data?.matches || [];
-  const h2h = all.filter((m) => {
+  const homeAll = hr.ok ? (hr.data?.matches || []) : [];
+  const awayAll = ar.ok ? (ar.data?.matches || []) : [];
+
+  // 3. Form 5 trận gần nhất của mỗi đội
+  const formOf = (teamName, matches) => {
+    const sorted = [...matches].sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate));
+    return sorted.slice(0, 5).map((m) => {
+      const sh = m.score?.fullTime?.home, sa = m.score?.fullTime?.away;
+      const isHome = matchesName(m.homeTeam?.name, teamName);
+      const opp = isHome ? m.awayTeam?.name : m.homeTeam?.name;
+      const my = isHome ? sh : sa, op = isHome ? sa : sh;
+      const result = (my == null || op == null) ? "?" : my > op ? "W" : my < op ? "L" : "D";
+      return {
+        result,
+        opponent: opp,
+        score: (sh != null && sa != null) ? `${sh}-${sa}` : "—",
+        date: m.utcDate?.slice(0, 10),
+        isHome,
+        competition: m.competition?.name || ""
+      };
+    });
+  };
+  const formHome = formOf(home, homeAll);
+  const formAway = formOf(away, awayAll);
+
+  // 4. Filter các trận có đối thủ là away (từ homeAll)
+  const h2h = homeAll.filter((m) => {
     const h = m.homeTeam?.name, a = m.awayTeam?.name;
     return (matchesName(h, home) && matchesName(a, away)) ||
            (matchesName(h, away) && matchesName(a, home));
   }).sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate));
 
-  if (!h2h.length) {
-    return empty(`Football-Data không có lịch sử đối đầu ${home} vs ${away} (free tier chỉ track 1 số giải)`);
-  }
-
-  // 4. Tính stats
+  // 5. Tính stats (kể cả khi h2h rỗng, form vẫn có thể có)
   let homeWins = 0, awayWins = 0, draws = 0;
   for (const p of h2h) {
     const sh = p.score?.fullTime?.home;
@@ -129,6 +149,9 @@ module.exports = async (req, res) => {
   return reply({
     matches: h2h.slice(0, 10),
     stats: { homeWins, awayWins, draws },
+    formHome,
+    formAway,
+    note: h2h.length ? undefined : `Football-Data không có lịch sử đối đầu ${home} vs ${away}`,
     source: "football-data"
   });
 };
