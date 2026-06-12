@@ -963,6 +963,13 @@
   .team-card-modal .player-row .pnum.empty {
     color: var(--text-fade); font-size: 13px; font-weight: 400;
   }
+  /* Khi FD chưa có shirtNumber cho đội nào → ẩn cột số luôn */
+  #teamBody.no-num .player-row { grid-template-columns: 40px 1fr; }
+  #teamBody.no-num .player-row .pnum { display: none; }
+  .team-card-modal .num-note {
+    font-size: 11px; color: var(--text-fade);
+    margin-top: 4px; font-style: italic;
+  }
 
   /* ===== Modal head-to-head ===== */
   .h2h-modal {
@@ -1549,63 +1556,90 @@ function tickCountdown() {
 }
 setInterval(tickCountdown, 1000);
 
-/* ===== Sticky live bar / next-match countdown ===== */
+/* ===== Sticky live bar / next-match countdown =====
+ * Tách 2 pha: paintLiveBar() chỉ chạy khi nội dung tĩnh đổi (cờ, tên đội, tỉ số live),
+ * tickLiveBar() chỉ update text của .cd để cờ không nhấp nháy mỗi giây.
+ */
+let _liveBarSig = "";
+function paintLiveBar(target) {
+  const bar = document.getElementById("liveBar");
+  if (!bar) return;
+  bar.dataset.mid = target.m.id;
+  if (target.mode === "live") {
+    bar.className = "live-bar show live";
+    bar.innerHTML = `
+      <div class="dot"></div>
+      <div class="lbl">LIVE</div>
+      <div class="teams">
+        ${target.m.homeBadge ? `<img src="${target.m.homeBadge}" alt="">` : ""}
+        <span class="nm">${target.m.home}</span>
+        <span class="sc">${target.m.homeScore ?? 0} - ${target.m.awayScore ?? 0}</span>
+        <span class="nm">${target.m.away}</span>
+        ${target.m.awayBadge ? `<img src="${target.m.awayBadge}" alt="">` : ""}
+      </div>
+      <div class="cd">—</div>
+    `;
+  } else {
+    bar.className = "live-bar show";
+    bar.innerHTML = `
+      <div class="dot"></div>
+      <div class="lbl">Trận tiếp theo</div>
+      <div class="teams">
+        ${target.m.homeBadge ? `<img src="${target.m.homeBadge}" alt="">` : ""}
+        <span class="nm">${target.m.home}</span>
+        <span class="vs">vs</span>
+        <span class="nm">${target.m.away}</span>
+        ${target.m.awayBadge ? `<img src="${target.m.awayBadge}" alt="">` : ""}
+      </div>
+      <div class="cd">—</div>
+    `;
+  }
+}
 function tickLiveBar() {
   const bar = document.getElementById("liveBar");
   if (!bar) return;
   const all = window._allMatches || [];
-  if (!all.length) { bar.classList.remove("show"); return; }
+  if (!all.length) { bar.classList.remove("show"); _liveBarSig = ""; return; }
   const now = Date.now();
 
-  // Live: kickoff <= now < kickoff + 115min, and không có tỉ số final OR status IN_PLAY/LIVE/PAUSED
   const isLiveStatus = (s) => s === "IN_PLAY" || s === "LIVE" || s === "PAUSED" || s === "TIMED";
   const live = all.find((m) =>
     m.ts && m.ts <= now && now < m.ts + 115 * 60000 &&
     !(m.homeScore != null && m.awayScore != null && !isLiveStatus(m.status))
   );
 
-  if (live) {
-    const minute = Math.max(1, Math.min(90, Math.floor((now - live.ts) / 60000) + 1));
-    bar.dataset.mid = live.id;
-    bar.className = "live-bar show live";
-    bar.innerHTML = `
-      <div class="dot"></div>
-      <div class="lbl">LIVE</div>
-      <div class="teams">
-        ${live.homeBadge ? `<img src="${live.homeBadge}" alt="">` : ""}
-        <span class="nm">${live.home}</span>
-        <span class="sc">${live.homeScore ?? 0} - ${live.awayScore ?? 0}</span>
-        <span class="nm">${live.away}</span>
-        ${live.awayBadge ? `<img src="${live.awayBadge}" alt="">` : ""}
-      </div>
-      <div class="cd">${minute}'</div>
-    `;
-    return;
+  let target;
+  if (live) target = { mode: "live", m: live };
+  else {
+    const next = all.find((m) => m.ts && m.ts > now);
+    if (!next) { bar.classList.remove("show"); _liveBarSig = ""; return; }
+    target = { mode: "next", m: next };
   }
 
-  // Else next match
-  const next = all.find((m) => m.ts && m.ts > now);
-  if (!next) { bar.classList.remove("show"); return; }
-  const diff = next.ts - now;
-  const days = Math.floor(diff / 86400000);
-  const hh = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
-  const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
-  const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
-  const cd = days > 0 ? `${days}n ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
-  bar.dataset.mid = next.id;
-  bar.className = "live-bar show";
-  bar.innerHTML = `
-    <div class="dot"></div>
-    <div class="lbl">Trận tiếp theo</div>
-    <div class="teams">
-      ${next.homeBadge ? `<img src="${next.homeBadge}" alt="">` : ""}
-      <span class="nm">${next.home}</span>
-      <span class="vs">vs</span>
-      <span class="nm">${next.away}</span>
-      ${next.awayBadge ? `<img src="${next.awayBadge}" alt="">` : ""}
-    </div>
-    <div class="cd">${cd}</div>
-  `;
+  // Signature gồm: match id + mode + tỉ số live (đổi khi có bàn thắng).
+  // Khi sig không đổi → KHÔNG re-paint → ảnh cờ giữ nguyên, không tải lại → không nhấp nháy.
+  const sig = target.mode === "live"
+    ? `live|${target.m.id}|${target.m.homeScore ?? 0}-${target.m.awayScore ?? 0}`
+    : `next|${target.m.id}`;
+  if (sig !== _liveBarSig) {
+    _liveBarSig = sig;
+    paintLiveBar(target);
+  }
+
+  // Chỉ update text của .cd mỗi tick
+  const cd = bar.querySelector(".cd");
+  if (!cd) return;
+  if (target.mode === "live") {
+    const minute = Math.max(1, Math.min(90, Math.floor((now - target.m.ts) / 60000) + 1));
+    cd.textContent = `${minute}'`;
+  } else {
+    const diff = target.m.ts - now;
+    const days = Math.floor(diff / 86400000);
+    const hh = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
+    const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+    const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+    cd.textContent = days > 0 ? `${days}n ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
+  }
 }
 setInterval(tickLiveBar, 1000);
 document.getElementById("liveBar").addEventListener("click", () => {
@@ -1814,8 +1848,21 @@ async function openTeam(teamName) {
   modal.classList.add("show");
 
   try {
-    const r = await fetch(`/api/sports-squad?team=${encodeURIComponent(teamName)}`);
-    const d = await r.json();
+    // sessionStorage cache để click lại không gọi API (tránh rate limit 429)
+    const cacheKey = "wcsq:" + teamName;
+    let d = null;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) d = JSON.parse(cached);
+    } catch {}
+    if (!d || !d.squad?.length) {
+      const r = await fetch(`/api/sports-squad?team=${encodeURIComponent(teamName)}`);
+      d = await r.json();
+      // Chỉ cache khi có squad thật sự — không cache lỗi/empty
+      if (d.squad?.length) {
+        try { sessionStorage.setItem(cacheKey, JSON.stringify(d)); } catch {}
+      }
+    }
     if (!d.squad || !d.squad.length) {
       body.innerHTML = `
         <div class="thead">
@@ -1837,6 +1884,8 @@ async function openTeam(teamName) {
     const ordered = [...POS_ORDER.filter((p) => groups[p]), ...Object.keys(groups).filter((p) => !POS_ORDER.includes(p))];
 
     const flag = flagURL(teamName) || d.crest;
+    const hasAnyNumber = d.squad.some((p) => p.shirtNumber);
+    body.classList.toggle("no-num", !hasAnyNumber);
     body.innerHTML = `
       <div class="thead">
         ${flag ? `<img src="${flag}" alt="">` : ""}
@@ -1845,6 +1894,7 @@ async function openTeam(teamName) {
           <div class="tmeta">
             ${d.coach?.name ? `👔 HLV: <b>${d.coach.name}</b> · ` : ""}
             ${d.squad.length} cầu thủ
+            ${!hasAnyNumber ? '<div class="num-note">ℹ️ FIFA chưa công bố số áo chính thức cho World Cup 2026</div>' : ""}
           </div>
         </div>
         <button class="fav-toggle ${isFav(teamName) ? 'active' : ''}" id="teamFavToggle">⭐ ${isFav(teamName) ? "Đã chọn" : "Chọn đội"}</button>

@@ -24,9 +24,14 @@ function matchesName(a, b) {
   return (NAME_ALIASES[x] || []).includes(y) || (NAME_ALIASES[y] || []).includes(x);
 }
 
-async function safeFetch(url, opts) {
+async function safeFetch(url, opts, retries = 1) {
   try {
     const r = await fetch(url, opts);
+    if (r.status === 429 && retries > 0) {
+      // Đợi 8s rồi thử lại 1 lần (free tier reset mỗi 60s nhưng đỡ chờ lâu)
+      await new Promise((res) => setTimeout(res, 8000));
+      return safeFetch(url, opts, retries - 1);
+    }
     if (!r.ok) return { ok: false, status: r.status };
     return { ok: true, data: await r.json() };
   } catch (e) { return { ok: false, error: String(e.message || e) }; }
@@ -72,7 +77,12 @@ module.exports = async (req, res) => {
   if (!found) return reply({ squad: [], note: `Không tìm thấy đội ${team}` });
 
   const tr = await safeFetch(`https://api.football-data.org/v4/teams/${found.id}`, { headers });
-  if (!tr.ok) return reply({ squad: [], note: `FD team detail fail (${tr.status})` });
+  if (!tr.ok) {
+    const msg = tr.status === 429
+      ? "Đang bị giới hạn truy cập (10 lượt/phút). Vui lòng thử lại sau ~1 phút."
+      : `FD team detail fail (${tr.status})`;
+    return reply({ squad: [], note: msg });
+  }
 
   const squad = (tr.data?.squad || []).map((p) => ({
     name: p.name,
