@@ -69,15 +69,18 @@ async function fromOpenFootball() {
 /* ===== Nguồn 2: Football-Data.org (cần key) ===== */
 async function fromFootballData(key) {
   const headers = { "X-Auth-Token": key, "User-Agent": "DashboardVN/1.0" };
-  const [mr, sr, tr] = await Promise.all([
+  const [mr, sr, tr, ta] = await Promise.all([
     fetch(FD_BASE + "/matches", { headers }),
     fetch(FD_BASE + "/standings", { headers }),
-    fetch(FD_BASE + "/scorers?limit=20", { headers })
+    fetch(FD_BASE + "/scorers?limit=20", { headers }),
+    // Thử endpoint riêng theo assists (FD có thể không hỗ trợ sortBy ở tier free — fail silently)
+    fetch(FD_BASE + "/scorers?limit=20&sortBy=ASSISTS", { headers }).catch(() => ({ ok: false }))
   ]);
   if (!mr.ok) throw new Error("FD matches " + mr.status);
   const mj = await mr.json();
   const sj = sr.ok ? await sr.json() : { standings: [] };
   const tj = tr.ok ? await tr.json() : { scorers: [] };
+  const taj = ta.ok ? await ta.json() : { scorers: [] };
 
   const matches = (mj.matches || []).map((m) => ({
     fdId: m.id || null,
@@ -112,7 +115,7 @@ async function fromFootballData(key) {
     });
   }
 
-  const scorers = (tj.scorers || []).map((s) => ({
+  const mapScorer = (s) => ({
     player: s.player?.name,
     nationality: s.player?.nationality || s.team?.name,
     teamBadge: flag(s.team?.name) || s.team?.crest || null,
@@ -121,7 +124,24 @@ async function fromFootballData(key) {
     assists: s.assists,
     penalties: s.penalties,
     matches: s.playedMatches
-  }));
+  });
+  // Merge 2 nguồn theo player name, ưu tiên giá trị max
+  // (FD có thể trả cùng player ở cả 2 list với số liệu giống nhau,
+  // nhưng nếu sortBy=ASSISTS không hỗ trợ thì taj = tj — dedup vẫn an toàn)
+  const byName = new Map();
+  for (const s of [...(tj.scorers || []), ...(taj.scorers || [])]) {
+    const m = mapScorer(s);
+    if (!m.player) continue;
+    const ex = byName.get(m.player);
+    if (!ex) byName.set(m.player, m);
+    else {
+      ex.goals = Math.max(ex.goals ?? 0, m.goals ?? 0);
+      ex.assists = Math.max(ex.assists ?? 0, m.assists ?? 0);
+      ex.penalties = Math.max(ex.penalties ?? 0, m.penalties ?? 0);
+      ex.matches = Math.max(ex.matches ?? 0, m.matches ?? 0);
+    }
+  }
+  const scorers = [...byName.values()];
 
   return { matches, standings, scorers, source: "football-data" };
 }

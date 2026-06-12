@@ -192,9 +192,9 @@
     border: 1px solid var(--border);
     border-radius: 10px;
   }
-  .wc-match.live { border-color: var(--bad); background: rgba(239,68,68,0.06); }
   .wc-match.done { opacity: 0.65; }
   .wc-match.done:hover { opacity: 1; }
+  /* Priority thấp → cao: next (vàng) → fav (hồng) → live (đỏ + pulse) */
   .wc-match.next { border-color: var(--accent-2); }
   .wc-match .when {
     font-size: 11px;
@@ -828,7 +828,30 @@
     text-transform: uppercase; letter-spacing: 1px;
     margin-bottom: 6px; font-weight: 700;
   }
-  .wc-match.fav { border-color: var(--accent-2); background: rgba(245,158,11,0.06); }
+  /* Đội yêu thích → viền hồng + chấm ❤️ góc */
+  .wc-match.fav {
+    border-color: #ec4899;
+    background: rgba(236,72,153,0.07);
+    position: relative;
+  }
+  .wc-match.fav::after {
+    content: "❤️";
+    position: absolute;
+    top: 3px; right: 5px;
+    font-size: 9px;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+  /* Đang đá → viền đỏ + pulse halo (đặt SAU .fav để override khi vừa live vừa fav) */
+  .wc-match.live {
+    border-color: var(--bad);
+    background: rgba(239,68,68,0.08);
+    animation: matchPulse 2s infinite;
+  }
+  @keyframes matchPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+    50% { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+  }
   .bxh-table tr.fav-row { background: rgba(245,158,11,0.08); }
 
   /* ===== Knockout bracket ===== */
@@ -2040,19 +2063,28 @@ async function openTeam(teamName) {
   modal.classList.add("show");
 
   try {
-    // sessionStorage cache để click lại không gọi API (tránh rate limit 429)
+    // localStorage cache 24h để click lại không gọi API (tránh rate limit 429)
+    const SQUAD_TTL_MS = 24 * 60 * 60 * 1000;
     const cacheKey = "wcsq:" + teamName;
     let d = null;
     try {
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) d = JSON.parse(cached);
-    } catch {}
+      const raw = localStorage.getItem(cacheKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.ts && Date.now() - parsed.ts < SQUAD_TTL_MS && parsed.data?.squad?.length) {
+          d = parsed.data;
+        } else {
+          // hết hạn → xoá
+          localStorage.removeItem(cacheKey);
+        }
+      }
+    } catch { localStorage.removeItem(cacheKey); }
     if (!d || !d.squad?.length) {
       const r = await fetch(`/api/sports-squad?team=${encodeURIComponent(teamName)}`);
       d = await r.json();
       // Chỉ cache khi có squad thật sự — không cache lỗi/empty
       if (d.squad?.length) {
-        try { sessionStorage.setItem(cacheKey, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: d })); } catch {}
       }
     }
     if (!d.squad || !d.squad.length) {
