@@ -518,6 +518,32 @@
     text-align: right;
   }
   .hall-row .stat .lbl { display: block; font-size: 9px; color: var(--text-fade); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  /* Hat-trick row: bỏ rank column, country + year xếp chồng bên phải */
+  .hall-row.hattrick { grid-template-columns: 40px 1fr auto; }
+  .hall-row .stat-stack {
+    text-align: right; display: flex; flex-direction: column;
+    align-items: flex-end; gap: 2px;
+  }
+  .hall-row .stat-stack .country {
+    color: var(--accent-2); font-weight: 800; font-size: 13px;
+    line-height: 1.1; white-space: nowrap;
+  }
+  .hall-row .stat-stack .year {
+    color: var(--text-fade); font-weight: 600; font-size: 11px;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  @media (max-width: 520px) {
+    .hall-row { grid-template-columns: 28px 36px 1fr auto; gap: 8px; padding: 8px 4px; }
+    .hall-row.hattrick { grid-template-columns: 36px 1fr auto; }
+    .hall-row .rank { font-size: 13px; }
+    .hall-row.gold .rank { font-size: 15px; }
+    .hall-row .ava { width: 36px; height: 36px; font-size: 12px; }
+    .hall-row .info .nm { font-size: 12px; }
+    .hall-row .info .sub { font-size: 10px; }
+    .hall-row .stat { font-size: 16px; }
+    .hall-row .stat-stack .country { font-size: 12px; }
+    .hall-row .stat-stack .year { font-size: 10px; }
+  }
   .hall-records {
     display: grid; gap: 10px;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -1564,6 +1590,29 @@
   .br-champ-pick .cn { font-size: 24px; font-weight: 800; color: var(--accent-2); }
   .br-champ-pick .cn img { width: 30px; height: 22px; object-fit: cover; border-radius: 3px; vertical-align: middle; margin-right: 8px; }
 
+  /* ===== Section divider giữa các nhóm card ===== */
+  .section-divider {
+    margin: 32px 0 18px;
+    padding: 18px 0 0;
+    border-top: 2px dashed var(--border);
+    text-align: center;
+    color: var(--accent-2);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 800;
+    position: relative;
+  }
+  .section-divider::before {
+    content: ""; position: absolute;
+    top: -1px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 2px;
+    background: var(--accent-2);
+  }
+  @media (max-width: 520px) {
+    .section-divider { font-size: 11px; letter-spacing: 2px; margin: 22px 0 14px; }
+  }
+
   footer {
     text-align: center;
     color: var(--text-fade);
@@ -1633,8 +1682,10 @@
     </div>
   </div>
 
+  <!-- ============= 🌟 WORLD CUP 2026 ============= -->
+
+  <!-- Vua phá lưới + Award Race (đều liên quan scorer WC 2026) -->
   <div class="grid">
-    <!-- Vua phá lưới -->
     <div class="card">
       <h2><span class="icon">⚽</span> Vua phá lưới <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="scorersMeta">—</span></h2>
       <div class="subtabs" id="scorersTabs">
@@ -1648,26 +1699,20 @@
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
       </div>
     </div>
-
-    <!-- Lịch sử WC -->
-    <div class="card">
-      <h2><span class="icon">🏛️</span> Lịch sử nhà vô địch</h2>
-      <div class="history-list" id="historyBlock"></div>
-    </div>
-  </div>
-
-  <!-- Bảng điểm dự đoán + Award Race -->
-  <div class="grid">
-    <div class="card">
-      <h2><span class="icon">🎯</span> Bảng điểm dự đoán</h2>
-      <div id="predScoreBody">
-        <div class="pred-empty">Chưa có dự đoán nào. Click vào 1 trận trong Lịch thi đấu để bắt đầu.</div>
-      </div>
-    </div>
     <div class="card">
       <h2><span class="icon">🏆</span> Cuộc đua giải thưởng</h2>
       <div id="awardRaceBody">
         <div class="pred-empty">Đang chờ dữ liệu giải đấu…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bảng điểm dự đoán -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🎯</span> Bảng điểm dự đoán</h2>
+      <div id="predScoreBody">
+        <div class="pred-empty">Chưa có dự đoán nào. Click vào 1 trận trong Lịch thi đấu để bắt đầu.</div>
       </div>
     </div>
   </div>
@@ -1679,19 +1724,6 @@
       <div id="bracketChallenge">
         <div class="pred-empty">Chờ vòng bảng kết thúc để mở…</div>
       </div>
-    </div>
-  </div>
-
-  <!-- Bảng vàng mọi thời đại -->
-  <div class="grid">
-    <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">🏅</span> Bảng vàng mọi thời đại</h2>
-      <div class="subtabs" id="hallTabs">
-        <button class="active" data-htab="goals">⚽ Top ghi bàn</button>
-        <button data-htab="hattrick">🎩 Hat-trick lịch sử</button>
-        <button data-htab="records">🏆 Kỷ lục</button>
-      </div>
-      <div id="hallBody"></div>
     </div>
   </div>
 
@@ -1719,8 +1751,32 @@
     </div>
   </div>
 
+  <!-- ============= 📜 LỊCH SỬ & KỶ LỤC ============= -->
+  <div class="section-divider">📜 Lịch sử &amp; Kỷ lục</div>
+
+  <!-- Lịch sử nhà vô địch -->
   <div class="grid">
-    <!-- So sánh các kỳ WC -->
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🏛️</span> Lịch sử nhà vô địch</h2>
+      <div class="history-list" id="historyBlock"></div>
+    </div>
+  </div>
+
+  <!-- Bảng vàng mọi thời đại -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🏅</span> Bảng vàng mọi thời đại</h2>
+      <div class="subtabs" id="hallTabs">
+        <button class="active" data-htab="goals">⚽ Top ghi bàn</button>
+        <button data-htab="hattrick">🎩 Hat-trick lịch sử</button>
+        <button data-htab="records">🏆 Kỷ lục</button>
+      </div>
+      <div id="hallBody"></div>
+    </div>
+  </div>
+
+  <!-- So sánh các kỳ WC -->
+  <div class="grid">
     <div class="card" style="grid-column: 1 / -1">
       <h2><span class="icon">📊</span> So sánh các kỳ World Cup</h2>
       <div class="compare-chart"><svg id="compareSvg" viewBox="0 0 800 240"></svg></div>
@@ -2627,21 +2683,31 @@ renderHistory();
 
 /* ===== 🏅 Bảng vàng mọi thời đại ===== */
 const HALL_GOALS = [
-  { name: "Miroslav Klose",   country: "Đức",         flag: "de",     n: 16, years: "2002–2014" },
-  { name: "Ronaldo (R9)",     country: "Brazil",      flag: "br",     n: 15, years: "1994–2006" },
-  { name: "Gerd Müller",      country: "Đức",         flag: "de",     n: 14, years: "1970–1974" },
-  { name: "Just Fontaine",    country: "Pháp",        flag: "fr",     n: 13, years: "1958 (1 kỳ duy nhất)" },
-  { name: "Lionel Messi",     country: "Argentina",   flag: "ar",     n: 13, years: "2006–2022" },
-  { name: "Pelé",             country: "Brazil",      flag: "br",     n: 12, years: "1958–1970" },
-  { name: "Kylian Mbappé",    country: "Pháp",        flag: "fr",     n: 12, years: "2018–2022" },
-  { name: "Sándor Kocsis",    country: "Hungary",     flag: "hu",     n: 11, years: "1954" },
-  { name: "Jürgen Klinsmann", country: "Đức",         flag: "de",     n: 11, years: "1990–1998" },
-  { name: "Thomas Müller",    country: "Đức",         flag: "de",     n: 10, years: "2010–2022" },
-  { name: "Gabriel Batistuta",country: "Argentina",   flag: "ar",     n: 10, years: "1994–2002" },
-  { name: "Gary Lineker",     country: "Anh",         flag: "gb-eng", n: 10, years: "1986–1990" },
-  { name: "Teófilo Cubillas", country: "Peru",        flag: "pe",     n: 10, years: "1970–1978" },
-  { name: "Grzegorz Lato",    country: "Ba Lan",      flag: "pl",     n: 10, years: "1974–1982" },
-  { name: "Helmut Rahn",      country: "Đức",         flag: "de",     n: 10, years: "1954–1958" }
+  { name: "Miroslav Klose",     country: "Đức",       flag: "de",     n: 16, years: "2002–2014" },
+  { name: "Ronaldo (R9)",       country: "Brazil",    flag: "br",     n: 15, years: "1994–2006" },
+  { name: "Gerd Müller",        country: "Đức",       flag: "de",     n: 14, years: "1970–1974" },
+  { name: "Just Fontaine",      country: "Pháp",      flag: "fr",     n: 13, years: "1958 (1 kỳ duy nhất)" },
+  { name: "Lionel Messi",       country: "Argentina", flag: "ar",     n: 13, years: "2006–2022" },
+  { name: "Pelé",               country: "Brazil",    flag: "br",     n: 12, years: "1958–1970" },
+  { name: "Kylian Mbappé",      country: "Pháp",      flag: "fr",     n: 12, years: "2018–2022" },
+  { name: "Sándor Kocsis",      country: "Hungary",   flag: "hu",     n: 11, years: "1954" },
+  { name: "Jürgen Klinsmann",   country: "Đức",       flag: "de",     n: 11, years: "1990–1998" },
+  { name: "Thomas Müller",      country: "Đức",       flag: "de",     n: 10, years: "2010–2022" },
+  { name: "Gabriel Batistuta",  country: "Argentina", flag: "ar",     n: 10, years: "1994–2002" },
+  { name: "Gary Lineker",       country: "Anh",       flag: "gb-eng", n: 10, years: "1986–1990" },
+  { name: "Teófilo Cubillas",   country: "Peru",      flag: "pe",     n: 10, years: "1970–1978" },
+  { name: "Grzegorz Lato",      country: "Ba Lan",    flag: "pl",     n: 10, years: "1974–1982" },
+  { name: "Helmut Rahn",        country: "Đức",       flag: "de",     n: 10, years: "1954–1958" },
+  { name: "Eusébio",            country: "Bồ Đào Nha",flag: "pt",     n: 9,  years: "1966 (1 kỳ)" },
+  { name: "Roberto Baggio",     country: "Italy",     flag: "it",     n: 9,  years: "1990–1998" },
+  { name: "Jairzinho",          country: "Brazil",    flag: "br",     n: 9,  years: "1970–1974" },
+  { name: "Vavá",               country: "Brazil",    flag: "br",     n: 9,  years: "1958–1962" },
+  { name: "Mario Kempes",       country: "Argentina", flag: "ar",     n: 9,  years: "1978 (Vua phá lưới)" },
+  { name: "Hristo Stoichkov",   country: "Bulgaria",  flag: "bg",     n: 8,  years: "1994 (Vua phá lưới)" },
+  { name: "Rivaldo",            country: "Brazil",    flag: "br",     n: 8,  years: "1998–2002" },
+  { name: "Diego Maradona",     country: "Argentina", flag: "ar",     n: 8,  years: "1982–1994" },
+  { name: "Guillermo Stábile",  country: "Argentina", flag: "ar",     n: 8,  years: "1930 (Golden Boot đầu tiên)" },
+  { name: "Cristiano Ronaldo",  country: "Bồ Đào Nha",flag: "pt",     n: 8,  years: "2006–2022" }
 ];
 
 const HALL_HATTRICKS = [
@@ -2712,8 +2778,7 @@ function renderHall() {
     body.innerHTML = HALL_HATTRICKS.sort((a, b) => a.year - b.year).map((h) => {
       const safeName = (h.player || "").replace(/"/g, "&quot;");
       return `
-        <div class="hall-row" data-player="${safeName}" style="cursor:pointer">
-          <div class="rank">${h.year}</div>
+        <div class="hall-row hattrick" data-player="${safeName}" style="cursor:pointer">
           <div class="ava" data-pn="${safeName}">
             <span class="ava-init">${initialsOf(h.player)}</span>
           </div>
@@ -2721,7 +2786,10 @@ function renderHall() {
             <div class="nm">${flagImg(h.flag)}<span>${h.player}</span></div>
             <div class="sub">vs ${h.vs}${h.note ? " · " + h.note : ""}</div>
           </div>
-          <div class="stat" style="font-size:13px">${h.country}</div>
+          <div class="stat-stack">
+            <div class="country">${h.country}</div>
+            <div class="year">${h.year}</div>
+          </div>
         </div>`;
     }).join("");
     body.querySelectorAll(".hall-row[data-player]").forEach((r) =>
