@@ -2873,21 +2873,11 @@ function buildKoResolver() {
   const byNum = {};
   matches.forEach((m) => { if (m.num != null) byNum[m.num] = m; });
 
-  // Đối đầu giữa 2 đội (các trận đã đá trong bảng) → trả >0 nếu b xếp trên a (dùng trong sort desc)
-  function h2hCmp(a, b, L) {
-    let pa = 0, pb = 0;
-    matches.forEach((m) => {
-      if (_grpLetter(m.group) !== L || m.homeScore == null || m.awayScore == null) return;
-      if (!((m.home === a && m.away === b) || (m.home === b && m.away === a))) return;
-      const wa = (m.home === a) ? m.homeScore > m.awayScore : m.awayScore > m.homeScore;
-      const wb = (m.home === b) ? m.homeScore > m.awayScore : m.awayScore > m.homeScore;
-      if (wa) pa += 3; else if (wb) pb += 3; else { pa++; pb++; }
-    });
-    return pb - pa;
-  }
-  // Liệt kê MỌI kịch bản W/D/L của các trận còn lại trong bảng → tập vị trí cuối có thể của mỗi đội.
-  // Hoà điểm phân định theo: hiệu số → bàn thắng → đối đầu (số liệu hiện tại) — sát tiêu chí FIFA.
-  // → biết được đội nào chắc top 2, và chắc đúng vị trí nhất/nhì (kể cả khi các đội bám đuổi đá nhau).
+  // ===== Phân tích xếp hạng cuối của mỗi bảng (CHẶT CHẼ — chỉ "cố định" khi chắc chắn không đổi) =====
+  // Liệt kê mọi kịch bản thắng/hoà/thua của các trận còn lại. Khi 2 đội CÓ THỂ BẰNG ĐIỂM:
+  //   • đã đá với nhau & có thắng/thua → đội thắng đối đầu xếp trên (đối đầu quyết định)
+  //   • chưa đá nhau / đã hoà → coi là CHƯA CHẮC (vị trí có thể đảo) → không gắn "cố định"
+  // → mỗi đội có một TẬP vị trí khả dĩ. Tập = {p} duy nhất nghĩa là vị trí p chắc chắn không đổi nữa.
   const _posCache = {};
   function groupPositions(L) {
     if (L in _posCache) return _posCache[L];
@@ -2895,8 +2885,15 @@ function buildKoResolver() {
     const played = tbl.reduce((s, t) => s + (t.played || 0), 0);
     if (!tbl.length || played === 0) return (_posCache[L] = null);
     const teams = tbl.map((t) => t.team);
-    const base = {};
-    tbl.forEach((t) => { base[t.team] = { pts: t.pts || 0, gd: t.gd || 0, gf: t.gf || 0 }; });
+    const base = {}; tbl.forEach((t) => { base[t.team] = t.pts || 0; });
+    // beat[a][b] = a đã thắng đối đầu b (trận đã đá trong bảng)
+    const beat = {}; teams.forEach((t) => { beat[t] = {}; });
+    matches.forEach((m) => {
+      if (_grpLetter(m.group) !== L || m.homeScore == null || m.awayScore == null) return;
+      if (!teams.includes(m.home) || !teams.includes(m.away)) return;
+      if (m.homeScore > m.awayScore) beat[m.home][m.away] = 1;
+      else if (m.awayScore > m.homeScore) beat[m.away][m.home] = 1;
+    });
     const rem = matches.filter((m) =>
       _grpLetter(m.group) === L && m.homeScore == null && m.awayScore == null &&
       teams.includes(m.home) && teams.includes(m.away)
@@ -2904,7 +2901,7 @@ function buildKoResolver() {
     const k = Math.min(rem.length, 8); // chặn an toàn (3^8)
     const pos = {}; teams.forEach((t) => { pos[t] = new Set(); });
     for (let mask = 0, N = Math.pow(3, k); mask < N; mask++) {
-      const pts = {}; teams.forEach((t) => { pts[t] = base[t].pts; });
+      const pts = {}; teams.forEach((t) => { pts[t] = base[t]; });
       let x = mask;
       for (let i = 0; i < k; i++) {
         const o = x % 3; x = (x - o) / 3;
@@ -2913,10 +2910,19 @@ function buildKoResolver() {
         else if (o === 1) pts[m.away] += 3;
         else { pts[m.home]++; pts[m.away]++; }
       }
-      const order = [...teams].sort((a, b) =>
-        (pts[b] - pts[a]) || (base[b].gd - base[a].gd) || (base[b].gf - base[a].gf) ||
-        h2hCmp(a, b, L) || a.localeCompare(b));
-      order.forEach((t, idx) => pos[t].add(idx + 1));
+      teams.forEach((t) => {
+        let above = 0, indet = 0;
+        teams.forEach((o) => {
+          if (o === t) return;
+          if (pts[o] > pts[t]) above++;
+          else if (pts[o] === pts[t]) {
+            if (beat[o][t]) above++;            // o thắng đối đầu t → o chắc chắn trên t
+            else if (beat[t][o]) { /* t trên o */ }
+            else indet++;                        // bằng điểm, đối đầu chưa phân định → chưa chắc
+          }
+        });
+        for (let p = above + 1; p <= above + indet + 1; p++) pos[t].add(p);
+      });
     }
     return (_posCache[L] = pos);
   }
