@@ -49,20 +49,27 @@ async function fromOpenFootball() {
   const r = await fetch(OPENFB_URL, { headers: { "User-Agent": "DashboardVN/1.0" } });
   if (!r.ok) throw new Error("openfootball HTTP " + r.status);
   const j = await r.json();
-  const matches = (j.matches || []).map((m) => ({
-    ts: parseKickoff(m.date, m.time),
-    date: m.date,
-    round: m.round || null,
-    group: m.group || null,
-    venue: m.ground || null,
-    home: m.team1,
-    away: m.team2,
-    homeBadge: flag(m.team1),
-    awayBadge: flag(m.team2),
-    homeScore: m.score1 != null ? m.score1 : null,
-    awayScore: m.score2 != null ? m.score2 : null,
-    status: (m.score1 != null && m.score2 != null) ? "FINISHED" : "SCHEDULED"
-  }));
+  const matches = (j.matches || []).map((m) => {
+    // openfootball mới dùng score.ft = [home, away]; bản cũ dùng score1/score2 → hỗ trợ cả 2
+    const ft = m.score && Array.isArray(m.score.ft) ? m.score.ft : null;
+    const s1 = ft ? ft[0] : (m.score1 != null ? m.score1 : null);
+    const s2 = ft ? ft[1] : (m.score2 != null ? m.score2 : null);
+    return {
+      num: m.num != null ? m.num : null,   // số hiệu trận → resolve "W74"/"L101" ở knockout
+      ts: parseKickoff(m.date, m.time),
+      date: m.date,
+      round: m.round || null,
+      group: m.group || null,
+      venue: m.ground || null,
+      home: m.team1,
+      away: m.team2,
+      homeBadge: flag(m.team1),
+      awayBadge: flag(m.team2),
+      homeScore: s1 != null ? s1 : null,
+      awayScore: s2 != null ? s2 : null,
+      status: (s1 != null && s2 != null) ? "FINISHED" : "SCHEDULED"
+    };
+  });
   return { matches, source: "openfootball" };
 }
 
