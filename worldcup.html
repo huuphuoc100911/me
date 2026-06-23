@@ -984,9 +984,21 @@
   .bxh-table tr.fav-row { background: rgba(245,158,11,0.08); }
 
   /* ===== Knockout bracket ===== */
-  .bracket-wrap {
-    overflow-x: auto;
-    padding: 12px 0;
+  .bracket-wrap { padding: 12px 0; }
+  .bracket-scroll { overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .bracket-scroll::-webkit-scrollbar { height: 6px; }
+  .bracket-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  /* Thanh đếm ngược trận knockout kế tiếp */
+  .ko-next {
+    font-size: 12px; color: var(--text-dim);
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .ko-next .cd { color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .ko-next.live {
+    background: linear-gradient(90deg, rgba(239,68,68,0.15), rgba(255,255,255,0.02));
+    border-color: var(--bad); color: var(--text);
   }
   .bracket-svg { display: block; min-width: 720px; }
   .bracket-svg .b-team {
@@ -1018,6 +1030,9 @@
   .bracket-svg .b-when { font-size: 9px; fill: var(--text-fade); font-weight: 600; font-variant-numeric: tabular-nums; }
   .bracket-svg .b-hit { fill: rgba(0,0,0,0); cursor: pointer; }
   .bracket-svg .b-hit:hover { fill: rgba(255,255,255,0.05); }
+  /* Tô sáng đường đi tới chung kết */
+  .bracket-svg .b-box.hl { stroke: var(--accent-2); stroke-width: 2; }
+  .bracket-svg .b-line.hl { stroke: var(--accent-2); stroke-width: 2.5; }
 
   /* ===== Popup chi tiết ô knockout ===== */
   .ko-detail-modal {
@@ -1053,6 +1068,30 @@
   .ko-detail-desc { font-size: 12px; color: var(--text-dim); line-height: 1.65; }
   .ko-detail-score { margin-top: 10px; font-size: 13px; color: var(--text-dim); }
   .ko-detail-score b { color: var(--accent-2); font-size: 15px; }
+  .ko-detail-path {
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border);
+  }
+  .ko-detail-path .pt {
+    font-size: 11px; color: var(--accent-2); text-transform: uppercase;
+    letter-spacing: 0.5px; font-weight: 700; margin-bottom: 6px;
+  }
+  .ko-detail-path .row {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 12px; padding: 3px 0; border-bottom: 1px solid var(--border);
+  }
+  .ko-detail-path .row:last-child { border-bottom: 0; }
+  .ko-detail-path .rd {
+    color: var(--text-fade); font-weight: 600; flex-shrink: 0;
+    width: 64px; font-size: 11px;
+  }
+  .ko-detail-path .op { color: var(--text-dim); min-width: 0; }
+  .ko-detail-h2h {
+    margin-top: 12px; width: 100%; padding: 10px;
+    background: rgba(6,182,212,0.12); border: 1px solid var(--accent);
+    color: var(--accent); border-radius: 8px; font-weight: 700;
+    cursor: pointer; font-size: 13px;
+  }
+  .ko-detail-h2h:hover { background: rgba(6,182,212,0.2); }
 
   /* ===== So sánh kỳ WC chart ===== */
   .compare-chart svg { width: 100%; display: block; }
@@ -2986,6 +3025,9 @@ const KO_FEED = {
   97: [89, 90], 98: [93, 94], 99: [91, 92], 100: [95, 96],
   101: [97, 98], 102: [99, 100], 104: [101, 102]
 };
+// Map con → cha (trận thắng đi tiếp vào trận nào) → truy ngược đường đi tới chung kết.
+const KO_PARENT = {};
+Object.entries(KO_FEED).forEach(([p, kids]) => kids.forEach((k) => { KO_PARENT[k] = +p; }));
 // Lịch + sơ đồ knockout WC2026 (cố định theo thể thức FIFA, độc lập với nguồn dữ liệu live).
 // home/away là mã vị trí (1A=nhất bảng A, 2B=nhì bảng B, 3X/Y=hạng 3 tổ hợp, W74=thắng trận 74).
 // Lịch + sơ đồ knockout WC2026 (cố định theo thể thức FIFA, độc lập nguồn live).
@@ -3450,7 +3492,7 @@ function renderBracket(matches) {
       const x1 = xOf(ci - 1) + boxW, y1 = yOf(rowOf[fn]) + boxH / 2;
       const x2 = xOf(ci), y2 = yOf(rowOf[m.num]) + boxH / 2;
       const xm = (x1 + x2) / 2;
-      svg += `<path class="b-line" d="M${x1} ${y1} H${xm} V${y2} H${x2}"/>`;
+      svg += `<path class="b-line" data-from="${fn}" data-to="${m.num}" d="M${x1} ${y1} H${xm} V${y2} H${x2}"/>`;
     });
   });
   // Hộp trận
@@ -3464,7 +3506,7 @@ function renderBracket(matches) {
     // Dòng giờ thi đấu: số trận · ngày · giờ (giờ máy người xem)
     const dt = m.ts ? new Date(m.ts) : null;
     const when = (dt ? `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—") + ` · T${m.num}`;
-    svg += `<rect class="b-box${live ? " live" : ""}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
+    svg += `<rect class="b-box${live ? " live" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
     svg += `<text x="${x + 9}" y="${y + 14}" class="b-when">${live ? "🔴 " : ""}${when}</text>`;
     // 1 dòng đội: cờ (nếu có) + tên + ✓
     const line = (r, cy) => {
@@ -3491,19 +3533,67 @@ function renderBracket(matches) {
     <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px"></span>✓ Chắc chắn vị trí (nhất/nhì bảng)</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:4px"></span>Đã vào vòng trong (chưa rõ vị trí)</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:2px;margin-right:4px"></span>Dự kiến theo BXH / chờ kết quả</span>
-    <span style="color:var(--text-fade)">💡 Bấm vào đội để xem chi tiết</span>
+    <span style="color:var(--text-fade)">💡 Bấm 1 đội → chi tiết + tô sáng đường tới chung kết</span>
   </div>`;
-  block.innerHTML = svg + legend;
+  window._koMatches = ko;   // cho đồng hồ đếm ngược dùng
+  block.innerHTML = `<div class="ko-next" id="koNext"></div><div class="bracket-scroll" id="bracketScroll">${svg}</div>${legend}`;
+  updateKoCountdown();
 
-  // Gắn click cho từng đội (mở popup chi tiết vị trí)
+  const svgEl = block.querySelector("svg");
+  // Tự cuộn ngang tới vòng đang/sắp diễn ra (chỉ lần đầu, không giật khi refresh)
+  const scroller = document.getElementById("bracketScroll");
+  if (scroller && !window._koScrolled) {
+    const undecided = (m) => !(m.homeScore != null && m.awayScore != null);
+    const active = ko.find((m) => m.ts && m.ts <= now && now < m.ts + 2 * 3600 * 1000 && undecided(m))
+      || ko.filter((m) => m.ts && m.ts > now && undecided(m)).sort((a, b) => a.ts - b.ts)[0];
+    if (active && colOf[active.round] > 0) scroller.scrollLeft = Math.max(0, xOf(colOf[active.round]) - 30);
+    window._koScrolled = true;
+  }
+
+  // Bấm 1 đội → tô sáng đường đi tới CK + mở popup chi tiết
   block.querySelectorAll(".b-hit").forEach((el) => {
     el.addEventListener("click", () => {
       const m = ko[+el.dataset.mi];
       if (!m) return;
-      showKoDetail(el.dataset.side === "h" ? m.home : m.away, m);
+      const path = new Set();
+      let n = m.num;
+      while (n != null) { path.add(n); n = KO_PARENT[n]; }
+      if (svgEl) {
+        svgEl.querySelectorAll(".b-box").forEach((b) => b.classList.toggle("hl", path.has(+b.dataset.num)));
+        svgEl.querySelectorAll(".b-line").forEach((l) => l.classList.toggle("hl", path.has(+l.dataset.from) && path.has(+l.dataset.to)));
+      }
+      showKoDetail(el.dataset.side === "h" ? m.home : m.away, m, el.dataset.side);
     });
   });
 }
+/* Đồng hồ đếm ngược trận knockout kế tiếp (cập nhật mỗi giây) */
+function updateKoCountdown() {
+  const el = document.getElementById("koNext");
+  if (!el) return;
+  const ko = window._koMatches || [];
+  if (!ko.length) { el.innerHTML = ""; return; }
+  const ROUND_VI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Final": "Chung kết" };
+  const now = Date.now();
+  const undecided = (m) => !(m.homeScore != null && m.awayScore != null);
+  const R = buildKoResolver();
+  const teams = (m) => `${R.resolve(m.home).label} vs ${R.resolve(m.away).label}`;
+  const live = ko.find((m) => m.ts && m.ts <= now && now < m.ts + 2 * 3600 * 1000 && undecided(m));
+  if (live) {
+    el.className = "ko-next live";
+    el.innerHTML = `🔴 <b>ĐANG ĐÁ</b> · ${ROUND_VI[live.round] || live.round} T${live.num} · ${teams(live)}`;
+    return;
+  }
+  const next = ko.filter((m) => m.ts && m.ts > now && undecided(m)).sort((a, b) => a.ts - b.ts)[0];
+  if (!next) { el.className = "ko-next"; el.innerHTML = `<span style="color:var(--text-fade)">Vòng knockout chưa bắt đầu</span>`; return; }
+  const diff = next.ts - now;
+  const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000),
+    mi = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+  const p2 = (n) => String(n).padStart(2, "0");
+  const cd = d > 0 ? `${d} ngày ${h}h ${mi}p` : `${p2(h)}:${p2(mi)}:${p2(s)}`;
+  el.className = "ko-next";
+  el.innerHTML = `⏳ <b>Knockout kế tiếp</b> · ${ROUND_VI[next.round] || next.round} T${next.num} · ${teams(next)} · còn <b class="cd">${cd}</b>`;
+}
+setInterval(updateKoCountdown, 1000);
 
 /* ===== Popup chi tiết 1 ô knockout ===== */
 function koStatusText(r) {
@@ -3535,20 +3625,52 @@ function koStatusText(r) {
   return { icon: "❓", color: "var(--text-fade)", title: r.label || "?", desc: "" };
 }
 function closeKoDetail() { const md = document.getElementById("koDetailModal"); if (md) md.classList.remove("show"); }
-function showKoDetail(code, m) {
+function showKoDetail(code, m, side) {
   const modal = document.getElementById("koDetailModal");
   const body = document.getElementById("koDetailBody");
   if (!modal || !body) return;
-  const r = buildKoResolver().resolve(code);
+  const resolver = buildKoResolver();
+  const r = resolver.resolve(code);
   const info = koStatusText(r);
   const fl = r.badge || (r.team ? flagURL(r.team) : null);
   const ROUND_VI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Final": "Chung kết" };
+  const COLOR = { confirmed: "var(--good)", qualified: "var(--text)", provisional: "var(--text-fade)", unknown: "var(--text-fade)" };
   const pad = (n) => String(n).padStart(2, "0");
   const wd = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const dt = m && m.ts ? new Date(m.ts) : null;
   const when = dt ? `${wd[dt.getDay()]} ${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—";
   const matchLine = m ? `Trận T${m.num} · ${ROUND_VI[m.round] || m.round} · 🗓️ ${when}` : "";
   const score = (m && m.homeScore != null && m.awayScore != null) ? `${m.homeScore} - ${m.awayScore}` : "";
+
+  // Đường đi tới chung kết: trận hiện tại (đối thủ cùng ô) → leo cây qua từng vòng
+  const byNum = {};
+  getKnockoutMatches().forEach((x) => { byNum[x.num] = x; });
+  let pathHTML = "";
+  if (m && m.num != null && side) {
+    const steps = [];
+    const cm = byNum[m.num];
+    if (cm) steps.push({ num: cm.num, round: cm.round, opp: side === "h" ? cm.away : cm.home });
+    let child = m.num, parent = KO_PARENT[m.num];
+    while (parent != null) {
+      const kids = KO_FEED[parent];
+      const sib = kids[0] === child ? kids[1] : kids[0];
+      steps.push({ num: parent, round: byNum[parent] ? byNum[parent].round : null, opp: "W" + sib });
+      child = parent; parent = KO_PARENT[parent];
+    }
+    pathHTML = `<div class="ko-detail-path"><div class="pt">🔦 Đường tới chung kết</div>` +
+      steps.map((st) => {
+        const ro = resolver.resolve(st.opp);
+        return `<div class="row"><span class="rd">${ROUND_VI[st.round] || st.round || "—"}</span>
+          <span class="op">gặp <b style="color:${COLOR[ro.status]}">${ro.label}</b></span></div>`;
+      }).join("") + `</div>`;
+  }
+
+  // Nút Đối đầu: chỉ khi cả 2 đội của trận đều đã rõ là đội thật
+  let h2hBtn = "";
+  const rh = m ? resolver.resolve(m.home) : null, ra = m ? resolver.resolve(m.away) : null;
+  const canH2H = rh && ra && rh.team && ra.team;
+  if (canH2H) h2hBtn = `<button class="ko-detail-h2h" id="koDetailH2H">⚔️ Xem đối đầu: ${rh.team} vs ${ra.team}</button>`;
+
   body.innerHTML = `
     <button class="ko-detail-close" id="koDetailClose">✕</button>
     <div class="ko-detail-head">
@@ -3560,10 +3682,22 @@ function showKoDetail(code, m) {
     </div>
     <div class="ko-detail-status"><span class="ic">${info.icon}</span> <b>${info.title}</b></div>
     <div class="ko-detail-desc">${info.desc}</div>
-    ${score ? `<div class="ko-detail-score">Tỉ số: <b>${score}</b></div>` : ""}`;
+    ${score ? `<div class="ko-detail-score">Tỉ số: <b>${score}</b></div>` : ""}
+    ${pathHTML}
+    ${h2hBtn}`;
   modal.classList.add("show");
   const cb = document.getElementById("koDetailClose");
   if (cb) cb.addEventListener("click", closeKoDetail);
+  const hb = document.getElementById("koDetailH2H");
+  if (hb && canH2H) hb.addEventListener("click", () => {
+    closeKoDetail();
+    openH2H({
+      id: m.id, home: rh.team, away: ra.team,
+      homeBadge: rh.badge || flagURL(rh.team), awayBadge: ra.badge || flagURL(ra.team),
+      ts: m.ts, round: ROUND_VI[m.round] || m.round, group: null, fdId: null,
+      homeScore: m.homeScore, awayScore: m.awayScore
+    });
+  });
 }
 (function bindKoDetail() {
   const md = document.getElementById("koDetailModal");
