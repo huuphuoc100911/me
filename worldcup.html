@@ -2862,7 +2862,7 @@ function _isBrPlaceholder(n) {
  *   "provisional" ~ chỉ là thứ hạng tạm thời theo BXH hiện tại
  *   "unknown"     chưa đủ dữ liệu (vd hạng 3 tổ hợp, hoặc trận nguồn chưa đá)
  */
-function _grpLetter(s) { return String(s || "").replace(/^Group\s*/i, "").trim().toUpperCase(); }
+function _grpLetter(s) { return String(s || "").replace(/^Group[\s_]*/i, "").trim().toUpperCase(); }
 function _isKoSlot(n) { return /^(?:[12][A-L]|3[A-L\/]+|[WL]\d+)$/i.test(String(n || "").trim()); }
 
 function buildKoResolver() {
