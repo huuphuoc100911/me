@@ -2940,14 +2940,69 @@ const KO_FEED = {
   97: [89, 90], 98: [93, 94], 99: [91, 92], 100: [95, 96],
   101: [97, 98], 102: [99, 100], 104: [101, 102]
 };
+// Lịch + sơ đồ knockout WC2026 (cố định theo thể thức FIFA, độc lập với nguồn dữ liệu live).
+// home/away là mã vị trí (1A=nhất bảng A, 2B=nhì bảng B, 3X/Y=hạng 3 tổ hợp, W74=thắng trận 74).
+const KO_TEMPLATE = [
+  { num: 73, round: "Round of 32", home: "2A", away: "2B", date: "2026-06-28" },
+  { num: 74, round: "Round of 32", home: "1E", away: "3A/B/C/D/F", date: "2026-06-29" },
+  { num: 75, round: "Round of 32", home: "1F", away: "2C", date: "2026-06-29" },
+  { num: 76, round: "Round of 32", home: "1C", away: "2F", date: "2026-06-29" },
+  { num: 77, round: "Round of 32", home: "1I", away: "3C/D/F/G/H", date: "2026-06-30" },
+  { num: 78, round: "Round of 32", home: "2E", away: "2I", date: "2026-06-30" },
+  { num: 79, round: "Round of 32", home: "1A", away: "3C/E/F/H/I", date: "2026-06-30" },
+  { num: 80, round: "Round of 32", home: "1L", away: "3E/H/I/J/K", date: "2026-07-01" },
+  { num: 81, round: "Round of 32", home: "1D", away: "3B/E/F/I/J", date: "2026-07-01" },
+  { num: 82, round: "Round of 32", home: "1G", away: "3A/E/H/I/J", date: "2026-07-01" },
+  { num: 83, round: "Round of 32", home: "2K", away: "2L", date: "2026-07-02" },
+  { num: 84, round: "Round of 32", home: "1H", away: "2J", date: "2026-07-02" },
+  { num: 85, round: "Round of 32", home: "1B", away: "3E/F/G/I/J", date: "2026-07-02" },
+  { num: 86, round: "Round of 32", home: "1J", away: "2H", date: "2026-07-03" },
+  { num: 87, round: "Round of 32", home: "1K", away: "3D/E/I/J/L", date: "2026-07-03" },
+  { num: 88, round: "Round of 32", home: "2D", away: "2G", date: "2026-07-03" },
+  { num: 89, round: "Round of 16", home: "W74", away: "W77", date: "2026-07-04" },
+  { num: 90, round: "Round of 16", home: "W73", away: "W75", date: "2026-07-04" },
+  { num: 91, round: "Round of 16", home: "W76", away: "W78", date: "2026-07-05" },
+  { num: 92, round: "Round of 16", home: "W79", away: "W80", date: "2026-07-05" },
+  { num: 93, round: "Round of 16", home: "W83", away: "W84", date: "2026-07-06" },
+  { num: 94, round: "Round of 16", home: "W81", away: "W82", date: "2026-07-06" },
+  { num: 95, round: "Round of 16", home: "W86", away: "W88", date: "2026-07-07" },
+  { num: 96, round: "Round of 16", home: "W85", away: "W87", date: "2026-07-07" },
+  { num: 97, round: "Quarter-final", home: "W89", away: "W90", date: "2026-07-09" },
+  { num: 98, round: "Quarter-final", home: "W93", away: "W94", date: "2026-07-10" },
+  { num: 99, round: "Quarter-final", home: "W91", away: "W92", date: "2026-07-11" },
+  { num: 100, round: "Quarter-final", home: "W95", away: "W96", date: "2026-07-11" },
+  { num: 101, round: "Semi-final", home: "W97", away: "W98", date: "2026-07-14" },
+  { num: 102, round: "Semi-final", home: "W99", away: "W100", date: "2026-07-15" },
+  { num: 104, round: "Final", home: "W101", away: "W102", date: "2026-07-19" }
+];
+// Ghép template (cấu trúc) với dữ liệu live theo num: lấy tỉ số + tên đội thật khi trận đã đá.
+function getKnockoutMatches() {
+  const byNum = {};
+  (window._allMatches || []).forEach((m) => { if (m.num != null) byNum[m.num] = m; });
+  return KO_TEMPLATE.map((t) => {
+    const live = byNum[t.num];
+    const done = live && live.homeScore != null && live.awayScore != null;
+    return {
+      id: "ko-" + t.num,
+      num: t.num,
+      round: t.round,
+      // Trận đã đá → dùng tên đội thật từ live; chưa đá → giữ mã vị trí cho resolver
+      home: done ? live.home : t.home,
+      away: done ? live.away : t.away,
+      homeBadge: done ? live.homeBadge : null,
+      awayBadge: done ? live.awayBadge : null,
+      homeScore: live ? (live.homeScore ?? null) : null,
+      awayScore: live ? (live.awayScore ?? null) : null,
+      ts: (live && live.ts) ? live.ts : Date.parse(t.date + "T18:00:00Z")
+    };
+  });
+}
 function renderBracketChallenge(matches) {
   const block = document.getElementById("bracketChallenge");
   if (!block) return;
 
-  const ko = (matches || []).filter((m) => {
-    if (!m.round) return false;
-    return _BR_ROUND_ORDER.some((r) => m.round.includes(r));
-  });
+  // Cấu trúc nhánh lấy từ template cố định (độc lập nguồn live) + ghép tỉ số live
+  const ko = getKnockoutMatches();
   if (!ko.length) {
     block.innerHTML = `<div class="pred-empty">Chưa có lịch knockout trong dữ liệu.</div>`;
     return;
@@ -3408,13 +3463,14 @@ function renderBracket(matches) {
   if (!block) return;
   const STAGES = ["Round of 32", "Round of 16", "Quarter-final", "Semi-final", "Final"];
   const STLBL = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Final": "Chung kết" };
-  const byNum = {};
-  (matches || []).forEach((m) => { if (m.num != null) byNum[m.num] = m; });
-  const ko = (matches || []).filter((m) => m.num != null && STAGES.includes(m.round));
+  // Cấu trúc nhánh lấy từ template cố định (độc lập nguồn live) + ghép tỉ số live
+  const ko = getKnockoutMatches();
   if (!ko.length) {
     block.innerHTML = `<div class="loading-pulse">Chưa có lịch knockout trong dữ liệu.</div>`;
     return;
   }
+  const byNum = {};
+  ko.forEach((m) => { byNum[m.num] = m; });
   const resolver = buildKoResolver();
 
   // Cột chỉ gồm các vòng thực sự có trận
