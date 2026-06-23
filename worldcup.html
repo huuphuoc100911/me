@@ -2873,25 +2873,66 @@ function buildKoResolver() {
   const byNum = {};
   matches.forEach((m) => { if (m.num != null) byNum[m.num] = m; });
 
-  const GPT = 3; // mỗi đội đá 3 trận vòng bảng
-  const maxPoss = (t) => (t.pts || 0) + 3 * Math.max(0, GPT - (t.played || 0));
-  // BXH backend đã sort sẵn theo pos → tbl[0] = nhất bảng
-  const clinchFirst = (tbl) => tbl.length >= 2 && tbl.slice(1).every((o) => tbl[0].pts > maxPoss(o));
-  const clinchTop2 = (tbl, idx) => {
-    const cur = tbl[idx];
-    if (!cur) return false;
-    // số đối thủ vẫn còn khả năng đạt >= điểm hiện tại của cur. Nếu <=1 → cur chắc chắn top 2.
-    return tbl.filter((_, i) => i !== idx).filter((o) => maxPoss(o) >= cur.pts).length <= 1;
-  };
+  // Đối đầu giữa 2 đội (các trận đã đá trong bảng) → trả >0 nếu b xếp trên a (dùng trong sort desc)
+  function h2hCmp(a, b, L) {
+    let pa = 0, pb = 0;
+    matches.forEach((m) => {
+      if (_grpLetter(m.group) !== L || m.homeScore == null || m.awayScore == null) return;
+      if (!((m.home === a && m.away === b) || (m.home === b && m.away === a))) return;
+      const wa = (m.home === a) ? m.homeScore > m.awayScore : m.awayScore > m.homeScore;
+      const wb = (m.home === b) ? m.homeScore > m.awayScore : m.awayScore > m.homeScore;
+      if (wa) pa += 3; else if (wb) pb += 3; else { pa++; pb++; }
+    });
+    return pb - pa;
+  }
+  // Liệt kê MỌI kịch bản W/D/L của các trận còn lại trong bảng → tập vị trí cuối có thể của mỗi đội.
+  // Hoà điểm phân định theo: hiệu số → bàn thắng → đối đầu (số liệu hiện tại) — sát tiêu chí FIFA.
+  // → biết được đội nào chắc top 2, và chắc đúng vị trí nhất/nhì (kể cả khi các đội bám đuổi đá nhau).
+  const _posCache = {};
+  function groupPositions(L) {
+    if (L in _posCache) return _posCache[L];
+    const tbl = gtab[L] || [];
+    const played = tbl.reduce((s, t) => s + (t.played || 0), 0);
+    if (!tbl.length || played === 0) return (_posCache[L] = null);
+    const teams = tbl.map((t) => t.team);
+    const base = {};
+    tbl.forEach((t) => { base[t.team] = { pts: t.pts || 0, gd: t.gd || 0, gf: t.gf || 0 }; });
+    const rem = matches.filter((m) =>
+      _grpLetter(m.group) === L && m.homeScore == null && m.awayScore == null &&
+      teams.includes(m.home) && teams.includes(m.away)
+    );
+    const k = Math.min(rem.length, 8); // chặn an toàn (3^8)
+    const pos = {}; teams.forEach((t) => { pos[t] = new Set(); });
+    for (let mask = 0, N = Math.pow(3, k); mask < N; mask++) {
+      const pts = {}; teams.forEach((t) => { pts[t] = base[t].pts; });
+      let x = mask;
+      for (let i = 0; i < k; i++) {
+        const o = x % 3; x = (x - o) / 3;
+        const m = rem[i];
+        if (o === 0) pts[m.home] += 3;
+        else if (o === 1) pts[m.away] += 3;
+        else { pts[m.home]++; pts[m.away]++; }
+      }
+      const order = [...teams].sort((a, b) =>
+        (pts[b] - pts[a]) || (base[b].gd - base[a].gd) || (base[b].gf - base[a].gf) ||
+        h2hCmp(a, b, L) || a.localeCompare(b));
+      order.forEach((t, idx) => pos[t].add(idx + 1));
+    }
+    return (_posCache[L] = pos);
+  }
   function groupPos(L, pos) {
     const tbl = gtab[L] || [];
     const played = tbl.reduce((s, t) => s + (t.played || 0), 0);
     if (!tbl.length || played === 0) return { label: pos + L, status: "unknown" };
     const cur = tbl[pos - 1];
     if (!cur) return { label: pos + L, status: "unknown" };
-    let status;
-    if (pos === 1) status = clinchFirst(tbl) ? "confirmed" : (clinchTop2(tbl, 0) ? "qualified" : "provisional");
-    else status = (clinchFirst(tbl) && clinchTop2(tbl, 1)) ? "confirmed" : (clinchTop2(tbl, 1) ? "qualified" : "provisional");
+    const positions = groupPositions(L);
+    const ps = positions ? positions[cur.team] : null;
+    let status = "provisional";
+    if (ps) {
+      if (ps.size === 1 && ps.has(pos)) status = "confirmed";        // khóa chắc đúng vị trí nhất/nhì
+      else if ([...ps].every((p) => p <= 2)) status = "qualified";   // chắc top 2, vị trí còn ngỏ
+    }
     return { label: cur.team, team: cur.team, badge: cur.badge, status };
   }
 
