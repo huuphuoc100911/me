@@ -990,16 +990,36 @@
   .bracket-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   /* Thanh đếm ngược trận knockout kế tiếp */
   .ko-next {
-    font-size: 12px; color: var(--text-dim);
     background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 12px; margin-bottom: 10px;
-    line-height: 1.5;
+    border-radius: 10px; padding: 10px 12px; margin-bottom: 10px;
   }
-  .ko-next .cd { color: var(--accent-2); font-variant-numeric: tabular-nums; }
-  .ko-next.live {
-    background: linear-gradient(90deg, rgba(239,68,68,0.15), rgba(255,255,255,0.02));
-    border-color: var(--bad); color: var(--text);
+  .ko-next-hd {
+    font-size: 11px; color: var(--accent-2); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
   }
+  .ko-next-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (max-width: 640px) { .ko-next-row { grid-template-columns: 1fr; } }
+  .ko-next-item {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; min-width: 0;
+  }
+  .ko-next-item.live {
+    border-color: var(--bad);
+    background: linear-gradient(135deg, rgba(239,68,68,0.14), rgba(255,255,255,0.02));
+  }
+  .ko-next-item .rn {
+    font-size: 10px; color: var(--text-fade); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px;
+  }
+  .ko-next-item .tm {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text); font-weight: 600; line-height: 1.5;
+    min-width: 0;
+  }
+  .ko-next-item .tm img { width: 16px; height: 12px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+  .ko-next-item .tm span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ko-next-item .wt { font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+  .ko-next-item .wt .cd { color: var(--accent-2); font-variant-numeric: tabular-nums; font-weight: 700; }
   .bracket-svg { display: block; min-width: 720px; }
   .bracket-svg .b-team {
     font-size: 11px; font-weight: 600;
@@ -3566,7 +3586,7 @@ function renderBracket(matches) {
     });
   });
 }
-/* Đồng hồ đếm ngược trận knockout kế tiếp (cập nhật mỗi giây) */
+/* Đồng hồ đếm ngược 3 trận knockout kế tiếp (cập nhật mỗi giây) */
 function updateKoCountdown() {
   const el = document.getElementById("koNext");
   if (!el) return;
@@ -3574,24 +3594,38 @@ function updateKoCountdown() {
   if (!ko.length) { el.innerHTML = ""; return; }
   const ROUND_VI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Final": "Chung kết" };
   const now = Date.now();
+  const p2 = (n) => String(n).padStart(2, "0");
   const undecided = (m) => !(m.homeScore != null && m.awayScore != null);
   const R = buildKoResolver();
-  const teams = (m) => `${R.resolve(m.home).label} vs ${R.resolve(m.away).label}`;
-  const live = ko.find((m) => m.ts && m.ts <= now && now < m.ts + 2 * 3600 * 1000 && undecided(m));
-  if (live) {
-    el.className = "ko-next live";
-    el.innerHTML = `🔴 <b>ĐANG ĐÁ</b> · ${ROUND_VI[live.round] || live.round} T${live.num} · ${teams(live)}`;
-    return;
-  }
-  const next = ko.filter((m) => m.ts && m.ts > now && undecided(m)).sort((a, b) => a.ts - b.ts)[0];
-  if (!next) { el.className = "ko-next"; el.innerHTML = `<span style="color:var(--text-fade)">Vòng knockout chưa bắt đầu</span>`; return; }
-  const diff = next.ts - now;
-  const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000),
-    mi = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-  const p2 = (n) => String(n).padStart(2, "0");
-  const cd = d > 0 ? `${d} ngày ${h}h ${mi}p` : `${p2(h)}:${p2(mi)}:${p2(s)}`;
+  const live = ko.filter((m) => m.ts && m.ts <= now && now < m.ts + 2 * 3600 * 1000 && undecided(m));
+  const upcoming = ko.filter((m) => m.ts && m.ts > now && undecided(m)).sort((a, b) => a.ts - b.ts);
+  const list = [...live, ...upcoming].slice(0, 3);
+  if (!list.length) { el.innerHTML = `<div class="ko-next-hd">⏳ Trận knockout kế tiếp</div><span style="color:var(--text-fade);font-size:12px">Vòng knockout chưa bắt đầu / đã kết thúc</span>`; return; }
+  const flag = (r) => { const u = r.badge || (r.team ? flagURL(r.team) : null); return u ? `<img src="${u}" alt="">` : ""; };
+  const clip = (s) => { s = String(s || ""); return s.length > 16 ? s.slice(0, 15) + "…" : s; };
+  const isLive = (m) => m.ts <= now && now < m.ts + 2 * 3600 * 1000;
+  const items = list.map((m) => {
+    const rh = R.resolve(m.home), ra = R.resolve(m.away);
+    const dt = new Date(m.ts);
+    const lv = isLive(m);
+    let wt;
+    if (lv) wt = `<span style="color:var(--bad);font-weight:700">🔴 ĐANG ĐÁ</span>`;
+    else {
+      const diff = m.ts - now;
+      const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000),
+        mi = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+      const cd = d > 0 ? `${d} ngày ${h}h ${mi}p` : `${p2(h)}:${p2(mi)}:${p2(s)}`;
+      wt = `🗓️ ${p2(dt.getDate())}/${p2(dt.getMonth() + 1)} ${p2(dt.getHours())}:${p2(dt.getMinutes())} · còn <b class="cd">${cd}</b>`;
+    }
+    return `<div class="ko-next-item${lv ? " live" : ""}">
+      <div class="rn">${ROUND_VI[m.round] || m.round} · T${m.num}</div>
+      <div class="tm">${flag(rh)}<span>${clip(rh.label)}</span></div>
+      <div class="tm">${flag(ra)}<span>${clip(ra.label)}</span></div>
+      <div class="wt">${wt}</div>
+    </div>`;
+  }).join("");
   el.className = "ko-next";
-  el.innerHTML = `⏳ <b>Knockout kế tiếp</b> · ${ROUND_VI[next.round] || next.round} T${next.num} · ${teams(next)} · còn <b class="cd">${cd}</b>`;
+  el.innerHTML = `<div class="ko-next-hd">⏳ ${list.length} trận knockout kế tiếp</div><div class="ko-next-row">${items}</div>`;
 }
 setInterval(updateKoCountdown, 1000);
 
