@@ -3012,14 +3012,70 @@ function buildKoResolver() {
              kind: "group", group: L, pos, positions: ps ? [...ps].sort((a, b) => a - b) : null };
   }
 
+  // ===== Gán 8 suất hạng 3 vào 8 slot R32 (DỰ KIẾN theo BXH hiện tại) =====
+  // FIFA WC2026: lấy đội hạng 3 của cả 12 bảng → 8 đội tốt nhất đi tiếp
+  //   (xếp hạng: điểm > hiệu số > bàn thắng), rồi xếp vào các slot theo tổ hợp
+  //   bảng cho phép của từng slot (mã away dạng "3A/B/C/D/F"). Một bộ 8 bảng có
+  //   thể ghép nhiều cách → dùng ghép cặp hoàn hảo (Kuhn) cho ra 1 phương án hợp lệ.
+  // Đây là DỰ KIẾN: chưa đá xong vòng bảng nên luôn để màu xám, cập nhật khi có KQ mới.
+  let _thirdCache;
+  function thirdAssignment() {
+    if (_thirdCache !== undefined) return _thirdCache;
+    // 1) Đội hạng 3 + chỉ số xếp hạng của mỗi bảng đã thi đấu
+    const thirds = [];
+    Object.keys(gtab).forEach((L) => {
+      const tbl = gtab[L] || [];
+      const played = tbl.reduce((s, t) => s + (t.played || 0), 0);
+      const t3 = tbl[2];
+      if (!t3 || played === 0) return;
+      thirds.push({ group: L, team: t3.team, badge: t3.badge,
+        pts: t3.pts || 0, gd: t3.gd || 0, gf: t3.gf || 0 });
+    });
+    if (thirds.length < 8) return (_thirdCache = null);  // chưa đủ dữ liệu → giữ placeholder
+    // 2) Xếp hạng nhóm hạng 3, lấy top 8
+    thirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.group.localeCompare(b.group));
+    const top8 = thirds.slice(0, 8);
+    const byGroup = {}; top8.forEach((t, i) => { byGroup[t.group] = { ...t, rank: i + 1 }; });
+    const qual = new Set(top8.map((t) => t.group));
+    // 3) Các slot hạng 3 (đọc tổ hợp bảng cho phép từ KO_TEMPLATE), chỉ giữ bảng đã qualify
+    const slots = [];
+    KO_TEMPLATE.forEach((t) => [t.home, t.away].forEach((code) => {
+      const mm = String(code).match(/^3([A-L\/]+)$/i);
+      if (mm) slots.push({ code: String(code), allowed: mm[1].toUpperCase().split("/").filter((g) => qual.has(g)) });
+    }));
+    // 4) Ghép cặp hoàn hảo slot ↔ bảng (Kuhn). Slot ít lựa chọn xét trước cho ổn định.
+    slots.sort((a, b) => a.allowed.length - b.allowed.length || a.code.localeCompare(b.code));
+    const matchGroup = {}; // group -> slot index trong `slots`
+    const aug = (si, seen) => {
+      for (const g of slots[si].allowed) {
+        if (seen.has(g)) continue;
+        seen.add(g);
+        if (matchGroup[g] == null || aug(matchGroup[g], seen)) { matchGroup[g] = si; return true; }
+      }
+      return false;
+    };
+    for (let si = 0; si < slots.length; si++) aug(si, new Set());
+    const bySlot = {}; // mã slot "3A/B/.." -> letter bảng được gán
+    Object.entries(matchGroup).forEach(([g, si]) => { bySlot[slots[si].code] = g; });
+    return (_thirdCache = { byGroup, bySlot });
+  }
+
   function resolve(code) {
     const raw = String(code || "").trim();
     if (!raw) return { label: "?", status: "unknown", kind: "empty" };
     if (!_isKoSlot(raw)) return { label: raw, team: raw, badge: flagURL(raw), status: "confirmed", kind: "team" };
     let m;
     if ((m = raw.match(/^([12])([A-L])$/i))) return groupPos(m[2].toUpperCase(), +m[1]);
-    if ((m = raw.match(/^3([A-L\/]+)$/i)))
-      return { label: "Hạng 3 · " + m[1].toUpperCase(), status: "unknown", kind: "third", groups: m[1].toUpperCase().split("/") };
+    if ((m = raw.match(/^3([A-L\/]+)$/i))) {
+      const groups = m[1].toUpperCase().split("/");
+      const asg = thirdAssignment();
+      const g = asg ? asg.bySlot[raw] : null;
+      const t = g ? asg.byGroup[g] : null;
+      if (t) // đã dự kiến được đội hạng 3 cụ thể → vẫn để "provisional" (xám) vì là dự đoán
+        return { label: t.team, team: t.team, badge: t.badge, status: "provisional",
+                 kind: "third", groups, group: g, rank: t.rank };
+      return { label: "Hạng 3 · " + m[1].toUpperCase(), status: "unknown", kind: "third", groups };
+    }
     if ((m = raw.match(/^([WL])(\d+)$/i))) {
       const kind = m[1].toUpperCase(), num = +m[2];
       const src = byNum[num];
@@ -3647,9 +3703,13 @@ function koStatusText(r) {
         desc: `Mới là thứ hạng tạm theo BXH hiện tại — vẫn có thể đổi. Các vị trí còn khả năng: ${(r.positions || []).join(", ")}.` };
     return { icon: "❓", color: "var(--text-fade)", title: `Bảng ${r.group}`, desc: "Chưa đủ dữ liệu để xác định." };
   }
-  if (r.kind === "third")
+  if (r.kind === "third") {
+    if (r.team)
+      return { icon: "🎲", color: "var(--text-fade)", title: `Dự kiến: hạng 3 bảng ${r.group}`,
+        desc: `${r.team} đang xếp trong nhóm 8 đội hạng 3 tốt nhất (tạm hạng ${r.rank}/8) → dự kiến lấp slot này. Slot nhận hạng 3 của 1 trong các bảng ${r.groups.join("/")}. Sẽ đổi khi vòng bảng có kết quả mới.` };
     return { icon: "🎲", color: "var(--text-fade)", title: "Suất hạng 3",
       desc: `Slot dành cho 1 trong các đội hạng 3 của bảng ${r.groups.join(", ")} (8 đội hạng 3 xuất sắc nhất đi tiếp). Chưa xác định đội cụ thể.` };
+  }
   if (r.kind === "winner")
     return { icon: "⏳", color: "var(--text-fade)", title: `Đội thắng trận T${r.srcNum}`, desc: "Chờ trận đó đá xong mới biết đội nào." };
   if (r.kind === "loser")
