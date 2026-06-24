@@ -781,13 +781,19 @@
   .tr-st.no { color: var(--text-fade); }
   .tr-note { font-size: 11px; color: var(--text-fade); margin-top: 10px; line-height: 1.5; }
 
-  /* ===== Thống kê giải đấu — dòng nổi bật ===== */
+  /* ===== Thống kê giải đấu ===== */
+  .tour-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-bottom: 14px;
+  }
+  @media (max-width: 600px) { .tour-stats { grid-template-columns: repeat(2, 1fr); } }
   .tour-hl { display: flex; flex-direction: column; gap: 6px; }
   .tour-hl .row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     font-size: 13px; padding: 8px 10px;
     background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px;
   }
+  .tour-hl .row img { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
   .tour-hl .lb {
     font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
     color: var(--text-fade); font-weight: 700;
@@ -1793,11 +1799,21 @@
 
   <!-- ============= 🌟 WORLD CUP 2026 ============= -->
 
-  <!-- Thống kê nhanh giải đấu -->
+  <div class="grid">
+    <!-- Knockout bracket -->
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🥊</span> Sơ đồ knockout</h2>
+      <div class="bracket-wrap" id="bracketBlock">
+        <div class="loading-pulse">Sẽ hiển thị sau vòng bảng</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cuộc đua suất hạng 3 -->
   <div class="grid">
     <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span></h2>
-      <div id="tourStatsBlock"><div class="loading-pulse">Sẽ hiển thị khi có trận kết thúc.</div></div>
+      <h2><span class="icon">🥉</span> Cuộc đua suất hạng 3 <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">8/12 đội hạng 3 tốt nhất đi tiếp</span></h2>
+      <div id="thirdRaceBlock"><div class="loading-pulse">Sẽ hiển thị khi các bảng bắt đầu thi đấu.</div></div>
     </div>
   </div>
 
@@ -1825,24 +1841,6 @@
   </div>
 
   <div class="grid">
-    <!-- Knockout bracket -->
-    <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">🥊</span> Sơ đồ knockout</h2>
-      <div class="bracket-wrap" id="bracketBlock">
-        <div class="loading-pulse">Sẽ hiển thị sau vòng bảng</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cuộc đua suất hạng 3 -->
-  <div class="grid">
-    <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">🥉</span> Cuộc đua suất hạng 3 <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">8/12 đội hạng 3 tốt nhất đi tiếp</span></h2>
-      <div id="thirdRaceBlock"><div class="loading-pulse">Sẽ hiển thị khi các bảng bắt đầu thi đấu.</div></div>
-    </div>
-  </div>
-
-  <div class="grid">
     <!-- 48 đội tham dự -->
     <div class="card">
       <h2><span class="icon">🌍</span> 48 đội tham dự <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">Click để chọn đội yêu thích</span></h2>
@@ -1853,6 +1851,14 @@
     <div class="card">
       <h2><span class="icon">🏟️</span> 16 sân tổ chức</h2>
       <div class="stadium-grid" id="stadiumsBlock"></div>
+    </div>
+  </div>
+
+  <!-- Thống kê nhanh giải đấu (đặt ở dưới) -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span></h2>
+      <div id="tourStatsBlock"><div class="loading-pulse">Sẽ hiển thị khi có trận kết thúc.</div></div>
     </div>
   </div>
 
@@ -3823,22 +3829,45 @@ function renderTournamentStats() {
   const goals = done.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
   const avg = (goals / done.length).toFixed(2);
   const cleanSheets = done.reduce((s, m) => s + (m.homeScore === 0 ? 1 : 0) + (m.awayScore === 0 ? 1 : 0), 0);
+  const draws = done.filter((m) => m.homeScore === m.awayScore).length;
+  const goalless = done.filter((m) => m.homeScore === 0 && m.awayScore === 0).length;
+  const btts = done.filter((m) => m.homeScore > 0 && m.awayScore > 0).length;       // cả 2 đội ghi bàn
+  const big3 = done.filter((m) => (m.homeScore + m.awayScore) >= 3).length;           // trận từ 3 bàn
+  const drawPct = Math.round((draws / done.length) * 100);
+  const bttsPct = Math.round((btts / done.length) * 100);
+  const totalMatches = (window._allMatches || []).length || done.length;
   let topG = done[0], bigW = done[0];
   done.forEach((m) => {
     if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m;
     if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m;
   });
+  // Thống kê cấp đội (lấy từ BXH các bảng)
+  const teams = (window._standings || []).flatMap((g) => g.table || []).filter((t) => (t.played || 0) > 0);
+  let atk = null, def = null;
+  teams.forEach((t) => {
+    if (!atk || t.gf > atk.gf || (t.gf === atk.gf && (t.gd || 0) > (atk.gd || 0))) atk = t;
+    if (!def || t.ga < def.ga || (t.ga === def.ga && (t.played || 0) > (def.played || 0))) def = t;
+  });
   const ms = (m) => `${esc(m.home)} <b>${m.homeScore}-${m.awayScore}</b> ${esc(m.away)}`;
+  const tflag = (t) => t && t.badge ? `<img src="${esc(t.badge)}" alt="" loading="lazy" onerror="this.style.display='none'">` : "";
+  const teamRows = (atk || def) ? `
+      ${atk ? `<div class="row">⚔️ <span class="lb">Hàng công mạnh nhất</span> ${tflag(atk)} ${esc(atk.team)} <span class="tag">${atk.gf} bàn</span></div>` : ""}
+      ${def ? `<div class="row">🛡️ <span class="lb">Hàng thủ tốt nhất</span> ${tflag(def)} ${esc(def.team)} <span class="tag">thủng ${def.ga}</span></div>` : ""}` : "";
   el.innerHTML = `
-    <div class="pred-stats">
+    <div class="tour-stats">
       <div class="ps-stat"><div class="v">${goals}</div><div class="l">⚽ Tổng bàn</div></div>
       <div class="ps-stat"><div class="v">${avg}</div><div class="l">📊 TB bàn/trận</div></div>
-      <div class="ps-stat"><div class="v">${done.length}</div><div class="l">✅ Trận đã đá</div></div>
-      <div class="ps-stat"><div class="v">${cleanSheets}</div><div class="l">🧤 Lần giữ sạch lưới</div></div>
+      <div class="ps-stat"><div class="v">${done.length}<span style="font-size:13px;color:var(--text-fade)">/${totalMatches}</span></div><div class="l">✅ Trận đã đá</div></div>
+      <div class="ps-stat"><div class="v">${cleanSheets}</div><div class="l">🧤 Giữ sạch lưới</div></div>
+      <div class="ps-stat"><div class="v">${draws}<span style="font-size:13px;color:var(--text-fade)"> · ${drawPct}%</span></div><div class="l">🤝 Trận hòa</div></div>
+      <div class="ps-stat"><div class="v">${goalless}</div><div class="l">🚫 Trận 0-0</div></div>
+      <div class="ps-stat"><div class="v">${btts}<span style="font-size:13px;color:var(--text-fade)"> · ${bttsPct}%</span></div><div class="l">🔄 Cả 2 đội ghi</div></div>
+      <div class="ps-stat"><div class="v">${big3}</div><div class="l">🎯 Trận ≥3 bàn</div></div>
     </div>
     <div class="tour-hl">
       <div class="row">🔥 <span class="lb">Nhiều bàn nhất</span> ${ms(topG)} <span class="tag">${topG.homeScore + topG.awayScore} bàn</span></div>
       <div class="row">💥 <span class="lb">Cách biệt lớn nhất</span> ${ms(bigW)} <span class="tag">+${Math.abs(bigW.homeScore - bigW.awayScore)}</span></div>
+      ${teamRows}
     </div>`;
 }
 
