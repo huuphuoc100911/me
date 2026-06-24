@@ -731,6 +731,75 @@
     display: flex; gap: 8px; padding: 0 0 12px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 12px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .sched-filters { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+  .sf-chip {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 11px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .sf-chip:hover { color: var(--text); border-color: var(--accent-2); }
+  .sf-chip.active {
+    background: rgba(245,158,11,0.18);
+    color: var(--accent-2); border-color: var(--accent-2);
+  }
+  .sched-search {
+    flex: 1; min-width: 130px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border); border-radius: 999px;
+    color: var(--text); font-size: 12px; padding: 6px 12px;
+    outline: none; transition: border-color 0.15s;
+  }
+  .sched-search::placeholder { color: var(--text-fade); }
+  .sched-search:focus { border-color: var(--accent-2); }
+
+  /* ===== Cuộc đua suất hạng 3 ===== */
+  .tr-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tr-tbl th {
+    text-align: left; color: var(--text-fade); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+    padding: 6px 8px; border-bottom: 1px solid var(--border);
+  }
+  .tr-tbl th.c, .tr-tbl td.c { text-align: center; }
+  .tr-tbl td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .tr-tbl tr.qual { background: rgba(16,185,129,0.07); }
+  .tr-tbl tr.cutline td { border-bottom: 2px dashed rgba(16,185,129,0.5); }
+  .tr-tbl tr.out { opacity: 0.5; }
+  .tr-rank { font-weight: 800; color: var(--text-dim); width: 26px; text-align: center; }
+  .tr-tbl tr.qual .tr-rank { color: var(--good); }
+  .tr-team { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .tr-team img { width: 22px; height: 16px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+  .tr-team span { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tr-grp { color: var(--accent-2); font-weight: 700; }
+  .tr-num { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+  .tr-st { font-size: 11px; font-weight: 700; }
+  .tr-st.go { color: var(--good); }
+  .tr-st.no { color: var(--text-fade); }
+  .tr-note { font-size: 11px; color: var(--text-fade); margin-top: 10px; line-height: 1.5; }
+
+  /* ===== Thống kê giải đấu — dòng nổi bật ===== */
+  .tour-hl { display: flex; flex-direction: column; gap: 6px; }
+  .tour-hl .row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 13px; padding: 8px 10px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .tour-hl .lb {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-fade); font-weight: 700;
+  }
+  .tour-hl .tag {
+    margin-left: auto; background: rgba(245,158,11,0.18); color: var(--accent-2);
+    font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: 999px;
+  }
+  @media (max-width: 600px) {
+    .tr-tbl { font-size: 11.5px; }
+    .tr-tbl .tr-hide-m { display: none; }
+    .tr-tbl th, .tr-tbl td { padding: 7px 5px; }
   }
   .fav-filter-btn {
     background: rgba(255,255,255,0.05);
@@ -1695,6 +1764,14 @@
             <span>❤️ Chỉ đội yêu thích</span>
             <span class="cnt" id="favFilterCnt"></span>
           </button>
+          <div class="sched-filters" id="schedFilters">
+            <button class="sf-chip active" data-sfilter="all">Tất cả</button>
+            <button class="sf-chip" data-sfilter="live">🔴 Live</button>
+            <button class="sf-chip" data-sfilter="today">Hôm nay</button>
+            <button class="sf-chip" data-sfilter="upcoming">Sắp tới</button>
+            <button class="sf-chip" data-sfilter="done">Đã đá</button>
+          </div>
+          <input type="search" class="sched-search" id="schedSearch" placeholder="🔍 Tìm đội / bảng…" autocomplete="off" />
         </div>
         <div class="wc-list" id="wcBlock">
           <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
@@ -1715,6 +1792,14 @@
   </div>
 
   <!-- ============= 🌟 WORLD CUP 2026 ============= -->
+
+  <!-- Thống kê nhanh giải đấu -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span></h2>
+      <div id="tourStatsBlock"><div class="loading-pulse">Sẽ hiển thị khi có trận kết thúc.</div></div>
+    </div>
+  </div>
 
   <!-- Vua phá lưới -->
   <div class="grid">
@@ -1746,6 +1831,14 @@
       <div class="bracket-wrap" id="bracketBlock">
         <div class="loading-pulse">Sẽ hiển thị sau vòng bảng</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Cuộc đua suất hạng 3 -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🥉</span> Cuộc đua suất hạng 3 <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">8/12 đội hạng 3 tốt nhất đi tiếp</span></h2>
+      <div id="thirdRaceBlock"><div class="loading-pulse">Sẽ hiển thị khi các bảng bắt đầu thi đấu.</div></div>
     </div>
   </div>
 
@@ -2050,6 +2143,8 @@ async function loadSports() {
     renderTeams();
     scheduleNotifs();
     renderBracket(d.matches || []);
+    renderThirdRace();
+    renderTournamentStats();
     if (typeof renderPredScore === "function") renderPredScore();
     const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
     console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
@@ -3055,9 +3150,14 @@ function buildKoResolver() {
       return false;
     };
     for (let si = 0; si < slots.length; si++) aug(si, new Set());
-    const bySlot = {}; // mã slot "3A/B/.." -> letter bảng được gán
-    Object.entries(matchGroup).forEach(([g, si]) => { bySlot[slots[si].code] = g; });
-    return (_thirdCache = { byGroup, bySlot });
+    const bySlot = {};      // mã slot "3A/B/.." -> letter bảng được gán
+    const slotByGroup = {}; // letter bảng -> mã slot
+    Object.entries(matchGroup).forEach(([g, si]) => { bySlot[slots[si].code] = g; slotByGroup[g] = slots[si].code; });
+    // Danh sách xếp hạng đầy đủ (cả 12 đội hạng 3) cho card "Cuộc đua suất hạng 3"
+    const ranked = thirds.map((t, i) => ({
+      ...t, rank: i + 1, qualified: i < 8, slotCode: i < 8 ? (slotByGroup[t.group] || null) : null
+    }));
+    return (_thirdCache = { byGroup, bySlot, ranked });
   }
 
   function resolve(code) {
@@ -3091,7 +3191,7 @@ function buildKoResolver() {
     }
     return { label: raw, status: "unknown", kind: "unknown" };
   }
-  return { resolve, byNum };
+  return { resolve, byNum, thirdAssignment };
 }
 
 // Cấu trúc cây knockout WC2026 cố định (không đổi theo kết quả) → dùng để dựng sơ đồ
@@ -3396,61 +3496,81 @@ renderFavBadges();
 
 /* ===== Favorite filter trong Lịch thi đấu ===== */
 let _favFilterOn = localStorage.getItem("wc-fav-filter") === "1";
+let _schedFilter = localStorage.getItem("wc-sched-filter") || "all";  // all|live|today|upcoming|done
+let _schedQuery = "";
+// Bộ lọc lịch hợp nhất: ❤️ đội yêu thích + chip (Tất cả/Live/Hôm nay/Sắp tới/Đã đá) + ô tìm kiếm.
+// Một trận hiện khi qua CẢ 3 điều kiện. Giữ tên applyFavFilter để các nơi gọi cũ vẫn chạy.
 function applyFavFilter() {
   const btn = document.getElementById("favFilterBtn");
   const cntEl = document.getElementById("favFilterCnt");
-  if (!btn) return;
   const favs = getFavs();
   if (cntEl) cntEl.textContent = favs.length ? String(favs.length) : "";
-  if (!favs.length) {
-    btn.disabled = true;
-    btn.classList.remove("on");
-    _favFilterOn = false;
-    localStorage.removeItem("wc-fav-filter");
-  } else {
-    btn.disabled = false;
+  if (btn) {
+    if (!favs.length) { btn.disabled = true; btn.classList.remove("on"); _favFilterOn = false; localStorage.removeItem("wc-fav-filter"); }
+    else btn.disabled = false;
+    btn.classList.toggle("on", _favFilterOn);
   }
-  btn.classList.toggle("on", _favFilterOn);
+  // Đồng bộ trạng thái active của các chip
+  document.querySelectorAll("#schedFilters .sf-chip").forEach((c) => c.classList.toggle("active", c.dataset.sfilter === _schedFilter));
 
   const block = document.getElementById("wcBlock");
   if (!block) return;
-  block.querySelectorAll(".wc-match, .wc-day").forEach((el) => { el.style.display = ""; });
+  const now = Date.now();
+  const q = (_schedQuery || "").trim().toLowerCase();
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const today = new Date(now);
 
-  if (!_favFilterOn) {
-    const empty = block.querySelector(".sched-empty");
-    if (empty) empty.remove();
-    return;
-  }
   let visibleCount = 0;
   block.querySelectorAll(".wc-match").forEach((el) => {
-    const show = el.classList.contains("fav");
+    const ts = Number(el.dataset.ts) || 0;
+    const isLive = el.classList.contains("live");
+    const isDone = el.classList.contains("done");
+    const favPass = !_favFilterOn || el.classList.contains("fav");
+    let chipPass = true;
+    if (_schedFilter === "live") chipPass = isLive;
+    else if (_schedFilter === "today") chipPass = !!ts && sameDay(new Date(ts), today);
+    else if (_schedFilter === "upcoming") chipPass = ts > now;
+    else if (_schedFilter === "done") chipPass = isDone;
+    const searchPass = !q || el.textContent.toLowerCase().includes(q);
+    const show = favPass && chipPass && searchPass;
     el.style.display = show ? "" : "none";
     if (show) visibleCount++;
   });
+  // Ẩn tiêu đề ngày nếu bên dưới không còn trận nào hiện
   const days = [...block.querySelectorAll(".wc-day")];
   days.forEach((dh, i) => {
     const next = days[i + 1];
-    let hasVisible = false;
-    let sib = dh.nextElementSibling;
+    let hasVisible = false, sib = dh.nextElementSibling;
     while (sib && sib !== next) {
-      if (sib.classList.contains("wc-match") && sib.style.display !== "none") {
-        hasVisible = true; break;
-      }
+      if (sib.classList.contains("wc-match") && sib.style.display !== "none") { hasVisible = true; break; }
       sib = sib.nextElementSibling;
     }
     dh.style.display = hasVisible ? "" : "none";
   });
   let empty = block.querySelector(".sched-empty");
   if (!visibleCount) {
-    if (!empty) {
-      empty = document.createElement("div");
-      empty.className = "sched-empty";
-      empty.textContent = "Chưa có trận nào của đội bạn yêu thích trong lịch.";
-      block.appendChild(empty);
-    }
-  } else if (empty) {
-    empty.remove();
-  }
+    if (!empty) { empty = document.createElement("div"); empty.className = "sched-empty"; block.appendChild(empty); }
+    empty.textContent = (_favFilterOn && _schedFilter === "all" && !q)
+      ? "Chưa có trận nào của đội bạn yêu thích trong lịch."
+      : "Không có trận nào khớp bộ lọc.";
+  } else if (empty) { empty.remove(); }
+}
+// Chip lọc nhanh
+document.querySelectorAll("#schedFilters .sf-chip").forEach((chip) => {
+  chip.addEventListener("click", () => {
+    _schedFilter = chip.dataset.sfilter || "all";
+    localStorage.setItem("wc-sched-filter", _schedFilter);
+    applyFavFilter();
+  });
+});
+// Ô tìm kiếm (debounce nhẹ)
+const _schedSearchEl = document.getElementById("schedSearch");
+if (_schedSearchEl) {
+  let _stTimer = null;
+  _schedSearchEl.addEventListener("input", () => {
+    clearTimeout(_stTimer);
+    _stTimer = setTimeout(() => { _schedQuery = _schedSearchEl.value || ""; applyFavFilter(); }, 120);
+  });
 }
 const _favFilterBtn = document.getElementById("favFilterBtn");
 if (_favFilterBtn) {
@@ -3642,6 +3762,86 @@ function renderBracket(matches) {
     });
   });
 }
+/* ===== Cuộc đua suất hạng 3: xếp hạng 12 đội hạng 3, tô đậm 8 đội đi tiếp ===== */
+function renderThirdRace() {
+  const block = document.getElementById("thirdRaceBlock");
+  if (!block) return;
+  const R = buildKoResolver();
+  const asg = R.thirdAssignment ? R.thirdAssignment() : null;
+  if (!asg || !asg.ranked || !asg.ranked.length) {
+    block.innerHTML = `<div class="loading-pulse">Chưa đủ dữ liệu — sẽ hiện khi các bảng bắt đầu thi đấu.</div>`;
+    return;
+  }
+  // Mã slot hạng 3 -> { số trận, đối thủ chủ nhà } để hiển thị "đi tiếp gặp ai"
+  const slotInfo = {};
+  KO_TEMPLATE.forEach((t) => {
+    [[t.home, t.away], [t.away, t.home]].forEach(([code, opp]) => {
+      if (/^3[A-L\/]+$/i.test(String(code))) {
+        const ro = R.resolve(opp);
+        slotInfo[String(code)] = { num: t.num, host: ro.team || ro.label };
+      }
+    });
+  });
+  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const flag = (t) => t.badge ? `<img src="${esc(t.badge)}" alt="" loading="lazy" onerror="this.style.display='none'">` : "";
+  const lastQ = asg.ranked.reduce((acc, r, i) => r.qualified ? i : acc, -1); // index dòng cuối đi tiếp
+  const rows = asg.ranked.map((r, i) => {
+    const si = r.slotCode ? slotInfo[r.slotCode] : null;
+    const status = r.qualified
+      ? `<span class="tr-st go">✅ Đi tiếp${si ? ` → gặp ${esc(si.host)} · T${si.num}` : ""}</span>`
+      : `<span class="tr-st no">❌ Tạm bị loại</span>`;
+    return `<tr class="${r.qualified ? "qual" : "out"}${i === lastQ ? " cutline" : ""}">
+      <td class="tr-rank">${r.rank}</td>
+      <td><div class="tr-team">${flag(r)}<span>${esc(r.team)}</span></div></td>
+      <td class="c"><span class="tr-grp">${r.group}</span></td>
+      <td class="c tr-num">${r.pts}</td>
+      <td class="c tr-num tr-hide-m">${r.gd > 0 ? "+" + r.gd : r.gd}</td>
+      <td class="c tr-num tr-hide-m">${r.gf}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join("");
+  block.innerHTML = `
+    <table class="tr-tbl">
+      <thead><tr>
+        <th class="c">#</th><th>Đội</th><th class="c">Bảng</th>
+        <th class="c">Đ</th><th class="c tr-hide-m">HS</th><th class="c tr-hide-m">BT</th>
+        <th>Trạng thái</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="tr-note">📊 Xếp theo điểm → hiệu số → bàn thắng (luật FIFA). 8 đội hạng 3 tốt nhất trong 12 bảng đi tiếp vào vòng 1/16. Đây là <b>dự kiến theo kết quả hiện tại</b> — sẽ tự cập nhật khi vòng bảng có kết quả mới.</div>`;
+}
+
+/* ===== Thống kê nhanh giải đấu (tính từ các trận đã đá) ===== */
+function renderTournamentStats() {
+  const el = document.getElementById("tourStatsBlock");
+  if (!el) return;
+  const all = window._allMatches || [];
+  const done = all.filter((m) => m.homeScore != null && m.awayScore != null);
+  if (!done.length) { el.innerHTML = `<div class="loading-pulse">Chưa có trận nào kết thúc.</div>`; return; }
+  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const goals = done.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
+  const avg = (goals / done.length).toFixed(2);
+  const cleanSheets = done.reduce((s, m) => s + (m.homeScore === 0 ? 1 : 0) + (m.awayScore === 0 ? 1 : 0), 0);
+  let topG = done[0], bigW = done[0];
+  done.forEach((m) => {
+    if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m;
+    if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m;
+  });
+  const ms = (m) => `${esc(m.home)} <b>${m.homeScore}-${m.awayScore}</b> ${esc(m.away)}`;
+  el.innerHTML = `
+    <div class="pred-stats">
+      <div class="ps-stat"><div class="v">${goals}</div><div class="l">⚽ Tổng bàn</div></div>
+      <div class="ps-stat"><div class="v">${avg}</div><div class="l">📊 TB bàn/trận</div></div>
+      <div class="ps-stat"><div class="v">${done.length}</div><div class="l">✅ Trận đã đá</div></div>
+      <div class="ps-stat"><div class="v">${cleanSheets}</div><div class="l">🧤 Lần giữ sạch lưới</div></div>
+    </div>
+    <div class="tour-hl">
+      <div class="row">🔥 <span class="lb">Nhiều bàn nhất</span> ${ms(topG)} <span class="tag">${topG.homeScore + topG.awayScore} bàn</span></div>
+      <div class="row">💥 <span class="lb">Cách biệt lớn nhất</span> ${ms(bigW)} <span class="tag">+${Math.abs(bigW.homeScore - bigW.awayScore)}</span></div>
+    </div>`;
+}
+
 /* Đồng hồ đếm ngược 3 trận knockout kế tiếp (cập nhật mỗi giây) */
 function updateKoCountdown() {
   const el = document.getElementById("koNext");
@@ -4281,9 +4481,11 @@ async function refreshLiveFromFD() {
         m.homeScore, m.awayScore
       );
     }
-    // BXH có thể vừa đổi → cập nhật luôn sơ đồ knockout
+    // BXH có thể vừa đổi → cập nhật luôn sơ đồ knockout + cuộc đua hạng 3
     if (d.standings) renderStandings(d.standings);
     renderBracket(d.matches);
+    renderThirdRace();
+    renderTournamentStats();
   } catch {}
 }
 
