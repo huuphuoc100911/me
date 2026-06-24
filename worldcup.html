@@ -758,6 +758,7 @@
   .sched-search:focus { border-color: var(--accent-2); }
 
   /* ===== Cuộc đua suất hạng 3 ===== */
+  .tr-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tr-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .tr-tbl th {
     text-align: left; color: var(--text-fade); font-size: 10px;
@@ -776,7 +777,7 @@
   .tr-team span { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tr-grp { color: var(--accent-2); font-weight: 700; }
   .tr-num { color: var(--text-dim); font-variant-numeric: tabular-nums; }
-  .tr-st { font-size: 11px; font-weight: 700; }
+  .tr-st { font-size: 11px; font-weight: 700; white-space: nowrap; }
   .tr-st.go { color: var(--good); }
   .tr-st.no { color: var(--text-fade); }
   .tr-note { font-size: 11px; color: var(--text-fade); margin-top: 10px; line-height: 1.5; }
@@ -838,8 +839,7 @@
     font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: 999px;
   }
   @media (max-width: 600px) {
-    .tr-tbl { font-size: 11.5px; }
-    .tr-tbl .tr-hide-m { display: none; }
+    .tr-tbl { font-size: 11.5px; min-width: 560px; }
     .tr-tbl th, .tr-tbl td { padding: 7px 5px; }
   }
   .fav-filter-btn {
@@ -1876,6 +1876,14 @@
     </div>
   </div>
 
+  <!-- Thống kê nhanh giải đấu -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span></h2>
+      <div id="tourStatsBlock"><div class="loading-pulse">Sẽ hiển thị khi có trận kết thúc.</div></div>
+    </div>
+  </div>
+
   <!-- Vua phá lưới -->
   <div class="grid">
     <div class="card" style="grid-column: 1 / -1">
@@ -1910,14 +1918,6 @@
     <div class="card">
       <h2><span class="icon">🏟️</span> 16 sân tổ chức</h2>
       <div class="stadium-grid" id="stadiumsBlock"></div>
-    </div>
-  </div>
-
-  <!-- Thống kê nhanh giải đấu (đặt ở dưới) -->
-  <div class="grid">
-    <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span></h2>
-      <div id="tourStatsBlock"><div class="loading-pulse">Sẽ hiển thị khi có trận kết thúc.</div></div>
     </div>
   </div>
 
@@ -4023,20 +4023,22 @@ function renderThirdRace() {
       <td><div class="tr-team">${flag(r)}<span>${esc(r.team)}</span></div></td>
       <td class="c"><span class="tr-grp">${r.group}</span></td>
       <td class="c tr-num">${r.pts}</td>
-      <td class="c tr-num tr-hide-m">${r.gd > 0 ? "+" + r.gd : r.gd}</td>
-      <td class="c tr-num tr-hide-m">${r.gf}</td>
+      <td class="c tr-num">${r.gd > 0 ? "+" + r.gd : r.gd}</td>
+      <td class="c tr-num">${r.gf}</td>
       <td>${status}</td>
     </tr>`;
   }).join("");
   block.innerHTML = `
+    <div class="tr-scroll">
     <table class="tr-tbl">
       <thead><tr>
         <th class="c">#</th><th>Đội</th><th class="c">Bảng</th>
-        <th class="c">Đ</th><th class="c tr-hide-m">HS</th><th class="c tr-hide-m">BT</th>
+        <th class="c">Đ</th><th class="c">HS</th><th class="c">BT</th>
         <th>Trạng thái</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    </div>
     <div class="tr-note">📊 Xếp theo điểm → hiệu số → bàn thắng (luật FIFA). 8 đội hạng 3 tốt nhất trong 12 bảng đi tiếp vào vòng 1/16. Đây là <b>dự kiến theo kết quả hiện tại</b> — sẽ tự cập nhật khi vòng bảng có kết quả mới.</div>`;
 }
 
