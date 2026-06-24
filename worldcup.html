@@ -794,6 +794,41 @@
     background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px;
   }
   .tour-hl .row img { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+
+  /* ===== Thành tích đội trong modal ===== */
+  .team-wc-stats {
+    margin: 0 0 4px; padding: 12px 14px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .tws-head {
+    font-size: 11px; font-weight: 700; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+  }
+  .tws-pos {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.06); color: var(--text-dim); letter-spacing: 0;
+  }
+  .tws-pos.go { background: rgba(16,185,129,0.18); color: var(--good); }
+  .tws-pos.mid { background: rgba(245,158,11,0.16); color: var(--accent-2); }
+  .tws-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .tws-cell {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 4px; text-align: center;
+  }
+  .tws-cell .v { font-size: 16px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .tws-cell .l { font-size: 9px; color: var(--text-fade); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; font-weight: 600; }
+  .tws-form { display: flex; align-items: center; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+  .tws-form-lb { font-size: 11px; color: var(--text-fade); font-weight: 600; }
+  .tws-dot {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #fff; cursor: default;
+  }
+  .tws-dot.W { background: var(--good); }
+  .tws-dot.D { background: var(--accent-2); }
+  .tws-dot.L { background: var(--bad); }
+  @media (max-width: 600px) { .tws-cell .v { font-size: 14px; } }
   .tour-hl .lb {
     font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
     color: var(--text-fade); font-weight: 700;
@@ -1128,6 +1163,30 @@
   /* Tô sáng đường đi tới chung kết */
   .bracket-svg .b-box.hl { stroke: var(--accent-2); stroke-width: 2; }
   .bracket-svg .b-line.hl { stroke: var(--accent-2); stroke-width: 2.5; }
+  /* Ô đã có dự đoán đội thắng */
+  .bracket-svg .b-box.picked { fill: rgba(245,158,11,0.07); stroke: rgba(245,158,11,0.5); }
+
+  /* ===== Thanh dự đoán nhà vô địch ===== */
+  .ko-predict-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .ko-pred-btn {
+    background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4);
+    color: var(--accent-2); font-weight: 700; font-size: 12px;
+    padding: 6px 13px; border-radius: 999px; cursor: pointer; transition: all 0.15s;
+  }
+  .ko-pred-btn:hover { background: rgba(245,158,11,0.2); }
+  .ko-pred-btn.on { background: var(--accent-2); color: #1a1205; border-color: var(--accent-2); }
+  .ko-pred-reset {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35);
+    color: var(--bad); font-weight: 600; font-size: 12px;
+    padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  }
+  .ko-pred-reset:hover { background: rgba(239,68,68,0.2); }
+  .ko-pred-info { font-size: 12px; color: var(--text-dim); display: inline-flex; align-items: center; gap: 5px; }
+  .ko-pred-info img { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; vertical-align: middle; }
+  .ko-pred-info b { color: var(--accent-2); }
 
   /* ===== Popup chi tiết ô knockout ===== */
   .ko-detail-modal {
@@ -2000,6 +2059,7 @@
           <div class="gh"><span class="gi">🌍</span> Xem đội + cầu thủ</div>
           <div class="gd">
             Bấm vào tile đội (không phải ★) → modal danh sách 26 cầu thủ + HLV, lazy-load <b>ảnh thật từ Wikipedia</b>.
+            Đầu modal có <b>thành tích World Cup 2026</b> của đội: hạng bảng, T-H-B, bàn thắng/thua, hiệu số, điểm + <b>phong độ</b> các trận đã đá.
             Bấm 1 cầu thủ → tiểu sử Wikipedia tiếng Việt (fallback EN). Squad cache localStorage 24h.
           </div>
         </div>
@@ -2010,6 +2070,15 @@
             Cây nhánh 1/16 → 1/8 → tứ kết → bán kết → chung kết, kèm <b>ngày &amp; giờ thi đấu</b> (giờ máy bạn).
             Tự điền đội theo BXH: <code style="color:var(--good)">xanh ✓</code> đã chắc vị trí, <b>trắng</b> đã đi tiếp, <code>xám</code> dự kiến.
             <b>Bấm vào 1 đội</b> để xem chi tiết: nhất/nhì bảng, đã chắc suất hay chỉ là dự kiến.
+          </div>
+        </div>
+
+        <div class="guide-item">
+          <div class="gh"><span class="gi">🎯</span> Dự đoán nhà vô địch</div>
+          <div class="gd">
+            Bấm <code style="color:var(--accent-2)">🎯 Dự đoán nhà vô địch</code> trên Sơ đồ knockout, rồi <b>bấm đội bạn nghĩ sẽ thắng</b> ở từng trận —
+            đội đó <b>tự leo lên nhánh sau</b> (★ vàng), đi tới cúp. Đổi nhánh dưới thì các lựa chọn phía trên không còn hợp lệ sẽ tự xoá.
+            Khi có kết quả thật: tô <code style="color:var(--good)">xanh</code> nếu đoán đúng, <code style="color:var(--bad)">đỏ</code> nếu sai, kèm số trận đúng. Lưu cục bộ trên máy.
           </div>
         </div>
 
@@ -2644,6 +2713,27 @@ async function loadAvaPhoto(av) {
   av.insertBefore(img, av.firstChild);
 }
 
+// Thành tích của 1 đội ở WC2026: lấy dòng BXH (vị trí + chỉ số) + phong độ các trận đã đá
+function teamWcStats(teamName) {
+  const standings = window._standings || [];
+  let row = null, group = null, pos = null;
+  for (const g of standings) {
+    const tbl = g.table || [];
+    const i = tbl.findIndex((t) => t.team === teamName);
+    if (i >= 0) { row = tbl[i]; group = String(g.group || "").replace(/^Group[\s_]*/i, "").trim(); pos = i + 1; break; }
+  }
+  const all = window._allMatches || [];
+  const mine = all
+    .filter((m) => (m.home === teamName || m.away === teamName) && m.homeScore != null && m.awayScore != null)
+    .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  const form = mine.map((m) => {
+    const home = m.home === teamName;
+    const gf = home ? m.homeScore : m.awayScore, ga = home ? m.awayScore : m.homeScore;
+    return { res: gf > ga ? "W" : gf < ga ? "L" : "D", opp: home ? m.away : m.home, gf, ga, home };
+  });
+  return { row, group, pos, form };
+}
+
 async function openTeam(teamName) {
   const modal = document.getElementById("teamModal");
   const body = document.getElementById("teamBody");
@@ -2708,6 +2798,28 @@ async function openTeam(teamName) {
     const flag = flagURL(teamName) || d.crest;
     const hasAnyNumber = d.squad.some((p) => p.shirtNumber);
     body.classList.toggle("no-num", !hasAnyNumber);
+    // Thành tích WC2026 (nếu đã có dữ liệu BXH/lịch)
+    const wc = teamWcStats(d.team || teamName);
+    let statsHTML = "";
+    if (wc.row) {
+      const r = wc.row;
+      const posCls = wc.pos <= 2 ? "go" : wc.pos === 3 ? "mid" : "";
+      const dots = wc.form.slice(-5).map((f) =>
+        `<span class="tws-dot ${f.res}" title="${f.home ? "" : "@"}${String(f.opp || "").replace(/"/g, "&quot;")} ${f.gf}-${f.ga}">${f.res === "W" ? "T" : f.res === "D" ? "H" : "B"}</span>`
+      ).join("") || `<span style="color:var(--text-fade);font-size:11px">chưa có trận</span>`;
+      statsHTML = `
+      <div class="team-wc-stats">
+        <div class="tws-head">📊 Thành tích World Cup 2026${wc.group ? ` · <span class="tws-pos ${posCls}">Hạng ${wc.pos} bảng ${wc.group}</span>` : ""}</div>
+        <div class="tws-grid">
+          <div class="tws-cell"><div class="v">${r.played}</div><div class="l">Trận</div></div>
+          <div class="tws-cell"><div class="v">${r.won}-${r.drawn}-${r.lost}</div><div class="l">T-H-B</div></div>
+          <div class="tws-cell"><div class="v">${r.gf}-${r.ga}</div><div class="l">BT-BB</div></div>
+          <div class="tws-cell"><div class="v">${r.gd > 0 ? "+" + r.gd : r.gd}</div><div class="l">Hiệu số</div></div>
+          <div class="tws-cell"><div class="v" style="color:var(--accent-2)">${r.pts}</div><div class="l">Điểm</div></div>
+        </div>
+        <div class="tws-form"><span class="tws-form-lb">Phong độ:</span> ${dots}</div>
+      </div>`;
+    }
     body.innerHTML = `
       <div class="thead">
         ${flag ? `<img src="${flag}" alt="">` : ""}
@@ -2721,6 +2833,7 @@ async function openTeam(teamName) {
         </div>
         <button class="fav-toggle ${isFav(teamName) ? 'active' : ''}" id="teamFavToggle">⭐ ${isFav(teamName) ? "Đã chọn" : "Chọn đội"}</button>
       </div>
+      ${statsHTML}
       <div class="tbody">
         ${ordered.map((pos) => `
           <div class="pos-group">
@@ -3623,6 +3736,25 @@ function renderTeams() {
 renderTeams();
 
 /* ===== Knockout bracket (cây nhánh thật, tự điền đội khi chắc chắn) ===== */
+/* ===== Dự đoán nhà vô địch (bấm chọn đội thắng từng trận knockout) ===== */
+const KO_PICKS_KEY = "wc-ko-picks";
+function getKoPicks() { try { return JSON.parse(localStorage.getItem(KO_PICKS_KEY) || "{}") || {}; } catch { return {}; } }
+function saveKoPicks(p) { try { localStorage.setItem(KO_PICKS_KEY, JSON.stringify(p)); } catch {} }
+// Chấm điểm: với mỗi trận đã có kết quả thật + có dự đoán → đúng/sai
+function koPredictScore(picks, byNum) {
+  let predicted = 0, decided = 0, correct = 0;
+  KO_TEMPLATE.forEach((t) => {
+    if (picks[t.num]) predicted++;
+    const s = byNum[t.num];
+    if (s && s.homeScore != null && s.awayScore != null && s.homeScore !== s.awayScore && picks[t.num]) {
+      decided++;
+      const w = s.homeScore > s.awayScore ? s.home : s.away;
+      if (picks[t.num] === w) correct++;
+    }
+  });
+  return { predicted, decided, correct, champion: picks[104] || null };
+}
+
 function renderBracket(matches) {
   const block = document.getElementById("bracketBlock");
   if (!block) return;
@@ -3676,9 +3808,48 @@ function renderBracket(matches) {
   const clip = (s, n) => { s = String(s || ""); n = n || 15; return s.length > n ? s.slice(0, n - 1) + "…" : s; };
   const pad = (n) => String(n).padStart(2, "0");
   // confirmed (chắc vị trí nhất/nhì) = xanh + ✓ · qualified (vào vòng trong, chưa rõ vị trí) = trắng đậm · còn lại = xám
-  const fillOf = (st) => st === "confirmed" ? "#10b981" : st === "qualified" ? "#e2e8f0" : "#64748b";
+  const fillOf = (st) => st === "confirmed" ? "#10b981" : st === "qualified" ? "#e2e8f0" : st === "predicted" ? "#f59e0b" : "#64748b";
   const tick = (st) => st === "confirmed" ? " ✓" : "";
   const now = Date.now();
+
+  // ===== Chế độ dự đoán nhà vô địch =====
+  const predictMode = !!window._koPredictMode;
+  const picks = getKoPicks();
+  // map tên đội → logo (từ lịch + BXH) để đội dự đoán vẫn có cờ
+  const badgeByTeam = {};
+  (window._allMatches || []).forEach((m) => { if (m.home && m.homeBadge) badgeByTeam[m.home] = m.homeBadge; if (m.away && m.awayBadge) badgeByTeam[m.away] = m.awayBadge; });
+  (window._standings || []).forEach((g) => (g.table || []).forEach((t) => { if (t.team && t.badge) badgeByTeam[t.team] = t.badge; }));
+  const badgeOf = (name) => badgeByTeam[name] || flagURL(name) || null;
+  const realWinner = (n) => {
+    const s = byNum[n];
+    if (s && s.homeScore != null && s.awayScore != null && s.homeScore !== s.awayScore) return s.homeScore > s.awayScore ? s.home : s.away;
+    return null;
+  };
+  // Đội ở 1 slot: ưu tiên kết quả thật; nếu chưa có & đang dự đoán thì lấy đội user chọn ở trận nguồn
+  const participantFill = (code, fill) => {
+    const wm = String(code).match(/^W(\d+)$/i);
+    if (wm && fill) {
+      const n = +wm[1];
+      if (!realWinner(n) && picks[n]) return { team: picks[n], label: picks[n], badge: badgeOf(picks[n]), status: "predicted", predicted: true };
+    }
+    return resolver.resolve(code);
+  };
+  // Dọn dự đoán không còn hợp lệ (vd đổi nhánh dưới → đội đã chọn không còn ở trận đó). Giữ dự đoán của trận đã đá để chấm điểm.
+  (function pruneInvalid() {
+    let again = true, changed = false;
+    while (again) {
+      again = false;
+      for (const t of KO_TEMPLATE) {
+        const n = t.num;
+        if (picks[n] == null) continue;
+        const s = byNum[n];
+        if (s && s.homeScore != null && s.awayScore != null) continue;
+        const names = [participantFill(t.home, true).team, participantFill(t.away, true).team].filter(Boolean);
+        if (!names.includes(picks[n])) { delete picks[n]; changed = true; again = true; }
+      }
+    }
+    if (changed) saveKoPicks(picks);
+  })();
 
   let svg = `<svg class="bracket-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
   stagesPresent.forEach((s) => {
@@ -3701,22 +3872,35 @@ function renderBracket(matches) {
   ko.forEach((m, idx) => {
     const ci = colOf[m.round];
     const x = xOf(ci), y = yOf(rowOf[m.num]);
-    const rH = resolver.resolve(m.home), rA = resolver.resolve(m.away);
+    const rH = participantFill(m.home, predictMode), rA = participantFill(m.away, predictMode);
     const done = m.homeScore != null && m.awayScore != null;
     const live = !done && m.ts && m.ts <= now && now < m.ts + 2 * 3600 * 1000;
     const it = (st) => (st === "provisional" || st === "unknown") ? ' font-style="italic"' : "";
+    // Đánh dấu đội user chọn thắng trận này (★) + chấm đúng/sai khi đã có KQ
+    const myPick = predictMode ? picks[m.num] : null;
+    const rw = realWinner(m.num);
+    const markOf = (r) => {
+      if (!myPick || !r.team || r.team !== myPick) return "";
+      if (rw) return r.team === rw ? "correct" : "wrong";
+      return "pick";
+    };
     // Dòng giờ thi đấu: số trận · ngày · giờ (giờ máy người xem)
     const dt = m.ts ? new Date(m.ts) : null;
     const when = (dt ? `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—") + ` · T${m.num}`;
-    svg += `<rect class="b-box${live ? " live" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
+    svg += `<rect class="b-box${live ? " live" : ""}${myPick ? " picked" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
     svg += `<text x="${x + 9}" y="${y + 14}" class="b-when">${live ? "🔴 " : ""}${when}</text>`;
-    // 1 dòng đội: cờ (nếu có) + tên + ✓
+    // 1 dòng đội: cờ (nếu có) + tên + ✓ (+ ★ nếu là đội bạn dự đoán thắng)
+    const MARKFILL = { correct: "#10b981", wrong: "#ef4444", pick: "#f59e0b" };
     const line = (r, cy) => {
+      const mark = markOf(r);
       const fl = r.badge || (r.team ? flagURL(r.team) : null);
       const tx = fl ? x + 30 : x + 9;
+      const fill = mark ? MARKFILL[mark] : fillOf(r.status);
+      const bold = mark ? ' font-weight="800"' : "";
+      const star = mark ? "★ " : "";
       let s = "";
       if (fl) s += `<image href="${fl}" x="${x + 9}" y="${cy - 11}" width="18" height="13" preserveAspectRatio="xMidYMid slice"/>`;
-      s += `<text x="${tx}" y="${cy}" class="b-team" fill="${fillOf(r.status)}"${it(r.status)}>${esc(clip(r.label, fl ? 14 : 20))}${tick(r.status)}</text>`;
+      s += `<text x="${tx}" y="${cy}" class="b-team" fill="${fill}"${it(r.status)}${bold}>${star}${esc(clip(r.label, fl ? 13 : 19))}${tick(r.status)}</text>`;
       return s;
     };
     svg += line(rH, y + 33);
@@ -3731,15 +3915,41 @@ function renderBracket(matches) {
   });
   svg += `</svg>`;
 
-  const legend = `<div class="compare-legend" style="margin-top:10px">
-    <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px"></span>✓ Chắc chắn vị trí (nhất/nhì bảng)</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:4px"></span>Đã vào vòng trong (chưa rõ vị trí)</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:2px;margin-right:4px"></span>Dự kiến theo BXH / chờ kết quả</span>
-    <span style="color:var(--text-fade)">💡 Bấm 1 đội → chi tiết + tô sáng đường tới chung kết</span>
-  </div>`;
+  const legend = predictMode
+    ? `<div class="compare-legend" style="margin-top:10px">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px"></span>★ Đội bạn dự đoán đi tiếp</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px"></span>Đoán đúng (đã có KQ)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px"></span>Đoán sai</span>
+        <span style="color:var(--text-fade)">💡 Bấm vào đội bạn nghĩ sẽ thắng — đội đó tự lên nhánh sau</span>
+      </div>`
+    : `<div class="compare-legend" style="margin-top:10px">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px"></span>✓ Chắc chắn vị trí (nhất/nhì bảng)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:4px"></span>Đã vào vòng trong (chưa rõ vị trí)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:2px;margin-right:4px"></span>Dự kiến theo BXH / chờ kết quả</span>
+        <span style="color:var(--text-fade)">💡 Bấm 1 đội → chi tiết + tô sáng đường tới chung kết</span>
+      </div>`;
+
+  // Thanh điều khiển dự đoán nhà vô địch
+  const sc = koPredictScore(picks, byNum);
+  const champBadge = sc.champion ? badgeOf(sc.champion) : null;
+  const predictBar = `<div class="ko-predict-bar">
+      <button id="koPredictToggle" class="ko-pred-btn${predictMode ? " on" : ""}">${predictMode ? "✓ Đang dự đoán" : "🎯 Dự đoán nhà vô địch"}</button>
+      ${sc.predicted ? `<button id="koPredictReset" class="ko-pred-reset">🗑 Xoá (${sc.predicted})</button>` : ""}
+      <span class="ko-pred-info">
+        ${sc.champion ? `🏆 Vô địch dự đoán: ${champBadge ? `<img src="${champBadge}" alt="">` : ""}<b>${esc(sc.champion)}</b>` : (predictMode ? "Bấm đội thắng từng trận đến khi vô địch" : "")}
+        ${sc.decided ? ` · ✅ Đúng <b>${sc.correct}/${sc.decided}</b>` : ""}
+      </span>
+    </div>`;
+
   window._koMatches = ko;   // cho đồng hồ đếm ngược dùng
-  block.innerHTML = `<div class="ko-next" id="koNext"></div><div class="bracket-scroll" id="bracketScroll">${svg}</div>${legend}`;
+  block.innerHTML = `<div class="ko-next" id="koNext"></div>${predictBar}<div class="bracket-scroll" id="bracketScroll">${svg}</div>${legend}`;
   updateKoCountdown();
+
+  // Nút bật/tắt chế độ dự đoán + xoá
+  const tglBtn = document.getElementById("koPredictToggle");
+  if (tglBtn) tglBtn.addEventListener("click", () => { window._koPredictMode = !window._koPredictMode; renderBracket(window._allMatches || []); });
+  const rstBtn = document.getElementById("koPredictReset");
+  if (rstBtn) rstBtn.addEventListener("click", () => { if (confirm("Xoá toàn bộ dự đoán knockout?")) { saveKoPicks({}); renderBracket(window._allMatches || []); } });
 
   const svgEl = block.querySelector("svg");
   // Tự cuộn ngang tới vòng đang/sắp diễn ra (chỉ lần đầu, không giật khi refresh)
@@ -3752,11 +3962,23 @@ function renderBracket(matches) {
     window._koScrolled = true;
   }
 
-  // Bấm 1 đội → tô sáng đường đi tới CK + mở popup chi tiết
+  // Bấm 1 đội: chế độ dự đoán → chọn đội thắng · bình thường → chi tiết + tô sáng đường tới CK
   block.querySelectorAll(".b-hit").forEach((el) => {
     el.addEventListener("click", () => {
       const m = ko[+el.dataset.mi];
       if (!m) return;
+      if (window._koPredictMode) {
+        const code = el.dataset.side === "h" ? m.home : m.away;
+        const p = participantFill(code, true);
+        if (!p.team) return;                 // slot chưa rõ đội → chưa chọn được
+        if (realWinner(m.num)) return;        // trận đã có kết quả thật → không cho đổi
+        const cur = getKoPicks();
+        if (cur[m.num] === p.team) delete cur[m.num];  // bấm lại đội đã chọn → bỏ chọn
+        else cur[m.num] = p.team;
+        saveKoPicks(cur);
+        renderBracket(window._allMatches || []);
+        return;
+      }
       const path = new Set();
       let n = m.num;
       while (n != null) { path.add(n); n = KO_PARENT[n]; }
