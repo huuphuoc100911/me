@@ -3217,6 +3217,12 @@ function buildKoResolver() {
       _grpLetter(m.group) === L && m.homeScore == null && m.awayScore == null &&
       teams.includes(m.home) && teams.includes(m.away)
     );
+    // Bảng đã đá xong toàn bộ → thứ tự BXH là CHUNG CUỘC (mọi tiêu chí phụ đã áp dụng,
+    // không còn trận nào để thay đổi) → khóa cứng mỗi đội vào đúng vị trí hiện tại.
+    if (rem.length === 0) {
+      const posFinal = {}; teams.forEach((t, i) => { posFinal[t] = new Set([i + 1]); });
+      return (_posCache[L] = posFinal);
+    }
     const k = Math.min(rem.length, 8); // chặn an toàn (3^8)
     const pos = {}; teams.forEach((t) => { pos[t] = new Set(); });
     for (let mask = 0, N = Math.pow(3, k); mask < N; mask++) {
