@@ -3664,7 +3664,7 @@ function flagURL(team) {
   const ISO = {
     "algeria":"dz","argentina":"ar","australia":"au","austria":"at","belgium":"be",
     "bosnia & herzegovina":"ba","bosnia and herzegovina":"ba","bosnia-herzegovina":"ba","bosnia":"ba",
-    "brazil":"br","canada":"ca","cape verde":"cv","cabo verde":"cv","curaçao":"cw","curacao":"cw",
+    "brazil":"br","canada":"ca","cape verde":"cv","cape verde islands":"cv","cabo verde":"cv","curaçao":"cw","curacao":"cw",
     "colombia":"co","croatia":"hr",
     "czech republic":"cz","czechia":"cz",
     "dr congo":"cd","democratic republic of the congo":"cd","congo dr":"cd",
@@ -4207,8 +4207,8 @@ async function exportBracketImage(btn) {
     };
     KO_TEMPLATE.forEach((t) => rowFor(t.num));
 
-    // --- Kích thước layout ---
-    const boxW = 212, boxH = 54, rowPitch = 66, stride = 256, M = 46, headerH = 104, footerH = 46;
+    // --- Kích thước layout (tỉ lệ ~2:1, dễ xem/đăng Facebook thay vì dải dài) ---
+    const boxW = 196, boxH = 72, rowPitch = 118, stride = 228, M = 44, headerH = 124, footerH = 54;
     const W = 100 + 2 * M + 6 * stride + 3 * boxW; // đối xứng: 4 cột trái + CK giữa + 4 cột phải
     const H = headerH + 7 * rowPitch + boxH + footerH;
     const sideName = (n) => n === 104 ? "C" : (leftSet.has(n) ? "L" : "R");
@@ -4277,17 +4277,21 @@ async function exportBracketImage(btn) {
     const drawRow = (x, yTop, h, part, isWin, score) => {
       if (isWin) { ctx.fillStyle = "rgba(245,197,24,0.14)"; ctx.fillRect(x + 1, yTop + 1, boxW - 2, h - 2); }
       const cyR = yTop + h / 2;
-      let tx = x + 12;
+      let tx = x + 14;
       const img = part.team ? flagImgs[part.team] : null;
-      if (img) { ctx.drawImage(img, x + 11, cyR - 7, 21, 14); tx = x + 39; }
+      if (img) {
+        // nền trắng sau cờ để cờ tông tối (vd Bosnia) vẫn nổi trên nền đen
+        ctx.fillStyle = "#ffffff"; rrect(x + 12, cyR - 10, 30, 20, 3); ctx.fill();
+        ctx.drawImage(img, x + 13, cyR - 9, 27, 18); tx = x + 48;
+      }
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.font = F(isWin ? 700 : 600, 15);
+      ctx.font = F(isWin ? 700 : 600, 19);
       ctx.fillStyle = isWin ? "#f5c518" : (part.known ? "#e8edf4" : "#7c8799");
-      const scoreW = score != null ? 24 : 8;
+      const scoreW = score != null ? 30 : 10;
       ctx.fillText(clipText(part.label, x + boxW - scoreW - tx - 4), tx, cyR + 0.5);
       if (score != null) {
-        ctx.textAlign = "right"; ctx.font = F(700, 15); ctx.fillStyle = "#e8edf4";
-        ctx.fillText(String(score), x + boxW - 9, cyR + 0.5); ctx.textAlign = "left";
+        ctx.textAlign = "right"; ctx.font = F(700, 19); ctx.fillStyle = "#e8edf4";
+        ctx.fillText(String(score), x + boxW - 11, cyR + 0.5); ctx.textAlign = "left";
       }
     };
 
@@ -4299,53 +4303,53 @@ async function exportBracketImage(btn) {
       const pH = sideOf(m, "h"), pA = sideOf(m, "a");
       const fin = n === 104;
       ctx.fillStyle = fin ? "rgba(245,197,24,0.10)" : "rgba(255,255,255,0.04)";
-      rrect(x, yT, boxW, boxH, 9); ctx.fill();
-      ctx.lineWidth = fin ? 1.8 : 1.2;
+      rrect(x, yT, boxW, boxH, 11); ctx.fill();
+      ctx.lineWidth = fin ? 2.2 : 1.6;
       ctx.strokeStyle = fin ? "rgba(245,197,24,0.6)" : "rgba(255,255,255,0.15)";
-      rrect(x, yT, boxW, boxH, 9); ctx.stroke();
+      rrect(x, yT, boxW, boxH, 11); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x + 8, yT + boxH / 2); ctx.lineTo(x + boxW - 8, yT + boxH / 2);
       ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1; ctx.stroke();
       drawRow(x, yT, boxH / 2, pH, !!(win && pH.team === win), done ? m.homeScore : null);
       drawRow(x, yT + boxH / 2, boxH / 2, pA, !!(win && pA.team === win), done ? m.awayScore : null);
     });
     // cúp trên hộp chung kết
-    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(700, 22);
-    ctx.fillText("🏆", W / 2, boxYTop(104) - 10);
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(700, 30);
+    ctx.fillText("🏆", W / 2, boxYTop(104) - 14);
 
     // tiêu đề
     ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#f5c518"; ctx.font = F(800, 30); ctx.fillText("🏆 World Cup 2026", M, 46);
-    ctx.fillStyle = "#9aa6b6"; ctx.font = F(600, 18); ctx.fillText("Sơ đồ dự đoán knockout", M, 74);
+    ctx.fillStyle = "#f5c518"; ctx.font = F(800, 34); ctx.fillText("🏆 World Cup 2026", M, 54);
+    ctx.fillStyle = "#9aa6b6"; ctx.font = F(600, 20); ctx.fillText("Sơ đồ dự đoán knockout", M, 84);
 
     // banner nhà vô địch dự đoán (giữa trên)
     if (champ) {
       const pre = "Vô địch dự đoán:  ";
-      ctx.font = F(700, 18); const preW = ctx.measureText(pre).width;
-      ctx.font = F(800, 22); const nameW = ctx.measureText(champ).width;
-      const fimg = flagImgs[champ]; const fw = fimg ? 30 : 0;
-      const total = preW + fw + 10 + nameW; let sx = W / 2 - total / 2; const by = 44;
+      ctx.font = F(700, 22); const preW = ctx.measureText(pre).width;
+      ctx.font = F(800, 28); const nameW = ctx.measureText(champ).width;
+      const fimg = flagImgs[champ]; const fw = fimg ? 38 : 0;
+      const total = preW + fw + 12 + nameW; let sx = W / 2 - total / 2; const by = 54;
       ctx.textBaseline = "middle";
-      ctx.fillStyle = "#cbd5e1"; ctx.font = F(700, 18); ctx.fillText(pre, sx, by); sx += preW;
-      if (fimg) { ctx.drawImage(fimg, sx, by - 10, 28, 19); sx += fw + 10; }
-      ctx.fillStyle = "#f5c518"; ctx.font = F(800, 22); ctx.fillText(champ, sx, by);
+      ctx.fillStyle = "#cbd5e1"; ctx.font = F(700, 22); ctx.fillText(pre, sx, by); sx += preW;
+      if (fimg) { ctx.fillStyle = "#ffffff"; rrect(sx, by - 13, 38, 26, 3); ctx.fill(); ctx.drawImage(fimg, sx + 1, by - 12, 36, 24); sx += fw + 12; }
+      ctx.fillStyle = "#f5c518"; ctx.font = F(800, 28); ctx.fillText(champ, sx, by);
       ctx.textBaseline = "alphabetic";
     }
 
     // nhãn cột (2 bên + giữa)
-    ctx.fillStyle = "#7c8799"; ctx.font = F(700, 14); ctx.textAlign = "center";
+    ctx.fillStyle = "#7c8799"; ctx.font = F(700, 17); ctx.textAlign = "center";
     const RL = ["Vòng 1/16", "Vòng 1/8", "Tứ kết", "Bán kết"];
     for (let d = 0; d < 4; d++) {
-      ctx.fillText(RL[d], M + d * stride + boxW / 2, 96);
-      ctx.fillText(RL[d], W - M - boxW - d * stride + boxW / 2, 96);
+      ctx.fillText(RL[d], M + d * stride + boxW / 2, 112);
+      ctx.fillText(RL[d], W - M - boxW - d * stride + boxW / 2, 112);
     }
-    ctx.fillText("Chung kết", W / 2, 96);
+    ctx.fillText("Chung kết", W / 2, 112);
 
     // chân trang
-    ctx.fillStyle = "#5b6675"; ctx.font = F(600, 14); ctx.textAlign = "left";
-    ctx.fillText("worldcup.personal.io.vn", M, H - 16);
+    ctx.fillStyle = "#5b6675"; ctx.font = F(600, 16); ctx.textAlign = "left";
+    ctx.fillText("worldcup.personal.io.vn", M, H - 20);
     const dt = new Date();
     ctx.textAlign = "right";
-    ctx.fillText(`Dự đoán cá nhân · ${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`, W - M, H - 16);
+    ctx.fillText(`Dự đoán cá nhân · ${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`, W - M, H - 20);
 
     // --- Xuất / chia sẻ ---
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
