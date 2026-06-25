@@ -1824,6 +1824,41 @@
     padding-top: 18px;
     border-top: 1px solid var(--border);
   }
+
+  /* ── NHẠC NỀN (Waka Waka) ─────────────────────────────── */
+  .music-btn {
+    position: fixed; bottom: 24px; left: 24px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--accent); font-size: 1.3rem; cursor: pointer;
+    z-index: 900; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    transition: transform .2s ease, background .2s ease;
+  }
+  .music-btn:hover { transform: scale(1.1); background: var(--bg-soft); }
+  .music-btn.playing { animation: musicPulse 1.6s ease-in-out infinite; }
+  @keyframes musicPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(6,182,212,0.45); }
+    50%     { box-shadow: 0 0 0 12px rgba(6,182,212,0); }
+  }
+  .music-prompt {
+    position: fixed; bottom: 84px; left: 24px;
+    background: var(--bg-card); border: 1px solid var(--accent);
+    border-radius: 14px; padding: 12px 16px; cursor: pointer;
+    z-index: 901; display: none; align-items: center; gap: 10px;
+    max-width: 230px; box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    animation: promptSlideUp .4s ease forwards;
+  }
+  .music-prompt:hover { transform: translateY(-2px); }
+  .music-prompt .prompt-icon { font-size: 1.5rem; animation: musicPulse 1.6s ease-in-out infinite; }
+  .music-prompt .prompt-text { font-size: .8rem; color: var(--text); line-height: 1.4; }
+  .music-prompt .prompt-text strong { color: var(--accent-2); }
+  @keyframes promptSlideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+  /* Mobile: live-bar ghim đáy → đẩy nút nhạc lên trên thanh đó */
+  @media (max-width: 768px) {
+    .music-btn { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); left: 16px; width: 44px; height: 44px; font-size: 1.15rem; }
+    .music-prompt { bottom: calc(142px + env(safe-area-inset-bottom, 0px)); left: 16px; max-width: 200px; padding: 10px 14px; }
+  }
 </style>
 </head>
 <body>
@@ -4881,6 +4916,85 @@ async function refreshLiveFromFD() {
 
 setInterval(refreshLiveFromESPN, 15000); // 15s — nhanh, không tốn quota
 setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/scorers
+</script>
+
+<!-- NHẠC NỀN: Waka Waka 2010 -->
+<button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc Waka Waka">🎵</button>
+<div class="music-prompt" id="musicPrompt">
+  <span class="prompt-icon">🎵</span>
+  <span class="prompt-text"><strong>Bấm để nghe</strong> Waka Waka — World Cup 2010 ⚽</span>
+</div>
+
+<script>
+// ── NHẠC NỀN: Waka Waka (World Cup 2010) ────────────────────────────────────
+(function () {
+  const SONG = "music/worldcup/waka-waka.mp3";
+  const btn = document.getElementById("musicBtn");
+  const prompt = document.getElementById("musicPrompt");
+  if (!btn || !prompt) return;
+  let audio = null, playing = false, promptTimer = null, promptLoop = null, armed = false;
+
+  function ensureAudio() {
+    if (audio) return audio;
+    audio = new Audio(SONG);
+    audio.loop = true;
+    audio.volume = 0.45;
+    audio.addEventListener("error", () => {
+      btn.textContent = "🎵";
+      btn.title = "Chưa có file nhạc — đặt waka-waka.mp3 vào thư mục music/worldcup/";
+      btn.classList.remove("playing");
+      playing = false;
+    });
+    return audio;
+  }
+  function markPlaying() {
+    playing = true; btn.textContent = "🔊"; btn.classList.add("playing"); hidePrompt();
+  }
+  function start() {
+    ensureAudio();
+    const p = audio.play();
+    if (p && p.then) p.then(markPlaying).catch(() => {});
+    else markPlaying();
+  }
+  function stop() {
+    if (audio) audio.pause();
+    playing = false; btn.textContent = "🎵"; btn.classList.remove("playing");
+  }
+  function showPrompt() {
+    if (playing) return;
+    prompt.style.display = "flex";
+    clearTimeout(promptTimer);
+    promptTimer = setTimeout(() => { prompt.style.display = "none"; }, 6000);
+  }
+  function hidePrompt() {
+    prompt.style.display = "none";
+    clearTimeout(promptTimer);
+    if (promptLoop) { clearInterval(promptLoop); promptLoop = null; }
+  }
+
+  btn.addEventListener("click", () => { playing ? stop() : start(); });
+  prompt.addEventListener("click", () => { if (!playing) start(); hidePrompt(); });
+
+  // Bật nhạc khi tương tác đầu tiên (chạm/cuộn/bấm/gõ phím) ở bất cứ đâu.
+  const events = ["pointerdown", "keydown", "touchstart"];
+  function onFirstGesture() {
+    if (playing) return;
+    events.forEach((ev) => document.removeEventListener(ev, onFirstGesture));
+    start();
+  }
+
+  // Thử autoplay ngay khi vào app; nếu trình duyệt chặn → chờ tương tác + nhắc nhẹ.
+  ensureAudio();
+  const ap = audio.play();
+  if (ap && ap.then) {
+    ap.then(markPlaying).catch(() => {
+      armed = true;
+      events.forEach((ev) => document.addEventListener(ev, onFirstGesture, { passive: true }));
+      setTimeout(showPrompt, 1500);
+      promptLoop = setInterval(showPrompt, 60000);
+    });
+  }
+})();
 </script>
 </body>
 </html>
