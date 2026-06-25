@@ -4009,16 +4009,16 @@ function renderBracket(matches) {
     svg += `<text x="${x + 9}" y="${y + 14}" class="b-when">${live ? "🔴 " : ""}${when}</text>`;
     // 1 dòng đội: cờ (nếu có) + tên + ✓ (+ ★ nếu là đội bạn dự đoán thắng)
     const MARKFILL = { correct: "#10b981", wrong: "#ef4444", pick: "#f59e0b" };
-    // Khi vòng bảng xong hết: tô theo thứ hạng (nhất/nhì/ba), bỏ ✓. Còn lại: theo trạng thái + ✓.
+    // Đội nào đã CHỐT vị trí → tô màu theo hạng (nhất/nhì/ba) NGAY, vẫn giữ ✓. Còn lại theo trạng thái.
     const line = (r, cy) => {
       const mark = markOf(r);
       const fl = r.badge || (r.team ? flagURL(r.team) : null);
       const tx = fl ? x + 30 : x + 9;
-      const rk = (!predictMode && groupDone) ? rankOf(r) : null;
+      const rk = (!predictMode && slotLocked(r)) ? rankOf(r) : null;
       const fill = mark ? MARKFILL[mark] : (rk ? RANK_FILL[rk] : fillOf(r.status));
       const bold = (mark || rk) ? ' font-weight="800"' : "";
       const star = mark ? "★ " : "";
-      const tk = (!predictMode && groupDone) ? "" : tick(r.status);  // tất cả đã xác định → bỏ ✓
+      const tk = tick(r.status);  // luôn giữ ✓ cho đội đã chốt vị trí
       let s = "";
       if (fl) s += `<image href="${fl}" x="${x + 9}" y="${cy - 11}" width="18" height="13" preserveAspectRatio="xMidYMid slice"/>`;
       s += `<text x="${tx}" y="${cy}" class="b-team" fill="${fill}"${it(r.status)}${bold}>${star}${esc(clip(r.label, fl ? 13 : 19))}${tk}</text>`;
@@ -4043,18 +4043,13 @@ function renderBracket(matches) {
         <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px"></span>Đoán sai</span>
         <span style="color:var(--text-fade)">💡 Bấm vào đội bạn nghĩ sẽ thắng — đội đó tự lên nhánh sau</span>
       </div>`
-    : groupDone
-    ? `<div class="compare-legend" style="margin-top:10px">
-        <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px"></span>🥇 Nhất bảng</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#0ea5e9;border-radius:2px;margin-right:4px"></span>🥈 Nhì bảng</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#a855f7;border-radius:2px;margin-right:4px"></span>🥉 Hạng 3</span>
-        <span style="color:var(--text-fade)">✅ Đã đủ 32 đội — màu theo thứ hạng vòng bảng · viền sáng = cặp đã chốt cả 2 đội</span>
-      </div>`
     : `<div class="compare-legend" style="margin-top:10px">
-        <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px"></span>✓ Chắc chắn vị trí (nhất/nhì bảng)</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:4px"></span>Đã vào vòng trong (chưa rõ vị trí)</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:2px;margin-right:4px"></span>Dự kiến theo BXH / chờ kết quả</span>
-        <span style="color:var(--text-fade)">💡 Bấm 1 đội → chi tiết + tô sáng đường tới chung kết · viền sáng = cặp đã chốt cả 2 đội</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px"></span>🥇 Nhất bảng ✓</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#0ea5e9;border-radius:2px;margin-right:4px"></span>🥈 Nhì bảng ✓</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#a855f7;border-radius:2px;margin-right:4px"></span>🥉 Hạng 3</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:4px"></span>Đã đi tiếp (chưa rõ vị trí)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:2px;margin-right:4px"></span>Dự kiến / chờ kết quả</span>
+        <span style="color:var(--text-fade)">✓ = đã chốt vị trí · viền sáng = cặp đủ 2 đội · 💡 bấm đội xem chi tiết</span>
       </div>`;
 
   // Thanh điều khiển dự đoán nhà vô địch
