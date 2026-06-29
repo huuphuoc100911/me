@@ -4031,6 +4031,15 @@ function renderBracket(matches) {
       svg += `<path class="b-line" data-from="${fn}" data-to="${m.num}" d="M${x1} ${y1} H${xm} V${y2} H${x2}"/>`;
     });
   });
+  // Một slot đã "khóa" (đội thật / nhất-nhì chắc chắn / hạng 3 khi vòng bảng xong)
+  const slotLocked = (r) => !!r && (r.kind === "team" || (r.kind === "group" && r.status === "confirmed") || (r.kind === "third" && groupDone));
+  // Vòng đã xác định ĐỦ 2 đội cho MỌI trận → không cần viền nổi bật nữa (tránh rối khi cả vòng đã chốt)
+  const roundFullySet = {};
+  stagesPresent.forEach((st) => {
+    const boxes = ko.filter((m) => m.round === st);
+    roundFullySet[st] = boxes.length > 0 && boxes.every((m) =>
+      slotLocked(participantFill(m.home, false)) && slotLocked(participantFill(m.away, false)));
+  });
   // Hộp trận
   ko.forEach((m, idx) => {
     const ci = colOf[m.round];
@@ -4048,9 +4057,9 @@ function renderBracket(matches) {
       return "pick";
     };
     // Cặp đấu đã CHỐT cả 2 đội (đều là đội thật/đã khóa) → làm nổi bật
-    const slotLocked = (r) => !!r && (r.kind === "team" || (r.kind === "group" && r.status === "confirmed") || (r.kind === "third" && groupDone));
-    // Viền nổi bật chỉ cho cặp đã đủ 2 đội & CHƯA đá; trận đã có tỉ số → bỏ viền, hiện tỉ số.
-    const bothSet = !predictMode && !done && slotLocked(rH) && slotLocked(rA);
+    // Viền nổi bật: chỉ cho cặp đã đủ 2 đội, CHƯA đá, và vòng đó CHƯA chốt hết
+    // (khi cả vòng đã xác định đủ đội thì bỏ viền cho gọn).
+    const bothSet = !predictMode && !done && !roundFullySet[m.round] && slotLocked(rH) && slotLocked(rA);
     // Dòng giờ thi đấu: số trận · ngày · giờ (giờ máy người xem)
     const dt = m.ts ? new Date(m.ts) : null;
     const when = (dt ? `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—") + ` · T${m.num}`;
