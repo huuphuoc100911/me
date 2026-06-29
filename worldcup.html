@@ -2295,6 +2295,12 @@ async function loadSports() {
     (d.matches || []).forEach((m, i) => { m.id = m.id || `${m.home}-${m.away}-${m.ts || i}`; });
     window._allMatches = d.matches || [];
     window._standings = d.standings || [];   // dùng cho resolver nhánh knockout
+    // Nguồn FD/ESPN KHÔNG trả số trận knockout (num) → tự gắn bằng cách khớp giờ
+    // bóng lăn với KO_TEMPLATE. Có num thì bracket mới hiện tỉ số + đẩy đội thắng lên nhánh.
+    const _koNumByTs = {}; KO_TEMPLATE.forEach((tp) => { _koNumByTs[Date.parse(tp.ko)] = tp.num; });
+    (window._allMatches || []).forEach((m) => {
+      if (m.num == null && !m.group && m.ts && _koNumByTs[m.ts] != null) m.num = _koNumByTs[m.ts];
+    });
     renderTeams();
     scheduleNotifs();
     renderBracket(d.matches || []);
@@ -4043,7 +4049,8 @@ function renderBracket(matches) {
     };
     // Cặp đấu đã CHỐT cả 2 đội (đều là đội thật/đã khóa) → làm nổi bật
     const slotLocked = (r) => !!r && (r.kind === "team" || (r.kind === "group" && r.status === "confirmed") || (r.kind === "third" && groupDone));
-    const bothSet = !predictMode && slotLocked(rH) && slotLocked(rA);
+    // Viền nổi bật chỉ cho cặp đã đủ 2 đội & CHƯA đá; trận đã có tỉ số → bỏ viền, hiện tỉ số.
+    const bothSet = !predictMode && !done && slotLocked(rH) && slotLocked(rA);
     // Dòng giờ thi đấu: số trận · ngày · giờ (giờ máy người xem)
     const dt = m.ts ? new Date(m.ts) : null;
     const when = (dt ? `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—") + ` · T${m.num}`;
