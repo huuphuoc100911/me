@@ -52,12 +52,19 @@ module.exports = async (req, res) => {
         "SCHEDULED";
       const home = norm(homeC.team?.displayName);
       const away = norm(awayC.team?.displayName);
+      // shootoutScore = loạt luân lưu (chỉ có ở trận hoà sau 120'); score = tỉ số 120'
+      const pen = (c) => {
+        const v = c.shootoutScore;
+        return (v === undefined || v === null || v === "") ? null : (parseInt(v, 10) || 0);
+      };
       return {
         espnId: e.id,
         ts: e.date ? Date.parse(e.date) : null,
         home, away,
         homeScore: state === "SCHEDULED" ? null : (parseInt(homeC.score, 10) || 0),
         awayScore: state === "SCHEDULED" ? null : (parseInt(awayC.score, 10) || 0),
+        homePen: state === "SCHEDULED" ? null : pen(homeC),
+        awayPen: state === "SCHEDULED" ? null : pen(awayC),
         clock: status.displayClock || null, // "82'" hoặc "90'+8'"
         period: status.period || 0,
         state,

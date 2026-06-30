@@ -89,21 +89,30 @@ async function fromFootballData(key) {
   const tj = tr.ok ? await tr.json() : { scorers: [] };
   const taj = ta.ok ? await ta.json() : { scorers: [] };
 
-  const matches = (mj.matches || []).map((m) => ({
-    fdId: m.id || null,
-    ts: m.utcDate ? Date.parse(m.utcDate) : null,
-    date: m.utcDate ? m.utcDate.slice(0, 10) : null,
-    round: m.matchday ? `Matchday ${m.matchday}` : (m.stage || null),
-    group: m.group || null,
-    venue: null,
-    home: m.homeTeam?.name || m.homeTeam?.shortName,
-    away: m.awayTeam?.name || m.awayTeam?.shortName,
-    homeBadge: flag(m.homeTeam?.name) || m.homeTeam?.crest || null,
-    awayBadge: flag(m.awayTeam?.name) || m.awayTeam?.crest || null,
-    homeScore: m.score?.fullTime?.home ?? null,
-    awayScore: m.score?.fullTime?.away ?? null,
-    status: m.status || "SCHEDULED"
-  }));
+  const matches = (mj.matches || []).map((m) => {
+    // FD gộp luân lưu vào fullTime (vd 1-1 + pen 3-4 → fullTime 4-5).
+    // Tách: homeScore/awayScore = tỉ số 120'; homePen/awayPen = loạt luân lưu.
+    const ft = m.score?.fullTime || {};
+    const pen = m.score?.penalties;
+    const hasPen = pen && pen.home != null && pen.away != null;
+    return {
+      fdId: m.id || null,
+      ts: m.utcDate ? Date.parse(m.utcDate) : null,
+      date: m.utcDate ? m.utcDate.slice(0, 10) : null,
+      round: m.matchday ? `Matchday ${m.matchday}` : (m.stage || null),
+      group: m.group || null,
+      venue: null,
+      home: m.homeTeam?.name || m.homeTeam?.shortName,
+      away: m.awayTeam?.name || m.awayTeam?.shortName,
+      homeBadge: flag(m.homeTeam?.name) || m.homeTeam?.crest || null,
+      awayBadge: flag(m.awayTeam?.name) || m.awayTeam?.crest || null,
+      homeScore: ft.home != null ? (hasPen ? ft.home - pen.home : ft.home) : null,
+      awayScore: ft.away != null ? (hasPen ? ft.away - pen.away : ft.away) : null,
+      homePen: hasPen ? pen.home : null,
+      awayPen: hasPen ? pen.away : null,
+      status: m.status || "SCHEDULED"
+    };
+  });
 
   const standings = [];
   for (const grp of (sj.standings || [])) {

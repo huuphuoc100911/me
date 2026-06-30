@@ -277,6 +277,9 @@
     color: var(--accent-2);
     font-variant-numeric: tabular-nums;
   }
+  .wc-match .score .pen, .live-bar .sc .pen {
+    font-size: 11px; font-weight: 700; color: var(--text-dim); margin-left: 2px;
+  }
   @media (max-width: 600px) {
     .wc-match { grid-template-columns: 44px 1fr auto 1fr; gap: 6px; padding: 8px; }
     .wc-match .team .nm { font-size: 11px; }
@@ -1172,6 +1175,7 @@
     font-size: 11px; font-weight: 700;
     fill: var(--accent-2);
   }
+  .bracket-svg .b-pen { font-size: 8.5px; font-weight: 700; fill: var(--text-dim); }
   .bracket-svg .b-box {
     fill: rgba(255,255,255,0.02);
     stroke: var(--border);
@@ -2384,8 +2388,10 @@ async function loadSports() {
       const isFavMatch = (!hPh && isFav(hName)) || (!aPh && isFav(aName));
       const hasScore = m.homeScore != null && m.awayScore != null;
       const isDone = hasScore || (m.ts && m.ts + 3 * 3600 * 1000 < nowMs);
+      const penTxt = (m.homePen != null && m.awayPen != null)
+        ? ` <span class="pen">(pen ${m.homePen}-${m.awayPen})</span>` : "";
       const center = hasScore
-        ? `<div class="score">${m.homeScore} - ${m.awayScore}</div>`
+        ? `<div class="score">${m.homeScore} - ${m.awayScore}${penTxt}</div>`
         : `<div class="vs">VS</div>`;
       const badge = (url) => url
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
@@ -2588,7 +2594,7 @@ function paintLiveBar(target) {
       <div class="teams">
         ${target.m.homeBadge ? `<img src="${target.m.homeBadge}" alt="">` : ""}
         <span class="nm">${target.m.home}</span>
-        <span class="sc">${target.m.homeScore ?? 0} - ${target.m.awayScore ?? 0}</span>
+        <span class="sc">${target.m.homeScore ?? 0} - ${target.m.awayScore ?? 0}${(target.m.homePen != null && target.m.awayPen != null) ? ` <span class="pen">(pen ${target.m.homePen}-${target.m.awayPen})</span>` : ""}</span>
         <span class="nm">${target.m.away}</span>
         ${target.m.awayBadge ? `<img src="${target.m.awayBadge}" alt="">` : ""}
       </div>
@@ -3270,6 +3276,15 @@ function renderPredScore() {
  */
 function _grpLetter(s) { return String(s || "").replace(/^Group[\s_]*/i, "").trim().toUpperCase(); }
 function _isKoSlot(n) { return /^(?:[12][A-L]|3[A-L\/]+|[WL]\d+)$/i.test(String(n || "").trim()); }
+// Đội thắng 1 trận knockout: hơn ở 120'; nếu hoà thì xét loạt luân lưu (homePen/awayPen)
+function matchWinner(m) {
+  if (!m || m.homeScore == null || m.awayScore == null) return null;
+  if (m.homeScore > m.awayScore) return m.home;
+  if (m.awayScore > m.homeScore) return m.away;
+  if (m.homePen != null && m.awayPen != null && m.homePen !== m.awayPen)
+    return m.homePen > m.awayPen ? m.home : m.away;
+  return null;
+}
 
 function buildKoResolver() {
   const matches = window._allMatches || [];
@@ -3430,10 +3445,9 @@ function buildKoResolver() {
     if ((m = raw.match(/^([WL])(\d+)$/i))) {
       const kind = m[1].toUpperCase(), num = +m[2];
       const src = byNum[num];
-      const done = src && src.homeScore != null && src.awayScore != null && src.homeScore !== src.awayScore;
-      if (done) {
-        const homeWin = src.homeScore > src.awayScore;
-        const pickHome = kind === "W" ? homeWin : !homeWin;
+      const winner = matchWinner(src);   // có xét luân lưu
+      if (winner) {
+        const pickHome = kind === "W" ? (winner === src.home) : (winner !== src.home);
         return { label: pickHome ? src.home : src.away, team: pickHome ? src.home : src.away,
                  badge: pickHome ? src.homeBadge : src.awayBadge, status: "confirmed", kind: "team", fromMatch: num };
       }
@@ -3511,6 +3525,8 @@ function getKnockoutMatches() {
       awayBadge: done ? live.awayBadge : null,
       homeScore: live ? (live.homeScore ?? null) : null,
       awayScore: live ? (live.awayScore ?? null) : null,
+      homePen: live ? (live.homePen ?? null) : null,
+      awayPen: live ? (live.awayPen ?? null) : null,
       ts: (live && live.ts) ? live.ts : Date.parse(t.ko)
     };
   });
@@ -3892,9 +3908,9 @@ function koPredictScore(picks, byNum) {
   KO_TEMPLATE.forEach((t) => {
     if (picks[t.num]) predicted++;
     const s = byNum[t.num];
-    if (s && s.homeScore != null && s.awayScore != null && s.homeScore !== s.awayScore && picks[t.num]) {
+    const w = matchWinner(s);
+    if (w && picks[t.num]) {
       decided++;
-      const w = s.homeScore > s.awayScore ? s.home : s.away;
       if (picks[t.num] === w) correct++;
     }
   });
@@ -3983,11 +3999,7 @@ function renderBracket(matches) {
   (window._allMatches || []).forEach((m) => { if (m.home && m.homeBadge) badgeByTeam[m.home] = m.homeBadge; if (m.away && m.awayBadge) badgeByTeam[m.away] = m.awayBadge; });
   (window._standings || []).forEach((g) => (g.table || []).forEach((t) => { if (t.team && t.badge) badgeByTeam[t.team] = t.badge; }));
   const badgeOf = (name) => badgeByTeam[name] || flagURL(name) || null;
-  const realWinner = (n) => {
-    const s = byNum[n];
-    if (s && s.homeScore != null && s.awayScore != null && s.homeScore !== s.awayScore) return s.homeScore > s.awayScore ? s.home : s.away;
-    return null;
-  };
+  const realWinner = (n) => matchWinner(byNum[n]);
   // Đội ở 1 slot: ưu tiên kết quả thật; nếu chưa có & đang dự đoán thì lấy đội user chọn ở trận nguồn
   const participantFill = (code, fill) => {
     const wm = String(code).match(/^W(\d+)$/i);
@@ -4092,8 +4104,10 @@ function renderBracket(matches) {
     svg += line(rH, y + 33);
     svg += line(rA, y + 49);
     if (done) {
-      svg += `<text x="${x + boxW - 9}" y="${y + 33}" class="b-score" text-anchor="end">${m.homeScore}</text>`;
-      svg += `<text x="${x + boxW - 9}" y="${y + 49}" class="b-score" text-anchor="end">${m.awayScore}</text>`;
+      const ph = m.homePen != null ? `<tspan class="b-pen" dx="2">(${m.homePen})</tspan>` : "";
+      const pa = m.awayPen != null ? `<tspan class="b-pen" dx="2">(${m.awayPen})</tspan>` : "";
+      svg += `<text x="${x + boxW - 9}" y="${y + 33}" class="b-score" text-anchor="end">${m.homeScore}${ph}</text>`;
+      svg += `<text x="${x + boxW - 9}" y="${y + 49}" class="b-score" text-anchor="end">${m.awayScore}${pa}</text>`;
     }
     // Vùng bấm trong suốt cho từng đội → mở popup chi tiết
     svg += `<rect class="b-hit" x="${x}" y="${y + 20}" width="${boxW}" height="18" data-mi="${idx}" data-side="h"/>`;
@@ -4197,12 +4211,7 @@ async function exportBracketImage(btn, theme) {
     const resolver = buildKoResolver();
     const picks = getKoPicks();
 
-    const realWinner = (n) => {
-      const s = byNum[n];
-      if (s && s.homeScore != null && s.awayScore != null && s.homeScore !== s.awayScore)
-        return s.homeScore > s.awayScore ? s.home : s.away;
-      return null;
-    };
+    const realWinner = (n) => matchWinner(byNum[n]);
     // Đội ở 1 slot: kết quả thật > dự đoán của người dùng > mã vị trí (resolver)
     const fillPart = (code) => {
       const wm = String(code).match(/^W(\d+)$/i);
@@ -4320,7 +4329,7 @@ async function exportBracketImage(btn, theme) {
     });
 
     // 1 dòng đội trong hộp
-    const drawRow = (x, yTop, h, part, isWin, score) => {
+    const drawRow = (x, yTop, h, part, isWin, score, pen) => {
       if (isWin) { ctx.fillStyle = P.winBg; ctx.fillRect(x + 1, yTop + 1, boxW - 2, h - 2); }
       const cyR = yTop + h / 2;
       let tx = x + 14;
@@ -4333,11 +4342,18 @@ async function exportBracketImage(btn, theme) {
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.font = F(isWin ? 700 : 600, 20);
       ctx.fillStyle = isWin ? P.win : (part.known ? P.name : P.nameDim);
-      const scoreW = score != null ? 30 : 10;
+      const scoreW = score != null ? (pen != null ? 48 : 30) : 10;
       ctx.fillText(clipText(part.label, x + boxW - scoreW - tx - 4), tx, cyR + 0.5);
       if (score != null) {
-        ctx.textAlign = "right"; ctx.font = F(700, 20); ctx.fillStyle = P.score;
-        ctx.fillText(String(score), x + boxW - 11, cyR + 0.5); ctx.textAlign = "left";
+        ctx.textAlign = "right";
+        let rx = x + boxW - 11;
+        if (pen != null) {
+          ctx.font = F(700, 13); ctx.fillStyle = P.time;
+          ctx.fillText("(" + pen + ")", rx, cyR + 0.5);
+          rx -= ctx.measureText("(" + pen + ")").width + 4;
+        }
+        ctx.font = F(700, 20); ctx.fillStyle = P.score;
+        ctx.fillText(String(score), rx, cyR + 0.5); ctx.textAlign = "left";
       }
     };
 
@@ -4368,8 +4384,8 @@ async function exportBracketImage(btn, theme) {
       ctx.beginPath(); ctx.moveTo(x + 8, yT + stripH); ctx.lineTo(x + boxW - 8, yT + stripH); ctx.stroke();
       ctx.strokeStyle = P.div2;
       ctx.beginPath(); ctx.moveTo(x + 8, yT + stripH + rowH); ctx.lineTo(x + boxW - 8, yT + stripH + rowH); ctx.stroke();
-      drawRow(x, yT + stripH, rowH, pH, !!(win && pH.team === win), done ? m.homeScore : null);
-      drawRow(x, yT + stripH + rowH, rowH, pA, !!(win && pA.team === win), done ? m.awayScore : null);
+      drawRow(x, yT + stripH, rowH, pH, !!(win && pH.team === win), done ? m.homeScore : null, done ? m.homePen : null);
+      drawRow(x, yT + stripH + rowH, rowH, pA, !!(win && pA.team === win), done ? m.awayScore : null, done ? m.awayPen : null);
     });
     // cúp trên hộp chung kết
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(700, 30);
@@ -4988,18 +5004,18 @@ loadSports();
  *  - /api/sports       (FD, 30s):     fixture + standings + scorers → chậm, đầy đủ
  * Live bar + lịch thi đấu lấy tỉ số live từ ESPN; BXH/scorers từ FD.
  */
-function patchScoreCell(el, hasScore, homeScore, awayScore) {
+function patchScoreCell(el, hasScore, homeScore, awayScore, homePen, awayPen) {
   if (!el) return;
   const center = el.children[2];
   if (!center) return;
-  const newText = hasScore ? `${homeScore} - ${awayScore}` : "VS";
+  const penTxt = (homePen != null && awayPen != null) ? ` (pen ${homePen}-${awayPen})` : "";
+  const newText = hasScore ? `${homeScore} - ${awayScore}${penTxt}` : "VS";
   if (center.textContent.trim() === newText) return;
-  if (hasScore && center.classList.contains("vs")) {
-    center.className = "score"; center.textContent = newText;
-  } else if (!hasScore && center.classList.contains("score")) {
-    center.className = "vs"; center.textContent = "VS";
+  if (hasScore) {
+    center.className = "score";
+    center.innerHTML = `${homeScore} - ${awayScore}${penTxt ? ` <span class="pen">(pen ${homePen}-${awayPen})</span>` : ""}`;
   } else {
-    center.textContent = newText;
+    center.className = "vs"; center.textContent = "VS";
   }
 }
 
@@ -5040,13 +5056,15 @@ async function refreshLiveFromESPN() {
 
         match.homeScore = live.homeScore;
         match.awayScore = live.awayScore;
+        if (live.homePen != null) match.homePen = live.homePen;
+        if (live.awayPen != null) match.awayPen = live.awayPen;
         match.status = live.state === "LIVE" ? "IN_PLAY" : "FINISHED";
         match.espnClock = live.clock;
       }
       patchScoreCell(
         document.querySelector(`.wc-match[data-mid="${CSS.escape(match.id)}"]`),
         match.homeScore != null && match.awayScore != null,
-        match.homeScore, match.awayScore
+        match.homeScore, match.awayScore, match.homePen, match.awayPen
       );
     }
   } catch {}
