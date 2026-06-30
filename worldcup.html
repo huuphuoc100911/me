@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8" />
+<script>/* bật ẩn card TRƯỚC khi vẽ để hiệu ứng cuộn mượt, không nháy */try{if("IntersectionObserver" in window && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) document.documentElement.classList.add("reveal-on");}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>World Cup 2026 — Lịch thi đấu & BXH</title>
 <meta name="description" content="Lịch thi đấu và bảng xếp hạng FIFA World Cup 2026 — cập nhật real-time" />
@@ -1877,11 +1878,9 @@
     @keyframes bgDrift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(-8vmax, 10vmax) scale(0.92); } }
   }
 
-  /* ===== Hiệu ứng cuộn: card hiện dần khi cuộn tới ===== */
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
-    .reveal.in { opacity: 1; transform: none; }
-  }
+  /* ===== Hiệu ứng cuộn: card hiện dần khi cuộn tới (ẩn sẵn trước khi vẽ) ===== */
+  html.reveal-on .grid > .card { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  html.reveal-on .grid > .card.in { opacity: 1; transform: none; }
   /* Mobile: live-bar ghim đáy → đẩy nút nhạc lên trên thanh đó */
   @media (max-width: 768px) {
     .music-btn { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); left: 16px; width: 44px; height: 44px; font-size: 1.15rem; }
@@ -5342,14 +5341,14 @@ setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/score
 <script>
 // ── Hiệu ứng cuộn: card hiện dần (fade + trượt lên) khi cuộn tới ───────────────
 (function () {
-  if (!("IntersectionObserver" in window)) return;
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cards = document.querySelectorAll(".grid > .card");
+  if (!document.documentElement.classList.contains("reveal-on") || !("IntersectionObserver" in window)) return;
   const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.06, rootMargin: "0px 0px -6% 0px" });
-  document.querySelectorAll(".grid > .card").forEach((el) => { el.classList.add("reveal"); io.observe(el); });
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.05, rootMargin: "0px 0px -5% 0px" });
+  cards.forEach((el) => io.observe(el));
+  // Dự phòng: nếu observer không kích hoạt vì lý do nào đó → hiện hết sau 3s
+  setTimeout(() => cards.forEach((el) => el.classList.add("in")), 3000);
 })();
 </script>
 </body>
