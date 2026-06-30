@@ -1858,6 +1858,30 @@
   .music-prompt .prompt-text { font-size: .8rem; color: var(--text); line-height: 1.4; }
   .music-prompt .prompt-text strong { color: var(--accent-2); }
   @keyframes promptSlideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+
+  /* ===== Nền động tinh tế (blob trôi nhẹ theo theme) ===== */
+  #bgfx { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  #bgfx .blob { position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%; opacity: 0.20; will-change: transform; }
+  #bgfx .b1 { background: radial-gradient(circle at center, var(--accent-2), transparent 70%); top: -12vmax; left: -8vmax; }
+  #bgfx .b2 { background: radial-gradient(circle at center, #06b6d4, transparent 70%); bottom: -14vmax; right: -10vmax; }
+  #bgfx .b3 { background: radial-gradient(circle at center, #7c3aed, transparent 70%); top: 28vmax; left: 44vmax; opacity: 0.14; }
+  html.light #bgfx .blob { opacity: 0.11; }
+  html.light #bgfx .b3 { opacity: 0.07; }
+  .container { position: relative; z-index: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    #bgfx .b1 { animation: bgDrift1 32s ease-in-out infinite alternate; }
+    #bgfx .b2 { animation: bgDrift2 40s ease-in-out infinite alternate; }
+    #bgfx .b3 { animation: bgDrift3 48s ease-in-out infinite alternate; }
+    @keyframes bgDrift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(10vmax, 8vmax) scale(1.15); } }
+    @keyframes bgDrift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-12vmax, -6vmax) scale(1.1); } }
+    @keyframes bgDrift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(-8vmax, 10vmax) scale(0.92); } }
+  }
+
+  /* ===== Hiệu ứng cuộn: card hiện dần khi cuộn tới ===== */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+  }
   /* Mobile: live-bar ghim đáy → đẩy nút nhạc lên trên thanh đó */
   @media (max-width: 768px) {
     .music-btn { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); left: 16px; width: 44px; height: 44px; font-size: 1.15rem; }
@@ -1866,6 +1890,7 @@
 </style>
 </head>
 <body>
+<div id="bgfx" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 <div class="container">
 
   <!-- Sticky countdown / live ticker -->
@@ -5311,6 +5336,20 @@ setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/score
       promptLoop = setInterval(showPrompt, 60000);
     });
   }
+})();
+</script>
+
+<script>
+// ── Hiệu ứng cuộn: card hiện dần (fade + trượt lên) khi cuộn tới ───────────────
+(function () {
+  if (!("IntersectionObserver" in window)) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.06, rootMargin: "0px 0px -6% 0px" });
+  document.querySelectorAll(".grid > .card").forEach((el) => { el.classList.add("reveal"); io.observe(el); });
 })();
 </script>
 </body>
