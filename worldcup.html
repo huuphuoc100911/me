@@ -2383,7 +2383,7 @@ async function loadSports() {
       const isFavMatch = (!hPh && isFav(hName)) || (!aPh && isFav(aName));
       const hasScore = m.homeScore != null && m.awayScore != null;
       const isDone = hasScore || (m.ts && m.ts + 3 * 3600 * 1000 < nowMs);
-      const penTxt = (m.homePen != null && m.awayPen != null)
+      const penTxt = (m.homePen != null && m.awayPen != null && m.homeScore === m.awayScore)
         ? ` <span class="pen">(pen ${m.homePen}-${m.awayPen})</span>` : "";
       const center = hasScore
         ? `<div class="score">${m.homeScore} - ${m.awayScore}${penTxt}</div>`
@@ -2589,7 +2589,7 @@ function paintLiveBar(target) {
       <div class="teams">
         ${target.m.homeBadge ? `<img src="${target.m.homeBadge}" alt="">` : ""}
         <span class="nm">${target.m.home}</span>
-        <span class="sc">${target.m.homeScore ?? 0} - ${target.m.awayScore ?? 0}${(target.m.homePen != null && target.m.awayPen != null) ? ` <span class="pen">(pen ${target.m.homePen}-${target.m.awayPen})</span>` : ""}</span>
+        <span class="sc">${target.m.homeScore ?? 0} - ${target.m.awayScore ?? 0}${(target.m.homePen != null && target.m.awayPen != null && target.m.homeScore === target.m.awayScore) ? ` <span class="pen">(pen ${target.m.homePen}-${target.m.awayPen})</span>` : ""}</span>
         <span class="nm">${target.m.away}</span>
         ${target.m.awayBadge ? `<img src="${target.m.awayBadge}" alt="">` : ""}
       </div>
@@ -4108,8 +4108,9 @@ function renderBracket(matches) {
     svg += line(rH, y + 33);
     svg += line(rA, y + 49);
     if (done) {
-      const ph = m.homePen != null ? `<tspan class="b-pen" dx="2">(${m.homePen})</tspan>` : "";
-      const pa = m.awayPen != null ? `<tspan class="b-pen" dx="2">(${m.awayPen})</tspan>` : "";
+      const showPen = m.homePen != null && m.awayPen != null && m.homeScore === m.awayScore;
+      const ph = showPen ? `<tspan class="b-pen" dx="2">(${m.homePen})</tspan>` : "";
+      const pa = showPen ? `<tspan class="b-pen" dx="2">(${m.awayPen})</tspan>` : "";
       svg += `<text x="${x + boxW - 9}" y="${y + 33}" class="b-score" text-anchor="end">${m.homeScore}${ph}</text>`;
       svg += `<text x="${x + boxW - 9}" y="${y + 49}" class="b-score" text-anchor="end">${m.awayScore}${pa}</text>`;
     }
@@ -4388,8 +4389,9 @@ async function exportBracketImage(btn, theme) {
       ctx.beginPath(); ctx.moveTo(x + 8, yT + stripH); ctx.lineTo(x + boxW - 8, yT + stripH); ctx.stroke();
       ctx.strokeStyle = P.div2;
       ctx.beginPath(); ctx.moveTo(x + 8, yT + stripH + rowH); ctx.lineTo(x + boxW - 8, yT + stripH + rowH); ctx.stroke();
-      drawRow(x, yT + stripH, rowH, pH, !!(win && pH.team === win), done ? m.homeScore : null, done ? m.homePen : null);
-      drawRow(x, yT + stripH + rowH, rowH, pA, !!(win && pA.team === win), done ? m.awayScore : null, done ? m.awayPen : null);
+      const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
+      drawRow(x, yT + stripH, rowH, pH, !!(win && pH.team === win), done ? m.homeScore : null, showPen ? m.homePen : null);
+      drawRow(x, yT + stripH + rowH, rowH, pA, !!(win && pA.team === win), done ? m.awayScore : null, showPen ? m.awayPen : null);
     });
     // cúp trên hộp chung kết
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(700, 30);
@@ -5012,7 +5014,7 @@ function patchScoreCell(el, hasScore, homeScore, awayScore, homePen, awayPen) {
   if (!el) return;
   const center = el.children[2];
   if (!center) return;
-  const penTxt = (homePen != null && awayPen != null) ? ` (pen ${homePen}-${awayPen})` : "";
+  const penTxt = (homePen != null && awayPen != null && homeScore === awayScore) ? ` (pen ${homePen}-${awayPen})` : "";
   const newText = hasScore ? `${homeScore} - ${awayScore}${penTxt}` : "VS";
   if (center.textContent.trim() === newText) return;
   if (hasScore) {
