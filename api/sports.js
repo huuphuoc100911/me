@@ -5,7 +5,52 @@
 
 const OPENFB_URL = "https://raw.githubusercontent.com/openfootball/world-cup.json/master/2026/worldcup.json";
 const FD_BASE = "https://api.football-data.org/v4/competitions/WC";
+const ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
 const TTL_MS = 30 * 1000; // 30s — sàn an toàn cho FD free (10 req/phút, ~4 endpoint/lần fetch)
+
+// ESPN cho tỉ số 120' + luân lưu SẠCH (FD hay gộp luân lưu vào fullTime / trả pen sai).
+// Đối chiếu server-side để mọi nơi (sơ đồ, lịch) nhận dữ liệu đúng ngay từ /api/sports.
+const ESPN_NAME = {
+  "Korea Republic": "South Korea", "USA": "United States",
+  "Cote d'Ivoire": "Ivory Coast", "Türkiye": "Turkey", "Turkiye": "Turkey",
+  "Cabo Verde": "Cape Verde Islands", "Bosnia and Herzegovina": "Bosnia-Herzegovina", "DR Congo": "Congo DR"
+};
+const enorm = (s) => ESPN_NAME[s] || s;
+const nkey = (s) => String(s || "").toLowerCase().replace(/[^a-z]/g, "");
+
+async function reconcileKnockoutWithEspn(matches) {
+  let ej;
+  try {
+    const r = await fetch(ESPN_SCOREBOARD, { headers: { "User-Agent": "DashboardVN/1.0" } });
+    if (!r.ok) return;
+    ej = await r.json();
+  } catch { return; }
+  const pen = (c) => { const v = c.shootoutScore; return (v == null || v === "") ? null : (parseInt(v, 10) || 0); };
+  const byTs = {};
+  for (const e of (ej.events || [])) {
+    if (e.status?.type?.state === "pre") continue;   // chưa đá
+    const cs = (e.competitions?.[0]?.competitors) || [];
+    const hc = cs.find((c) => c.homeAway === "home") || cs[0] || {};
+    const ac = cs.find((c) => c.homeAway === "away") || cs[1] || {};
+    const ts = e.date ? Date.parse(e.date) : null;
+    if (ts == null) continue;
+    byTs[ts] = {
+      home: enorm(hc.team?.displayName), away: enorm(ac.team?.displayName),
+      hs: parseInt(hc.score, 10) || 0, as: parseInt(ac.score, 10) || 0,
+      hp: pen(hc), ap: pen(ac)
+    };
+  }
+  for (const m of matches) {
+    if (m.group) continue;             // chỉ trận knockout
+    const e = byTs[m.ts];
+    if (!e) continue;
+    if (nkey(e.home) === nkey(m.home) || nkey(e.away) === nkey(m.away)) {
+      m.homeScore = e.hs; m.awayScore = e.as; m.homePen = e.hp; m.awayPen = e.ap;
+    } else if (nkey(e.home) === nkey(m.away) || nkey(e.away) === nkey(m.home)) {
+      m.homeScore = e.as; m.awayScore = e.hs; m.homePen = e.ap; m.awayPen = e.hp;
+    }
+  }
+}
 
 let cache = { ts: 0, data: null };
 
@@ -234,6 +279,7 @@ module.exports = async (req, res) => {
     console.log(`[sports] total=${result.matches.length} finished=${withScore}`);
 
     if (!result.standings) result.standings = computeStandings(result.matches);
+    await reconcileKnockoutWithEspn(result.matches);  // tỉ số 120' + luân lưu sạch từ ESPN
     result.matches.sort((a, b) => (a.ts || 0) - (b.ts || 0));
 
     const data = {
