@@ -2299,12 +2299,7 @@ async function loadSports() {
     (d.matches || []).forEach((m, i) => { m.id = m.id || `${m.home}-${m.away}-${m.ts || i}`; });
     window._allMatches = d.matches || [];
     window._standings = d.standings || [];   // dùng cho resolver nhánh knockout
-    // Nguồn FD/ESPN KHÔNG trả số trận knockout (num) → tự gắn bằng cách khớp giờ
-    // bóng lăn với KO_TEMPLATE. Có num thì bracket mới hiện tỉ số + đẩy đội thắng lên nhánh.
-    const _koNumByTs = {}; KO_TEMPLATE.forEach((tp) => { _koNumByTs[Date.parse(tp.ko)] = tp.num; });
-    (window._allMatches || []).forEach((m) => {
-      if (m.num == null && !m.group && m.ts && _koNumByTs[m.ts] != null) m.num = _koNumByTs[m.ts];
-    });
+    tagKoNums(window._allMatches);  // gắn num KO (FD/ESPN không trả) → bracket hiện tỉ số + đẩy đội thắng
     renderTeams();
     scheduleNotifs();
     renderBracket(d.matches || []);
@@ -3507,6 +3502,15 @@ const KO_TEMPLATE = [
   { num: 102, round: "Semi-final", home: "W99", away: "W100", ko: "2026-07-15T19:00:00Z" },
   { num: 104, round: "Final", home: "W101", away: "W102", ko: "2026-07-19T19:00:00Z" }
 ];
+// Nguồn FD/ESPN không trả số trận knockout (num) → tự gắn bằng cách khớp giờ bóng lăn
+// với KO_TEMPLATE. Phải gọi mỗi lần thay window._allMatches (loadSports + refreshLiveFromFD).
+function tagKoNums(matches) {
+  const byTs = {}; KO_TEMPLATE.forEach((tp) => { byTs[Date.parse(tp.ko)] = tp.num; });
+  (matches || []).forEach((m) => {
+    if (m.num == null && !m.group && m.ts && byTs[m.ts] != null) m.num = byTs[m.ts];
+  });
+  return matches;
+}
 // Ghép template (cấu trúc) với dữ liệu live theo num: lấy tỉ số + tên đội thật khi trận đã đá.
 function getKnockoutMatches() {
   const byNum = {};
@@ -5022,6 +5026,20 @@ function patchScoreCell(el, hasScore, homeScore, awayScore, homePen, awayPen) {
 // Nguồn 1: ESPN — nhanh (~10-15s sau bàn thắng), free, không cần key
 // Map mid → {h, a} để detect bàn thắng mới (chống re-celebrate cùng 1 bàn)
 const _lastSeenScore = new Map();
+// ESPN là nguồn SẠCH cho tỉ số 120' + luân lưu (FD hay gộp/thiếu). Lưu lại theo cặp đội
+// để mỗi lần refresh FD (ghi đè _allMatches) còn áp lại, tránh FD lấn át số liệu đúng.
+const _espnScores = new Map();
+function _applyEspnScores(matches) {
+  (matches || []).forEach((m) => {
+    const e = _espnScores.get(`${m.home}|${m.away}`);
+    if (!e || e.hs == null) return;
+    m.homeScore = e.hs; m.awayScore = e.as;
+    if (e.hp != null) m.homePen = e.hp;
+    if (e.ap != null) m.awayPen = e.ap;
+    if (e.state === "FINISHED") m.status = "FINISHED";
+    else if (e.state === "LIVE" && m.status !== "FINISHED") m.status = "IN_PLAY";
+  });
+}
 async function refreshLiveFromESPN() {
   const all = window._allMatches || [];
   const now = Date.now();
@@ -5060,6 +5078,10 @@ async function refreshLiveFromESPN() {
         if (live.awayPen != null) match.awayPen = live.awayPen;
         match.status = live.state === "LIVE" ? "IN_PLAY" : "FINISHED";
         match.espnClock = live.clock;
+        // Lưu để re-apply sau mỗi lần refresh FD (ESPN sạch hơn cho tỉ số/luân lưu)
+        _espnScores.set(`${match.home}|${match.away}`, {
+          hs: live.homeScore, as: live.awayScore, hp: live.homePen, ap: live.awayPen, state: live.state
+        });
       }
       patchScoreCell(
         document.querySelector(`.wc-match[data-mid="${CSS.escape(match.id)}"]`),
@@ -5188,13 +5210,15 @@ async function refreshLiveFromFD() {
       const c = espnByPair.get(`${m.home}|${m.away}`);
       if (c) m.espnClock = c;
     });
+    tagKoNums(d.matches);       // FD trả về không có num → gắn lại
+    _applyEspnScores(d.matches); // giữ tỉ số 120'/luân lưu sạch từ ESPN, tránh FD lấn át
     window._allMatches = d.matches;
     window._standings = d.standings || window._standings || [];
     for (const m of d.matches) {
       patchScoreCell(
         document.querySelector(`.wc-match[data-mid="${CSS.escape(m.id)}"]`),
         m.homeScore != null && m.awayScore != null,
-        m.homeScore, m.awayScore
+        m.homeScore, m.awayScore, m.homePen, m.awayPen
       );
     }
     // BXH có thể vừa đổi → cập nhật luôn sơ đồ knockout + cuộc đua hạng 3
