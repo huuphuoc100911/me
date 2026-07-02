@@ -217,7 +217,8 @@
   }
   .wc-match {
     display: grid;
-    grid-template-columns: 50px 1fr auto 1fr;
+    /* cột phải 50px cân với cột giờ 50px bên trái → tỉ số (auto) luôn nằm CHÍNH GIỮA thẻ */
+    grid-template-columns: 50px 1fr auto 1fr 50px;
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
@@ -225,6 +226,7 @@
     border: 1px solid var(--border);
     border-radius: 10px;
   }
+  .wc-match .wc-spacer { width: 50px; }
   .wc-match.done { opacity: 0.65; }
   .wc-match.done:hover { opacity: 1; }
   /* Priority thấp → cao: next (vàng) → fav (hồng) → live (đỏ + pulse) */
@@ -281,12 +283,9 @@
   .wc-match .score .pen, .live-bar .sc .pen {
     font-size: 11px; font-weight: 700; color: var(--text-dim); margin-left: 2px;
   }
-  .wc-match .score .score-sub {
-    font-size: 10px; font-weight: 600; color: var(--text-fade);
-    margin-top: 2px; white-space: nowrap; letter-spacing: 0; text-align: center;
-  }
   @media (max-width: 600px) {
-    .wc-match { grid-template-columns: 44px 1fr auto 1fr; gap: 6px; padding: 8px; }
+    .wc-match { grid-template-columns: 40px 1fr auto 1fr 40px; gap: 6px; padding: 8px; }
+    .wc-match .wc-spacer { width: 40px; }
     .wc-match .team .nm { font-size: 11px; }
     .wc-match .team img { width: 20px; height: 20px; }
   }
@@ -1643,6 +1642,17 @@
   .pk .pk-miss { color: var(--bad); font-weight: 800; font-size: 12px; }
   .ev-row.pkrow .ev-who b { font-weight: 600; }
   .ev-row.pkrow.miss-row .ev-who b { color: var(--text-dim); }
+  /* Mobile: thu nhỏ chữ diễn biến cho gọn */
+  @media (max-width: 600px) {
+    .ev-row { grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr); gap: 4px; padding: 6px 1px; font-size: 11px; }
+    .ev-side { gap: 4px; }
+    .ev-side .ev-who b { font-weight: 600; }
+    .ev-side .ev-asst { font-size: 9px; }
+    .ev-side .ev-ico { font-size: 12px; }
+    .ev-center, .ev-center .ev-score { font-size: 10px; }
+    .pk .pk-lbl { font-size: 7px; }
+    .pk .pk-ok, .pk .pk-miss { font-size: 11px; }
+  }
   .predict-btn {
     display: inline-block; margin-top: 12px; width: 100%;
     padding: 10px; background: var(--accent-2); color: #0a0e1a;
@@ -2452,12 +2462,11 @@ async function loadSports() {
       const isFavMatch = (!hPh && isFav(hName)) || (!aPh && isFav(aName));
       const hasScore = m.homeScore != null && m.awayScore != null;
       const isDone = hasScore || (m.ts && m.ts + 3 * 3600 * 1000 < nowMs);
+      // Chỉ tỉ số chung cuộc (+ pen nếu có) — chi tiết 90'/hiệp phụ đã có trong popup
       const penTxt = (m.homePen != null && m.awayPen != null && m.homeScore === m.awayScore)
         ? ` <span class="pen">(pen ${m.homePen}-${m.awayPen})</span>` : "";
-      const parts = koScoreParts(m);
-      const subTxt = parts ? `<div class="score-sub">90': ${parts.reg} · h.phụ: ${parts.et}</div>` : "";
       const center = hasScore
-        ? `<div class="score">${m.homeScore} - ${m.awayScore}${penTxt}${subTxt}</div>`
+        ? `<div class="score">${m.homeScore} - ${m.awayScore}${penTxt}</div>`
         : `<div class="vs">VS</div>`;
       const badge = (url) => url
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
@@ -2468,6 +2477,7 @@ async function loadSports() {
           <div class="team">${badge(hB)}<div class="nm${hPh ? " ph" : ""}">${hName}</div></div>
           ${center}
           <div class="team away"><div class="nm${aPh ? " ph" : ""}">${aName}</div>${badge(aB)}</div>
+          <div class="wc-spacer"></div>
         </div>
       `;
     }).join("");
