@@ -1582,38 +1582,34 @@
     font-size: 10px; color: var(--text-fade);
     letter-spacing: 0.5px; font-weight: 600;
   }
+  /* Bố cục 2 bên: chủ nhà trái · phút+tỉ số giữa · khách phải */
   .ev-row {
     display: grid;
-    grid-template-columns: 42px 22px 1fr auto;
-    gap: 8px; align-items: center;
-    padding: 6px 4px;
+    grid-template-columns: 1fr 58px 1fr;
+    gap: 6px; align-items: center;
+    padding: 7px 2px;
     border-bottom: 1px dashed rgba(255,255,255,0.05);
     font-size: 12px;
   }
   .ev-row:last-child { border-bottom: 0; }
   .ev-row.goal { background: rgba(245,158,11,0.06); border-radius: 4px; }
   .ev-row.red { background: rgba(239,68,68,0.06); border-radius: 4px; }
-  .ev-row .ev-min {
-    color: var(--accent-2); font-weight: 800;
-    font-variant-numeric: tabular-nums; font-size: 11px;
+  .ev-side { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.35; }
+  .ev-side.home { justify-content: flex-end; text-align: right; }
+  .ev-side.away { justify-content: flex-start; text-align: left; }
+  .ev-side .ev-who b { color: var(--text); font-weight: 700; }
+  .ev-side .ev-asst { display: block; color: var(--text-fade); font-size: 10px; }
+  .ev-side .ev-ico { font-size: 14px; flex-shrink: 0; }
+  .ev-center {
+    text-align: center; color: var(--accent-2);
+    font-weight: 800; font-variant-numeric: tabular-nums; font-size: 11px;
   }
-  .ev-row .ev-icon { font-size: 14px; text-align: center; }
-  .ev-row .ev-detail { line-height: 1.4; }
-  .ev-row .ev-detail b { color: var(--text); font-weight: 700; }
-  .ev-row .ev-detail .ev-asst { color: var(--text-fade); font-size: 11px; }
-  .ev-row .ev-detail .ev-sub-out { color: var(--bad); font-size: 11px; }
-  .ev-row .ev-detail .ev-sub-in { color: var(--good); font-size: 11px; }
-  .ev-row .ev-score {
-    background: var(--accent-2); color: #0a0e1a;
-    padding: 2px 7px; border-radius: 4px;
-    font-weight: 800; font-size: 11px;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+  .ev-center .ev-score {
+    display: inline-block; background: var(--accent-2); color: #0a0e1a;
+    padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 11px;
+    white-space: nowrap; margin-top: 2px;
   }
-  .ev-row .ev-team {
-    font-size: 10px; color: var(--text-fade);
-    margin-left: 4px; white-space: nowrap;
-  }
+  .ev-center .ev-min { display: block; }
   .predict-btn {
     display: inline-block; margin-top: 12px; width: 100%;
     padding: 10px; background: var(--accent-2); color: #0a0e1a;
@@ -4316,6 +4312,7 @@ function renderBracket(matches) {
         renderBracket(window._allMatches || []);
         return;
       }
+      // Tô sáng đường tới chung kết của trận này
       const path = new Set();
       let n = m.num;
       while (n != null) { path.add(n); n = KO_PARENT[n]; }
@@ -4323,7 +4320,17 @@ function renderBracket(matches) {
         svgEl.querySelectorAll(".b-box").forEach((b) => b.classList.toggle("hl", path.has(+b.dataset.num)));
         svgEl.querySelectorAll(".b-line").forEach((l) => l.classList.toggle("hl", path.has(+l.dataset.from) && path.has(+l.dataset.to)));
       }
-      showKoDetail(el.dataset.side === "h" ? m.home : m.away, m, el.dataset.side);
+      // Bấm ô trận → mở thẳng đối đầu + diễn biến (không còn popup chi tiết từng đội)
+      const RVI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Final": "Chung kết" };
+      const rh = participantFill(m.home, false), ra = participantFill(m.away, false);
+      openH2H({
+        id: m.id, home: rh.team || rh.label, away: ra.team || ra.label,
+        homeBadge: rh.badge || (rh.team ? flagURL(rh.team) : null),
+        awayBadge: ra.badge || (ra.team ? flagURL(ra.team) : null),
+        ts: m.ts, round: RVI[m.round] || m.round, group: null, fdId: null,
+        homeScore: m.homeScore, awayScore: m.awayScore,
+        homePen: m.homePen, awayPen: m.awayPen, aet: m.aet, reg90Home: m.reg90Home, reg90Away: m.reg90Away
+      });
     });
   });
 }
@@ -5075,42 +5082,38 @@ async function openH2H(match) {
           </div>`;
           return;
         }
-        // Đếm goals/cards
-        const goals = d.events.filter((e) => e.type === "goal").length;
-        const cards = d.events.filter((e) => e.type === "yellow" || e.type === "red" || e.type === "yellowred").length;
-        const subs = d.events.filter((e) => e.type === "sub").length;
-        if (stat) stat.textContent = `${goals} ⚽ · ${cards} 🟨🟥 · ${subs} 🔄`;
+        // Chỉ bàn thắng + thẻ (bỏ thay người theo yêu cầu)
+        const evs = d.events.filter((e) => e.type !== "sub");
+        const goals = evs.filter((e) => e.type === "goal").length;
+        const cards = evs.filter((e) => e.type === "yellow" || e.type === "red" || e.type === "yellowred").length;
+        if (stat) stat.textContent = `${goals} ⚽ · ${cards} 🟨🟥`;
+        if (!evs.length) {
+          body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Chưa có sự kiện chi tiết</div>`;
+          return;
+        }
 
-        const renderEv = (e) => {
-          const min = e.minute != null ? `${e.minute}${e.added ? "+" + e.added : ""}'` : "—";
-          const teamLbl = e.team || "";
-          let icon = "•", cls = e.type, detail = "";
+        // 1 sự kiện → nội dung 1 bên (chủ nhà trái / khách phải), phút + tỉ số ở giữa
+        const evInner = (e) => {
           if (e.type === "goal") {
-            icon = e.kind === "OWN" ? "🥅" : e.kind === "PENALTY" ? "🎯" : "⚽";
-            detail = `<b>${e.player || "—"}</b>${e.assist ? ` <span class="ev-asst">(KT: ${e.assist})</span>` : ""}
-              ${e.kind === "OWN" ? ' <span class="ev-asst">(phản lưới)</span>' : ""}
-              ${e.kind === "PENALTY" ? ' <span class="ev-asst">(pen)</span>' : ""}
-              <span class="ev-team">— ${teamLbl}</span>`;
-          } else if (e.type === "yellow") {
-            icon = "🟨"; detail = `<b>${e.player || "—"}</b> <span class="ev-team">— ${teamLbl}</span>`;
-          } else if (e.type === "red") {
-            icon = "🟥"; detail = `<b>${e.player || "—"}</b> <span class="ev-asst">(thẻ đỏ trực tiếp)</span> <span class="ev-team">— ${teamLbl}</span>`;
-          } else if (e.type === "yellowred") {
-            icon = "🟨🟥"; detail = `<b>${e.player || "—"}</b> <span class="ev-asst">(2 thẻ vàng)</span> <span class="ev-team">— ${teamLbl}</span>`;
-          } else if (e.type === "sub") {
-            icon = "🔄";
-            detail = `<span class="ev-sub-in">↑ ${e.playerIn || "?"}</span><br>
-              <span class="ev-sub-out">↓ ${e.playerOut || "?"}</span>
-              <span class="ev-team">— ${teamLbl}</span>`;
+            const icon = e.kind === "OWN" ? "🥅" : e.kind === "PENALTY" ? "🎯" : "⚽";
+            const tag = e.kind === "OWN" ? ' <span class="ev-asst">(phản lưới)</span>'
+                      : e.kind === "PENALTY" ? ' <span class="ev-asst">(pen)</span>' : "";
+            const who = `<span class="ev-who"><b>${e.player || "—"}</b>${tag}${e.assist ? `<span class="ev-asst">${e.assist}</span>` : ""}</span>`;
+            return { icon, who };
           }
-          return `<div class="ev-row ${cls}">
-            <div class="ev-min">${min}</div>
-            <div class="ev-icon">${icon}</div>
-            <div class="ev-detail">${detail}</div>
-            ${e.type === "goal" && e.score ? `<div class="ev-score">${e.score}</div>` : "<div></div>"}
-          </div>`;
+          const icon = e.type === "red" ? "🟥" : e.type === "yellowred" ? "🟨🟥" : "🟨";
+          return { icon, who: `<span class="ev-who"><b>${e.player || "—"}</b></span>` };
         };
-        body.innerHTML = d.events.map(renderEv).join("");
+        const renderEv = (e) => {
+          const min = e.minute != null ? `${e.minute}${e.added ? "+" + e.added : ""}'` : "";
+          const { icon, who } = evInner(e);
+          const home = e.teamSide === "home";
+          const homeCell = home ? `<div class="ev-side home">${who}<span class="ev-ico">${icon}</span></div>` : `<div class="ev-side home"></div>`;
+          const awayCell = !home ? `<div class="ev-side away"><span class="ev-ico">${icon}</span>${who}</div>` : `<div class="ev-side away"></div>`;
+          const center = `<div class="ev-center"><span class="ev-min">${min}</span>${e.type === "goal" && e.score ? `<span class="ev-score">${e.score.replace("-", " - ")}</span>` : ""}</div>`;
+          return `<div class="ev-row ${e.type}">${homeCell}${center}${awayCell}</div>`;
+        };
+        body.innerHTML = evs.map(renderEv).join("");
       } catch {
         const body = document.getElementById("eventsBody");
         if (body) body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Lỗi tải diễn biến</div>`;
