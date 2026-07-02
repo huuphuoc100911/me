@@ -1186,7 +1186,6 @@
     fill: var(--accent-2);
   }
   .bracket-svg .b-pen { font-size: 8.5px; font-weight: 700; fill: var(--text-dim); }
-  .bracket-svg .b-sub { font-size: 8.5px; font-weight: 600; fill: var(--text-fade); }
   .bracket-svg .b-box {
     fill: rgba(255,255,255,0.02);
     stroke: var(--border);
@@ -4258,8 +4257,6 @@ function renderBracket(matches) {
       const pa = showPen ? `<tspan class="b-pen" dx="2">(${m.awayPen})</tspan>` : "";
       svg += `<text x="${x + boxW - 9}" y="${y + 33}" class="b-score" text-anchor="end">${m.homeScore}${ph}</text>`;
       svg += `<text x="${x + boxW - 9}" y="${y + 49}" class="b-score" text-anchor="end">${m.awayScore}${pa}</text>`;
-      const bp = koScoreParts(m);   // trận đá hiệp phụ → dòng nhỏ tách 90' / hiệp phụ
-      if (bp) svg += `<text x="${x + 9}" y="${y + 64}" class="b-sub">90': ${bp.reg} · h.phụ: ${bp.et}</text>`;
     }
     // Vùng bấm trong suốt cho từng đội → mở popup chi tiết
     svg += `<rect class="b-hit" x="${x}" y="${y + 20}" width="${boxW}" height="18" data-mi="${idx}" data-side="h"/>`;
