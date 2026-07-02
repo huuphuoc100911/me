@@ -6,6 +6,8 @@
 const OPENFB_URL = "https://raw.githubusercontent.com/openfootball/world-cup.json/master/2026/worldcup.json";
 const FD_BASE = "https://api.football-data.org/v4/competitions/WC";
 const ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
+const ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary";
+const KO_DATE_RANGE = "20260628-20260719"; // cửa sổ vòng knockout WC2026 → 1 call lấy hết event
 const TTL_MS = 30 * 1000; // 30s — sàn an toàn cho FD free (10 req/phút, ~4 endpoint/lần fetch)
 
 // ESPN cho tỉ số 120' + luân lưu SẠCH (FD hay gộp luân lưu vào fullTime / trả pen sai).
@@ -18,15 +20,43 @@ const ESPN_NAME = {
 const enorm = (s) => ESPN_NAME[s] || s;
 const nkey = (s) => String(s || "").toLowerCase().replace(/[^a-z]/g, "");
 
+// Đếm bàn thắng trong 90' chính thức (period 1-2) từ summary ESPN → tách tỉ số hiệp phụ.
+// keyEvents: mỗi bàn có period + team.id; period 3-4 = hiệp phụ, 5+ = loạt luân lưu.
+function reg90FromSummary(sj) {
+  const comp = sj.header?.competitions?.[0];
+  const cs = comp?.competitors || [];
+  const homeC = cs.find((c) => c.homeAway === "home") || cs[0] || {};
+  const awayC = cs.find((c) => c.homeAway === "away") || cs[1] || {};
+  const hId = String(homeC.team?.id || homeC.id || "");
+  const aId = String(awayC.team?.id || awayC.id || "");
+  const isGoal = (e) => {
+    const t = ((e.type && (e.type.text || e.type.name)) || "").toLowerCase();
+    if (/own goal/.test(t)) return true;
+    if (/penalty/.test(t)) return /scored/.test(t);   // pen trong trận (không tính hỏng/loạt sút)
+    return /goal/.test(t);
+  };
+  let h = 0, a = 0;
+  for (const e of (sj.keyEvents || [])) {
+    if (!isGoal(e)) continue;
+    const per = (e.period && (e.period.number || e.period)) || 0;
+    if (per > 2) continue;                              // chỉ 90' chính thức
+    const tid = String(e.team?.id || "");
+    if (tid === hId) h++; else if (tid === aId) a++;
+  }
+  // ESPN home/away theo thứ tự của họ; trả kèm để client căn đúng chiều
+  return { home: h, away: a, hName: enorm(homeC.team?.displayName), aName: enorm(awayC.team?.displayName) };
+}
+
 async function reconcileKnockoutWithEspn(matches) {
   let ej;
   try {
-    const r = await fetch(ESPN_SCOREBOARD, { headers: { "User-Agent": "DashboardVN/1.0" } });
+    const r = await fetch(ESPN_SCOREBOARD + "?dates=" + KO_DATE_RANGE, { headers: { "User-Agent": "DashboardVN/1.0" } });
     if (!r.ok) return;
     ej = await r.json();
   } catch { return; }
   const pen = (c) => { const v = c.shootoutScore; return (v == null || v === "") ? null : (parseInt(v, 10) || 0); };
   const byTs = {};
+  const aetEvents = [];   // trận đá hiệp phụ / luân lưu → cần summary để tách 90'
   for (const e of (ej.events || [])) {
     if (e.status?.type?.state === "pre") continue;   // chưa đá
     const cs = (e.competitions?.[0]?.competitors) || [];
@@ -39,15 +69,32 @@ async function reconcileKnockoutWithEspn(matches) {
       hs: parseInt(hc.score, 10) || 0, as: parseInt(ac.score, 10) || 0,
       hp: pen(hc), ap: pen(ac)
     };
+    if (/AET|PEN/.test(e.status?.type?.name || "")) aetEvents.push({ ts, id: e.id });
   }
+  // Tỉ số 90' cho các trận đá hiệp phụ (gọi summary song song — chỉ vài trận)
+  const reg90 = {};
+  await Promise.all(aetEvents.map(async (ev) => {
+    try {
+      const r = await fetch(ESPN_SUMMARY + "?event=" + ev.id, { headers: { "User-Agent": "DashboardVN/1.0" } });
+      if (!r.ok) return;
+      reg90[ev.ts] = reg90FromSummary(await r.json());
+    } catch { /* bỏ qua trận lỗi */ }
+  }));
   for (const m of matches) {
     if (m.group) continue;             // chỉ trận knockout
     const e = byTs[m.ts];
     if (!e) continue;
+    let swapped = false;
     if (nkey(e.home) === nkey(m.home) || nkey(e.away) === nkey(m.away)) {
       m.homeScore = e.hs; m.awayScore = e.as; m.homePen = e.hp; m.awayPen = e.ap;
     } else if (nkey(e.home) === nkey(m.away) || nkey(e.away) === nkey(m.home)) {
-      m.homeScore = e.as; m.awayScore = e.hs; m.homePen = e.ap; m.awayPen = e.hp;
+      m.homeScore = e.as; m.awayScore = e.hs; m.homePen = e.ap; m.awayPen = e.hp; swapped = true;
+    } else continue;
+    const rg = reg90[m.ts];
+    if (rg) {                          // trận đá hiệp phụ → gắn tỉ số 90' (căn đúng chiều)
+      m.aet = true;
+      m.reg90Home = swapped ? rg.away : rg.home;
+      m.reg90Away = swapped ? rg.home : rg.away;
     }
   }
 }

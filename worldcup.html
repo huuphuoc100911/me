@@ -281,6 +281,10 @@
   .wc-match .score .pen, .live-bar .sc .pen {
     font-size: 11px; font-weight: 700; color: var(--text-dim); margin-left: 2px;
   }
+  .wc-match .score .score-sub {
+    font-size: 10px; font-weight: 600; color: var(--text-fade);
+    margin-top: 2px; white-space: nowrap; letter-spacing: 0; text-align: center;
+  }
   @media (max-width: 600px) {
     .wc-match { grid-template-columns: 44px 1fr auto 1fr; gap: 6px; padding: 8px; }
     .wc-match .team .nm { font-size: 11px; }
@@ -1182,6 +1186,7 @@
     fill: var(--accent-2);
   }
   .bracket-svg .b-pen { font-size: 8.5px; font-weight: 700; fill: var(--text-dim); }
+  .bracket-svg .b-sub { font-size: 8.5px; font-weight: 600; fill: var(--text-fade); }
   .bracket-svg .b-box {
     fill: rgba(255,255,255,0.02);
     stroke: var(--border);
@@ -2414,8 +2419,10 @@ async function loadSports() {
       const isDone = hasScore || (m.ts && m.ts + 3 * 3600 * 1000 < nowMs);
       const penTxt = (m.homePen != null && m.awayPen != null && m.homeScore === m.awayScore)
         ? ` <span class="pen">(pen ${m.homePen}-${m.awayPen})</span>` : "";
+      const parts = koScoreParts(m);
+      const subTxt = parts ? `<div class="score-sub">90': ${parts.reg} · h.phụ: ${parts.et}</div>` : "";
       const center = hasScore
-        ? `<div class="score">${m.homeScore} - ${m.awayScore}${penTxt}</div>`
+        ? `<div class="score">${m.homeScore} - ${m.awayScore}${penTxt}${subTxt}</div>`
         : `<div class="vs">VS</div>`;
       const badge = (url) => url
         ? `<img src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
@@ -3329,6 +3336,17 @@ function matchWinner(m) {
   return null;
 }
 
+// Tách tỉ số 90' chính thức và hiệp phụ cho trận knockout đá thêm giờ.
+// reg90Home/reg90Away do server (ESPN summary) tính; hiệp phụ = 120' − 90'.
+// Trả null nếu trận không đá hiệp phụ hoặc thiếu dữ liệu → nơi gọi không hiện gì.
+function koScoreParts(m) {
+  if (!m || !m.aet || m.reg90Home == null || m.reg90Away == null) return null;
+  if (m.homeScore == null || m.awayScore == null) return null;
+  const etH = m.homeScore - m.reg90Home, etA = m.awayScore - m.reg90Away;
+  if (etH < 0 || etA < 0) return null;   // dữ liệu lệch → bỏ, tránh hiện số âm
+  return { reg: `${m.reg90Home}-${m.reg90Away}`, et: `${etH}-${etA}` };
+}
+
 function buildKoResolver() {
   const matches = window._allMatches || [];
   const standings = window._standings || [];
@@ -4208,6 +4226,8 @@ function renderBracket(matches) {
       const pa = showPen ? `<tspan class="b-pen" dx="2">(${m.awayPen})</tspan>` : "";
       svg += `<text x="${x + boxW - 9}" y="${y + 33}" class="b-score" text-anchor="end">${m.homeScore}${ph}</text>`;
       svg += `<text x="${x + boxW - 9}" y="${y + 49}" class="b-score" text-anchor="end">${m.awayScore}${pa}</text>`;
+      const bp = koScoreParts(m);   // trận đá hiệp phụ → dòng nhỏ tách 90' / hiệp phụ
+      if (bp) svg += `<text x="${x + 9}" y="${y + 64}" class="b-sub">90': ${bp.reg} · h.phụ: ${bp.et}</text>`;
     }
     // Vùng bấm trong suốt cho từng đội → mở popup chi tiết
     svg += `<rect class="b-hit" x="${x}" y="${y + 20}" width="${boxW}" height="18" data-mi="${idx}" data-side="h"/>`;
