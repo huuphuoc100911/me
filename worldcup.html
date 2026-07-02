@@ -1509,6 +1509,12 @@
   .h2h-vs .side img { width: 44px; height: 32px; object-fit: cover; border-radius: 4px; }
   .h2h-vs .side .nm { font-size: 13px; font-weight: 700; margin-top: 6px; color: var(--text); }
   .h2h-vs .center { font-size: 18px; font-weight: 800; color: var(--accent-2); }
+  .h2h-vs .center .h2h-score { font-size: 26px; line-height: 1.1; }
+  .h2h-vs .center .h2h-pen { font-size: 12px; font-weight: 700; color: var(--text-dim); margin-top: 2px; }
+  .h2h-breakdown {
+    text-align: center; font-size: 12px; font-weight: 600; color: var(--text-fade);
+    margin: -4px 0 12px; letter-spacing: 0.2px;
+  }
   .h2h-meta {
     padding: 10px; background: rgba(255,255,255,0.02);
     border-radius: 8px; font-size: 12px; color: var(--text-dim);
@@ -3644,6 +3650,9 @@ function getKnockoutMatches() {
       awayScore: live ? (live.awayScore ?? null) : null,
       homePen: live ? (live.homePen ?? null) : null,
       awayPen: live ? (live.awayPen ?? null) : null,
+      aet: live ? (live.aet || false) : false,
+      reg90Home: live ? (live.reg90Home ?? null) : null,
+      reg90Away: live ? (live.reg90Away ?? null) : null,
       ts: (live && live.ts) ? live.ts : Date.parse(t.ko)
     };
   });
@@ -4824,7 +4833,8 @@ function showKoDetail(code, m, side) {
       id: m.id, home: rh.team, away: ra.team,
       homeBadge: rh.badge || flagURL(rh.team), awayBadge: ra.badge || flagURL(ra.team),
       ts: m.ts, round: ROUND_VI[m.round] || m.round, group: null, fdId: null,
-      homeScore: m.homeScore, awayScore: m.awayScore
+      homeScore: m.homeScore, awayScore: m.awayScore,
+      homePen: m.homePen, awayPen: m.awayPen, aet: m.aet, reg90Home: m.reg90Home, reg90Away: m.reg90Away
     });
   });
 }
@@ -4893,18 +4903,32 @@ async function openH2H(match) {
   const dt = match.ts ? new Date(match.ts) : null;
   const when = dt ? `${["CN","T2","T3","T4","T5","T6","T7"][dt.getDay()]} ${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")} · ${String(dt.getHours()).padStart(2,"0")}:${String(dt.getMinutes()).padStart(2,"0")}` : "—";
 
+  // Kết quả + tách hiệp phụ/luân lưu (hiệp phụ = 120' − 90'; hoà sau 120' mới có pen)
+  const parts = koScoreParts(match);
+  const penDraw = match.homePen != null && match.awayPen != null && match.homeScore === match.awayScore;
+  const penTxt = penDraw ? `<div class="h2h-pen">pen ${match.homePen}-${match.awayPen}</div>` : "";
+  const centerHtml = matchDone
+    ? `<div class="h2h-score">${match.homeScore} - ${match.awayScore}</div>${penTxt}`
+    : "VS";
+  let breakdown = "";
+  if (matchDone && parts) {
+    breakdown = `90': ${parts.reg} · Hiệp phụ: ${parts.et}`;
+    if (penDraw) breakdown += ` · Luân lưu: ${match.homePen}-${match.awayPen}`;
+  }
+
   document.getElementById("h2hBody").innerHTML = `
     <div class="h2h-vs">
       <div class="side">
         ${match.homeBadge ? `<img src="${match.homeBadge}">` : ""}
         <div class="nm">${home}</div>
       </div>
-      <div class="center">VS</div>
+      <div class="center">${centerHtml}</div>
       <div class="side">
         ${match.awayBadge ? `<img src="${match.awayBadge}">` : ""}
         <div class="nm">${away}</div>
       </div>
     </div>
+    ${breakdown ? `<div class="h2h-breakdown">${breakdown}</div>` : ""}
     <div class="h2h-meta">
       <b>${match.group || match.round || ""}</b> · ${when}${match.venue ? ` · 📍 ${match.venue}` : ""}
     </div>
@@ -4923,9 +4947,8 @@ async function openH2H(match) {
       </div>
     </div>
     ${(() => {
-      const hasFdId = !!match.fdId;
       const wasPlayed = match.homeScore != null || ["IN_PLAY","LIVE","PAUSED","FINISHED"].includes(match.status);
-      return hasFdId && wasPlayed ? `
+      return wasPlayed ? `
         <div class="events-section" id="eventsSection">
           <div class="ev-title">
             📋 Diễn biến trận
@@ -5037,11 +5060,11 @@ async function openH2H(match) {
     });
   }
 
-  // Fetch + render events timeline (chỉ nếu match có fdId & đã/đang đá)
-  if (match.fdId && (match.homeScore != null || ["IN_PLAY","LIVE","PAUSED","FINISHED"].includes(match.status))) {
+  // Fetch + render events timeline từ ESPN (theo giờ + tên đội) — dùng cho mọi trận đã/đang đá
+  if (match.ts && (match.homeScore != null || ["IN_PLAY","LIVE","PAUSED","FINISHED"].includes(match.status))) {
     (async () => {
       try {
-        const r = await fetch(`/api/sports-match?id=${encodeURIComponent(match.fdId)}`);
+        const r = await fetch(`/api/sports-events?ts=${match.ts}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}`);
         const d = await r.json();
         const body = document.getElementById("eventsBody");
         const stat = document.getElementById("evStat");
