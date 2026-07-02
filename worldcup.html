@@ -1653,10 +1653,6 @@
   }
   .ev-row.pkrow .ev-center { color: var(--text); }
   .pk { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; }
-  .pk .pk-lbl {
-    font-size: 8px; background: rgba(255,255,255,0.1); color: var(--text-dim);
-    padding: 1px 3px; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px;
-  }
   .pk .pk-ok { color: var(--good); font-weight: 800; font-size: 12px; }
   .pk .pk-miss { color: var(--bad); font-weight: 800; font-size: 12px; }
   .ev-row.pkrow .ev-who b { font-weight: 600; }
@@ -1669,7 +1665,6 @@
     .ev-side .ev-asst { font-size: 9px; }
     .ev-side .ev-ico { font-size: 12px; }
     .ev-center, .ev-center .ev-score { font-size: 10px; }
-    .pk .pk-lbl { font-size: 7px; }
     .pk .pk-ok, .pk .pk-miss { font-size: 11px; }
   }
   .predict-btn {
@@ -5183,7 +5178,7 @@ async function openH2H(match) {
           const rounds = Math.max(H.length, A.length);
           const pkCell = (s, side) => {
             if (!s) return `<div class="ev-side ${side}"></div>`;
-            const ico = `<span class="pk"><span class="pk-lbl">PEN</span><span class="${s.scored ? "pk-ok" : "pk-miss"}">${s.scored ? "✓" : "✗"}</span></span>`;
+            const ico = `<span class="pk"><span class="${s.scored ? "pk-ok" : "pk-miss"}">${s.scored ? "✓" : "✗"}</span></span>`;
             const nm = `<span class="ev-who"><b${s.scored ? "" : ' style="color:var(--text-dim)"'}>${s.player || "—"}</b></span>`;
             return side === "home" ? `<div class="ev-side home">${nm}${ico}</div>` : `<div class="ev-side away">${ico}${nm}</div>`;
           };
