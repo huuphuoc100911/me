@@ -1505,9 +1505,20 @@
     display: grid; grid-template-columns: 1fr auto 1fr;
     align-items: center; gap: 12px; margin-bottom: 16px;
   }
-  .h2h-vs .side { text-align: center; }
-  .h2h-vs .side img { width: 44px; height: 32px; object-fit: cover; border-radius: 4px; }
+  .h2h-vs .side { text-align: center; transition: transform 0.2s ease; }
+  .h2h-vs .side img { width: 44px; height: 32px; object-fit: cover; border-radius: 4px; transition: box-shadow 0.2s ease; }
   .h2h-vs .side .nm { font-size: 13px; font-weight: 700; margin-top: 6px; color: var(--text); }
+  /* Đội thắng: cờ phát sáng + tên vàng + huy hiệu 🏆 */
+  .h2h-vs .side.win { transform: scale(1.06); }
+  .h2h-vs .side.win img { box-shadow: 0 0 0 2px var(--accent-2), 0 0 14px rgba(245,158,11,0.55); }
+  .h2h-vs .side.win .nm { color: var(--accent-2); }
+  .h2h-vs .side .win-badge { display: none; }
+  .h2h-vs .side.win .win-badge {
+    display: inline-block; margin-top: 3px;
+    font-size: 10px; font-weight: 800; color: #0a0e1a;
+    background: var(--accent-2); padding: 1px 7px; border-radius: 10px;
+    letter-spacing: 0.3px;
+  }
   .h2h-vs .center { font-size: 18px; font-weight: 800; color: var(--accent-2); }
   .h2h-vs .center .h2h-score { font-size: 26px; line-height: 1.1; }
   .h2h-vs .center .h2h-pen { font-size: 12px; font-weight: 700; color: var(--text-dim); margin-top: 2px; }
@@ -4938,17 +4949,23 @@ async function openH2H(match) {
     breakdown = `90': ${parts.reg} · Hiệp phụ: ${parts.et}`;
     if (penDraw) breakdown += ` · Luân lưu: ${match.homePen}-${match.awayPen}`;
   }
+  // Đội thắng (có xét luân lưu) → làm nổi bật bên thắng
+  const winner = matchDone ? matchWinner(match) : null;
+  const homeWin = !!winner && winner === match.home;
+  const awayWin = !!winner && winner === match.away;
 
   document.getElementById("h2hBody").innerHTML = `
     <div class="h2h-vs">
-      <div class="side">
+      <div class="side${homeWin ? " win" : ""}">
         ${match.homeBadge ? `<img src="${match.homeBadge}">` : ""}
         <div class="nm">${home}</div>
+        <div class="win-badge">🏆 Thắng</div>
       </div>
       <div class="center">${centerHtml}</div>
-      <div class="side">
+      <div class="side${awayWin ? " win" : ""}">
         ${match.awayBadge ? `<img src="${match.awayBadge}">` : ""}
         <div class="nm">${away}</div>
+        <div class="win-badge">🏆 Thắng</div>
       </div>
     </div>
     ${breakdown ? `<div class="h2h-breakdown">${breakdown}</div>` : ""}
