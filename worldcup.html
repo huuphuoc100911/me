@@ -3441,11 +3441,36 @@ function buildKoResolver() {
     const top8 = thirds.slice(0, 8);
     const byGroup = {}; top8.forEach((t, i) => { byGroup[t.group] = { ...t, rank: i + 1 }; });
     const qual = new Set(top8.map((t) => t.group));
-    // 3) Các slot hạng 3 (đọc tổ hợp bảng cho phép từ KO_TEMPLATE), chỉ giữ bảng đã qualify
+    // 2b) GHIM các suất hạng 3 đã LỘ DIỆN từ trận R32 đã đá: một đội hạng 3 chỉ vào ĐÚNG 1 slot.
+    //     Nếu không ghim, phép ghép cặp bên dưới có thể xếp lại cùng một bảng vào slot khác
+    //     → cùng một đội hiện ở 2 nhánh (vd Senegal ở cả T79 lẫn T82). Đọc đội thật ở trận đã
+    //     kết thúc, tra ra bảng hạng-3 tương ứng, ghim bảng↔slot đó và loại khỏi pool còn lại.
+    const _norm = (s) => String(s || "").trim().toLowerCase();
+    const thirdGroupOf = {}; // tên đội (chuẩn hoá) -> bảng mà đội đó đứng hạng 3
+    Object.keys(gtab).forEach((L) => { const t3 = (gtab[L] || [])[2]; if (t3 && t3.team) thirdGroupOf[_norm(t3.team)] = L; });
+    const pinnedSlotGroup = {}; // mã slot -> bảng đã ghim (trận đã đá)
+    const usedGroups = new Set();
+    KO_TEMPLATE.forEach((t) => {
+      if (t.round !== "Round of 32") return;
+      const live = byNum[t.num];
+      if (!live || live.homeScore == null || live.awayScore == null) return; // chỉ ghim khi trận ĐÃ đá
+      [["home", t.home], ["away", t.away]].forEach(([side, code]) => {
+        if (!/^3([A-L\/]+)$/i.test(String(code))) return;
+        const L = thirdGroupOf[_norm(live[side])];
+        if (L && !usedGroups.has(L)) { pinnedSlotGroup[String(code)] = L; usedGroups.add(L); }
+      });
+    });
+    // 3) Các slot hạng 3 (đọc tổ hợp bảng cho phép từ KO_TEMPLATE), chỉ giữ bảng đã qualify.
+    //    Slot đã ghim → chỉ nhận đúng bảng ghim; slot còn lại → bỏ các bảng đã bị ghim ở nơi khác.
     const slots = [];
     KO_TEMPLATE.forEach((t) => [t.home, t.away].forEach((code) => {
       const mm = String(code).match(/^3([A-L\/]+)$/i);
-      if (mm) slots.push({ code: String(code), allowed: mm[1].toUpperCase().split("/").filter((g) => qual.has(g)) });
+      if (!mm) return;
+      const cs = String(code);
+      const allowed = pinnedSlotGroup[cs]
+        ? [pinnedSlotGroup[cs]]
+        : mm[1].toUpperCase().split("/").filter((g) => qual.has(g) && !usedGroups.has(g));
+      slots.push({ code: cs, allowed });
     }));
     // 4) Ghép cặp hoàn hảo slot ↔ bảng (Kuhn). Slot ít lựa chọn xét trước cho ổn định.
     slots.sort((a, b) => a.allowed.length - b.allowed.length || a.code.localeCompare(b.code));
@@ -3553,10 +3578,32 @@ const KO_TEMPLATE = [
 // Nguồn FD/ESPN không trả số trận knockout (num) → tự gắn bằng cách khớp giờ bóng lăn
 // với KO_TEMPLATE. Phải gọi mỗi lần thay window._allMatches (loadSports + refreshLiveFromFD).
 function tagKoNums(matches) {
-  const byTs = {}; KO_TEMPLATE.forEach((tp) => { byTs[Date.parse(tp.ko)] = tp.num; });
+  const tpl = KO_TEMPLATE.map((tp) => ({ num: tp.num, ts: Date.parse(tp.ko) }));
+  const byTs = {}; tpl.forEach((t) => { byTs[t.ts] = t.num; });
+  const usedNum = new Set();
+  (matches || []).forEach((m) => { if (m.num != null) usedNum.add(m.num); });
+  // Lượt 1: khớp CHÍNH XÁC giờ bóng lăn (đa số trận trùng khít template).
+  const pending = [];
   (matches || []).forEach((m) => {
-    if (m.num == null && !m.group && m.ts && byTs[m.ts] != null) m.num = byTs[m.ts];
+    if (m.num != null || m.group || !m.ts) return;
+    const n = byTs[m.ts];
+    if (n != null && !usedNum.has(n)) { m.num = n; usedNum.add(n); }
+    else pending.push(m);
   });
+  // Lượt 2: nguồn FD/ESPN đôi khi lệch giờ so với template (vd lệch 1h) → khớp GẦN ĐÚNG:
+  // gán trận chưa khớp vào slot template gần nhất còn trống, trong khung ±3h. Ưu tiên trận
+  // đã biết 2 đội để chúng không bị placeholder (null-team) giành mất slot.
+  const TOL = 3 * 3600 * 1000;
+  pending.sort((a, b) => ((b.home && b.away ? 1 : 0) - (a.home && a.away ? 1 : 0)) || a.ts - b.ts)
+    .forEach((m) => {
+      let best = null, bd = TOL + 1;
+      tpl.forEach((t) => {
+        if (usedNum.has(t.num)) return;
+        const dd = Math.abs(t.ts - m.ts);
+        if (dd <= TOL && dd < bd) { bd = dd; best = t; }
+      });
+      if (best) { m.num = best.num; usedNum.add(best.num); }
+    });
   return matches;
 }
 // Ghép template (cấu trúc) với dữ liệu live theo num: lấy tỉ số + tên đội thật khi trận đã đá.
