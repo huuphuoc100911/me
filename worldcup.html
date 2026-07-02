@@ -5145,8 +5145,9 @@ async function openH2H(match) {
         // Chỉ bàn thắng + thẻ (bỏ thay người theo yêu cầu)
         const evs = (d.events || []).filter((e) => e.type !== "sub");
         const goals = evs.filter((e) => e.type === "goal").length;
-        const cards = evs.filter((e) => e.type === "yellow" || e.type === "red" || e.type === "yellowred").length;
-        if (stat) stat.textContent = `${goals} ⚽ · ${cards} 🟨🟥`;
+        const yellows = evs.filter((e) => e.type === "yellow").length;   // thẻ vàng đơn
+        const reds = evs.filter((e) => e.type === "red" || e.type === "yellowred").length;  // đỏ trực tiếp + 2 vàng
+        if (stat) stat.textContent = `${goals} ⚽ · ${yellows} 🟨 · ${reds} 🟥`;
 
         // 1 sự kiện → nội dung 1 bên (chủ nhà trái / khách phải), phút + tỉ số ở giữa
         const evInner = (e) => {
