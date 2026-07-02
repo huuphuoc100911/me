@@ -1604,7 +1604,9 @@
   /* Bố cục 2 bên: chủ nhà trái · phút+tỉ số giữa · khách phải */
   .ev-row {
     display: grid;
-    grid-template-columns: 1fr 58px 1fr;
+    /* minmax(0,1fr): 2 cột hai bên luôn BẰNG NHAU (không phình theo tên dài)
+       → cột giữa (phút + tỉ số) luôn nằm chính giữa, mọi hàng thẳng cột */
+    grid-template-columns: minmax(0, 1fr) 60px minmax(0, 1fr);
     gap: 6px; align-items: center;
     padding: 7px 2px;
     border-bottom: 1px dashed rgba(255,255,255,0.05);
