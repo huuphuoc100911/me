@@ -1610,6 +1610,22 @@
     white-space: nowrap; margin-top: 2px;
   }
   .ev-center .ev-min { display: block; }
+  /* Loạt luân lưu */
+  .ev-subhead {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--accent-2); font-weight: 700; text-align: center;
+    padding: 10px 0 4px; margin-top: 4px; border-top: 1px solid var(--border);
+  }
+  .ev-row.pkrow .ev-center { color: var(--text); }
+  .pk { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; }
+  .pk .pk-lbl {
+    font-size: 8px; background: rgba(255,255,255,0.1); color: var(--text-dim);
+    padding: 1px 3px; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .pk .pk-ok { color: var(--good); font-weight: 800; font-size: 12px; }
+  .pk .pk-miss { color: var(--bad); font-weight: 800; font-size: 12px; }
+  .ev-row.pkrow .ev-who b { font-weight: 600; }
+  .ev-row.pkrow.miss-row .ev-who b { color: var(--text-dim); }
   .predict-btn {
     display: inline-block; margin-top: 12px; width: 100%;
     padding: 10px; background: var(--accent-2); color: #0a0e1a;
@@ -5076,21 +5092,18 @@ async function openH2H(match) {
         const body = document.getElementById("eventsBody");
         const stat = document.getElementById("evStat");
         if (!body) return;
-        if (!d.events || !d.events.length) {
+        const hasSo = d.shootout && ((d.shootout.home || []).length || (d.shootout.away || []).length);
+        if ((!d.events || !d.events.length) && !hasSo) {
           body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">
             ${d.note || "Chưa có sự kiện chi tiết"}
           </div>`;
           return;
         }
         // Chỉ bàn thắng + thẻ (bỏ thay người theo yêu cầu)
-        const evs = d.events.filter((e) => e.type !== "sub");
+        const evs = (d.events || []).filter((e) => e.type !== "sub");
         const goals = evs.filter((e) => e.type === "goal").length;
         const cards = evs.filter((e) => e.type === "yellow" || e.type === "red" || e.type === "yellowred").length;
         if (stat) stat.textContent = `${goals} ⚽ · ${cards} 🟨🟥`;
-        if (!evs.length) {
-          body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Chưa có sự kiện chi tiết</div>`;
-          return;
-        }
 
         // 1 sự kiện → nội dung 1 bên (chủ nhà trái / khách phải), phút + tỉ số ở giữa
         const evInner = (e) => {
@@ -5113,7 +5126,30 @@ async function openH2H(match) {
           const center = `<div class="ev-center"><span class="ev-min">${min}</span>${e.type === "goal" && e.score ? `<span class="ev-score">${e.score.replace("-", " - ")}</span>` : ""}</div>`;
           return `<div class="ev-row ${e.type}">${homeCell}${center}${awayCell}</div>`;
         };
-        body.innerHTML = evs.map(renderEv).join("");
+
+        // Loạt luân lưu: ghép cặp từng lượt (chủ nhà trái / khách phải), tỉ số luỹ tiến ở giữa
+        let pkHtml = "";
+        const so = d.shootout;
+        if (so && ((so.home || []).length || (so.away || []).length)) {
+          const H = so.home || [], A = so.away || [];
+          const rounds = Math.max(H.length, A.length);
+          const pkCell = (s, side) => {
+            if (!s) return `<div class="ev-side ${side}"></div>`;
+            const ico = `<span class="pk"><span class="pk-lbl">PEN</span><span class="${s.scored ? "pk-ok" : "pk-miss"}">${s.scored ? "✓" : "✗"}</span></span>`;
+            const nm = `<span class="ev-who"><b${s.scored ? "" : ' style="color:var(--text-dim)"'}>${s.player || "—"}</b></span>`;
+            return side === "home" ? `<div class="ev-side home">${nm}${ico}</div>` : `<div class="ev-side away">${ico}${nm}</div>`;
+          };
+          let hh = 0, aa = 0, rows = "";
+          for (let i = 0; i < rounds; i++) {
+            const h = H[i], a = A[i];
+            if (h && h.scored) hh++;
+            if (a && a.scored) aa++;
+            rows += `<div class="ev-row pkrow">${pkCell(h, "home")}<div class="ev-center">${hh} - ${aa}</div>${pkCell(a, "away")}</div>`;
+          }
+          pkHtml = `<div class="ev-subhead">🥅 Loạt luân lưu</div>${rows}`;
+        }
+        const timeline = evs.map(renderEv).join("");
+        body.innerHTML = (timeline + pkHtml) || `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Chưa có sự kiện chi tiết</div>`;
       } catch {
         const body = document.getElementById("eventsBody");
         if (body) body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Lỗi tải diễn biến</div>`;

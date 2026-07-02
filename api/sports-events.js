@@ -75,7 +75,22 @@ function extractEvents(sj) {
     }
   }
   events.sort((a, b) => (a.period - b.period) || ((a.minute || 0) - (b.minute || 0)) || ((a.added || 0) - (b.added || 0)));
-  return { home, away, events };
+
+  // Loạt luân lưu (nếu có): từng lượt sút + thành công/thất bại, tách theo đội
+  let shootout = null;
+  if (Array.isArray(sj.shootout) && sj.shootout.length) {
+    const bySide = { home: [], away: [] };
+    for (const t of sj.shootout) {
+      const k = nkey(enorm(t.team));
+      const side = k === nkey(home) ? "home" : k === nkey(away) ? "away" : null;
+      if (!side) continue;
+      for (const s of (t.shots || [])) bySide[side].push({ player: s.player, scored: !!s.didScore, shotNumber: s.shotNumber });
+    }
+    bySide.home.sort((a, b) => a.shotNumber - b.shotNumber);
+    bySide.away.sort((a, b) => a.shotNumber - b.shotNumber);
+    if (bySide.home.length || bySide.away.length) shootout = bySide;
+  }
+  return { home, away, events, shootout };
 }
 
 module.exports = async (req, res) => {
