@@ -1929,6 +1929,51 @@
   .music-prompt .prompt-text strong { color: var(--accent-2); }
   @keyframes promptSlideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
 
+  /* ===== Thông báo thông minh (toast luân phiên) ===== */
+  .wc-notif-btn {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--accent-2); font-size: 1.25rem; cursor: pointer;
+    z-index: 900; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    transition: transform .2s ease, background .2s ease;
+  }
+  .wc-notif-btn:hover { transform: scale(1.1); background: var(--bg-soft); }
+  .wc-notif-btn.off { color: var(--text-fade); opacity: 0.55; }
+  .wc-toast {
+    position: fixed; bottom: 84px; right: 24px; z-index: 902;
+    width: 312px; max-width: calc(100vw - 40px);
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 4px solid var(--accent-2);
+    border-radius: 14px; padding: 12px 26px 13px 14px;
+    box-shadow: 0 10px 36px rgba(0,0,0,0.45);
+    display: flex; gap: 11px; align-items: flex-start; overflow: hidden;
+    opacity: 0; transform: translateX(34px) scale(0.96);
+    transition: opacity .35s ease, transform .35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .wc-toast.show { opacity: 1; transform: translateX(0) scale(1); }
+  .wc-toast.good { border-left-color: #10b981; }
+  .wc-toast .wt-ico { font-size: 1.5rem; line-height: 1.1; flex-shrink: 0; }
+  .wc-toast .wt-body { min-width: 0; flex: 1; }
+  .wc-toast .wt-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent-2); margin-bottom: 3px; }
+  .wc-toast.good .wt-title { color: #10b981; }
+  .wc-toast .wt-text { font-size: 12.5px; color: var(--text); line-height: 1.45; }
+  .wc-toast .wt-text b { color: var(--text); font-weight: 800; }
+  .wc-toast .wt-text .wt-dim { color: var(--text-fade); }
+  .wc-toast .wt-text img { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; vertical-align: -2px; margin: 0 3px 0 1px; }
+  .wc-toast .wt-close { position: absolute; top: 6px; right: 8px; cursor: pointer; color: var(--text-fade); font-size: 14px; line-height: 1; padding: 2px 4px; }
+  .wc-toast .wt-close:hover { color: var(--text); }
+  .wc-toast .wt-progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--accent-2); transform-origin: left; }
+  .wc-toast.good .wt-progress { background: #10b981; }
+  .wc-toast.show .wt-progress { animation: wtShrink var(--wt-dur, 6s) linear forwards; }
+  .wc-toast:hover .wt-progress { animation-play-state: paused; }
+  @keyframes wtShrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+  @media (max-width: 768px) {
+    .wc-notif-btn { bottom: calc(88px + env(safe-area-inset-bottom,0px)); right: 16px; width: 44px; height: 44px; font-size: 1.1rem; }
+    .wc-toast { bottom: calc(142px + env(safe-area-inset-bottom,0px)); right: 16px; width: 284px; }
+  }
+
   /* ===== Nền động tinh tế (blob trôi nhẹ theo theme) ===== */
   #bgfx { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   #bgfx .blob { position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%; opacity: 0.20; will-change: transform; }
@@ -5412,6 +5457,132 @@ function launchConfetti() {
   requestAnimationFrame(tick);
 }
 
+/* ===== 🔔 Thông báo thông minh (toast luân phiên, dữ liệu từ chính giải) ===== */
+(function smartNotifs() {
+  const KEY = "wc-notif";
+  let enabled = localStorage.getItem(KEY) !== "0";
+  const SHOW_EVERY = 20000, VISIBLE = 6500, FIRST_DELAY = 7000;
+  let queue = [], timer = null, current = null, lastConf = 0;
+
+  const btn = document.createElement("button");
+  btn.className = "wc-notif-btn" + (enabled ? "" : " off");
+  btn.title = "Bật/tắt thông báo giải đấu";
+  btn.textContent = enabled ? "🔔" : "🔕";
+  document.body.appendChild(btn);
+
+  const RVI = { "Round of 32":"Vòng 1/16","Round of 16":"Vòng 1/8","Quarter-final":"Tứ kết","Quarter-finals":"Tứ kết","Semi-final":"Bán kết","Semi-finals":"Bán kết","Final":"Chung kết" };
+  const ORD = { "Round of 32":1,"Round of 16":2,"Quarter-final":3,"Quarter-finals":3,"Semi-final":4,"Semi-finals":4,"Final":5 };
+  const fimg = (t) => { const u = t ? flagURL(t) : null; return u ? `<img src="${u}" alt="">` : ""; };
+  const shortNm = (n) => { const p = String(n||"").trim().split(/\s+/); return p.length>1 ? p[0][0]+". "+p.slice(1).join(" ") : (n||""); };
+  const cd = (ts) => { const d=ts-Date.now(); if(d<=0)return"sắp bắt đầu"; const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000); if(h>=24)return Math.floor(h/24)+" ngày nữa"; if(h>=1)return h+"h"+(m?` ${m}′`:"")+" nữa"; return m+" phút nữa"; };
+
+  function buildPool() {
+    const pool = [];
+    const all = window._allMatches || [];
+    const now = Date.now();
+    const fin = all.filter(m => m.homeScore!=null && m.awayScore!=null);
+    const push = (icon,title,text,good)=>pool.push({icon,title,text,good:!!good});
+
+    // 🏆 Vua phá lưới + kiến tạo
+    const sc = (window._scorersData||[]).filter(s=>s.player&&(s.goals||0)>0).sort((a,b)=>b.goals-a.goals||(b.assists||0)-(a.assists||0));
+    if (sc.length>=3){ const md=["🥇","🥈","🥉"]; push("👑","Vua phá lưới", sc.slice(0,3).map((s,i)=>`${md[i]} <b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.goals})</span>`).join(" · ")); }
+    const asl = (window._scorersData||[]).filter(s=>s.player&&(s.assists||0)>0).sort((a,b)=>b.assists-a.assists);
+    if (asl.length>=3){ const md=["🥇","🥈","🥉"]; push("🅰️","Kiến tạo hàng đầu", asl.slice(0,3).map((s,i)=>`${md[i]} <b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.assists})</span>`).join(" · ")); }
+
+    // 🎉 Đội vào vòng trong (lấy vòng sâu nhất mỗi đội)
+    const roundByNum={}; (typeof KO_TEMPLATE!=="undefined"?KO_TEMPLATE:[]).forEach(t=>roundByNum[t.num]=t.round);
+    const ko = (typeof getKnockoutMatches==="function") ? getKnockoutMatches() : [];
+    const adv={};
+    ko.forEach(m=>{ if(m.homeScore==null||m.awayScore==null)return; const w=matchWinner(m); if(!w)return; const o=ORD[m.round]||0; const par=KO_PARENT[m.num]; const champion=!par&&m.round==="Final"; const advTo=par?RVI[roundByNum[par]]:null; if(!adv[w]||o>adv[w].o) adv[w]={o,advTo,champion}; });
+    Object.keys(adv).forEach(w=>{ const a=adv[w]; if(a.champion) push("🏆","Nhà vô địch", `${fimg(w)}<b>${w}</b> VÔ ĐỊCH World Cup 2026! 🎉`, true); else if(a.advTo) push("🎉","Vào vòng trong", `${fimg(w)}<b>${w}</b> đã vào <b>${a.advTo}</b>!`, true); });
+
+    // 🔥 Thắng đậm nhất / nhiều bàn nhất
+    let big=null, most=null;
+    fin.forEach(m=>{ const diff=Math.abs(m.homeScore-m.awayScore), tot=m.homeScore+m.awayScore;
+      if(diff>0&&(!big||diff>big.diff)) big={diff,m};
+      if(!most||tot>most.tot) most={tot,m}; });
+    if(big&&big.diff>=3){ const m=big.m; push("🔥","Thắng đậm nhất giải", `${fimg(m.home)}<b>${m.home}</b> ${m.homeScore}-${m.awayScore} <b>${m.away}</b>${fimg(m.away)}`); }
+    if(most&&most.tot>=4){ const m=most.m; push("⚡","Trận nhiều bàn nhất", `${fimg(m.home)}<b>${m.home}</b> ${m.homeScore}-${m.awayScore} <b>${m.away}</b>${fimg(m.away)} <span class="wt-dim">(${most.tot} bàn)</span>`); }
+
+    // 🧤 Giữ sạch lưới
+    const cs={}; fin.forEach(m=>{ if(m.awayScore===0)cs[m.home]=(cs[m.home]||0)+1; if(m.homeScore===0)cs[m.away]=(cs[m.away]||0)+1; });
+    let csTop=null; Object.keys(cs).forEach(t=>{ if(!csTop||cs[t]>cs[csTop])csTop=t; });
+    if(csTop&&cs[csTop]>=2) push("🧤","Hàng thủ thép", `${fimg(csTop)}<b>${csTop}</b> giữ sạch lưới <b>${cs[csTop]}</b> trận`);
+
+    // 📊 Tổng bàn + trung bình
+    if(fin.length>=3){ const G=fin.reduce((s,m)=>s+m.homeScore+m.awayScore,0); push("⚽","Thống kê bàn thắng", `Đã có <b>${G}</b> bàn sau <b>${fin.length}</b> trận · TB <b>${(G/fin.length).toFixed(1)}</b> bàn/trận`); }
+
+    // 🎯 Loạt luân lưu
+    const pens = ko.filter(m=>m.homeScore!=null&&m.awayScore!=null&&m.homePen!=null&&m.awayPen!=null).length;
+    if(pens>0) push("🎯","Kịch tính luân lưu", `Đã có <b>${pens}</b> loạt sút luân lưu nghẹt thở ở vòng knockout!`);
+
+    // 😱 Cú sốc (cửa dưới thắng theo thứ hạng bảng)
+    const gp={}; (window._standings||[]).forEach(g=>(g.table||[]).forEach((t,i)=>{ if(t.team)gp[t.team]=i+1; }));
+    let ups=null; ko.forEach(m=>{ if(m.homeScore==null||m.awayScore==null)return; const w=matchWinner(m); if(!w)return; const l=w===m.home?m.away:m.home; if(gp[w]&&gp[l]&&gp[w]>gp[l]){ const gap=gp[w]-gp[l]; if(!ups||gap>ups.gap) ups={gap,w,l}; } });
+    if(ups) push("😱","Cú sốc lớn", `${fimg(ups.w)}<b>${ups.w}</b> gây bất ngờ, loại <b>${ups.l}</b>!`);
+
+    // 📅 Hôm nay có mấy trận
+    const today=new Date(); const sameDay=(ts)=>{const d=new Date(ts);return d.getDate()===today.getDate()&&d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();};
+    const todayM=all.filter(m=>m.ts&&sameDay(m.ts));
+    if(todayM.length>0) push("📅","Lịch hôm nay", `Hôm nay có <b>${todayM.length}</b> trận đấu diễn ra!`);
+
+    // 🔴 Đang LIVE
+    const live=all.find(m=>m.ts&&m.ts<=now&&now<m.ts+115*60000);
+    if(live){ const s=(live.homeScore!=null)?`${live.homeScore}-${live.awayScore}`:"đang đá"; push("🔴","Đang trực tiếp", `${fimg(live.home)}<b>${live.home}</b> ${s} <b>${live.away}</b>${fimg(live.away)}${live.espnClock?` <span class="wt-dim">${live.espnClock}</span>`:""}`); }
+
+    // ⏰ Trận kế tiếp
+    const next=all.filter(m=>m.ts&&m.ts>now).sort((a,b)=>a.ts-b.ts)[0];
+    if(next){ const tag=next.group?"":(RVI[next.round]||""); push("⏰","Sắp diễn ra", `<b>${cd(next.ts)}</b>: ${fimg(next.home)}<b>${next.home}</b> vs <b>${next.away}</b>${fimg(next.away)}${tag?` <span class="wt-dim">· ${tag}</span>`:""}`); }
+
+    // ⭐ Đội yêu thích
+    const favs = (typeof getFavs==="function") ? getFavs() : [];
+    favs.forEach(fav=>{
+      if(adv[fav]){ const a=adv[fav]; push("⭐","Đội của bạn", a.champion?`${fimg(fav)}<b>${fav}</b> của bạn VÔ ĐỊCH! 🏆`:`${fimg(fav)}<b>${fav}</b> của bạn đã vào <b>${a.advTo}</b>!`, true); }
+      const nx=all.filter(m=>m.ts&&m.ts>now&&(m.home===fav||m.away===fav)).sort((a,b)=>a.ts-b.ts)[0];
+      if(nx){ const opp=nx.home===fav?nx.away:nx.home; push("⭐","Đội của bạn sắp đá", `${fimg(fav)}<b>${fav}</b> đá <b>${cd(nx.ts)}</b> gặp <b>${opp}</b>${fimg(opp)}`); }
+      const lf=fin.filter(m=>m.home===fav||m.away===fav).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
+      if(lf){ const opp=lf.home===fav?lf.away:lf.home; const gf=lf.home===fav?lf.homeScore:lf.awayScore; const ga=lf.home===fav?lf.awayScore:lf.homeScore; const res=gf>ga?"thắng":gf<ga?"thua":"hoà"; push("⭐","Kết quả đội bạn", `${fimg(fav)}<b>${fav}</b> vừa ${res} <b>${gf}-${ga}</b> trước <b>${opp}</b>`); }
+    });
+
+    return pool;
+  }
+
+  const anyModalOpen = () => !!document.querySelector("#h2hModal.show, #koDetailModal.show, #playerModal.show, #teamModal.show");
+  const shuffle = (a)=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  function nextItem(){ if(!queue.length) queue = shuffle(buildPool()); return queue.shift(); }
+  function hideCurrent(){ if(current){ const c=current; c.classList.remove("show"); setTimeout(()=>c.remove(),400); current=null; } }
+
+  function showOne(){
+    if(!enabled || document.visibilityState!=="visible" || anyModalOpen()) return;
+    const item = nextItem();
+    if(!item) return;
+    hideCurrent();
+    const t=document.createElement("div");
+    t.className="wc-toast"+(item.good?" good":"");
+    t.style.setProperty("--wt-dur",(VISIBLE/1000)+"s");
+    t.innerHTML=`<div class="wt-ico">${item.icon}</div><div class="wt-body"><div class="wt-title">${item.title}</div><div class="wt-text">${item.text}</div></div><span class="wt-close">✕</span><span class="wt-progress"></span>`;
+    document.body.appendChild(t);
+    current=t;
+    requestAnimationFrame(()=>t.classList.add("show"));
+    if(item.good && Date.now()-lastConf>45000){ lastConf=Date.now(); if(typeof launchConfetti==="function") launchConfetti(); }
+    let hideT=setTimeout(hideCurrent, VISIBLE);
+    t.addEventListener("mouseenter",()=>clearTimeout(hideT));
+    t.addEventListener("mouseleave",()=>{ hideT=setTimeout(hideCurrent,2500); });
+    t.querySelector(".wt-close").addEventListener("click",()=>{ clearTimeout(hideT); hideCurrent(); });
+  }
+
+  function start(){ stop(); timer=setInterval(showOne,SHOW_EVERY); setTimeout(showOne,FIRST_DELAY); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+
+  btn.addEventListener("click",()=>{
+    enabled=!enabled; localStorage.setItem(KEY, enabled?"1":"0");
+    btn.textContent=enabled?"🔔":"🔕"; btn.classList.toggle("off",!enabled);
+    if(enabled) start(); else { stop(); hideCurrent(); }
+  });
+  if(enabled) start();
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&enabled&&!timer) start(); });
+})();
+
 // Nguồn 2: FD — chậm hơn, nhưng có BXH + scorers (chỉ refresh khi live đang diễn ra)
 async function refreshLiveFromFD() {
   const all = window._allMatches || [];
@@ -5464,9 +5635,9 @@ setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/score
 </div>
 
 <script>
-// ── NHẠC NỀN: Waka Waka (World Cup 2010) ────────────────────────────────────
+// ── NHẠC NỀN: bài hát World Cup 2026 ────────────────────────────────────────
 (function () {
-  const SONG = "music/worldcup/waka-waka.mp3";
+  const SONG = "music/worldcup/daidai.mp3";
   const btn = document.getElementById("musicBtn");
   const prompt = document.getElementById("musicPrompt");
   if (!btn || !prompt) return;
@@ -5479,7 +5650,7 @@ setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/score
     audio.volume = 0.45;
     audio.addEventListener("error", () => {
       btn.textContent = "🎵";
-      btn.title = "Chưa có file nhạc — đặt waka-waka.mp3 vào thư mục music/worldcup/";
+      btn.title = "Chưa có file nhạc — đặt daidai.mp3 vào thư mục music/worldcup/";
       btn.classList.remove("playing");
       playing = false;
     });
