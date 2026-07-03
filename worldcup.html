@@ -1970,8 +1970,9 @@
   .wc-toast:hover .wt-progress { animation-play-state: paused; }
   @keyframes wtShrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
   @media (max-width: 768px) {
-    .wc-notif-btn { bottom: calc(88px + env(safe-area-inset-bottom,0px)); right: 16px; width: 44px; height: 44px; font-size: 1.1rem; }
-    .wc-toast { bottom: calc(142px + env(safe-area-inset-bottom,0px)); right: 16px; width: 284px; }
+    /* Mobile: live-bar ghim đáy → đưa thông báo lên GÓC PHẢI-TRÊN */
+    .wc-notif-btn { top: calc(10px + env(safe-area-inset-top,0px)); bottom: auto; right: 10px; width: 40px; height: 40px; font-size: 1rem; }
+    .wc-toast { top: calc(58px + env(safe-area-inset-top,0px)); bottom: auto; right: 8px; width: 270px; }
   }
 
   /* ===== Nền động tinh tế (blob trôi nhẹ theo theme) ===== */
@@ -5461,7 +5462,7 @@ function launchConfetti() {
 (function smartNotifs() {
   const KEY = "wc-notif";
   let enabled = localStorage.getItem(KEY) !== "0";
-  const SHOW_EVERY = 20000, VISIBLE = 6500, FIRST_DELAY = 7000;
+  const SHOW_EVERY = 10000, VISIBLE = 6000, FIRST_DELAY = 4000;
   let queue = [], timer = null, current = null, lastConf = 0;
 
   const btn = document.createElement("button");
@@ -5684,25 +5685,9 @@ setInterval(refreshLiveFromFD, 60000);   // 60s — chậm hơn, lấy BXH/score
   btn.addEventListener("click", () => { playing ? stop() : start(); });
   prompt.addEventListener("click", () => { if (!playing) start(); hidePrompt(); });
 
-  // Bật nhạc khi tương tác đầu tiên (chạm/cuộn/bấm/gõ phím) ở bất cứ đâu.
-  const events = ["pointerdown", "keydown", "touchstart"];
-  function onFirstGesture() {
-    if (playing) return;
-    events.forEach((ev) => document.removeEventListener(ev, onFirstGesture));
-    start();
-  }
-
-  // Thử autoplay ngay khi vào app; nếu trình duyệt chặn → chờ tương tác + nhắc nhẹ.
-  ensureAudio();
-  const ap = audio.play();
-  if (ap && ap.then) {
-    ap.then(markPlaying).catch(() => {
-      armed = true;
-      events.forEach((ev) => document.addEventListener(ev, onFirstGesture, { passive: true }));
-      setTimeout(showPrompt, 1500);
-      promptLoop = setInterval(showPrompt, 60000);
-    });
-  }
+  // Mặc định TẮT nhạc khi vào app — chỉ phát khi người dùng bấm nút 🎵.
+  // Hiện gợi ý nhẹ 1 lần để biết là có nhạc (không tự phát).
+  setTimeout(showPrompt, 1500);
 })();
 </script>
 
