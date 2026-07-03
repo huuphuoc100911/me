@@ -1,8 +1,8 @@
 Đặt file nhạc nền tại đây với đúng tên:
 
-    waka-waka.mp3
+    daidai.mp3
 
-(Waka Waka - This Time for Africa, World Cup 2010)
+(Bài hát chủ đề World Cup 2026)
 
-Trang worldcup.html tự động phát file music/worldcup/waka-waka.mp3.
+Trang worldcup.html tự động phát file music/worldcup/daidai.mp3.
 Nếu chưa có file, nút 🎵 vẫn hiện nhưng sẽ không phát được.
