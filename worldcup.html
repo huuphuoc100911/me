@@ -1970,10 +1970,42 @@
   .wc-toast:hover .wt-progress { animation-play-state: paused; }
   @keyframes wtShrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
   @media (max-width: 768px) {
-    /* Mobile: live-bar ghim đáy → đưa thông báo lên GÓC PHẢI-TRÊN */
-    .wc-notif-btn { top: calc(10px + env(safe-area-inset-top,0px)); bottom: auto; right: 10px; width: 40px; height: 40px; font-size: 1rem; }
-    .wc-toast { top: calc(58px + env(safe-area-inset-top,0px)); bottom: auto; right: 8px; width: 270px; }
+    /* Mobile: ẩn nút chuông (mặc định luôn bật), toast lên sát status bar góc phải-trên */
+    .wc-notif-btn { display: none; }
+    .wc-toast { top: calc(8px + env(safe-area-inset-top,0px)); bottom: auto; right: 8px; width: 270px; }
   }
+
+  /* ===== 🏅 Bảng vinh danh giải (awards wall) ===== */
+  .awards-wall { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .aw-tile { position: relative; background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px 12px; overflow: hidden; }
+  .aw-tile::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-2), transparent 80%); }
+  .aw-tile.cyan::before { background: linear-gradient(90deg, #06b6d4, transparent 80%); }
+  .aw-tile.green::before { background: linear-gradient(90deg, #10b981, transparent 80%); }
+  .aw-tile.pink::before { background: linear-gradient(90deg, #ec4899, transparent 80%); }
+  .aw-head { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+  .aw-head .aw-ico { font-size: 1.55rem; line-height: 1; }
+  .aw-head .aw-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-dim); }
+  .aw-item { margin-bottom: 9px; }
+  .aw-item:last-child { margin-bottom: 0; }
+  .aw-line { display: flex; align-items: center; gap: 7px; font-size: 12.5px; margin-bottom: 4px; }
+  .aw-rank { flex-shrink: 0; width: 15px; text-align: center; font-size: 12px; }
+  .aw-line img { width: 19px; height: 14px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+  .aw-line .nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: var(--text); }
+  .aw-line .val { flex-shrink: 0; font-weight: 800; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .aw-bar { height: 6px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .aw-bar > i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent-2), #fbbf24); width: var(--w, 0%); animation: awGrow 0.9s cubic-bezier(0.22,1,0.36,1) both; }
+  .aw-tile.cyan .aw-bar > i { background: linear-gradient(90deg, #06b6d4, #4facfe); }
+  .aw-tile.green .aw-bar > i { background: linear-gradient(90deg, #10b981, #34d399); }
+  @keyframes awGrow { from { width: 0; } to { width: var(--w, 0%); } }
+  .aw-match { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; font-weight: 700; padding: 8px 0 3px; flex-wrap: wrap; color: var(--text); }
+  .aw-match img { width: 22px; height: 16px; object-fit: cover; border-radius: 2px; }
+  .aw-match .sc { background: var(--accent-2); color: #0a0e1a; font-weight: 800; padding: 2px 8px; border-radius: 5px; font-variant-numeric: tabular-nums; }
+  .aw-sub { text-align: center; font-size: 11px; color: var(--text-fade); margin-top: 7px; }
+  .aw-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .aw-stats .s { text-align: center; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 4px; }
+  .aw-stats .s .v { font-size: 18px; font-weight: 800; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .aw-stats .s .l { font-size: 9.5px; color: var(--text-fade); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+  @media (prefers-reduced-motion: reduce) { .aw-bar > i { animation: none; } }
 
   /* ===== Nền động tinh tế (blob trôi nhẹ theo theme) ===== */
   #bgfx { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
@@ -2110,6 +2142,14 @@
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
       </div>
+    </div>
+  </div>
+
+  <!-- 🏅 Bảng vinh danh giải -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🏅</span> Bảng vinh danh giải <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">Những cái “nhất” của World Cup 2026</span></h2>
+      <div id="awardsBlock"><div class="loading-pulse" style="font-size:12px">Sẽ hiện khi các trận có kết quả…</div></div>
     </div>
   </div>
 
@@ -2444,6 +2484,7 @@ async function loadSports() {
     renderBracket(d.matches || []);
     renderThirdRace();
     renderTournamentStats();
+    renderAwards();
     if (typeof renderPredScore === "function") renderPredScore();
     const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
     console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
@@ -2816,6 +2857,7 @@ let _scorersData = null;
 function renderScorers(scorers) {
   if (scorers) _scorersData = scorers;
   if (typeof maybeRefreshHall === "function") maybeRefreshHall();  // cập nhật Bảng vàng theo bàn 2026
+  if (typeof renderAwards === "function") renderAwards();          // Bảng vinh danh cần dữ liệu vua phá lưới
   const block = document.getElementById("scorersBlock");
   const meta = document.getElementById("scorersMeta");
   if (!_scorersData || !_scorersData.length) {
@@ -4742,6 +4784,94 @@ function renderThirdRace() {
 }
 
 /* ===== Thống kê nhanh giải đấu (tính từ các trận đã đá) ===== */
+/* ===== 🏅 Bảng vinh danh giải (awards wall) ===== */
+function renderAwards() {
+  const el = document.getElementById("awardsBlock");
+  if (!el) return;
+  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const all = window._allMatches || [];
+  const fin = all.filter((m) => m.homeScore != null && m.awayScore != null);
+  const scorers = (window._scorersData || []).filter((s) => s.player && (s.goals || 0) > 0);
+  if (!fin.length && !scorers.length) { el.innerHTML = `<div class="loading-pulse" style="font-size:12px">Sẽ hiện khi các trận có kết quả…</div>`; return; }
+
+  const flg = (t) => { const u = t ? flagURL(t) : null; return u ? `<img src="${u}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""; };
+  const pflag = (s) => flg(s.team || s.nationality) || (s.teamBadge ? `<img src="${esc(s.teamBadge)}" alt="" onerror="this.style.display='none'">` : "");
+  const short = (n) => { const p = String(n || "").trim().split(/\s+/); return p.length > 1 ? p[0][0] + ". " + p.slice(1).join(" ") : (n || ""); };
+  const MED = ["🥇", "🥈", "🥉"];
+  const tiles = [];
+
+  const rankTile = (cls, ico, label, rows) => {
+    if (!rows.length) return;
+    const max = rows[0].v || 1;
+    const body = rows.map((r, i) => `
+      <div class="aw-item">
+        <div class="aw-line"><span class="aw-rank">${MED[i] || (i + 1)}</span>${r.flag || ""}<span class="nm">${esc(r.name)}</span><span class="val">${r.v}</span></div>
+        <div class="aw-bar"><i style="--w:${Math.max(8, Math.round((r.v / max) * 100))}%"></i></div>
+      </div>`).join("");
+    tiles.push(`<div class="aw-tile ${cls}"><div class="aw-head"><span class="aw-ico">${ico}</span><span class="aw-label">${label}</span></div>${body}</div>`);
+  };
+
+  // 👑 Vua phá lưới · 🅰️ Vua kiến tạo
+  rankTile("", "👑", "Vua phá lưới",
+    scorers.slice().sort((a, b) => b.goals - a.goals || (b.assists || 0) - (a.assists || 0)).slice(0, 3).map((s) => ({ name: short(s.player), v: s.goals, flag: pflag(s) })));
+  rankTile("cyan", "🅰️", "Vua kiến tạo",
+    scorers.slice().filter((s) => (s.assists || 0) > 0).sort((a, b) => b.assists - a.assists).slice(0, 3).map((s) => ({ name: short(s.player), v: s.assists, flag: pflag(s) })));
+
+  // Bàn ghi + giữ sạch lưới theo đội
+  const scored = {}, cs = {};
+  fin.forEach((m) => {
+    scored[m.home] = (scored[m.home] || 0) + m.homeScore;
+    scored[m.away] = (scored[m.away] || 0) + m.awayScore;
+    if (m.awayScore === 0) cs[m.home] = (cs[m.home] || 0) + 1;
+    if (m.homeScore === 0) cs[m.away] = (cs[m.away] || 0) + 1;
+  });
+  rankTile("green", "🧤", "Găng tay vàng (sạch lưới)",
+    Object.keys(cs).map((t) => ({ name: t, v: cs[t], flag: flg(t) })).sort((a, b) => b.v - a.v).slice(0, 3));
+
+  // Thẻ 1 trận
+  const matchTile = (cls, ico, label, m, sub) => {
+    if (!m) return;
+    tiles.push(`<div class="aw-tile ${cls}"><div class="aw-head"><span class="aw-ico">${ico}</span><span class="aw-label">${label}</span></div>
+      <div class="aw-match">${flg(m.home)}<span>${esc(m.home)}</span><span class="sc">${m.homeScore} - ${m.awayScore}</span><span>${esc(m.away)}</span>${flg(m.away)}</div>
+      ${sub ? `<div class="aw-sub">${sub}</div>` : ""}</div>`);
+  };
+  let big = null, bigD = 0, most = null, mostT = -1;
+  fin.forEach((m) => { const d = Math.abs(m.homeScore - m.awayScore), tot = m.homeScore + m.awayScore; if (d > 0 && d > bigD) { big = m; bigD = d; } if (tot > mostT) { most = m; mostT = tot; } });
+  matchTile("pink", "🔥", "Thắng đậm nhất", big, big ? `Cách biệt ${bigD} bàn` : "");
+  matchTile("", "⚡", "Trận nhiều bàn nhất", most, most ? `${mostT} bàn trong một trận` : "");
+
+  // 😱 Cú sốc (cửa dưới theo hạng bảng loại cửa trên ở knockout)
+  const gp = {}; (window._standings || []).forEach((g) => (g.table || []).forEach((t, i) => { if (t.team) gp[t.team] = i + 1; }));
+  const ko = (typeof getKnockoutMatches === "function") ? getKnockoutMatches() : [];
+  let ups = null, upsW = "", upsL = "", upsG = 0;
+  ko.forEach((m) => {
+    if (m.homeScore == null || m.awayScore == null) return;
+    const w = matchWinner(m); if (!w) return;
+    const l = w === m.home ? m.away : m.home;
+    if (gp[w] && gp[l] && gp[w] > gp[l] && (gp[w] - gp[l]) > upsG) { ups = m; upsW = w; upsL = l; upsG = gp[w] - gp[l]; }
+  });
+  if (ups) tiles.push(`<div class="aw-tile cyan"><div class="aw-head"><span class="aw-ico">😱</span><span class="aw-label">Cú sốc lớn nhất</span></div>
+    <div class="aw-match">${flg(upsW)}<span>${esc(upsW)}</span><span class="sc">${ups.homeScore} - ${ups.awayScore}</span><span>${esc(upsL)}</span>${flg(upsL)}</div>
+    <div class="aw-sub"><b style="color:var(--text)">${esc(upsW)}</b> gây bất ngờ, loại <b style="color:var(--text)">${esc(upsL)}</b></div></div>`);
+
+  // 📊 Tổng quan
+  if (fin.length) {
+    const G = fin.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
+    const pens = ko.filter((m) => m.homeScore != null && m.awayScore != null && m.homePen != null && m.awayPen != null).length;
+    const atkTop = Object.keys(scored).map((t) => ({ t, v: scored[t] })).sort((a, b) => b.v - a.v)[0];
+    tiles.push(`<div class="aw-tile"><div class="aw-head"><span class="aw-ico">📊</span><span class="aw-label">Tổng quan giải</span></div>
+      <div class="aw-stats">
+        <div class="s"><div class="v">${G}</div><div class="l">Tổng bàn</div></div>
+        <div class="s"><div class="v">${(G / fin.length).toFixed(1)}</div><div class="l">TB/trận</div></div>
+        <div class="s"><div class="v">${fin.length}</div><div class="l">Đã đá</div></div>
+        <div class="s"><div class="v">${pens}</div><div class="l">Loạt pen</div></div>
+      </div>
+      ${atkTop ? `<div class="aw-sub">⚔️ Hàng công mạnh nhất: <b style="color:var(--text)">${esc(atkTop.t)}</b> (${atkTop.v} bàn)</div>` : ""}</div>`);
+  }
+
+  el.innerHTML = tiles.length ? `<div class="awards-wall">${tiles.join("")}</div>` : `<div class="loading-pulse" style="font-size:12px">Sẽ hiện khi các trận có kết quả…</div>`;
+}
+
 function renderTournamentStats() {
   const el = document.getElementById("tourStatsBlock");
   if (!el) return;
@@ -5462,7 +5592,7 @@ function launchConfetti() {
 (function smartNotifs() {
   const KEY = "wc-notif";
   let enabled = localStorage.getItem(KEY) !== "0";
-  const SHOW_EVERY = 10000, VISIBLE = 6000, FIRST_DELAY = 4000;
+  const SHOW_EVERY = 20000, VISIBLE = 8500, FIRST_DELAY = 4000;
   let queue = [], timer = null, current = null, lastConf = 0;
 
   const btn = document.createElement("button");
@@ -5621,6 +5751,7 @@ async function refreshLiveFromFD() {
     renderBracket(d.matches);
     renderThirdRace();
     renderTournamentStats();
+    renderAwards();
   } catch {}
 }
 
