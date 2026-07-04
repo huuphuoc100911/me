@@ -2009,6 +2009,22 @@
   .aw-stats .s .l { font-size: 9.5px; color: var(--text-fade); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
   @media (prefers-reduced-motion: reduce) { .aw-bar > i { animation: none; } }
 
+  /* ===== 🔮 Cỗ máy dự đoán vô địch ===== */
+  .odds-list { display: flex; flex-direction: column; gap: 10px; }
+  .odds-row { display: grid; grid-template-columns: 30px 28px minmax(0,1fr) 56px; gap: 10px; align-items: center; }
+  .odds-row .o-rank { text-align: center; font-weight: 800; font-size: 14px; color: var(--text-fade); font-variant-numeric: tabular-nums; }
+  .odds-row .o-flag { display: flex; align-items: center; }
+  .odds-row .o-flag img { width: 27px; height: 19px; object-fit: cover; border-radius: 3px; }
+  .odds-row .o-main { min-width: 0; }
+  .odds-row .o-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .odds-row .o-bar { height: 8px; border-radius: 5px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .odds-row .o-bar > i { display: block; height: 100%; border-radius: 5px; width: var(--w,0%); background: linear-gradient(90deg, #4facfe, #06b6d4); animation: awGrow 1s cubic-bezier(0.22,1,0.36,1) both; }
+  .odds-row .o-pct { text-align: right; font-weight: 800; font-size: 15px; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .odds-row.top1 .o-name { color: var(--accent-2); }
+  .odds-row.top1 .o-rank { color: var(--accent-2); font-size: 16px; }
+  .odds-row.top1 .o-bar > i { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .odds-foot { font-size: 11px; color: var(--text-fade); text-align: center; margin-top: 13px; font-style: italic; }
+
   /* ===== Nền động tinh tế (blob trôi nhẹ theo theme) ===== */
   #bgfx { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   #bgfx .blob { position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%; opacity: 0.20; will-change: transform; }
@@ -2115,6 +2131,14 @@
       <div class="bracket-wrap" id="bracketBlock">
         <div class="loading-pulse">Sẽ hiển thị sau vòng bảng</div>
       </div>
+    </div>
+  </div>
+
+  <!-- 🔮 Cỗ máy dự đoán vô địch -->
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h2><span class="icon">🔮</span> Cỗ máy dự đoán vô địch <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">% cơ hội lên ngôi cho các đội còn sống — vui thôi 😄</span></h2>
+      <div id="titleOddsBlock"><div class="loading-pulse" style="font-size:12px">Sẽ hiện khi vòng knockout bắt đầu…</div></div>
     </div>
   </div>
 
@@ -2487,6 +2511,7 @@ async function loadSports() {
     renderThirdRace();
     renderTournamentStats();
     renderAwards();
+    renderTitleOdds();
     if (typeof renderPredScore === "function") renderPredScore();
     const finished = (d.matches || []).filter((m) => m.homeScore != null && m.awayScore != null);
     console.log(`[WC] source=${d.source} | total=${d.total} | finished=${finished.length} | updated=${new Date(d.updated).toLocaleString("vi-VN")}`);
@@ -4874,6 +4899,76 @@ function renderAwards() {
   el.innerHTML = tiles.length ? `<div class="awards-wall">${tiles.join("")}</div>` : `<div class="loading-pulse" style="font-size:12px">Sẽ hiện khi các trận có kết quả…</div>`;
 }
 
+/* ===== 🔮 Cỗ máy dự đoán vô địch (title odds) ===== */
+function renderTitleOdds() {
+  const el = document.getElementById("titleOddsBlock");
+  if (!el) return;
+  const placeholder = () => { el.innerHTML = `<div class="loading-pulse" style="font-size:12px">Sẽ hiện khi vòng knockout bắt đầu…</div>`; };
+  const all = window._allMatches || [];
+  const fin = all.filter((m) => m.homeScore != null && m.awayScore != null);
+  const ko = (typeof getKnockoutMatches === "function") ? getKnockoutMatches() : [];
+  const koDone = ko.filter((m) => m.homeScore != null && m.awayScore != null);
+  const resolver = (typeof buildKoResolver === "function") ? buildKoResolver() : null;
+
+  // Đội còn sống = có mặt trong bracket (đã đá / đã xác định) và CHƯA thua trận KO nào
+  const present = new Set(), eliminated = new Set();
+  ko.forEach((m) => {
+    const done = m.homeScore != null && m.awayScore != null;
+    if (done) {
+      present.add(m.home); present.add(m.away);
+      const w = matchWinner(m); if (w) eliminated.add(w === m.home ? m.away : m.home);
+    } else if (resolver) {
+      [m.home, m.away].forEach((code) => {
+        const r = resolver.resolve(code);
+        if (r && r.team && (r.status === "confirmed" || r.kind === "team")) present.add(r.team);
+      });
+    }
+  });
+  const alive = [...present].filter((t) => t && !eliminated.has(t));
+  if (alive.length < 2) { placeholder(); return; }
+
+  const resultFor = (t, m) => {
+    const gf = m.home === t ? m.homeScore : m.awayScore, ga = m.home === t ? m.awayScore : m.homeScore;
+    if (gf > ga) return 3; if (gf < ga) return 0;
+    if (m.homePen != null && m.awayPen != null) {
+      const pf = m.home === t ? m.homePen : m.awayPen, pa = m.home === t ? m.awayPen : m.homePen;
+      if (pf > pa) return 3; if (pf < pa) return 0;
+    }
+    return 1;
+  };
+  const stat = {};
+  alive.forEach((t) => {
+    const ms = fin.filter((m) => m.home === t || m.away === t).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    let gf = 0, ga = 0;
+    ms.forEach((m) => { gf += m.home === t ? m.homeScore : m.awayScore; ga += m.home === t ? m.awayScore : m.homeScore; });
+    const played = ms.length || 1;
+    const formPts = ms.slice(-5).reduce((s, m) => s + resultFor(t, m), 0);
+    const depth = koDone.filter((m) => matchWinner(m) === t).length;   // số vòng KO đã vượt qua
+    stat[t] = { played, gf, ga, gd: gf - ga, formPts, depth };
+  });
+
+  // Sức mạnh → xác suất (làm sắc bằng mũ 1.7 rồi chuẩn hoá về 100%)
+  const strength = (s) => Math.max(0.25,
+    1 + 1.5 * s.depth + 0.5 * Math.max(-3, s.gd) + 1.3 * (s.gf / s.played) - 0.6 * (s.ga / s.played) + 0.35 * s.formPts);
+  const rows = alive.map((t) => ({ t, p: Math.pow(strength(stat[t]), 1.7) }));
+  const sum = rows.reduce((a, b) => a + b.p, 0) || 1;
+  rows.forEach((r) => r.pct = (r.p / sum) * 100);
+  rows.sort((a, b) => b.pct - a.pct);
+  const top = rows.slice(0, 16);
+  const maxPct = top[0].pct || 1;
+  const flg = (t) => { const u = flagURL(t); return u ? `<img src="${u}" alt="" onerror="this.style.display='none'">` : ""; };
+  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const body = top.map((r, i) => `
+    <div class="odds-row ${i === 0 ? "top1" : ""}">
+      <div class="o-rank">${i === 0 ? "👑" : (i + 1)}</div>
+      <div class="o-flag">${flg(r.t)}</div>
+      <div class="o-main"><div class="o-name">${esc(r.t)}</div><div class="o-bar"><i style="--w:${Math.max(6, Math.round(r.pct / maxPct * 100))}%"></i></div></div>
+      <div class="o-pct">${r.pct.toFixed(1)}%</div>
+    </div>`).join("");
+  el.innerHTML = `<div class="odds-list">${body}</div>
+    <div class="odds-foot">🔮 ${alive.length} đội còn sống · dựa trên vòng đã qua + hiệu số + hàng công + phong độ (chỉ để vui 😄)</div>`;
+}
+
 function renderTournamentStats() {
   const el = document.getElementById("tourStatsBlock");
   if (!el) return;
@@ -5754,6 +5849,7 @@ async function refreshLiveFromFD() {
     renderThirdRace();
     renderTournamentStats();
     renderAwards();
+    renderTitleOdds();
   } catch {}
 }
 
