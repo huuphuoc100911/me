@@ -55,9 +55,8 @@ function extractEvents(sj) {
     if (e.scoringPlay && (/goal/.test(low) || /penalty.*scored/.test(low))) {
       if (period > 4) continue;                  // bỏ loạt luân lưu (hiển thị riêng)
       const kind = /own goal/.test(low) ? "OWN" : /penalty/.test(low) ? "PENALTY" : "REGULAR";
-      // Phản lưới → tính cho đội đối phương
-      if (kind === "OWN") { if (side === "home") as++; else hs++; }
-      else { if (side === "home") hs++; else as++; }
+      // ESPN luôn gán e.team = đội ĐƯỢC HƯỞNG bàn (kể cả phản lưới) → tính thẳng theo side.
+      if (side === "home") hs++; else as++;
       events.push({
         type: "goal", minute, added, period,
         team: teamName, teamSide: side,
