@@ -1657,6 +1657,23 @@
   .pk .pk-miss { color: var(--bad); font-weight: 800; font-size: 12px; }
   .ev-row.pkrow .ev-who b { font-weight: 600; }
   .ev-row.pkrow.miss-row .ev-who b { color: var(--text-dim); }
+  /* ⏱️ Thanh diễn biến trận (momentum) */
+  .momentum { margin: 2px 2px 14px; }
+  .mo-legend { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; margin-bottom: 5px; }
+  .mo-legend .up { color: var(--accent-2); }
+  .mo-legend .dn { color: #22d3ee; }
+  .mo-track { position: relative; height: 56px; margin: 0 8px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+  .mo-base { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--border); transform: translateY(-50%); border-radius: 2px; }
+  .mo-guide { position: absolute; top: 7px; bottom: 7px; width: 0; border-left: 1px dashed var(--border); }
+  .mo-mk { position: absolute; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .mo-mk.home { top: 3px; }
+  .mo-mk.away { bottom: 3px; flex-direction: column-reverse; }
+  .mo-mk .ic { font-size: 13px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.55)); }
+  .mo-mk.goal .ic { font-size: 17px; }
+  .mo-mk .mn { font-size: 8px; font-weight: 800; color: var(--text-dim); font-variant-numeric: tabular-nums; margin-top: 1px; }
+  .mo-mk.away .mn { margin-top: 0; margin-bottom: 1px; }
+  .mo-axis { position: relative; height: 12px; margin: 3px 8px 0; }
+  .mo-axis > span { position: absolute; font-size: 9px; color: var(--text-fade); font-weight: 700; }
   /* Mobile: thu nhỏ chữ diễn biến cho gọn */
   @media (max-width: 600px) {
     .ev-row { grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr); gap: 4px; padding: 6px 1px; font-size: 11px; }
@@ -5465,8 +5482,30 @@ async function openH2H(match) {
           }
           pkHtml = `<div class="ev-subhead">🥅 Loạt luân lưu</div>${rows}`;
         }
+        // ⏱️ Thanh diễn biến trận (momentum): bàn thắng + thẻ chấm theo phút, nhà TRÊN / khách DƯỚI
+        let momoHtml = "";
+        if (evs.length) {
+          const wentET = evs.some((e) => (e.period || 0) >= 3 || (e.minute || 0) > 90);
+          const max = wentET ? 120 : 90;
+          const icoOf = (e) => e.type === "goal" ? (e.kind === "OWN" ? "🥅" : e.kind === "PENALTY" ? "🎯" : "⚽") : e.type === "red" ? "🟥" : e.type === "yellowred" ? "🟨🟥" : "🟨";
+          const marks = evs.map((e) => {
+            const pos = Math.min(98, Math.max(2, (Math.min(e.minute || 0, max) / max) * 100));
+            const side = e.teamSide === "home" ? "home" : "away";
+            const mn = e.type === "goal" ? `<span class="mn">${e.minute}'</span>` : "";
+            const title = `${e.minute || ""}'${e.added ? "+" + e.added : ""} ${(e.player || "").replace(/"/g, "")}`;
+            return `<span class="mo-mk ${side} ${e.type}" style="left:${pos}%" title="${title}"><span class="ic">${icoOf(e)}</span>${mn}</span>`;
+          }).join("");
+          const guides = (max === 120 ? [45, 90, 105] : [45]).map((mn) => `<span class="mo-guide" style="left:${(mn / max) * 100}%"></span>`).join("");
+          const axis = (max === 120 ? [[0, "0'"], [45, "45'"], [90, "90'"], [120, "120'"]] : [[0, "0'"], [45, "45'"], [90, "90'"]])
+            .map(([mn, lb]) => { const p = (mn / max) * 100, t = p <= 0 ? "0" : (p >= 100 ? "-100%" : "-50%"); return `<span style="left:${p}%;transform:translateX(${t})">${lb}</span>`; }).join("");
+          momoHtml = `<div class="momentum">
+            <div class="mo-legend"><span class="up">▲ ${home}</span><span class="dn">${away} ▼</span></div>
+            <div class="mo-track"><div class="mo-base"></div>${guides}${marks}</div>
+            <div class="mo-axis">${axis}</div>
+          </div>`;
+        }
         const timeline = evs.map(renderEv).join("");
-        body.innerHTML = (timeline + pkHtml) || `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Chưa có sự kiện chi tiết</div>`;
+        body.innerHTML = (momoHtml + timeline + pkHtml) || `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Chưa có sự kiện chi tiết</div>`;
       } catch {
         const body = document.getElementById("eventsBody");
         if (body) body.innerHTML = `<div style="font-size:11px;color:var(--text-fade);text-align:center;padding:6px">Lỗi tải diễn biến</div>`;
