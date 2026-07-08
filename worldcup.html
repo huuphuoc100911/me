@@ -4876,9 +4876,9 @@ async function exportBracketPremium(btn) {
     };
     KO_TEMPLATE.forEach((t) => rowFor(t.num));
 
-    const boxW = 200, boxH = 74, rowPitch = 120, stride = 232, M = 54, headerH = 54, footerH = 60;
-    const W = 120 + 2 * M + 6 * stride + 3 * boxW;
-    const H = headerH + 7 * rowPitch + boxH + footerH;
+    const boxW = 200, boxH = 74, rowPitch = 152, stride = 232, M = 54, headerH = 54, footerH = 54;
+    const W = 120 + 2 * M + 6 * stride + 3 * boxW;   // ~2220
+    const H = headerH + 7 * rowPitch + boxH + footerH;   // ~1246 → tỉ lệ ≈ 16:9 (nền laptop 15")
     const sideName = (n) => n === 104 ? "C" : (leftSet.has(n) ? "L" : "R");
     const boxX = (n) => {
       const s = sideName(n);
@@ -4920,6 +4920,7 @@ async function exportBracketPremium(btn) {
       return s + "…";
     };
     const goldGrad = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const fmtDT = (ts) => { if (!ts) return ""; const d = new Date(ts), p = (k) => String(k).padStart(2, "0"); return `${p(d.getDate())}/${p(d.getMonth() + 1)} · ${p(d.getHours())}:${p(d.getMinutes())}`; };
 
     // ===== Nền navy + vignette =====
     const bg = ctx.createLinearGradient(0, 0, 0, H);
@@ -4993,7 +4994,7 @@ async function exportBracketPremium(btn) {
         ctx.restore();
         if (pen != null) { ctx.font = F(700, 12, false); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
       };
-      const nameFont = F(700, 14.5, true);
+      const nameFont = F(800, 14.5, false);
 
       if (side === "R") {
         let inner = x + 12;
@@ -5025,6 +5026,12 @@ async function exportBracketPremium(btn) {
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName);
       teamPlate(x, yT + ph + plateGap, boxW, ph, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), showName);
+      // Trận chưa đá → hiện ngày giờ đá ngay dưới ô
+      if (!done && m.ts) {
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "rgba(233,200,107,0.72)"; ctx.font = F(600, 12.5, false);
+        ctx.fillText(fmtDT(m.ts), x + boxW / 2, yT + boxH + 15);
+      }
     });
 
     // ===== Cúp + tiêu đề (giữa–trên) =====
@@ -5037,12 +5044,12 @@ async function exportBracketPremium(btn) {
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = goldGrad(tgy + 42, tgy + 96); ctx.font = F(800, 52, true);
     ctx.fillText("WORLD CUP 2026", tgx, tgy + 94);
-    ctx.fillStyle = "#e7c86c"; ctx.font = F(600, 23, true);
+    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 22, false);
     ctx.fillText("— C H A M P I O N —", tgx, tgy + 128);
 
     // ===== Ô nhà vô địch dự đoán (giữa–dưới) =====
     const cpW = 344, cpH = 78, cpx = W / 2 - cpW / 2, cpy = headerH + 4.55 * rowPitch;
-    ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15, true);
+    ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 14, false);
     ctx.fillText(champ ? "N H À   V Ô   Đ Ị C H" : "C H A M P I O N", W / 2, cpy - 13);
     ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.45)"; ctx.shadowBlur = 18;
     const pg = ctx.createLinearGradient(0, cpy, 0, cpy + cpH);
@@ -5052,23 +5059,25 @@ async function exportBracketPremium(btn) {
     const midY = cpy + cpH / 2;
     if (champ) {
       const fimg = flagImgs[champ];
-      ctx.font = F(800, 30, true); const nmW = ctx.measureText(champ.toUpperCase()).width;
+      ctx.font = F(800, 30, false); const nmW = ctx.measureText(champ.toUpperCase()).width;
       const fw = fimg ? 48 : 0; const total = fw + (fw ? 15 : 0) + nmW; let sx = W / 2 - total / 2;
       if (fimg) { drawFlag(sx, midY - 16.5, 48, 33, fimg); sx += fw + 15; }
       ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = goldGrad(midY - 15, midY + 15);
-      ctx.font = F(800, 30, true); ctx.fillText(champ.toUpperCase(), sx, midY + 1);
+      ctx.font = F(800, 30, false); ctx.fillText(champ.toUpperCase(), sx, midY + 1);
       ctx.textBaseline = "alphabetic";
     } else {
       ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#7d8bab";
-      ctx.font = F(800, 30, true); ctx.fillText("?", W / 2, midY + 1); ctx.textBaseline = "alphabetic";
+      ctx.font = F(800, 30, false); ctx.fillText("?", W / 2, midY + 1); ctx.textBaseline = "alphabetic";
     }
 
     // ===== Ô tranh hạng 3 (giữa–dưới cùng) =====
     const tp3 = byNum[103];
     if (tp3) {
-      const w3 = 306, h3 = 74, x3 = W / 2 - w3 / 2, y3 = H - footerH - h3 - 14;
-      ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14, true);
-      ctx.fillText("🥉  T R A N H   H Ạ N G   3", W / 2, y3 - 11);
+      const w3 = 306, h3 = 74, x3 = W / 2 - w3 / 2, y3 = H - footerH - h3 - 18;
+      const done3pre = tp3.homeScore != null && tp3.awayScore != null;
+      ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 13.5, false);
+      ctx.fillText("🥉  T R A N H   H Ạ N G   3", W / 2, y3 - (done3pre ? 11 : 26));
+      if (!done3pre && tp3.ts) { ctx.fillStyle = "rgba(233,200,107,0.72)"; ctx.font = F(600, 12.5, false); ctx.fillText(fmtDT(tp3.ts), W / 2, y3 - 10); }
       const done3 = tp3.homeScore != null && tp3.awayScore != null;
       const win3 = winnerOf(103);
       const p3H = sideOf(tp3, "h"), p3A = sideOf(tp3, "a");
