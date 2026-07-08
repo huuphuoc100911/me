@@ -4629,10 +4629,54 @@ async function exportBracketPremium(btn) {
     const goldGrad = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
     const fmtDT = (ts) => { if (!ts) return ""; const d = new Date(ts), p = (k) => String(k).padStart(2, "0"); return `${p(d.getDate())}/${p(d.getMonth() + 1)} · ${p(d.getHours())}:${p(d.getMinutes())}`; };
 
-    // ===== Nền navy + vignette =====
+    // ===== Nền navy =====
     const bg = ctx.createLinearGradient(0, 0, 0, H);
     bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
     ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    // ===== Lớp trang trí nền: hoa văn + sân cỏ + tia sáng + đốm bokeh =====
+    (function bgDecor() {
+      const cx = W / 2, cy = H / 2;
+      // 1) Hoa văn hoàng gia: lưới quả trám mảnh phủ nền
+      ctx.save();
+      ctx.strokeStyle = "rgba(217,178,74,0.05)"; ctx.lineWidth = 1;
+      const step = 94; ctx.beginPath();
+      for (let g = -H; g < W + H; g += step) { ctx.moveTo(g, 0); ctx.lineTo(g + H, H); ctx.moveTo(g + H, 0); ctx.lineTo(g, H); }
+      ctx.stroke(); ctx.restore();
+      // 2) Đường sân cỏ mờ: vòng tròn giữa sân + vạch giữa dọc + chấm giữa
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,255,255,0.055)"; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(cx, cy, 196, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, 42); ctx.lineTo(cx, H - 42); ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,0.07)"; ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      // 3) Tia sáng vàng toả từ vị trí cúp (giữa–trên)
+      const rcx = W / 2, rcy = headerH + 100, R = 620, rays = 20, wgt = 0.15;
+      const rayGrad = ctx.createRadialGradient(rcx, rcy, 30, rcx, rcy, R);
+      rayGrad.addColorStop(0, "rgba(246,226,150,0.18)"); rayGrad.addColorStop(1, "rgba(246,226,150,0)");
+      ctx.save(); ctx.fillStyle = rayGrad;
+      for (let i = 0; i < rays; i++) {
+        const a = (i / rays) * Math.PI * 2;
+        ctx.beginPath(); ctx.moveTo(rcx, rcy);
+        ctx.lineTo(rcx + Math.cos(a - wgt) * R, rcy + Math.sin(a - wgt) * R);
+        ctx.lineTo(rcx + Math.cos(a + wgt) * R, rcy + Math.sin(a + wgt) * R);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+      // 4) Đốm sáng bokeh vàng rải rác (vị trí cố định theo hàm băm sin → export lần nào cũng như nhau)
+      const hsh = (i, k) => { const v = Math.sin((i + 1) * k) * 43758.5453; return v - Math.floor(v); };
+      ctx.save();
+      for (let i = 0; i < 42; i++) {
+        const x = hsh(i, 12.9898) * W, y = hsh(i, 78.233) * H, t = hsh(i, 37.719);
+        const rad = 3 + t * 12, a = 0.04 + t * 0.09;
+        const gd = ctx.createRadialGradient(x, y, 0, x, y, rad);
+        gd.addColorStop(0, `rgba(246,224,146,${a})`); gd.addColorStop(1, "rgba(246,224,146,0)");
+        ctx.fillStyle = gd; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    })();
+
+    // ===== Vignette (làm tối rìa, dồn ánh nhìn vào giữa) =====
     const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.18, W / 2, H / 2, Math.max(W, H) * 0.62);
     vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)");
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
