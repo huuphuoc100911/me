@@ -4982,41 +4982,33 @@ async function exportBracketPremium(btn) {
       const hasScore = score != null;
       const nameCol = isWin ? goldGrad(cyR - 9, cyR + 9) : "#efe2b6";
       ctx.textBaseline = "middle";
+      const scRsv = pen != null ? 46 : 27;   // chỗ chừa cho tỉ số (+ luân lưu)
       const drawScore = (edgeX, dir) => {
-        ctx.font = F(800, 21, true); ctx.fillStyle = goldGrad(cyR - 11, cyR + 11);
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
+        ctx.font = F(800, 20, false); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb";
         ctx.textAlign = dir > 0 ? "left" : "right";
         ctx.fillText(String(score), edgeX, cyR + 1);
-        if (pen != null) { const sw = ctx.measureText(String(score)).width; ctx.font = F(700, 12, false); ctx.fillStyle = "#d3bd77"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
+        const sw = ctx.measureText(String(score)).width;
+        ctx.restore();
+        if (pen != null) { ctx.font = F(700, 12, false); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
       };
+      const nameFont = F(700, 14.5, true);
 
       if (side === "R") {
         let inner = x + 12;
-        if (hasScore) { drawScore(inner, 1); inner += 30; }
-        if (showName) {
-          const fx = inner;
-          if (flag) drawFlag(fx, cyR - flagH / 2, flagW, flagH, flag);
-          ctx.textAlign = "right"; ctx.font = F(700, 16.5, true); ctx.fillStyle = nameCol;
-          ctx.fillText(clipText((part.label || "").toUpperCase(), (x + w - 14) - ((flag ? fx + flagW : inner) + 8)), x + w - 14, cyR + 1);
-        } else if (flag) {
-          const bw = flagW + 10, bh = flagH + 6; drawFlag(x + w - 16 - bw, cyR - bh / 2, bw, bh, flag);
-        } else {
-          ctx.textAlign = "right"; ctx.font = F(600, 13.5, true); ctx.fillStyle = "#8fa0c0";
-          ctx.fillText(clipText(part.label, (x + w - 16) - inner - 6), x + w - 16, cyR + 1);
-        }
+        if (hasScore) { drawScore(inner, 1); inner += scRsv; }
+        const fx = inner;
+        if (flag) drawFlag(fx, cyR - flagH / 2, flagW, flagH, flag);
+        ctx.textAlign = "right"; ctx.font = nameFont; ctx.fillStyle = nameCol;
+        ctx.fillText(clipText((part.label || "").toUpperCase(), (x + w - 12) - ((flag ? fx + flagW : inner) + 7)), x + w - 12, cyR + 1);
       } else {   // "L" và "C" (chung kết)
         let inner = x + w - 12;
-        if (hasScore) { drawScore(inner, -1); inner -= 30; }
-        if (showName) {
-          const fx = inner - flagW;
-          if (flag) drawFlag(fx, cyR - flagH / 2, flagW, flagH, flag);
-          ctx.textAlign = "left"; ctx.font = F(700, 16.5, true); ctx.fillStyle = nameCol;
-          ctx.fillText(clipText((part.label || "").toUpperCase(), (flag ? fx : inner) - 8 - (x + 14)), x + 14, cyR + 1);
-        } else if (flag) {
-          const bw = flagW + 10, bh = flagH + 6; drawFlag(x + 16, cyR - bh / 2, bw, bh, flag);
-        } else {
-          ctx.textAlign = "left"; ctx.font = F(600, 13.5, true); ctx.fillStyle = "#8fa0c0";
-          ctx.fillText(clipText(part.label, inner - 6 - (x + 16)), x + 16, cyR + 1);
-        }
+        if (hasScore) { drawScore(inner, -1); inner -= scRsv; }
+        const fx = inner - flagW;
+        if (flag) drawFlag(fx, cyR - flagH / 2, flagW, flagH, flag);
+        ctx.textAlign = "left"; ctx.font = nameFont; ctx.fillStyle = nameCol;
+        ctx.fillText(clipText((part.label || "").toUpperCase(), (flag ? fx : inner) - 7 - (x + 12)), x + 12, cyR + 1);
       }
     };
 
@@ -5028,7 +5020,7 @@ async function exportBracketPremium(btn) {
       const win = winnerOf(n);
       const pH = sideOf(m, "h"), pA = sideOf(m, "a");
       const side = sideName(n) === "R" ? "R" : "L";
-      const showName = (DEPTH[roundOf[n]] === 0) || n === 104;   // vòng ngoài + chung kết hiện tên
+      const showName = true;   // hiện tên đội ở MỌI vòng
       const ph = (boxH - plateGap) / 2;
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName);
