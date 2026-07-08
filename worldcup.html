@@ -4654,7 +4654,7 @@ async function exportBracketPremium(btn) {
     // ===== Đường nối vàng (vẽ trước) =====
     ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.7;
     KO_TEMPLATE.forEach((t) => {
-      if (t.num === 103) return;
+      if (t.num === 103 || t.num === 104) return;   // 104: ô chung kết to vẽ riêng, không nối để tránh gạch thừa
       const feeders = KO_FEED[t.num]; if (!feeders) return;
       const ps = sideName(t.num);
       feeders.forEach((fn) => {
@@ -4757,7 +4757,7 @@ async function exportBracketPremium(btn) {
     // ===== Ô CHUNG KẾT to & nổi bật (2 đội vào chung kết) =====
     (function drawFinalBig() {
       const fm = byNum[104]; if (!fm) return;
-      const fW = 300, fH = 124, fGap = 12, S = 1.55;
+      const fW = 276, fH = 124, fGap = 12, S = 1.55;
       const fx = W / 2 - fW / 2, fyc = cyC(104), fy = fyc - fH / 2;
       const doneF = fm.homeScore != null && fm.awayScore != null;
       const winF = winnerOf(104);
