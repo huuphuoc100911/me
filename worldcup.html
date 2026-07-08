@@ -4582,7 +4582,7 @@ async function exportBracketPremium(btn) {
     };
     KO_TEMPLATE.forEach((t) => rowFor(t.num));
 
-    const boxW = 200, boxH = 74, rowPitch = 152, stride = 232, M = 54, headerH = 54, footerH = 54;
+    const boxW = 200, boxH = 74, rowPitch = 147, stride = 232, M = 54, headerH = 92, footerH = 54;
     const W = 120 + 2 * M + 6 * stride + 3 * boxW;   // ~2220
     const H = headerH + 7 * rowPitch + boxH + footerH;   // ~1246 → tỉ lệ ≈ 16:9 (nền laptop 15")
     const sideName = (n) => n === 104 ? "C" : (leftSet.has(n) ? "L" : "R");
@@ -4666,6 +4666,20 @@ async function exportBracketPremium(btn) {
         ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(mx, fy); ctx.lineTo(mx, py); ctx.lineTo(px, py); ctx.stroke();
       });
     });
+
+    // ===== Nhãn tên vòng (header trên đầu mỗi cột, 2 bên đối xứng) =====
+    (function roundLabels() {
+      const RL = ["VÒNG 1/16", "VÒNG 1/8", "TỨ KẾT", "BÁN KẾT"];
+      const ly = headerH - 30;
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#e7c86c";
+      ctx.save(); try { ctx.letterSpacing = "2px"; } catch (e) {}
+      for (let d = 0; d < 4; d++) {
+        ctx.font = F(800, 16, false);
+        ctx.fillText(RL[d], M + d * stride + boxW / 2, ly);                 // trái
+        ctx.fillText(RL[d], W - M - boxW / 2 - d * stride, ly);             // phải
+      }
+      ctx.restore();
+    })();
 
     // ===== Cờ có khung vàng =====
     const flagW = 34, flagH = 23;
@@ -4766,9 +4780,9 @@ async function exportBracketPremium(btn) {
       const showPenF = doneF && fm.homeScore === fm.awayScore && fm.homePen != null && fm.awayPen != null;
       // nhãn CHUNG KẾT + ngày giờ (nếu chưa đá) phía trên ô
       ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-      ctx.save(); try { ctx.letterSpacing = "6px"; } catch (e) {}
-      ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 17, false);
-      ctx.fillText("CHUNG KẾT", W / 2, fy - (!doneF && fm.ts ? 26 : 10));
+      ctx.save(); try { ctx.letterSpacing = "7px"; } catch (e) {}
+      ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 23, false);
+      ctx.fillText("CHUNG KẾT", W / 2, fy - (!doneF && fm.ts ? 30 : 12));
       ctx.restore();
       if (!doneF && fm.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14, false); ctx.fillText(fmtDT(fm.ts), W / 2, fy - 9); }
       teamPlate(fx, fy, fW, ph, "L", pHF, doneF ? fm.homeScore : null, showPenF ? fm.homePen : null, !!(winF && pHF.team === winF), true, true, S);
@@ -4808,8 +4822,8 @@ async function exportBracketPremium(btn) {
 
     // ===== Ô nhà vô địch dự đoán (giữa–dưới) =====
     const cpW = 344, cpH = 78, cpx = W / 2 - cpW / 2, cpy = headerH + 4.55 * rowPitch;
-    ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 14, false);
-    ctx.fillText(champ ? "N H À   V Ô   Đ Ị C H" : "C H A M P I O N", W / 2, cpy - 13);
+    ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 19, false);
+    ctx.fillText(champ ? "N H À   V Ô   Đ Ị C H" : "C H A M P I O N", W / 2, cpy - 15);
     ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.45)"; ctx.shadowBlur = 18;
     const pg = ctx.createLinearGradient(0, cpy, 0, cpy + cpH);
     pg.addColorStop(0, "rgba(233,200,107,0.22)"); pg.addColorStop(1, "rgba(169,120,29,0.10)");
@@ -4834,9 +4848,9 @@ async function exportBracketPremium(btn) {
     if (tp3) {
       const w3 = 306, h3 = 74, x3 = W / 2 - w3 / 2, y3 = H - footerH - h3 - 18;
       const done3pre = tp3.homeScore != null && tp3.awayScore != null;
-      ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 13.5, false);
-      ctx.fillText("🥉  T R A N H   H Ạ N G   3", W / 2, y3 - (done3pre ? 11 : 26));
-      if (!done3pre && tp3.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14, false); ctx.fillText(fmtDT(tp3.ts), W / 2, y3 - 10); }
+      ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 18, false);
+      ctx.fillText("🥉  T R A N H   H Ạ N G   3", W / 2, y3 - (done3pre ? 13 : 30));
+      if (!done3pre && tp3.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14, false); ctx.fillText(fmtDT(tp3.ts), W / 2, y3 - 11); }
       const done3 = tp3.homeScore != null && tp3.awayScore != null;
       const win3 = winnerOf(103);
       const p3H = sideOf(tp3, "h"), p3A = sideOf(tp3, "a");
