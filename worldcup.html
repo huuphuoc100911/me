@@ -3786,6 +3786,7 @@ const KO_TEMPLATE = [
   { num: 100, round: "Quarter-final", home: "W95", away: "W96", ko: "2026-07-12T01:00:00Z" },
   { num: 101, round: "Semi-final", home: "W97", away: "W98", ko: "2026-07-14T19:00:00Z" },
   { num: 102, round: "Semi-final", home: "W99", away: "W100", ko: "2026-07-15T19:00:00Z" },
+  { num: 103, round: "Third-place", home: "L101", away: "L102", ko: "2026-07-18T19:00:00Z" },
   { num: 104, round: "Final", home: "W101", away: "W102", ko: "2026-07-19T19:00:00Z" }
 ];
 // Nguồn FD/ESPN không trả số trận knockout (num) → tự gắn bằng cách khớp giờ bóng lăn
@@ -4251,6 +4252,8 @@ function renderBracket(matches) {
   const stagesPresent = STAGES.filter((s) => ko.some((m) => m.round === s));
   const colOf = {}; stagesPresent.forEach((s, i) => colOf[s] = i);
   const nCols = stagesPresent.length;
+  // Trận tranh hạng 3 nằm chung cột với Chung kết (không tạo cột riêng)
+  if (colOf["Final"] != null) colOf["Third-place"] = colOf["Final"];
 
   // Hàng: R32 (#73–88) là lá, sắp theo thứ tự duyệt cây để 2 nhánh nối thẳng nhau
   const leavesUnder = (num) => KO_FEED[num] ? [...leavesUnder(KO_FEED[num][0]), ...leavesUnder(KO_FEED[num][1])] : [num];
@@ -4270,6 +4273,8 @@ function renderBracket(matches) {
     return (rowOf[num] = (a + b) / 2);
   };
   Object.keys(KO_FEED).map(Number).forEach(rowFor);
+  // Trận tranh hạng 3: cùng cột Chung kết, đặt phía dưới trận CK cho cân
+  if (byNum[103] != null && rowOf[104] != null) rowOf[103] = rowOf[104] + 3;
   // trận nào còn thiếu hàng → xếp nối tiếp
   let extra = leafOrder.length;
   ko.forEach((m) => { if (rowOf[m.num] == null) rowOf[m.num] = extra++; });
@@ -4345,6 +4350,10 @@ function renderBracket(matches) {
   stagesPresent.forEach((s) => {
     svg += `<text x="${xOf(colOf[s]) + boxW / 2}" y="16" class="b-stage" text-anchor="middle">${STLBL[s] || s}</text>`;
   });
+  // Nhãn riêng cho trận tranh hạng 3 (ngay trên hộp của nó)
+  if (byNum[103] != null && colOf["Third-place"] != null && rowOf[103] != null) {
+    svg += `<text x="${xOf(colOf["Third-place"]) + boxW / 2}" y="${yOf(rowOf[103]) - 7}" class="b-stage" text-anchor="middle">🥉 Tranh hạng 3</text>`;
+  }
   // Đường nối feeder → trận (dùng cấu trúc cố định KO_FEED)
   ko.forEach((m) => {
     const ci = colOf[m.round];
@@ -4491,7 +4500,7 @@ function renderBracket(matches) {
     el.addEventListener("click", () => {
       const m = ko[+el.dataset.mi];
       if (!m) return;
-      if (window._koPredictMode) {
+      if (window._koPredictMode && m.round !== "Third-place") {
         const code = el.dataset.side === "h" ? m.home : m.away;
         const p = participantFill(code, true);
         if (!p.team) return;                 // slot chưa rõ đội → chưa chọn được
@@ -4512,7 +4521,7 @@ function renderBracket(matches) {
         svgEl.querySelectorAll(".b-line").forEach((l) => l.classList.toggle("hl", path.has(+l.dataset.from) && path.has(+l.dataset.to)));
       }
       // Bấm ô trận → mở thẳng đối đầu + diễn biến (không còn popup chi tiết từng đội)
-      const RVI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Final": "Chung kết" };
+      const RVI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Third-place": "Tranh hạng 3", "Final": "Chung kết" };
       const rh = participantFill(m.home, false), ra = participantFill(m.away, false);
       openH2H({
         id: m.id, home: rh.team || rh.label, away: ra.team || ra.label,
@@ -4684,9 +4693,9 @@ async function exportBracketImage(btn, theme) {
       }
     };
 
-    // hộp từng trận
+    // hộp từng trận (trừ trận tranh hạng 3 — vẽ riêng ở giữa–dưới)
     const stripH = 18;
-    ko.forEach((m) => {
+    ko.filter((m) => m.num !== 103).forEach((m) => {
       const n = m.num, x = boxX(n), yT = boxYTop(n);
       const done = m.homeScore != null && m.awayScore != null;
       const win = winnerOf(n);
@@ -4738,6 +4747,41 @@ async function exportBracketImage(btn, theme) {
       if (fimg) { ctx.fillStyle = "#ffffff"; rrect(sx, by - 14, 42, 28, 3); ctx.fill(); ctx.drawImage(fimg, sx + 1, by - 13, 40, 26); sx += fw + 12; }
       ctx.fillStyle = P.title; ctx.font = F(800, 30); ctx.fillText(champ, sx, by);
       ctx.textBaseline = "alphabetic"; ctx.textAlign = "center";
+    }
+
+    // hộp tranh hạng 3 (giữa–dưới, dưới banner nhà vô địch)
+    const tp3 = byNum[103];
+    if (tp3) {
+      const bw = boxW, bh = boxH;
+      const x3 = W / 2 - bw / 2;
+      const y3 = H - footerH - bh - 30;
+      // nhãn
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = P.title; ctx.font = F(800, 21);
+      ctx.fillText("🥉 Tranh hạng 3", W / 2, y3 - 12);
+      // khung hộp
+      ctx.fillStyle = P.boxBg; rrect(x3, y3, bw, bh, 11); ctx.fill();
+      ctx.lineWidth = 1.6; ctx.strokeStyle = P.boxStroke; rrect(x3, y3, bw, bh, 11); ctx.stroke();
+      // dải đầu: số thứ tự + ngày giờ
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.fillStyle = P.onum; ctx.font = F(800, 13);
+      const onum3 = "#" + (order[103] || "");
+      ctx.fillText(onum3, x3 + 11, y3 + stripH / 2 + 1);
+      const ow3 = ctx.measureText(onum3).width;
+      ctx.fillStyle = P.time; ctx.font = F(700, 13.5);
+      ctx.fillText(fmtT(tp3.ts), x3 + 11 + ow3 + 7, y3 + stripH / 2 + 1);
+      // đường kẻ ngăn
+      const rowH3 = (bh - stripH) / 2;
+      ctx.strokeStyle = P.div1; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x3 + 8, y3 + stripH); ctx.lineTo(x3 + bw - 8, y3 + stripH); ctx.stroke();
+      ctx.strokeStyle = P.div2;
+      ctx.beginPath(); ctx.moveTo(x3 + 8, y3 + stripH + rowH3); ctx.lineTo(x3 + bw - 8, y3 + stripH + rowH3); ctx.stroke();
+      const done3 = tp3.homeScore != null && tp3.awayScore != null;
+      const win3 = winnerOf(103);
+      const pH3 = sideOf(tp3, "h"), pA3 = sideOf(tp3, "a");
+      const showPen3 = done3 && tp3.homeScore === tp3.awayScore && tp3.homePen != null && tp3.awayPen != null;
+      drawRow(x3, y3 + stripH, rowH3, pH3, !!(win3 && pH3.team === win3), done3 ? tp3.homeScore : null, showPen3 ? tp3.homePen : null);
+      drawRow(x3, y3 + stripH + rowH3, rowH3, pA3, !!(win3 && pA3.team === win3), done3 ? tp3.awayScore : null, showPen3 ? tp3.awayPen : null);
     }
 
     // nhãn cột (2 bên + giữa)
