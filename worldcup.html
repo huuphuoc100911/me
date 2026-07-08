@@ -2904,6 +2904,7 @@ document.getElementById("liveBar").addEventListener("click", () => {
 let _scorersData = null;
 function renderScorers(scorers) {
   if (scorers) _scorersData = scorers;
+  window._scorersData = _scorersData;   // để thông báo & bảng vinh danh đọc được top ghi bàn
   if (typeof maybeRefreshHall === "function") maybeRefreshHall();  // cập nhật Bảng vàng theo bàn 2026
   if (typeof renderAwards === "function") renderAwards();          // Bảng vinh danh cần dữ liệu vua phá lưới
   const block = document.getElementById("scorersBlock");
@@ -5815,18 +5816,24 @@ function launchConfetti() {
     const fin = all.filter(m => m.homeScore!=null && m.awayScore!=null);
     const push = (icon,title,text,good)=>pool.push({icon,title,text,good:!!good});
 
-    // 🏆 Vua phá lưới + kiến tạo
+    // 🏆 Vua phá lưới + kiến tạo (top 3, kèm cờ quốc gia)
+    const pflag = (s) => { const u = s.teamBadge || (s.team ? flagURL(s.team) : (s.nationality ? flagURL(s.nationality) : null)); return u ? `<img src="${u}" alt="">` : ""; };
+    const md = ["🥇","🥈","🥉"];
     const sc = (window._scorersData||[]).filter(s=>s.player&&(s.goals||0)>0).sort((a,b)=>b.goals-a.goals||(b.assists||0)-(a.assists||0));
-    if (sc.length>=3){ const md=["🥇","🥈","🥉"]; push("👑","Vua phá lưới", sc.slice(0,3).map((s,i)=>`${md[i]} <b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.goals})</span>`).join(" · ")); }
+    if (sc.length>=3){ push("👑","Top 3 Vua phá lưới", sc.slice(0,3).map((s,i)=>`${md[i]} ${pflag(s)}<b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.goals} bàn)</span>`).join(" · ")); }
     const asl = (window._scorersData||[]).filter(s=>s.player&&(s.assists||0)>0).sort((a,b)=>b.assists-a.assists);
-    if (asl.length>=3){ const md=["🥇","🥈","🥉"]; push("🅰️","Kiến tạo hàng đầu", asl.slice(0,3).map((s,i)=>`${md[i]} <b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.assists})</span>`).join(" · ")); }
+    if (asl.length>=3){ push("🅰️","Kiến tạo hàng đầu", asl.slice(0,3).map((s,i)=>`${md[i]} ${pflag(s)}<b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.assists})</span>`).join(" · ")); }
 
     // 🎉 Đội vào vòng trong (lấy vòng sâu nhất mỗi đội)
     const roundByNum={}; (typeof KO_TEMPLATE!=="undefined"?KO_TEMPLATE:[]).forEach(t=>roundByNum[t.num]=t.round);
     const ko = (typeof getKnockoutMatches==="function") ? getKnockoutMatches() : [];
+    // Đội đã bị loại = đội THUA 1 trận knockout đã có kết quả → không thông báo "vào vòng trong" nữa
+    const eliminated = new Set();
+    ko.forEach(m=>{ if(m.homeScore==null||m.awayScore==null)return; if(m.round==="Third-place")return; const w=matchWinner(m); if(!w)return; const loser=w===m.home?m.away:m.home; if(loser)eliminated.add(loser); });
     const adv={};
-    ko.forEach(m=>{ if(m.homeScore==null||m.awayScore==null)return; const w=matchWinner(m); if(!w)return; const o=ORD[m.round]||0; const par=KO_PARENT[m.num]; const champion=!par&&m.round==="Final"; const advTo=par?RVI[roundByNum[par]]:null; if(!adv[w]||o>adv[w].o) adv[w]={o,advTo,champion}; });
-    Object.keys(adv).forEach(w=>{ const a=adv[w]; if(a.champion) push("🏆","Nhà vô địch", `${fimg(w)}<b>${w}</b> VÔ ĐỊCH World Cup 2026! 🎉`, true); else if(a.advTo) push("🎉","Vào vòng trong", `${fimg(w)}<b>${w}</b> đã vào <b>${a.advTo}</b>!`, true); });
+    ko.forEach(m=>{ if(m.homeScore==null||m.awayScore==null)return; if(m.round==="Third-place")return; const w=matchWinner(m); if(!w)return; const o=ORD[m.round]||0; const par=KO_PARENT[m.num]; const champion=!par&&m.round==="Final"; const advTo=par?RVI[roundByNum[par]]:null; if(!adv[w]||o>adv[w].o) adv[w]={o,advTo,champion}; });
+    // Chỉ thông báo đội VẪN CÒN trong giải (chưa bị loại). Nhà vô địch luôn còn.
+    Object.keys(adv).forEach(w=>{ const a=adv[w]; if(a.champion){ push("🏆","Nhà vô địch", `${fimg(w)}<b>${w}</b> VÔ ĐỊCH World Cup 2026! 🎉`, true); } else if(a.advTo && !eliminated.has(w)){ push("🎉","Vào vòng trong", `${fimg(w)}<b>${w}</b> đã vào <b>${a.advTo}</b>!`, true); } });
 
     // 🔥 Thắng đậm nhất / nhiều bàn nhất
     let big=null, most=null;
@@ -5869,7 +5876,7 @@ function launchConfetti() {
     // ⭐ Đội yêu thích
     const favs = (typeof getFavs==="function") ? getFavs() : [];
     favs.forEach(fav=>{
-      if(adv[fav]){ const a=adv[fav]; push("⭐","Đội của bạn", a.champion?`${fimg(fav)}<b>${fav}</b> của bạn VÔ ĐỊCH! 🏆`:`${fimg(fav)}<b>${fav}</b> của bạn đã vào <b>${a.advTo}</b>!`, true); }
+      if(adv[fav] && (adv[fav].champion || !eliminated.has(fav))){ const a=adv[fav]; push("⭐","Đội của bạn", a.champion?`${fimg(fav)}<b>${fav}</b> của bạn VÔ ĐỊCH! 🏆`:`${fimg(fav)}<b>${fav}</b> của bạn đã vào <b>${a.advTo}</b>!`, true); }
       const nx=all.filter(m=>m.ts&&m.ts>now&&(m.home===fav||m.away===fav)).sort((a,b)=>a.ts-b.ts)[0];
       if(nx){ const opp=nx.home===fav?nx.away:nx.home; push("⭐","Đội của bạn sắp đá", `${fimg(fav)}<b>${fav}</b> đá <b>${cd(nx.ts)}</b> gặp <b>${opp}</b>${fimg(opp)}`); }
       const lf=fin.filter(m=>m.home===fav||m.away===fav).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
