@@ -4637,16 +4637,18 @@ async function exportBracketPremium(btn) {
     vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)");
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 
-    // ===== Hoạ tiết logo World Cup mờ rải quanh nền =====
+    // ===== Hoạ tiết logo World Cup mờ — chỉ đặt ở vùng TRỐNG (cột bán kết/tứ kết,
+    // giữa–trên & giữa–dưới) để không bị đè dưới ô đội hay đường nối =====
     if (logoImg) {
       const iw = logoImg.naturalWidth || logoImg.width || 1, ih = logoImg.naturalHeight || logoImg.height || 1;
       const wm = [
-        [0.085, 0.19, 150], [0.915, 0.19, 150],
-        [0.045, 0.53, 180], [0.955, 0.56, 168],
-        [0.15, 0.87, 152], [0.85, 0.87, 152],
-        [0.34, 0.70, 138], [0.66, 0.72, 138]
+        [0.383, 0.235, 150], [0.617, 0.235, 150],   // cột bán kết – phía trên
+        [0.383, 0.790, 150], [0.617, 0.790, 150],   // cột bán kết – phía dưới
+        [0.278, 0.488, 138], [0.722, 0.488, 138],   // cột tứ kết – khoảng giữa
+        [0.500, 0.790, 150],                          // giữa – dưới (dưới ô vô địch)
+        [0.500, 0.355, 120]                           // giữa – trên (dưới logo chính)
       ];
-      ctx.save(); ctx.globalAlpha = 0.11;
+      ctx.save(); ctx.globalAlpha = 0.14;
       for (const p of wm) { const s = p[2] / ih, dw = iw * s, dh = ih * s; ctx.drawImage(logoImg, p[0] * W - dw / 2, p[1] * H - dh / 2, dw, dh); }
       ctx.restore();
     }
