@@ -4771,10 +4771,17 @@ async function exportBracketPremium(btn) {
       ctx.fillText("🏆", tgx, tgy); ctx.textBaseline = "alphabetic";
     }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = goldGrad(titleY - 38, titleY + 8); ctx.font = F(800, 52, true);
+    // Tiêu đề: sans-serif đậm + giãn chữ đều cho đồng bộ với logo & phần còn lại
+    ctx.save();
+    try { ctx.letterSpacing = "5px"; } catch (e) {}
+    ctx.fillStyle = goldGrad(titleY - 38, titleY + 8); ctx.font = F(800, 50, false);
     ctx.fillText("WORLD CUP 2026", tgx, titleY);
-    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 22, false);
-    ctx.fillText("— C H A M P I O N —", tgx, titleY + 34);
+    ctx.restore();
+    ctx.save();
+    try { ctx.letterSpacing = "7px"; } catch (e) {}
+    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 19, false);
+    ctx.fillText("— CHAMPION —", tgx, titleY + 33);
+    ctx.restore();
 
     // ===== Ô nhà vô địch dự đoán (giữa–dưới) =====
     const cpW = 344, cpH = 78, cpx = W / 2 - cpW / 2, cpy = headerH + 4.55 * rowPitch;
