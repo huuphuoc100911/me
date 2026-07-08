@@ -4637,19 +4637,24 @@ async function exportBracketPremium(btn) {
     vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)");
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 
-    // ===== Khung vàng + hoạ tiết góc =====
+    // ===== Hoạ tiết logo World Cup mờ rải quanh nền =====
+    if (logoImg) {
+      const iw = logoImg.naturalWidth || logoImg.width || 1, ih = logoImg.naturalHeight || logoImg.height || 1;
+      const wm = [
+        [0.085, 0.19, 150], [0.915, 0.19, 150],
+        [0.045, 0.53, 180], [0.955, 0.56, 168],
+        [0.15, 0.87, 152], [0.85, 0.87, 152],
+        [0.34, 0.70, 138], [0.66, 0.72, 138]
+      ];
+      ctx.save(); ctx.globalAlpha = 0.11;
+      for (const p of wm) { const s = p[2] / ih, dw = iw * s, dh = ih * s; ctx.drawImage(logoImg, p[0] * W - dw / 2, p[1] * H - dh / 2, dw, dh); }
+      ctx.restore();
+    }
+
+    // ===== Khung vàng =====
     ctx.strokeStyle = goldGrad(0, H); ctx.lineWidth = 3;
     rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
     ctx.globalAlpha = 0.55; ctx.lineWidth = 1.2; rrect(25, 25, W - 50, H - 50, 12); ctx.stroke(); ctx.globalAlpha = 1;
-    const corner = (cx, cy, sx, sy) => {
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(sx, sy);
-      ctx.strokeStyle = goldGrad(0, 46); ctx.lineWidth = 1.7; ctx.globalAlpha = 0.85;
-      ctx.beginPath(); ctx.moveTo(8, 40); ctx.bezierCurveTo(8, 16, 16, 8, 40, 8); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(18, 40); ctx.bezierCurveTo(18, 24, 24, 18, 40, 18); ctx.stroke();
-      ctx.beginPath(); ctx.arc(40, 40, 3.4, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = 1; ctx.restore();
-    };
-    corner(26, 26, 1, 1); corner(W - 26, 26, -1, 1); corner(26, H - 26, 1, -1); corner(W - 26, H - 26, -1, -1);
 
     // ===== Đường nối vàng (vẽ trước) =====
     ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.7;
