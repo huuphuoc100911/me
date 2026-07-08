@@ -1991,6 +1991,14 @@
   .wc-toast .wt-text b { color: var(--text); font-weight: 800; }
   .wc-toast .wt-text .wt-dim { color: var(--text-fade); }
   .wc-toast .wt-text img { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; vertical-align: -2px; margin: 0 3px 0 1px; }
+  /* Danh sách xếp hạng (top 3 vua phá lưới / kiến tạo) — mỗi người 1 dòng cho gọn */
+  .wc-toast .wt-rank { display: flex; align-items: center; gap: 7px; padding: 3px 0; white-space: nowrap; }
+  .wc-toast .wt-rank + .wt-rank { border-top: 1px solid var(--border); }
+  .wc-toast .wt-rank .wt-medal { flex-shrink: 0; font-size: 14px; width: 16px; text-align: center; }
+  .wc-toast .wt-rank img { flex-shrink: 0; width: 20px; height: 14px; margin: 0; }
+  .wc-toast .wt-rank .wt-nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 800; color: var(--text); }
+  .wc-toast .wt-rank .wt-val { flex-shrink: 0; font-weight: 700; font-size: 11.5px; color: var(--accent-2); }
+  .wc-toast.good .wt-rank .wt-val { color: #10b981; }
   .wc-toast .wt-close { position: absolute; top: 6px; right: 8px; cursor: pointer; color: var(--text-fade); font-size: 14px; line-height: 1; padding: 2px 4px; }
   .wc-toast .wt-close:hover { color: var(--text); }
   .wc-toast .wt-progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--accent-2); transform-origin: left; }
@@ -6102,10 +6110,11 @@ function launchConfetti() {
     // 🏆 Vua phá lưới + kiến tạo (top 3, kèm cờ quốc gia)
     const pflag = (s) => { const u = s.teamBadge || (s.team ? flagURL(s.team) : (s.nationality ? flagURL(s.nationality) : null)); return u ? `<img src="${u}" alt="">` : ""; };
     const md = ["🥇","🥈","🥉"];
+    const rankRows = (arr, val, unit) => arr.slice(0,3).map((s,i)=>`<div class="wt-rank"><span class="wt-medal">${md[i]}</span>${pflag(s)}<span class="wt-nm">${shortNm(s.player)}</span><span class="wt-val">${val(s)} ${unit}</span></div>`).join("");
     const sc = (window._scorersData||[]).filter(s=>s.player&&(s.goals||0)>0).sort((a,b)=>b.goals-a.goals||(b.assists||0)-(a.assists||0));
-    if (sc.length>=3){ push("👑","Top 3 Vua phá lưới", sc.slice(0,3).map((s,i)=>`${md[i]} ${pflag(s)}<b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.goals} bàn)</span>`).join(" · ")); }
+    if (sc.length>=3){ push("👑","Top 3 Vua phá lưới", rankRows(sc, s=>s.goals, "bàn")); }
     const asl = (window._scorersData||[]).filter(s=>s.player&&(s.assists||0)>0).sort((a,b)=>b.assists-a.assists);
-    if (asl.length>=3){ push("🅰️","Kiến tạo hàng đầu", asl.slice(0,3).map((s,i)=>`${md[i]} ${pflag(s)}<b>${shortNm(s.player)}</b> <span class="wt-dim">(${s.assists})</span>`).join(" · ")); }
+    if (asl.length>=3){ push("🅰️","Top 3 Kiến tạo", rankRows(asl, s=>s.assists, "kt")); }
 
     // 🎉 Đội vào vòng trong (lấy vòng sâu nhất mỗi đội)
     const roundByNum={}; (typeof KO_TEMPLATE!=="undefined"?KO_TEMPLATE:[]).forEach(t=>roundByNum[t.num]=t.round);
