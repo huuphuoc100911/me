@@ -5026,11 +5026,11 @@ async function exportBracketPremium(btn) {
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName);
       teamPlate(x, yT + ph + plateGap, boxW, ph, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), showName);
-      // Trận chưa đá → hiện ngày giờ đá ngay dưới ô
+      // Trận chưa đá → hiện ngày giờ đá ngay TRÊN ô
       if (!done && m.ts) {
         ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
         ctx.fillStyle = "rgba(233,200,107,0.72)"; ctx.font = F(600, 12.5, false);
-        ctx.fillText(fmtDT(m.ts), x + boxW / 2, yT + boxH + 15);
+        ctx.fillText(fmtDT(m.ts), x + boxW / 2, yT - 7);
       }
     });
 
