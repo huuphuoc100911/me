@@ -5087,12 +5087,6 @@ async function exportBracketPremium(btn) {
       teamPlate(x3, y3 + ph3 + plateGap, w3, ph3, "L", p3A, done3 ? tp3.awayScore : null, showPen3 ? tp3.awayPen : null, !!(win3 && p3A.team === win3), true);
     }
 
-    // ===== Chân trang =====
-    ctx.fillStyle = "rgba(233,200,107,0.75)"; ctx.font = F(600, 15, false); ctx.textAlign = "left";
-    ctx.fillText("worldcup.personal.io.vn", M + 8, H - 26);
-    const dt = new Date(); ctx.textAlign = "right";
-    ctx.fillText(`Dự đoán cá nhân · ${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`, W - M - 8, H - 26);
-
     // ===== Xuất / chia sẻ =====
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
     if (!blob) throw new Error("toBlob trả về rỗng");
