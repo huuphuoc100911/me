@@ -4900,6 +4900,7 @@ async function exportBracketPremium(btn) {
     if (champ) names.add(champ);
     const flagImgs = {};
     await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURL(nm)); if (img) flagImgs[nm] = img; }));
+    const logoImg = await loadImg("/images/worldcup/images.jpeg");   // logo FIFA 26 (favicon) thay cho emoji cúp
 
     // --- Canvas ---
     const ratio = 2;
@@ -4969,20 +4970,31 @@ async function exportBracketPremium(btn) {
     };
 
     // ===== 1 plate đội (cờ ở phía TRONG, tên phía NGOÀI, có tỉ số) =====
-    const teamPlate = (x, y, w, h, side, part, score, pen, isWin, showName) => {
+    const teamPlate = (x, y, w, h, side, part, score, pen, isWin, showName, emphasize) => {
       const g = ctx.createLinearGradient(0, y, 0, y + h);
       if (isWin) { g.addColorStop(0, "rgba(233,200,107,0.32)"); g.addColorStop(1, "rgba(169,120,29,0.16)"); }
+      else if (emphasize) { g.addColorStop(0, "rgba(233,200,107,0.20)"); g.addColorStop(1, "rgba(28,44,84,0.9)"); }
       else { g.addColorStop(0, "#1a2c53"); g.addColorStop(1, "#0f1d3b"); }
       ctx.fillStyle = g; rrect(x, y, w, h, 9); ctx.fill();
-      if (isWin) { ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.55)"; ctx.shadowBlur = 9; }
-      ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = isWin ? 2 : 1.3; rrect(x, y, w, h, 9); ctx.stroke();
-      if (isWin) ctx.restore();
+      const glow = isWin || emphasize;
+      if (glow) { ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.6)"; ctx.shadowBlur = emphasize ? 14 : 9; }
+      ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = emphasize ? 2.6 : (isWin ? 2 : 1.3); rrect(x, y, w, h, 9); ctx.stroke();
+      if (glow) ctx.restore();
 
       const cyR = y + h / 2;
       const flag = part.team ? flagImgs[part.team] : null;
       const hasScore = score != null;
-      const nameCol = isWin ? goldGrad(cyR - 9, cyR + 9) : "#efe2b6";
+      const nameCol = (isWin || emphasize) ? goldGrad(cyR - 9, cyR + 9) : "#efe2b6";
+      const nameFont = F(800, 14.5, false);
       ctx.textBaseline = "middle";
+
+      // Ô chưa xác định đội (vd "THẮNG T101") → chữ căn GIỮA ô
+      if (!flag && !hasScore) {
+        ctx.textAlign = "center"; ctx.font = nameFont; ctx.fillStyle = nameCol;
+        ctx.fillText(clipText((part.label || "").toUpperCase(), w - 22), x + w / 2, cyR + 1);
+        return;
+      }
+
       const scRsv = pen != null ? 46 : 27;   // chỗ chừa cho tỉ số (+ luân lưu)
       const drawScore = (edgeX, dir) => {
         ctx.save();
@@ -4994,7 +5006,6 @@ async function exportBracketPremium(btn) {
         ctx.restore();
         if (pen != null) { ctx.font = F(700, 12, false); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
       };
-      const nameFont = F(800, 14.5, false);
 
       if (side === "R") {
         let inner = x + 12;
@@ -5022,10 +5033,11 @@ async function exportBracketPremium(btn) {
       const pH = sideOf(m, "h"), pA = sideOf(m, "a");
       const side = sideName(n) === "R" ? "R" : "L";
       const showName = true;   // hiện tên đội ở MỌI vòng
+      const emph = n === 104;   // trận CHUNG KẾT → làm nổi bật
       const ph = (boxH - plateGap) / 2;
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
-      teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName);
-      teamPlate(x, yT + ph + plateGap, boxW, ph, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), showName);
+      teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName, emph);
+      teamPlate(x, yT + ph + plateGap, boxW, ph, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), showName, emph);
       // Trận chưa đá → hiện ngày giờ đá ngay TRÊN ô
       if (!done && m.ts) {
         ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
@@ -5039,9 +5051,21 @@ async function exportBracketPremium(btn) {
     const rg = ctx.createRadialGradient(tgx, tgy, 6, tgx, tgy, 96);
     rg.addColorStop(0, "rgba(233,200,107,0.33)"); rg.addColorStop(1, "rgba(233,200,107,0)");
     ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(tgx, tgy, 96, 0, Math.PI * 2); ctx.fill();
-    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "96px system-ui, sans-serif";
-    ctx.fillText("🏆", tgx, tgy);
-    ctx.textBaseline = "alphabetic";
+    if (logoImg) {
+      // Logo FIFA 26 (favicon) trong thẻ nền trắng bo góc + viền vàng
+      const box = 130;
+      const iw = logoImg.naturalWidth || logoImg.width || 1, ih = logoImg.naturalHeight || logoImg.height || 1;
+      const s = Math.min(box / iw, box / ih), dw = iw * s, dh = ih * s, pad = 12;
+      const cardW = dw + pad * 2, cardH = dh + pad * 2, cx0 = tgx - cardW / 2, cy0 = tgy - cardH / 2;
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.45)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 5;
+      ctx.fillStyle = "#ffffff"; rrect(cx0, cy0, cardW, cardH, 16); ctx.fill(); ctx.restore();
+      ctx.save(); rrect(cx0, cy0, cardW, cardH, 16); ctx.clip(); ctx.drawImage(logoImg, tgx - dw / 2, tgy - dh / 2, dw, dh); ctx.restore();
+      ctx.strokeStyle = goldGrad(cy0, cy0 + cardH); ctx.lineWidth = 2.6; rrect(cx0, cy0, cardW, cardH, 16); ctx.stroke();
+    } else {
+      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "96px system-ui, sans-serif";
+      ctx.fillText("🏆", tgx, tgy); ctx.textBaseline = "alphabetic";
+    }
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.fillStyle = goldGrad(tgy + 42, tgy + 96); ctx.font = F(800, 52, true);
     ctx.fillText("WORLD CUP 2026", tgx, tgy + 94);
     ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 22, false);
