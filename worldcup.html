@@ -4675,75 +4675,77 @@ async function exportBracketPremium(btn) {
       ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke();
     };
 
-    // ===== 1 plate đội (cờ ở phía TRONG, tên phía NGOÀI, có tỉ số) =====
-    const teamPlate = (x, y, w, h, side, part, score, pen, isWin, showName, emphasize) => {
+    // ===== 1 plate đội (cờ ở phía TRONG, tên phía NGOÀI, có tỉ số) — scale để phóng to ô =====
+    const teamPlate = (x, y, w, h, side, part, score, pen, isWin, showName, emphasize, scale) => {
+      const S = scale || 1;
+      const rad = 9 * S, ins = 12 * S, gap = 7 * S;
+      const fW = flagW * S, fH = flagH * S;
       const g = ctx.createLinearGradient(0, y, 0, y + h);
       if (isWin) { g.addColorStop(0, "rgba(233,200,107,0.32)"); g.addColorStop(1, "rgba(169,120,29,0.16)"); }
       else if (emphasize) { g.addColorStop(0, "rgba(233,200,107,0.20)"); g.addColorStop(1, "rgba(28,44,84,0.9)"); }
       else { g.addColorStop(0, "#1a2c53"); g.addColorStop(1, "#0f1d3b"); }
-      ctx.fillStyle = g; rrect(x, y, w, h, 9); ctx.fill();
+      ctx.fillStyle = g; rrect(x, y, w, h, rad); ctx.fill();
       const glow = isWin || emphasize;
-      if (glow) { ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.6)"; ctx.shadowBlur = emphasize ? 14 : 9; }
-      ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = emphasize ? 2.6 : (isWin ? 2 : 1.3); rrect(x, y, w, h, 9); ctx.stroke();
+      if (glow) { ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.6)"; ctx.shadowBlur = (emphasize ? 14 : 9) * S; }
+      ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = (emphasize ? 2.6 : (isWin ? 2 : 1.3)) * Math.max(1, S * 0.9); rrect(x, y, w, h, rad); ctx.stroke();
       if (glow) ctx.restore();
 
       const cyR = y + h / 2;
       const flag = part.team ? flagImgs[part.team] : null;
       const hasScore = score != null;
-      const nameCol = (isWin || emphasize) ? goldGrad(cyR - 9, cyR + 9) : "#efe2b6";
-      const nameFont = F(800, 14.5, false);
+      const nameCol = (isWin || emphasize) ? goldGrad(cyR - 9 * S, cyR + 9 * S) : "#efe2b6";
+      const nameFont = F(800, 14.5 * S, false);
       ctx.textBaseline = "middle";
 
       // Ô chưa xác định đội (vd "THẮNG T101") → chữ căn GIỮA ô
       if (!flag && !hasScore) {
         ctx.textAlign = "center"; ctx.font = nameFont; ctx.fillStyle = nameCol;
-        ctx.fillText(clipText((part.label || "").toUpperCase(), w - 22), x + w / 2, cyR + 1);
+        ctx.fillText(clipText((part.label || "").toUpperCase(), w - 22 * S), x + w / 2, cyR + 1);
         return;
       }
 
-      const scRsv = pen != null ? 46 : 27;   // chỗ chừa cho tỉ số (+ luân lưu)
+      const scRsv = (pen != null ? 46 : 27) * S;   // chỗ chừa cho tỉ số (+ luân lưu)
       const drawScore = (edgeX, dir) => {
         ctx.save();
         ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
-        ctx.font = F(800, 20, false); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb";
+        ctx.font = F(800, 20 * S, false); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb";
         ctx.textAlign = dir > 0 ? "left" : "right";
         ctx.fillText(String(score), edgeX, cyR + 1);
         const sw = ctx.measureText(String(score)).width;
         ctx.restore();
-        if (pen != null) { ctx.font = F(700, 12, false); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
+        if (pen != null) { ctx.font = F(700, 12 * S, false); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
       };
 
       if (side === "R") {
-        let inner = x + 12;
+        let inner = x + ins;
         if (hasScore) { drawScore(inner, 1); inner += scRsv; }
         const fx = inner;
-        if (flag) drawFlag(fx, cyR - flagH / 2, flagW, flagH, flag);
+        if (flag) drawFlag(fx, cyR - fH / 2, fW, fH, flag);
         ctx.textAlign = "right"; ctx.font = nameFont; ctx.fillStyle = nameCol;
-        ctx.fillText(clipText((part.label || "").toUpperCase(), (x + w - 12) - ((flag ? fx + flagW : inner) + 7)), x + w - 12, cyR + 1);
+        ctx.fillText(clipText((part.label || "").toUpperCase(), (x + w - ins) - ((flag ? fx + fW : inner) + gap)), x + w - ins, cyR + 1);
       } else {   // "L" và "C" (chung kết)
-        let inner = x + w - 12;
+        let inner = x + w - ins;
         if (hasScore) { drawScore(inner, -1); inner -= scRsv; }
-        const fx = inner - flagW;
-        if (flag) drawFlag(fx, cyR - flagH / 2, flagW, flagH, flag);
+        const fx = inner - fW;
+        if (flag) drawFlag(fx, cyR - fH / 2, fW, fH, flag);
         ctx.textAlign = "left"; ctx.font = nameFont; ctx.fillStyle = nameCol;
-        ctx.fillText(clipText((part.label || "").toUpperCase(), (flag ? fx : inner) - 7 - (x + 12)), x + 12, cyR + 1);
+        ctx.fillText(clipText((part.label || "").toUpperCase(), (flag ? fx : inner) - gap - (x + ins)), x + ins, cyR + 1);
       }
     };
 
-    // ===== Vẽ từng trận (trừ tranh hạng 3) =====
+    // ===== Vẽ từng trận (trừ tranh hạng 3 và CHUNG KẾT — vẽ riêng, to hơn) =====
     const plateGap = 8;
-    ko.filter((m) => m.num !== 103).forEach((m) => {
+    ko.filter((m) => m.num !== 103 && m.num !== 104).forEach((m) => {
       const n = m.num, x = boxX(n), yT = boxYTop(n);
       const done = m.homeScore != null && m.awayScore != null;
       const win = winnerOf(n);
       const pH = sideOf(m, "h"), pA = sideOf(m, "a");
       const side = sideName(n) === "R" ? "R" : "L";
       const showName = true;   // hiện tên đội ở MỌI vòng
-      const emph = n === 104;   // trận CHUNG KẾT → làm nổi bật
       const ph = (boxH - plateGap) / 2;
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
-      teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName, emph);
-      teamPlate(x, yT + ph + plateGap, boxW, ph, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), showName, emph);
+      teamPlate(x, yT, boxW, ph, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), showName, false);
+      teamPlate(x, yT + ph + plateGap, boxW, ph, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), showName, false);
       // Trận chưa đá → hiện ngày giờ đá ngay TRÊN ô
       if (!done && m.ts) {
         ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
@@ -4751,6 +4753,27 @@ async function exportBracketPremium(btn) {
         ctx.fillText(fmtDT(m.ts), x + boxW / 2, yT - 8);
       }
     });
+
+    // ===== Ô CHUNG KẾT to & nổi bật (2 đội vào chung kết) =====
+    (function drawFinalBig() {
+      const fm = byNum[104]; if (!fm) return;
+      const fW = 300, fH = 124, fGap = 12, S = 1.55;
+      const fx = W / 2 - fW / 2, fyc = cyC(104), fy = fyc - fH / 2;
+      const doneF = fm.homeScore != null && fm.awayScore != null;
+      const winF = winnerOf(104);
+      const pHF = sideOf(fm, "h"), pAF = sideOf(fm, "a");
+      const ph = (fH - fGap) / 2;
+      const showPenF = doneF && fm.homeScore === fm.awayScore && fm.homePen != null && fm.awayPen != null;
+      // nhãn CHUNG KẾT + ngày giờ (nếu chưa đá) phía trên ô
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.save(); try { ctx.letterSpacing = "6px"; } catch (e) {}
+      ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 17, false);
+      ctx.fillText("CHUNG KẾT", W / 2, fy - (!doneF && fm.ts ? 26 : 10));
+      ctx.restore();
+      if (!doneF && fm.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14, false); ctx.fillText(fmtDT(fm.ts), W / 2, fy - 9); }
+      teamPlate(fx, fy, fW, ph, "L", pHF, doneF ? fm.homeScore : null, showPenF ? fm.homePen : null, !!(winF && pHF.team === winF), true, true, S);
+      teamPlate(fx, fy + ph + fGap, fW, ph, "L", pAF, doneF ? fm.awayScore : null, showPenF ? fm.awayPen : null, !!(winF && pAF.team === winF), true, true, S);
+    })();
 
     // ===== Logo + tiêu đề (giữa–trên) =====
     const tgx = W / 2, tgy = headerH + 100;   // tâm logo
