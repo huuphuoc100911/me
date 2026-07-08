@@ -4747,8 +4747,8 @@ async function exportBracketPremium(btn) {
       // Trận chưa đá → hiện ngày giờ đá ngay TRÊN ô
       if (!done && m.ts) {
         ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-        ctx.fillStyle = "rgba(233,200,107,0.72)"; ctx.font = F(600, 12.5, false);
-        ctx.fillText(fmtDT(m.ts), x + boxW / 2, yT - 7);
+        ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14, false);
+        ctx.fillText(fmtDT(m.ts), x + boxW / 2, yT - 8);
       }
     });
 
@@ -4806,7 +4806,7 @@ async function exportBracketPremium(btn) {
       const done3pre = tp3.homeScore != null && tp3.awayScore != null;
       ctx.textAlign = "center"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 13.5, false);
       ctx.fillText("🥉  T R A N H   H Ạ N G   3", W / 2, y3 - (done3pre ? 11 : 26));
-      if (!done3pre && tp3.ts) { ctx.fillStyle = "rgba(233,200,107,0.72)"; ctx.font = F(600, 12.5, false); ctx.fillText(fmtDT(tp3.ts), W / 2, y3 - 10); }
+      if (!done3pre && tp3.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14, false); ctx.fillText(fmtDT(tp3.ts), W / 2, y3 - 10); }
       const done3 = tp3.homeScore != null && tp3.awayScore != null;
       const win3 = winnerOf(103);
       const p3H = sideOf(tp3, "h"), p3A = sideOf(tp3, "a");
