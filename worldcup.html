@@ -4685,12 +4685,13 @@ async function exportBracketPremium(btn) {
     // giữa–trên & giữa–dưới) để không bị đè dưới ô đội hay đường nối =====
     if (logoImg) {
       const iw = logoImg.naturalWidth || logoImg.width || 1, ih = logoImg.naturalHeight || logoImg.height || 1;
-      // Chỉ đặt ở các cột NGOÀI (tứ kết & vòng 1/8) — tránh xa khu trung tâm (cúp/chung kết)
+      // Chỉ đặt ở các cột NGOÀI (tứ kết & vòng 1/8) — căn ĐÚNG GIỮA các khoảng trống
       const wm = [
-        [0.278, 0.150, 130], [0.722, 0.150, 130],   // cột tứ kết – khoảng trống phía trên
-        [0.278, 0.530, 148], [0.722, 0.530, 148],   // cột tứ kết – khoảng trống giữa
-        [0.174, 0.290, 130], [0.826, 0.290, 130],   // cột vòng 1/8 – khoảng trống phía trên
-        [0.174, 0.720, 130], [0.826, 0.720, 130]    // cột vòng 1/8 – khoảng trống phía dưới
+        [0.278, 0.150, 128], [0.722, 0.150, 128],   // tứ kết – trên đỉnh cột
+        [0.278, 0.420, 140], [0.722, 0.420, 140],   // tứ kết – khoảng trống (nửa trên)
+        [0.278, 0.650, 140], [0.722, 0.650, 140],   // tứ kết – khoảng trống (nửa dưới)
+        [0.174, 0.279, 128], [0.826, 0.279, 128],   // vòng 1/8 – giữa khoảng trống trên
+        [0.174, 0.750, 128], [0.826, 0.750, 128]    // vòng 1/8 – giữa khoảng trống dưới
       ];
       ctx.save(); ctx.globalAlpha = 0.14;
       for (const p of wm) { const s = p[2] / ih, dw = iw * s, dh = ih * s; ctx.drawImage(logoImg, p[0] * W - dw / 2, p[1] * H - dh / 2, dw, dh); }
