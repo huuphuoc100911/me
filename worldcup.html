@@ -4642,11 +4642,11 @@ async function exportBracketPremium(btn) {
     if (logoImg) {
       const iw = logoImg.naturalWidth || logoImg.width || 1, ih = logoImg.naturalHeight || logoImg.height || 1;
       const wm = [
-        [0.383, 0.235, 150], [0.617, 0.235, 150],   // cột bán kết – phía trên
-        [0.383, 0.790, 150], [0.617, 0.790, 150],   // cột bán kết – phía dưới
-        [0.278, 0.488, 138], [0.722, 0.488, 138],   // cột tứ kết – khoảng giữa
-        [0.500, 0.790, 150],                          // giữa – dưới (dưới ô vô địch)
-        [0.500, 0.355, 120]                           // giữa – trên (dưới logo chính)
+        [0.278, 0.150, 132], [0.722, 0.150, 132],   // cột tứ kết – khoảng trống TRÊN cùng
+        [0.383, 0.245, 148], [0.617, 0.245, 148],   // cột bán kết – khoảng trống phía trên
+        [0.383, 0.800, 148], [0.617, 0.800, 148],   // cột bán kết – khoảng trống phía dưới
+        [0.500, 0.350, 118],                          // giữa – trên (giữa logo & ô chung kết)
+        [0.500, 0.800, 148]                           // giữa – dưới (giữa ô vô địch & tranh hạng 3)
       ];
       ctx.save(); ctx.globalAlpha = 0.14;
       for (const p of wm) { const s = p[2] / ih, dw = iw * s, dh = ih * s; ctx.drawImage(logoImg, p[0] * W - dw / 2, p[1] * H - dh / 2, dw, dh); }
