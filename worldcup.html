@@ -2918,6 +2918,7 @@ function renderScorers(scorers) {
   window._scorersData = _scorersData;   // để thông báo & bảng vinh danh đọc được top ghi bàn
   if (typeof maybeRefreshHall === "function") maybeRefreshHall();  // cập nhật Bảng vàng theo bàn 2026
   if (typeof renderAwards === "function") renderAwards();          // Bảng vinh danh cần dữ liệu vua phá lưới
+  if (typeof renderTournamentStats === "function") renderTournamentStats();  // thống kê giải cần vua phá lưới / số cầu thủ ghi bàn
   const block = document.getElementById("scorersBlock");
   const meta = document.getElementById("scorersMeta");
   if (!_scorersData || !_scorersData.length) {
