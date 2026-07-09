@@ -5021,7 +5021,8 @@ async function exportRemainingBracket(btn) {
 
     // Kích thước — ô rộng hơn (đủ tên đội, không cắt "…"), tỷ lệ gần vuông hơn (giãn dọc)
     const boxW = 264, boxH = 132, M = 92, footerH = 60, headerH = 232;
-    const stride = boxW + 34, centerGap = 58;
+    const fboxW = 322, fboxH = 176;                 // ô CHUNG KẾT to & nổi bật hơn hẳn các ô khác
+    const stride = boxW + 34, centerGap = 74;
     const rowPitch = k <= 1 ? 200 : k <= 2 ? 440 : k <= 4 ? 280 : 164;
     const W = 2 * M + 2 * (nDepths >= 1 ? nDepths - 1 : 0) * stride + 3 * boxW + 2 * centerGap;
     const maxRow = k - 1;
@@ -5031,6 +5032,11 @@ async function exportRemainingBracket(btn) {
     const boxX = (n) => { const s = sideName(n); if (s === "C") return W / 2 - boxW / 2; const d = depthOf(roundOf[n]); return s === "L" ? M + d * stride : W - M - boxW - d * stride; };
     const boxYTop = (n) => headerH + extraV / 2 + (rowOf[n] || 0) * rowPitch;
     const cyC = (n) => boxYTop(n) + boxH / 2;
+    // Ô chung kết (104) vẽ to hơn nhưng vẫn căn theo tâm ô thường để đường nối khớp
+    const bwOf = (n) => n === 104 ? fboxW : boxW;
+    const bhOf = (n) => n === 104 ? fboxH : boxH;
+    const bxOf = (n) => n === 104 ? (W / 2 - fboxW / 2) : boxX(n);
+    const byOf = (n) => n === 104 ? (cyC(n) - fboxH / 2) : boxYTop(n);
 
     // Cờ + logo
     const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
@@ -5073,8 +5079,8 @@ async function exportRemainingBracket(btn) {
       const ps = sideName(n);
       feeders.forEach((fn) => {
         const fs = sideName(fn);
-        const fx = fs === "L" ? boxX(fn) + boxW : boxX(fn), fy = cyC(fn);
-        const px = ps === "L" ? boxX(n) : ps === "R" ? boxX(n) + boxW : (fs === "L" ? boxX(n) : boxX(n) + boxW);
+        const fx = fs === "L" ? bxOf(fn) + bwOf(fn) : bxOf(fn), fy = cyC(fn);
+        const px = ps === "L" ? bxOf(n) : ps === "R" ? bxOf(n) + bwOf(n) : (fs === "L" ? bxOf(n) : bxOf(n) + bwOf(n));
         const py = cyC(n), mx = (fx + px) / 2;
         ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(mx, fy); ctx.lineTo(mx, py); ctx.lineTo(px, py); ctx.stroke();
       });
@@ -5082,45 +5088,49 @@ async function exportRemainingBracket(btn) {
 
     // Vẽ hộp
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke(); };
-    const teamRow = (x, y, w, h, side, part, score, pen, isWin) => {
+    const teamRow = (x, y, w, h, side, part, score, pen, isWin, scale) => {
+      scale = scale || 1;
       const cyR = y + h / 2, flag = part.team ? flagImgs[part.team] : null, has = score != null;
       const nameCol = isWin ? goldGrad(cyR - 11, cyR + 11) : "#eef0f5";
       ctx.textBaseline = "middle";
-      if (!part.team) { ctx.textAlign = "center"; ctx.font = F(800, 24); ctx.fillStyle = "#8fa0c0"; ctx.fillText("?", x + w / 2, cyR + 1); return; }
-      const fW = 40, fH = 27, ins = 16, gap = 12;
-      const drawScore = (ex, dir) => { ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3; ctx.font = F(800, 22); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText(String(score), ex, cyR + 1); const sw = ctx.measureText(String(score)).width; ctx.restore(); if (pen != null) { ctx.font = F(700, 12); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", ex + dir * (sw + 4), cyR + 1); } };
-      const rsv = has ? (pen != null ? 46 : 28) : 8;
+      if (!part.team) { ctx.textAlign = "center"; ctx.font = F(800, 26 * scale); ctx.fillStyle = "#8fa0c0"; ctx.fillText("?", x + w / 2, cyR + 1); return; }
+      const fW = 40 * scale, fH = 27 * scale, ins = 16 * scale, gap = 12 * scale;
+      const drawScore = (ex, dir) => { ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3; ctx.font = F(800, 22 * scale); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText(String(score), ex, cyR + 1); const sw = ctx.measureText(String(score)).width; ctx.restore(); if (pen != null) { ctx.font = F(700, 12 * scale); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", ex + dir * (sw + 4), cyR + 1); } };
+      const rsv = has ? (pen != null ? 46 : 28) * scale : 8 * scale;
       if (side === "R") {
         let inner = x + ins; if (has) { drawScore(inner, 1); inner += rsv; }
         if (flag) drawFlag(inner, cyR - fH / 2, fW, fH, flag);
-        ctx.textAlign = "right"; ctx.font = F(800, 20); ctx.fillStyle = nameCol;
+        ctx.textAlign = "right"; ctx.font = F(800, 20 * scale); ctx.fillStyle = nameCol;
         ctx.fillText(clipText((part.label || "").toUpperCase(), (x + w - ins) - ((flag ? inner + fW : inner) + gap)), x + w - ins, cyR + 1);
       } else {
         let inner = x + w - ins; if (has) { drawScore(inner, -1); inner -= rsv; }
         const fx = inner - fW; if (flag) drawFlag(fx, cyR - fH / 2, fW, fH, flag);
-        ctx.textAlign = "left"; ctx.font = F(800, 20); ctx.fillStyle = nameCol;
+        ctx.textAlign = "left"; ctx.font = F(800, 20 * scale); ctx.fillStyle = nameCol;
         ctx.fillText(clipText((part.label || "").toUpperCase(), (flag ? fx : inner) - gap - (x + ins)), x + ins, cyR + 1);
       }
     };
     drawNodes.forEach((n) => {
       const m = byNum[n]; if (!m) return;
-      const x = boxX(n), y = boxYTop(n), emph = n === 104;
+      const emph = n === 104;
+      const x = bxOf(n), y = byOf(n), bw = bwOf(n), bh = bhOf(n), sc = emph ? 1.28 : 1, rad = emph ? 18 : 12;
       const done = m.homeScore != null && m.awayScore != null, win = winnerOf(n);
       const pH = sideOf(m, "h"), pA = sideOf(m, "a");
       const side = sideName(n) === "R" ? "R" : "L";
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       // ngày giờ nếu chưa đá
-      if (!done && m.ts && n !== 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#ffffff"; ctx.font = F(700, 13.5); ctx.fillText(fmtDT(m.ts), x + boxW / 2, y - 8); }
+      if (!done && m.ts && n !== 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#ffffff"; ctx.font = F(700, 13.5); ctx.fillText(fmtDT(m.ts), x + bw / 2, y - 8); }
       // khung
-      const g = ctx.createLinearGradient(0, y, 0, y + boxH);
-      if (emph) { g.addColorStop(0, "rgba(233,200,107,0.18)"); g.addColorStop(1, "rgba(28,44,84,0.9)"); } else { g.addColorStop(0, "rgba(233,200,107,0.08)"); g.addColorStop(1, "rgba(20,33,63,0.92)"); }
-      ctx.fillStyle = g; rrect(x, y, boxW, boxH, 12); ctx.fill();
-      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.4)"; ctx.shadowBlur = emph ? 12 : 8; ctx.strokeStyle = goldGrad(y, y + boxH); ctx.lineWidth = emph ? 2.4 : 1.6; rrect(x, y, boxW, boxH, 12); ctx.stroke(); ctx.restore();
-      const rowH = boxH / 2;
-      ctx.strokeStyle = "rgba(217,178,74,0.32)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, y + rowH); ctx.lineTo(x + boxW - 12, y + rowH); ctx.stroke();
-      teamRow(x, y, boxW, rowH, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win));
-      teamRow(x, y + rowH, boxW, rowH, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win));
-      if (n === 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; const lblY = (!done && m.ts) ? y - 38 : y - 14; ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 16); ctx.fillText("CHUNG KẾT", x + boxW / 2, lblY); ctx.restore(); if (!done && m.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14); ctx.fillText(fmtDT(m.ts), x + boxW / 2, y - 13); } }
+      const g = ctx.createLinearGradient(0, y, 0, y + bh);
+      if (emph) { g.addColorStop(0, "rgba(233,200,107,0.30)"); g.addColorStop(0.5, "rgba(233,200,107,0.12)"); g.addColorStop(1, "rgba(28,44,84,0.94)"); } else { g.addColorStop(0, "rgba(233,200,107,0.08)"); g.addColorStop(1, "rgba(20,33,63,0.92)"); }
+      ctx.fillStyle = g; rrect(x, y, bw, bh, rad); ctx.fill();
+      // ô chung kết: thêm quầng sáng ngoài cho nổi bật
+      if (emph) { ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.85)"; ctx.shadowBlur = 34; ctx.strokeStyle = "rgba(246,224,146,0.55)"; ctx.lineWidth = 2; rrect(x - 2, y - 2, bw + 4, bh + 4, rad + 2); ctx.stroke(); ctx.restore(); }
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.5)"; ctx.shadowBlur = emph ? 20 : 8; ctx.strokeStyle = goldGrad(y, y + bh); ctx.lineWidth = emph ? 3.4 : 1.6; rrect(x, y, bw, bh, rad); ctx.stroke(); ctx.restore();
+      const rowH = bh / 2;
+      ctx.strokeStyle = "rgba(217,178,74,0.32)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, y + rowH); ctx.lineTo(x + bw - 12, y + rowH); ctx.stroke();
+      teamRow(x, y, bw, rowH, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), sc);
+      teamRow(x, y + rowH, bw, rowH, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), sc);
+      if (n === 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; const lblY = (!done && m.ts) ? y - 42 : y - 16; ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = goldGrad(lblY - 20, lblY + 4); ctx.font = F(800, 22); ctx.fillText("CHUNG KẾT", x + bw / 2, lblY); ctx.restore(); if (!done && m.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 15); ctx.fillText(fmtDT(m.ts), x + bw / 2, y - 15); } }
     });
 
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
