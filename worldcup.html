@@ -5622,11 +5622,12 @@ async function exportAllMatches(btn) {
       s.rows = Math.max(1, Math.ceil(s.L.length / 2), Math.ceil(s.R.length / 2));
       s.h = secTitleH + s.rows * koCellH + (s.rows - 1) * koGap;
     });
-    const finalItems = [...(koByRound["Final"] || []), ...(koByRound["Third-place"] || [])];
-    const finalRows = finalItems.length;
-    const finalCellW = 580, finalCellH = 70, finalGap = 20;   // ô chung kết / tranh hạng 3 TO hơn hẳn
-    const finalH = finalItems.length ? secTitleH + finalRows * finalCellH + (finalRows - 1) * finalGap : 0;
-    const koH = brackSecs.filter((s) => s.L.length || s.R.length).reduce((a, s) => a + s.h + secGap, 0) + (finalItems.length ? finalH + secGap : 0);
+    const finalIt = (koByRound["Final"] || [])[0];
+    const thirdIt = (koByRound["Third-place"] || [])[0];
+    const hasFinalSec = !!(finalIt || thirdIt);
+    const fCW = 620, fCH = 94, tCW = 470, tCH = 74, fGap = 46, trophyH = 66;   // CHUNG KẾT (phải, to + cúp) · TRANH HẠNG 3 (trái, nhỏ)
+    const finalH = hasFinalSec ? secTitleH + trophyH + fCH : 0;
+    const koH = brackSecs.filter((s) => s.L.length || s.R.length).reduce((a, s) => a + s.h + secGap, 0) + (hasFinalSec ? finalH + secGap : 0);
     const H = headerH + (groupKeys.length ? secTitleH + grpGridH + secGap : 0) + koH + footerH;
 
     const ratio = 2;
@@ -5671,6 +5672,32 @@ async function exportAllMatches(btn) {
       ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(M, cyc); ctx.lineTo(W / 2 - tw / 2 - 22, cyc); ctx.moveTo(W / 2 + tw / 2 + 22, cyc); ctx.lineTo(W - M, cyc); ctx.stroke();
       ctx.fillStyle = goldGrad(cyc - 14, cyc + 14); ctx.fillText(label, W / 2, cyc + 1); ctx.restore();
     };
+    // Cúp vô địch (vector vàng) — vẽ phía trên ô CHUNG KẾT
+    const drawTrophy = (cx, topY, h) => {
+      const w = h * 0.58, bowlH = h * 0.44, by = topY + bowlH, g = goldGrad(topY, topY + h);
+      ctx.save(); ctx.lineCap = "round";
+      ctx.shadowColor = "rgba(246,224,146,0.6)"; ctx.shadowBlur = h * 0.42;
+      // Tay cầm 2 bên (vẽ trước, sau ô bowl phủ lên)
+      ctx.strokeStyle = g; ctx.lineWidth = h * 0.05;
+      ctx.beginPath(); ctx.moveTo(cx - w * 0.42, topY + h * 0.05); ctx.bezierCurveTo(cx - w * 0.95, topY + h * 0.05, cx - w * 0.9, topY + bowlH * 0.85, cx - w * 0.32, topY + bowlH * 0.62); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + w * 0.42, topY + h * 0.05); ctx.bezierCurveTo(cx + w * 0.95, topY + h * 0.05, cx + w * 0.9, topY + bowlH * 0.85, cx + w * 0.32, topY + bowlH * 0.62); ctx.stroke();
+      // Thân cúp (bowl)
+      ctx.fillStyle = g; ctx.beginPath();
+      ctx.moveTo(cx - w * 0.5, topY); ctx.lineTo(cx + w * 0.5, topY);
+      ctx.quadraticCurveTo(cx + w * 0.46, topY + bowlH * 0.78, cx + w * 0.17, by);
+      ctx.lineTo(cx - w * 0.17, by);
+      ctx.quadraticCurveTo(cx - w * 0.46, topY + bowlH * 0.78, cx - w * 0.5, topY);
+      ctx.closePath(); ctx.fill();
+      ctx.shadowBlur = 0;
+      // Cuống + đế
+      ctx.fillRect(cx - w * 0.06, by, w * 0.12, h * 0.14);
+      rrect(cx - w * 0.2, by + h * 0.14, w * 0.4, h * 0.06, 2); ctx.fill();
+      rrect(cx - w * 0.3, by + h * 0.2, w * 0.6, h * 0.1, 3); ctx.fill();
+      // Viền miệng cúp sáng
+      ctx.strokeStyle = "rgba(255,248,220,0.75)"; ctx.lineWidth = Math.max(1, h * 0.022);
+      ctx.beginPath(); ctx.moveTo(cx - w * 0.5, topY); ctx.lineTo(cx + w * 0.5, topY); ctx.stroke();
+      ctx.restore();
+    };
 
     let Y = headerH;
     if (groupKeys.length) {
@@ -5697,10 +5724,14 @@ async function exportAllMatches(btn) {
       s.R.forEach((it, i) => drawMatch(orderR[i % 2], Y + Math.floor(i / 2) * (koCellH + koGap), koColW, koCellH, it));
       Y += s.rows * koCellH + (s.rows - 1) * koGap + secGap;
     });
-    if (finalItems.length) {
+    if (hasFinalSec) {
       drawSecTitle(Y, "CHUNG KẾT · TRANH HẠNG 3"); Y += secTitleH;
-      finalItems.forEach((it, i) => drawMatch(W / 2 - finalCellW / 2, Y + i * (finalCellH + finalGap), finalCellW, finalCellH, it, it.m.round === "Final", 1.4));
-      Y += finalRows * finalCellH + (finalRows - 1) * finalGap + secGap;
+      const totalW = tCW + fGap + fCW, x0 = W / 2 - totalW / 2, cellsTop = Y + trophyH;
+      const tx = x0, fx = x0 + tCW + fGap;            // TRANH HẠNG 3 bên trái (nhỏ) · CHUNG KẾT bên phải (to)
+      drawTrophy(fx + fCW / 2, Y + 3, trophyH - 6);   // cúp vô địch trên ô chung kết
+      if (finalIt) drawMatch(fx, cellsTop, fCW, fCH, finalIt, true, 1.5);
+      if (thirdIt) drawMatch(tx, cellsTop + (fCH - tCH) / 2, tCW, tCH, thirdIt, false, 1.18);
+      Y += trophyH + fCH + secGap;
     }
 
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
