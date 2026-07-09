@@ -4767,6 +4767,7 @@ async function exportBracketPremium(btn) {
       const boxH2 = 150;
       const iw = logoImg.naturalWidth || logoImg.width || 1, ih = logoImg.naturalHeight || logoImg.height || 1;
       const s = boxH2 / ih, dw = iw * s, dh = ih * s;
+      _drawSparkles(ctx, tgx, tgy, dw / 2, dh / 2);
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
       ctx.drawImage(logoImg, tgx - dw / 2, tgy - dh / 2, dw, dh); ctx.restore();
       titleY = tgy + dh / 2 + 44;
@@ -4914,7 +4915,7 @@ async function exportRoundImage(btn) {
 
     // Header: logo → WORLD CUP 2026 (nhỏ, trên) → TÊN VÒNG (to, dưới)
     let ty = 40;
-    if (logoImg) { const bh = 82, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 22; } else ty = 84;
+    if (logoImg) { const bh = 82, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; _drawSparkles(ctx, W / 2, ty + dh / 2, dw / 2, dh / 2); ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 22; } else ty = 84;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {}
     ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 20); ctx.fillText("WORLD CUP 2026", W / 2, ty + 18); ctx.restore();
@@ -5089,6 +5090,8 @@ async function exportRemainingBracket(btn) {
         [0.305, 0.370, 112], [0.695, 0.370, 112], [0.305, 0.720, 112], [0.695, 0.720, 112]
       ];
       ctx.save(); ctx.globalAlpha = 0.13; for (const p of wm) { const s = p[2] / ih, dw = iw * s, dh = ih * s; ctx.drawImage(logoImg, p[0] * W - dw / 2, p[1] * H - dh / 2, dw, dh); } ctx.restore();
+      // Sparkle quanh logo chính
+      { const s2 = 140 / ih, dw2 = iw * s2; _drawSparkles(ctx, W / 2, logoCy, dw2 / 2, 70); }
       // Logo CHÍNH ở trung tâm (đậm hơn, có bóng)
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 16; ctx.shadowOffsetY = 3;
       drawWM(W / 2, logoCy, 140, 0.9); ctx.restore();
@@ -5350,6 +5353,23 @@ function _computeTournamentStats() {
 }
 
 /* ===== Nền chung cho ảnh export (navy + tia sáng + bokeh + vignette + khung vàng) ===== */
+// Tia sáng 4 cánh (sparkle) quanh logo cúp — dùng chung cho các ảnh export
+function _drawSparkles(ctx, cx, cy, hw, hh) {
+  const spark = (x, y, r, a) => {
+    ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = "rgba(255,247,216,0.95)"; ctx.shadowColor = "rgba(246,224,146,0.9)"; ctx.shadowBlur = r * 1.1;
+    ctx.beginPath();
+    ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y);
+    ctx.quadraticCurveTo(x, y, x, y - r); ctx.closePath(); ctx.fill(); ctx.restore();
+  };
+  // 2 bên (to) + 2 góc trên (nhỏ) + 2 dưới (vừa) → khung lấp lánh quanh logo
+  spark(cx - hw - hw * 0.32, cy - hh * 0.18, hh * 0.20, 1);
+  spark(cx + hw + hw * 0.32, cy - hh * 0.10, hh * 0.20, 1);
+  spark(cx - hw - hw * 0.10, cy + hh * 0.62, hh * 0.13, 0.9);
+  spark(cx + hw + hw * 0.14, cy + hh * 0.55, hh * 0.15, 0.9);
+  spark(cx - hw + hw * 0.10, cy - hh - hh * 0.12, hh * 0.10, 0.85);
+  spark(cx + hw - hw * 0.10, cy - hh - hh * 0.16, hh * 0.11, 0.85);
+}
 function _exportBackdrop(ctx, W, H, rrect, goldGrad) {
   const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
