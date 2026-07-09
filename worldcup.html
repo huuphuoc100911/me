@@ -1208,9 +1208,6 @@
   .bracket-svg .b-box.live { stroke: var(--bad); stroke-width: 1.5; }
   .bracket-svg .b-when { font-size: 9px; fill: var(--text-fade); font-weight: 600; font-variant-numeric: tabular-nums; }
   .bracket-svg .b-seed { font-size: 9px; font-weight: 800; fill: #0a0e1a; }
-  /* Ô vòng sau chưa xác định đội → dấu "?" căn giữa */
-  .bracket-svg .b-qmark { font-size: 22px; font-weight: 800; fill: var(--text-fade); opacity: 0.7; }
-  .bracket-svg .b-box.tbd { stroke-dasharray: 4 3; stroke: var(--text-fade); opacity: 0.85; }
   .bracket-svg .b-hit { fill: rgba(0,0,0,0); cursor: pointer; }
   .bracket-svg .b-hit:hover { fill: rgba(255,255,255,0.05); }
   /* Tô sáng đường đi tới chung kết */
@@ -4345,20 +4342,11 @@ function renderBracket(matches) {
     const it = (st) => (st === "provisional" || st === "unknown") ? ' font-style="italic"' : "";
     // Cặp đấu đã CHỐT cả 2 đội (đều là đội thật/đã khóa), CHƯA đá, vòng chưa chốt hết → viền nổi bật
     const bothSet = !done && !roundFullySet[m.round] && slotLocked(rH) && slotLocked(rA);
-    // Cả 2 suất đều phụ thuộc trận chưa đá (Thắng/Thua Txx) → ô "chưa xác định": hiện dấu "?"
-    const unkSlot = (r) => r && (r.kind === "winner" || r.kind === "loser");
-    const tbd = !done && unkSlot(rH) && unkSlot(rA);
     // Dòng giờ thi đấu: số trận · ngày · giờ (giờ máy người xem)
     const dt = m.ts ? new Date(m.ts) : null;
     const when = (dt ? `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—") + ` · T${m.num}`;
-    svg += `<rect class="b-box${bothSet ? " set" : ""}${tbd ? " tbd" : ""}${live ? " live" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
+    svg += `<rect class="b-box${bothSet ? " set" : ""}${live ? " live" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
     svg += `<text x="${x + 9}" y="${y + 14}" class="b-when">${live ? "🔴 " : ""}${when}</text>`;
-    if (tbd) {
-      // Ô chưa xác định: 1 dấu "?" căn giữa (giống ô vòng sau ở ảnh export)
-      svg += `<text x="${x + boxW / 2}" y="${y + 42}" class="b-qmark" text-anchor="middle">?</text>`;
-      svg += `<rect class="b-hit" x="${x}" y="${y + 18}" width="${boxW}" height="${boxH - 18}" data-mi="${idx}" data-side="h"/>`;
-      return;
-    }
     // Đội đã CHỐT vị trí → tô màu theo hạng + badge mã hạt giống (1A/2B/3K). Còn lại theo trạng thái.
     const line = (r, cy) => {
       const fl = r.badge || (r.team ? flagURL(r.team) : null);
@@ -4889,7 +4877,7 @@ async function exportRoundImage(btn) {
     const cols = n <= 5 ? 1 : 2;
     const rows = Math.ceil(n / cols);
     const cardW = cols === 1 ? 800 : 700, cardH = 108;
-    const colGap = 56, rowGap = 26, M = 56, headerH = 268, footerH = 46;
+    const colGap = 56, rowGap = 26, M = 56, headerH = 278, footerH = 46;
     const W = 2 * M + cols * cardW + (cols - 1) * colGap;
     const H = headerH + rows * cardH + (rows - 1) * rowGap + footerH;
 
@@ -4917,8 +4905,9 @@ async function exportRoundImage(btn) {
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {}
     ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 20); ctx.fillText("WORLD CUP 2026", W / 2, ty + 18); ctx.restore();
+    // Tên vòng có dấu tiếng Việt (Ứ, Ế…) cao hơn chữ thường → chừa đủ khoảng để dấu sắc không dính dòng trên
     ctx.save(); try { ctx.letterSpacing = "6px"; } catch (e) {}
-    ctx.fillStyle = goldGrad(ty + 36, ty + 82); ctx.font = F(800, 52); ctx.fillText(roundName, W / 2, ty + 70); ctx.restore();
+    ctx.fillStyle = goldGrad(ty + 58, ty + 100); ctx.font = F(800, 52); ctx.fillText(roundName, W / 2, ty + 92); ctx.restore();
 
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke(); };
     // Huy hiệu GIỜ (hoặc tỉ số) ở GIỮA card, có nền bao quanh nổi bật
