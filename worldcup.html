@@ -5304,22 +5304,45 @@ async function exportScorers(btn) {
   }
 }
 
-/* ===== Hàng công/thủ mạnh nhất TÍNH TRÊN TOÀN GIẢI (mọi trận đã đá, gồm cả knockout) ===== */
-function _bestAttackDefense(done, standings) {
-  const tgf = {}, tga = {}, tpl = {}, tb = {};
-  (standings || []).forEach((g) => (g.table || []).forEach((t) => { if (t.team) tb[t.team] = t.badge; }));
+/* ===== Tổng hợp thống kê giải TRÊN TOÀN GIẢI (mọi trận đã đá, gồm cả knockout) — dùng chung cho web + export ===== */
+function _computeTournamentStats() {
+  const all = window._allMatches || [];
+  const done = all.filter((m) => m.homeScore != null && m.awayScore != null);
+  if (!done.length) return null;
+  const goals = done.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
+  const cleanSheets = done.reduce((s, m) => s + (m.homeScore === 0 ? 1 : 0) + (m.awayScore === 0 ? 1 : 0), 0);
+  const draws = done.filter((m) => m.homeScore === m.awayScore).length;
+  const goalless = done.filter((m) => m.homeScore === 0 && m.awayScore === 0).length;
+  const btts = done.filter((m) => m.homeScore > 0 && m.awayScore > 0).length;
+  const big3 = done.filter((m) => (m.homeScore + m.awayScore) >= 3).length;
+  const penShootouts = done.filter((m) => m.homePen != null && m.awayPen != null).length;
+  let topG = done[0], bigW = done[0];
+  done.forEach((m) => { if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m; if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m; });
+  // Thống kê cấp đội — cộng dồn mọi trận đã đá (bàn thắng = tỉ số 90'/120', đã tách luân lưu)
+  const badge = {}; (window._standings || []).forEach((g) => (g.table || []).forEach((t) => { if (t.team) badge[t.team] = t.badge; }));
+  const T = {}; const ini = (tm) => (T[tm] || (T[tm] = { team: tm, gf: 0, ga: 0, w: 0, d: 0, l: 0, pl: 0, badge: badge[tm] }));
   done.forEach((m) => {
-    // homeScore/awayScore = tỉ số 90'/120' (đã tách luân lưu) → đúng là số bàn thắng
-    tgf[m.home] = (tgf[m.home] || 0) + m.homeScore; tga[m.home] = (tga[m.home] || 0) + m.awayScore; tpl[m.home] = (tpl[m.home] || 0) + 1;
-    tgf[m.away] = (tgf[m.away] || 0) + m.awayScore; tga[m.away] = (tga[m.away] || 0) + m.homeScore; tpl[m.away] = (tpl[m.away] || 0) + 1;
+    const h = ini(m.home), a = ini(m.away);
+    h.gf += m.homeScore; h.ga += m.awayScore; h.pl++; a.gf += m.awayScore; a.ga += m.homeScore; a.pl++;
+    if (m.homeScore > m.awayScore) { h.w++; a.l++; } else if (m.homeScore < m.awayScore) { a.w++; h.l++; } else { h.d++; a.d++; }
   });
-  let atk = null, def = null;
-  Object.keys(tpl).forEach((tm) => {
-    const gf = tgf[tm] || 0, ga = tga[tm] || 0, pl = tpl[tm] || 0;
-    if (!atk || gf > atk.gf || (gf === atk.gf && ga < atk.ga)) atk = { team: tm, gf, ga, played: pl, badge: tb[tm] };
-    if (!def || ga < def.ga || (ga === def.ga && pl > def.played)) def = { team: tm, gf, ga, played: pl, badge: tb[tm] };
-  });
-  return { atk, def };
+  const teams = Object.values(T);
+  const pick = (better) => teams.reduce((b, t) => (b == null || better(t, b)) ? t : b, null);
+  const atk = pick((t, b) => t.gf > b.gf || (t.gf === b.gf && t.ga < b.ga));
+  const def = pick((t, b) => t.ga < b.ga || (t.ga === b.ga && t.pl > b.pl));
+  const worstDef = pick((t, b) => t.ga > b.ga || (t.ga === b.ga && t.pl < b.pl));
+  const mostWins = pick((t, b) => t.w > b.w || (t.w === b.w && (t.gf - t.ga) > (b.gf - b.ga)));
+  const bestGD = pick((t, b) => (t.gf - t.ga) > (b.gf - b.ga));
+  const unbeatenCount = teams.filter((t) => t.l === 0).length;
+  // Cầu thủ
+  const sc = (window._scorersData || []).filter((s) => s.player && (s.goals || 0) > 0);
+  const topScorer = sc.slice().sort((a, b) => (b.goals - a.goals) || ((b.assists || 0) - (a.assists || 0)))[0] || null;
+  return {
+    goals, avg: (goals / done.length).toFixed(2), done: done.length, total: all.length || done.length,
+    cleanSheets, draws, drawPct: Math.round(draws / done.length * 100), goalless,
+    btts, bttsPct: Math.round(btts / done.length * 100), big3, penShootouts,
+    distinctScorers: sc.length, unbeatenCount, topG, bigW, atk, def, worstDef, mostWins, bestGD, topScorer
+  };
 }
 
 /* ===== Nền chung cho ảnh export (navy + tia sáng + bokeh + vignette + khung vàng) ===== */
@@ -5425,49 +5448,43 @@ async function exportTournamentStats(btn) {
   const oldTxt = btn ? btn.textContent : null;
   if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
   try {
-    const all = window._allMatches || [];
-    const done = all.filter((m) => m.homeScore != null && m.awayScore != null);
-    if (!done.length) { alert("Chưa có trận nào kết thúc."); return; }
-    const goals = done.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
-    const avg = (goals / done.length).toFixed(2);
-    const cleanSheets = done.reduce((s, m) => s + (m.homeScore === 0 ? 1 : 0) + (m.awayScore === 0 ? 1 : 0), 0);
-    const draws = done.filter((m) => m.homeScore === m.awayScore).length;
-    const goalless = done.filter((m) => m.homeScore === 0 && m.awayScore === 0).length;
-    const btts = done.filter((m) => m.homeScore > 0 && m.awayScore > 0).length;
-    const big3 = done.filter((m) => (m.homeScore + m.awayScore) >= 3).length;
-    const drawPct = Math.round((draws / done.length) * 100), bttsPct = Math.round((btts / done.length) * 100);
-    const totalMatches = all.length || done.length;
-    let topG = done[0], bigW = done[0];
-    done.forEach((m) => { if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m; if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m; });
-    const { atk, def } = _bestAttackDefense(done, window._standings);
+    const S = _computeTournamentStats();
+    if (!S) { alert("Chưa có trận nào kết thúc."); return; }
 
     const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
-    const names = new Set([topG.home, topG.away, bigW.home, bigW.away, atk && atk.team, def && def.team].filter(Boolean));
+    const names = new Set([S.topG.home, S.topG.away, S.bigW.home, S.bigW.away, S.atk && S.atk.team, S.def && S.def.team, S.worstDef && S.worstDef.team, S.mostWins && S.mostWins.team, S.topScorer && S.topScorer.team].filter(Boolean));
     const flagImgs = {};
     await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURL(nm)); if (img) flagImgs[nm] = img; }));
     const logoImg = await loadImg("/images/worldcup/logo-export.webp");
 
     const tiles = [
-      { v: String(goals), l: "⚽ Tổng bàn thắng", hero: true },
-      { v: avg, l: "📊 TB bàn / trận" },
-      { v: done.length + "/" + totalMatches, l: "✅ Trận đã đá" },
-      { v: String(cleanSheets), l: "🧤 Lần giữ sạch lưới" },
-      { v: draws + " · " + drawPct + "%", l: "🤝 Trận hòa" },
-      { v: String(goalless), l: "🚫 Trận 0-0" },
-      { v: btts + " · " + bttsPct + "%", l: "🔄 Cả 2 đội ghi bàn" },
-      { v: String(big3), l: "🎯 Trận ≥ 3 bàn" }
+      { v: String(S.goals), l: "⚽ Tổng bàn thắng", hero: true },
+      { v: S.avg, l: "📊 TB bàn / trận" },
+      { v: S.done + "/" + S.total, l: "✅ Trận đã đá" },
+      { v: String(S.cleanSheets), l: "🧤 Lần giữ sạch lưới" },
+      { v: S.draws + " · " + S.drawPct + "%", l: "🤝 Trận hòa" },
+      { v: String(S.goalless), l: "🚫 Trận 0-0" },
+      { v: S.btts + " · " + S.bttsPct + "%", l: "🔄 Cả 2 đội ghi bàn" },
+      { v: String(S.big3), l: "🎯 Trận ≥ 3 bàn" },
+      { v: String(S.penShootouts), l: "⏱️ Loạt luân lưu" },
+      { v: String(S.distinctScorers), l: "👟 Cầu thủ ghi bàn" },
+      { v: String(S.unbeatenCount), l: "🛡️ Đội bất bại" },
+      { v: S.topScorer ? String(S.topScorer.goals) : "0", l: "👑 Vua phá lưới (bàn)" }
     ];
     const hls = [
-      { ic: "🔥", lb: "Nhiều bàn nhất", m: topG, tag: (topG.homeScore + topG.awayScore) + " bàn" },
-      { ic: "💥", lb: "Cách biệt lớn nhất", m: bigW, tag: "+" + Math.abs(bigW.homeScore - bigW.awayScore) },
-      atk ? { ic: "⚔️", lb: "Hàng công mạnh nhất", team: atk.team, tag: atk.gf + " bàn" } : null,
-      def ? { ic: "🛡️", lb: "Hàng thủ tốt nhất", team: def.team, tag: "thủng " + def.ga } : null
+      S.topScorer ? { ic: "👑", lb: "Vua phá lưới", player: S.topScorer, tag: S.topScorer.goals + " bàn" } : null,
+      { ic: "🔥", lb: "Nhiều bàn nhất", m: S.topG, tag: (S.topG.homeScore + S.topG.awayScore) + " bàn" },
+      { ic: "💥", lb: "Cách biệt lớn nhất", m: S.bigW, tag: "+" + Math.abs(S.bigW.homeScore - S.bigW.awayScore) },
+      S.atk ? { ic: "⚔️", lb: "Hàng công mạnh nhất", team: S.atk.team, tag: S.atk.gf + " bàn" } : null,
+      S.def ? { ic: "🛡️", lb: "Hàng thủ tốt nhất", team: S.def.team, tag: "thủng " + S.def.ga } : null,
+      S.worstDef ? { ic: "🥅", lb: "Thủng lưới nhiều nhất", team: S.worstDef.team, tag: "thủng " + S.worstDef.ga } : null,
+      S.mostWins ? { ic: "🏆", lb: "Thắng nhiều nhất", team: S.mostWins.team, tag: S.mostWins.w + " trận" } : null
     ].filter(Boolean);
 
     const M = 46, tileGap = 20, hlH = 58, headerH = 214, footerH = 44;
-    const tileW = 252, tileH = 124, cols = 4, tRows = 2;
+    const tileW = 252, tileH = 122, cols = 4, tRows = Math.ceil(tiles.length / cols);
     const W = 2 * M + cols * tileW + (cols - 1) * tileGap;
-    const tilesH = tRows * tileH + tileGap, hlsH = hls.length * hlH + (hls.length - 1) * 10;
+    const tilesH = tRows * tileH + (tRows - 1) * tileGap, hlsH = hls.length * hlH + (hls.length - 1) * 10;
     const H = headerH + tilesH + 28 + hlsH + footerH;
 
     const ratio = 2;
@@ -5521,6 +5538,11 @@ async function exportTournamentStats(btn) {
       } else if (h.team) {
         drawFlag(vx, rcy - fh / 2, fw, fh, flagImgs[h.team]); vx += fw + 12;
         ctx.textAlign = "left"; ctx.font = F(800, 21); ctx.fillStyle = "#fff6e2"; ctx.fillText(clipText(h.team, 340), vx, rcy + 1);
+      } else if (h.player) {
+        drawFlag(vx, rcy - fh / 2, fw, fh, flagImgs[h.player.team]); vx += fw + 12;
+        ctx.textAlign = "left"; ctx.font = F(800, 21); ctx.fillStyle = "#fff6e2"; ctx.fillText(clipText((h.player.player || "").toUpperCase(), 300), vx, rcy + 1);
+        const tm = h.player.team || h.player.nationality || "";
+        if (tm) { const nmW = ctx.measureText(clipText((h.player.player || "").toUpperCase(), 300)).width; ctx.font = F(600, 14); ctx.fillStyle = "#9fb0cf"; ctx.fillText(clipText(tm, 220), vx + nmW + 14, rcy + 1); }
       }
       // tag phải
       ctx.font = F(800, 16); const tw = ctx.measureText(h.tag).width, tgx = W - M - 22 - tw;
@@ -5760,47 +5782,38 @@ function renderTitleOdds() {
 function renderTournamentStats() {
   const el = document.getElementById("tourStatsBlock");
   if (!el) return;
-  const all = window._allMatches || [];
-  const done = all.filter((m) => m.homeScore != null && m.awayScore != null);
-  if (!done.length) { el.innerHTML = `<div class="loading-pulse">Chưa có trận nào kết thúc.</div>`; return; }
+  const S = _computeTournamentStats();
+  if (!S) { el.innerHTML = `<div class="loading-pulse">Chưa có trận nào kết thúc.</div>`; return; }
   const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const goals = done.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
-  const avg = (goals / done.length).toFixed(2);
-  const cleanSheets = done.reduce((s, m) => s + (m.homeScore === 0 ? 1 : 0) + (m.awayScore === 0 ? 1 : 0), 0);
-  const draws = done.filter((m) => m.homeScore === m.awayScore).length;
-  const goalless = done.filter((m) => m.homeScore === 0 && m.awayScore === 0).length;
-  const btts = done.filter((m) => m.homeScore > 0 && m.awayScore > 0).length;       // cả 2 đội ghi bàn
-  const big3 = done.filter((m) => (m.homeScore + m.awayScore) >= 3).length;           // trận từ 3 bàn
-  const drawPct = Math.round((draws / done.length) * 100);
-  const bttsPct = Math.round((btts / done.length) * 100);
-  const totalMatches = (window._allMatches || []).length || done.length;
-  let topG = done[0], bigW = done[0];
-  done.forEach((m) => {
-    if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m;
-    if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m;
-  });
-  // Thống kê cấp đội (lấy từ BXH các bảng)
-  const { atk, def } = _bestAttackDefense(done, window._standings);
   const ms = (m) => `${esc(m.home)} <b>${m.homeScore}-${m.awayScore}</b> ${esc(m.away)}`;
   const tflag = (t) => t && t.badge ? `<img src="${esc(t.badge)}" alt="" loading="lazy" onerror="this.style.display='none'">` : "";
-  const teamRows = (atk || def) ? `
-      ${atk ? `<div class="row">⚔️ <span class="lb">Hàng công mạnh nhất</span> ${tflag(atk)} ${esc(atk.team)} <span class="tag">${atk.gf} bàn</span></div>` : ""}
-      ${def ? `<div class="row">🛡️ <span class="lb">Hàng thủ tốt nhất</span> ${tflag(def)} ${esc(def.team)} <span class="tag">thủng ${def.ga}</span></div>` : ""}` : "";
+  const pflagS = (s) => { const u = s && (s.teamBadge || (s.team ? flagURL(s.team) : null)); return u ? `<img src="${esc(u)}" alt="" onerror="this.style.display='none'">` : ""; };
+  const tile = (v, sub, l) => `<div class="ps-stat"><div class="v">${v}${sub ? `<span style="font-size:13px;color:var(--text-fade)">${sub}</span>` : ""}</div><div class="l">${l}</div></div>`;
+  const hTeam = (ic, lb, t, tag) => t ? `<div class="row">${ic} <span class="lb">${lb}</span> ${tflag(t)} ${esc(t.team)} <span class="tag">${tag}</span></div>` : "";
   el.innerHTML = `
     <div class="tour-stats">
-      <div class="ps-stat"><div class="v">${goals}</div><div class="l">⚽ Tổng bàn</div></div>
-      <div class="ps-stat"><div class="v">${avg}</div><div class="l">📊 TB bàn/trận</div></div>
-      <div class="ps-stat"><div class="v">${done.length}<span style="font-size:13px;color:var(--text-fade)">/${totalMatches}</span></div><div class="l">✅ Trận đã đá</div></div>
-      <div class="ps-stat"><div class="v">${cleanSheets}</div><div class="l">🧤 Giữ sạch lưới</div></div>
-      <div class="ps-stat"><div class="v">${draws}<span style="font-size:13px;color:var(--text-fade)"> · ${drawPct}%</span></div><div class="l">🤝 Trận hòa</div></div>
-      <div class="ps-stat"><div class="v">${goalless}</div><div class="l">🚫 Trận 0-0</div></div>
-      <div class="ps-stat"><div class="v">${btts}<span style="font-size:13px;color:var(--text-fade)"> · ${bttsPct}%</span></div><div class="l">🔄 Cả 2 đội ghi</div></div>
-      <div class="ps-stat"><div class="v">${big3}</div><div class="l">🎯 Trận ≥3 bàn</div></div>
+      ${tile(S.goals, "", "⚽ Tổng bàn")}
+      ${tile(S.avg, "", "📊 TB bàn/trận")}
+      ${tile(S.done, `/${S.total}`, "✅ Trận đã đá")}
+      ${tile(S.cleanSheets, "", "🧤 Giữ sạch lưới")}
+      ${tile(S.draws, ` · ${S.drawPct}%`, "🤝 Trận hòa")}
+      ${tile(S.goalless, "", "🚫 Trận 0-0")}
+      ${tile(S.btts, ` · ${S.bttsPct}%`, "🔄 Cả 2 đội ghi")}
+      ${tile(S.big3, "", "🎯 Trận ≥3 bàn")}
+      ${tile(S.penShootouts, "", "⏱️ Loạt luân lưu")}
+      ${tile(S.distinctScorers, "", "👟 Cầu thủ ghi bàn")}
+      ${tile(S.unbeatenCount, "", "🛡️ Đội bất bại")}
+      ${S.topScorer ? tile(S.topScorer.goals, "", "👑 Vua phá lưới (bàn)") : ""}
     </div>
     <div class="tour-hl">
-      <div class="row">🔥 <span class="lb">Nhiều bàn nhất</span> ${ms(topG)} <span class="tag">${topG.homeScore + topG.awayScore} bàn</span></div>
-      <div class="row">💥 <span class="lb">Cách biệt lớn nhất</span> ${ms(bigW)} <span class="tag">+${Math.abs(bigW.homeScore - bigW.awayScore)}</span></div>
-      ${teamRows}
+      ${S.topScorer ? `<div class="row">👑 <span class="lb">Vua phá lưới</span> ${pflagS(S.topScorer)} ${esc(S.topScorer.player)} <span class="tag">${S.topScorer.goals} bàn</span></div>` : ""}
+      <div class="row">🔥 <span class="lb">Nhiều bàn nhất</span> ${ms(S.topG)} <span class="tag">${S.topG.homeScore + S.topG.awayScore} bàn</span></div>
+      <div class="row">💥 <span class="lb">Cách biệt lớn nhất</span> ${ms(S.bigW)} <span class="tag">+${Math.abs(S.bigW.homeScore - S.bigW.awayScore)}</span></div>
+      ${hTeam("⚔️", "Hàng công mạnh nhất", S.atk, `${S.atk ? S.atk.gf : ""} bàn`)}
+      ${hTeam("🛡️", "Hàng thủ tốt nhất", S.def, `thủng ${S.def ? S.def.ga : ""}`)}
+      ${hTeam("🥅", "Thủng lưới nhiều nhất", S.worstDef, `thủng ${S.worstDef ? S.worstDef.ga : ""}`)}
+      ${hTeam("🏆", "Thắng nhiều nhất", S.mostWins, `${S.mostWins ? S.mostWins.w : ""} trận`)}
+      ${hTeam("📈", "Hiệu số tốt nhất", S.bestGD, `${S.bestGD ? (S.bestGD.gf - S.bestGD.ga > 0 ? "+" : "") + (S.bestGD.gf - S.bestGD.ga) : ""}`)}
     </div>`;
   const tBtn = document.getElementById("tourStatsShare");
   if (tBtn && !tBtn._bound) { tBtn._bound = true; tBtn.addEventListener("click", () => exportTournamentStats(tBtn)); }
