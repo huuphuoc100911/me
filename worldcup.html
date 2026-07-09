@@ -5342,7 +5342,7 @@ function _computeTournamentStats() {
     goals, avg: (goals / done.length).toFixed(2), done: done.length, total: all.length || done.length,
     cleanSheets, draws, drawPct: Math.round(draws / done.length * 100), goalless,
     btts, bttsPct: Math.round(btts / done.length * 100), big3, penShootouts,
-    distinctScorers: sc.length, unbeatenCount, topG, bigW, atk, def, worstDef, mostWins, bestGD, topScorer
+    unbeatenCount, topG, bigW, atk, def, worstDef, mostWins, bestGD, topScorer
   };
 }
 
@@ -5468,7 +5468,6 @@ async function exportTournamentStats(btn) {
       { v: S.btts + " · " + S.bttsPct + "%", l: "🔄 Cả 2 đội ghi bàn" },
       { v: String(S.big3), l: "🎯 Trận ≥ 3 bàn" },
       { v: String(S.penShootouts), l: "⏱️ Loạt luân lưu" },
-      { v: String(S.distinctScorers), l: "👟 Cầu thủ ghi bàn" },
       { v: String(S.unbeatenCount), l: "🛡️ Đội bất bại" },
       { v: S.topScorer ? String(S.topScorer.goals) : "0", l: "👑 Vua phá lưới (bàn)" }
     ];
@@ -5802,7 +5801,6 @@ function renderTournamentStats() {
       ${tile(S.btts, ` · ${S.bttsPct}%`, "🔄 Cả 2 đội ghi")}
       ${tile(S.big3, "", "🎯 Trận ≥3 bàn")}
       ${tile(S.penShootouts, "", "⏱️ Loạt luân lưu")}
-      ${tile(S.distinctScorers, "", "👟 Cầu thủ ghi bàn")}
       ${tile(S.unbeatenCount, "", "🛡️ Đội bất bại")}
       ${S.topScorer ? tile(S.topScorer.goals, "", "👑 Vua phá lưới (bàn)") : ""}
     </div>
