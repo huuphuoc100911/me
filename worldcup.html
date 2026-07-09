@@ -2391,15 +2391,6 @@
         </div>
 
         <div class="guide-item">
-          <div class="gh"><span class="gi">🎯</span> Dự đoán nhà vô địch</div>
-          <div class="gd">
-            Bấm <code style="color:var(--accent-2)">🎯 Dự đoán nhà vô địch</code> trên Sơ đồ knockout, rồi <b>bấm đội bạn nghĩ sẽ thắng</b> ở từng trận —
-            đội đó <b>tự leo lên nhánh sau</b> (★ vàng), đi tới cúp. Đổi nhánh dưới thì các lựa chọn phía trên không còn hợp lệ sẽ tự xoá.
-            Khi có kết quả thật: tô <code style="color:var(--good)">xanh</code> nếu đoán đúng, <code style="color:var(--bad)">đỏ</code> nếu sai, kèm số trận đúng. Lưu cục bộ trên máy.
-          </div>
-        </div>
-
-        <div class="guide-item">
           <div class="gh"><span class="gi">⚽</span> Vua phá lưới</div>
           <div class="gd">
             Bảng xếp hạng cầu thủ ghi bàn nhiều nhất giải, kèm số trận đã đá.
@@ -4229,25 +4220,6 @@ function renderTeams() {
 renderTeams();
 
 /* ===== Knockout bracket (cây nhánh thật, tự điền đội khi chắc chắn) ===== */
-/* ===== Dự đoán nhà vô địch (bấm chọn đội thắng từng trận knockout) ===== */
-const KO_PICKS_KEY = "wc-ko-picks";
-function getKoPicks() { try { return JSON.parse(localStorage.getItem(KO_PICKS_KEY) || "{}") || {}; } catch { return {}; } }
-function saveKoPicks(p) { try { localStorage.setItem(KO_PICKS_KEY, JSON.stringify(p)); } catch {} }
-// Chấm điểm: với mỗi trận đã có kết quả thật + có dự đoán → đúng/sai
-function koPredictScore(picks, byNum) {
-  let predicted = 0, decided = 0, correct = 0;
-  KO_TEMPLATE.forEach((t) => {
-    if (picks[t.num]) predicted++;
-    const s = byNum[t.num];
-    const w = matchWinner(s);
-    if (w && picks[t.num]) {
-      decided++;
-      if (picks[t.num] === w) correct++;
-    }
-  });
-  return { predicted, decided, correct, champion: picks[104] || null };
-}
-
 function renderBracket(matches) {
   const block = document.getElementById("bracketBlock");
   if (!block) return;
@@ -4326,40 +4298,9 @@ function renderBracket(matches) {
     return null;
   };
 
-  // ===== Chế độ dự đoán nhà vô địch =====
-  const predictMode = !!window._koPredictMode;
-  const picks = getKoPicks();
-  // map tên đội → logo (từ lịch + BXH) để đội dự đoán vẫn có cờ
-  const badgeByTeam = {};
-  (window._allMatches || []).forEach((m) => { if (m.home && m.homeBadge) badgeByTeam[m.home] = m.homeBadge; if (m.away && m.awayBadge) badgeByTeam[m.away] = m.awayBadge; });
-  (window._standings || []).forEach((g) => (g.table || []).forEach((t) => { if (t.team && t.badge) badgeByTeam[t.team] = t.badge; }));
-  const badgeOf = (name) => badgeByTeam[name] || flagURL(name) || null;
   const realWinner = (n) => matchWinner(byNum[n]);
-  // Đội ở 1 slot: ưu tiên kết quả thật; nếu chưa có & đang dự đoán thì lấy đội user chọn ở trận nguồn
-  const participantFill = (code, fill) => {
-    const wm = String(code).match(/^W(\d+)$/i);
-    if (wm && fill) {
-      const n = +wm[1];
-      if (!realWinner(n) && picks[n]) return { team: picks[n], label: picks[n], badge: badgeOf(picks[n]), status: "predicted", predicted: true };
-    }
-    return resolver.resolve(code);
-  };
-  // Dọn dự đoán không còn hợp lệ (vd đổi nhánh dưới → đội đã chọn không còn ở trận đó). Giữ dự đoán của trận đã đá để chấm điểm.
-  (function pruneInvalid() {
-    let again = true, changed = false;
-    while (again) {
-      again = false;
-      for (const t of KO_TEMPLATE) {
-        const n = t.num;
-        if (picks[n] == null) continue;
-        const s = byNum[n];
-        if (s && s.homeScore != null && s.awayScore != null) continue;
-        const names = [participantFill(t.home, true).team, participantFill(t.away, true).team].filter(Boolean);
-        if (!names.includes(picks[n])) { delete picks[n]; changed = true; again = true; }
-      }
-    }
-    if (changed) saveKoPicks(picks);
-  })();
+  // Đội ở 1 slot: theo kết quả thật (đã bỏ chế độ dự đoán)
+  const participantFill = (code) => resolver.resolve(code);
 
   let svg = `<svg class="bracket-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
   stagesPresent.forEach((s) => {
@@ -4389,50 +4330,36 @@ function renderBracket(matches) {
   stagesPresent.forEach((st) => {
     const boxes = ko.filter((m) => m.round === st);
     roundFullySet[st] = boxes.length > 0 && boxes.every((m) =>
-      slotLocked(participantFill(m.home, false)) && slotLocked(participantFill(m.away, false)));
+      slotLocked(participantFill(m.home)) && slotLocked(participantFill(m.away)));
   });
   // Hộp trận
   ko.forEach((m, idx) => {
     const ci = colOf[m.round];
     const x = xOf(ci), y = yOf(rowOf[m.num]);
-    const rH = participantFill(m.home, predictMode), rA = participantFill(m.away, predictMode);
+    const rH = participantFill(m.home), rA = participantFill(m.away);
     const done = m.homeScore != null && m.awayScore != null;
     const live = !done && m.ts && m.ts <= now && now < m.ts + 2 * 3600 * 1000;
     const it = (st) => (st === "provisional" || st === "unknown") ? ' font-style="italic"' : "";
-    // Đánh dấu đội user chọn thắng trận này (★) + chấm đúng/sai khi đã có KQ
-    const myPick = predictMode ? picks[m.num] : null;
-    const rw = realWinner(m.num);
-    const markOf = (r) => {
-      if (!myPick || !r.team || r.team !== myPick) return "";
-      if (rw) return r.team === rw ? "correct" : "wrong";
-      return "pick";
-    };
-    // Cặp đấu đã CHỐT cả 2 đội (đều là đội thật/đã khóa) → làm nổi bật
-    // Viền nổi bật: chỉ cho cặp đã đủ 2 đội, CHƯA đá, và vòng đó CHƯA chốt hết
-    // (khi cả vòng đã xác định đủ đội thì bỏ viền cho gọn).
-    const bothSet = !predictMode && !done && !roundFullySet[m.round] && slotLocked(rH) && slotLocked(rA);
+    // Cặp đấu đã CHỐT cả 2 đội (đều là đội thật/đã khóa), CHƯA đá, vòng chưa chốt hết → viền nổi bật
+    const bothSet = !done && !roundFullySet[m.round] && slotLocked(rH) && slotLocked(rA);
     // Dòng giờ thi đấu: số trận · ngày · giờ (giờ máy người xem)
     const dt = m.ts ? new Date(m.ts) : null;
     const when = (dt ? `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)} · ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : "—") + ` · T${m.num}`;
-    svg += `<rect class="b-box${bothSet ? " set" : ""}${live ? " live" : ""}${myPick ? " picked" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
+    svg += `<rect class="b-box${bothSet ? " set" : ""}${live ? " live" : ""}" data-num="${m.num}" x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="7"/>`;
     svg += `<text x="${x + 9}" y="${y + 14}" class="b-when">${live ? "🔴 " : ""}${when}</text>`;
-    // 1 dòng đội: cờ (nếu có) + tên + ✓ (+ ★ nếu là đội bạn dự đoán thắng)
-    const MARKFILL = { correct: "#10b981", wrong: "#ef4444", pick: "#f59e0b" };
     // Đội đã CHỐT vị trí → tô màu theo hạng + badge mã hạt giống (1A/2B/3K). Còn lại theo trạng thái.
     const line = (r, cy) => {
-      const mark = markOf(r);
       const fl = r.badge || (r.team ? flagURL(r.team) : null);
       const tx = fl ? x + 30 : x + 9;
-      const rk = (!predictMode && slotLocked(r)) ? rankOf(r) : null;
+      const rk = slotLocked(r) ? rankOf(r) : null;
       const seed = rk ? teamSeed[r.team] : null;            // mã hạt giống của đội đã chốt
-      const fill = mark ? MARKFILL[mark] : (rk ? RANK_FILL[rk] : fillOf(r.status));
-      const bold = (mark || rk) ? ' font-weight="800"' : "";
-      const star = mark ? "★ " : "";
-      const showSeed = !!seed && !done && !mark;            // badge hiện khi chưa có tỉ số ở ô đó
+      const fill = rk ? RANK_FILL[rk] : fillOf(r.status);
+      const bold = rk ? ' font-weight="800"' : "";
+      const showSeed = !!seed && !done;                     // badge hiện khi chưa có tỉ số ở ô đó
       const nameClip = fl ? (showSeed ? 11 : 13) : (showSeed ? 16 : 19);
       let s = "";
       if (fl) s += `<image href="${fl}" x="${x + 9}" y="${cy - 11}" width="18" height="13" preserveAspectRatio="xMidYMid slice"/>`;
-      s += `<text x="${tx}" y="${cy}" class="b-team" fill="${fill}"${it(r.status)}${bold}>${star}${esc(clip(r.label, nameClip))}</text>`;
+      s += `<text x="${tx}" y="${cy}" class="b-team" fill="${fill}"${it(r.status)}${bold}>${esc(clip(r.label, nameClip))}</text>`;
       if (showSeed) {
         const bw = 8 + seed.length * 7, bx = x + boxW - 7 - bw, by = cy - 10;
         s += `<rect x="${bx}" y="${by}" width="${bw}" height="14" rx="3" fill="${RANK_FILL[rk]}"/>`;
@@ -4455,14 +4382,7 @@ function renderBracket(matches) {
   });
   svg += `</svg>`;
 
-  const legend = predictMode
-    ? `<div class="compare-legend" style="margin-top:10px">
-        <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px"></span>★ Đội bạn dự đoán đi tiếp</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px"></span>Đoán đúng (đã có KQ)</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px"></span>Đoán sai</span>
-        <span style="color:var(--text-fade)">💡 Bấm vào đội bạn nghĩ sẽ thắng — đội đó tự lên nhánh sau</span>
-      </div>`
-    : `<div class="compare-legend" style="margin-top:10px">
+  const legend = `<div class="compare-legend" style="margin-top:10px">
         <span><span style="display:inline-block;width:14px;height:11px;background:#f5c518;border-radius:2px;margin-right:4px"></span>Nhất bảng (1X)</span>
         <span><span style="display:inline-block;width:14px;height:11px;background:#c4ccd6;border-radius:2px;margin-right:4px"></span>Nhì bảng (2X)</span>
         <span><span style="display:inline-block;width:14px;height:11px;background:#d08a4e;border-radius:2px;margin-right:4px"></span>Hạng 3 (3X)</span>
@@ -4471,29 +4391,16 @@ function renderBracket(matches) {
         <span style="color:var(--text-fade)">Badge 1A/2B/3K = vị trí đã chốt · viền sáng = cặp đủ 2 đội · 💡 bấm đội xem chi tiết</span>
       </div>`;
 
-  // Thanh điều khiển dự đoán nhà vô địch
-  const sc = koPredictScore(picks, byNum);
-  const champBadge = sc.champion ? badgeOf(sc.champion) : null;
+  // Thanh nút xuất ảnh
   const predictBar = `<div class="ko-predict-bar">
-      <button id="koPredictToggle" class="ko-pred-btn${predictMode ? " on" : ""}">${predictMode ? "✓ Đang dự đoán" : "🎯 Dự đoán nhà vô địch"}</button>
-      ${sc.predicted ? `<button id="koPredictReset" class="ko-pred-reset">🗑 Xoá (${sc.predicted})</button>` : ""}
       <button id="koSharePremium" class="ko-pred-btn premium" title="Xuất ảnh phong cách FIFA sang trọng (nền xanh–vàng)">🏆 Xuất ảnh sơ đồ</button>
       <button id="koShareRound" class="ko-pred-btn premium" title="Xuất ảnh chỉ các trận của vòng sắp diễn ra">📅 Ảnh vòng sắp đá</button>
-      <span class="ko-pred-info">
-        ${sc.champion ? `🏆 Vô địch dự đoán: ${champBadge ? `<img src="${champBadge}" alt="">` : ""}<b>${esc(sc.champion)}</b>` : (predictMode ? "Bấm đội thắng từng trận đến khi vô địch" : "")}
-        ${sc.decided ? ` · ✅ Đúng <b>${sc.correct}/${sc.decided}</b>` : ""}
-      </span>
     </div>`;
 
   window._koMatches = ko;   // cho đồng hồ đếm ngược dùng
   block.innerHTML = `<div class="ko-next" id="koNext"></div>${predictBar}<div class="bracket-scroll" id="bracketScroll">${svg}</div>${legend}`;
   updateKoCountdown();
 
-  // Nút bật/tắt chế độ dự đoán + xoá
-  const tglBtn = document.getElementById("koPredictToggle");
-  if (tglBtn) tglBtn.addEventListener("click", () => { window._koPredictMode = !window._koPredictMode; renderBracket(window._allMatches || []); });
-  const rstBtn = document.getElementById("koPredictReset");
-  if (rstBtn) rstBtn.addEventListener("click", () => { if (confirm("Xoá toàn bộ dự đoán knockout?")) { saveKoPicks({}); renderBracket(window._allMatches || []); } });
   const sharePrem = document.getElementById("koSharePremium");
   if (sharePrem) sharePrem.addEventListener("click", () => exportBracketPremium(sharePrem));
   const shareRound = document.getElementById("koShareRound");
@@ -4510,23 +4417,11 @@ function renderBracket(matches) {
     window._koScrolled = true;
   }
 
-  // Bấm 1 đội: chế độ dự đoán → chọn đội thắng · bình thường → chi tiết + tô sáng đường tới CK
+  // Bấm 1 ô trận → tô sáng đường tới chung kết + mở đối đầu/diễn biến
   block.querySelectorAll(".b-hit").forEach((el) => {
     el.addEventListener("click", () => {
       const m = ko[+el.dataset.mi];
       if (!m) return;
-      if (window._koPredictMode && m.round !== "Third-place") {
-        const code = el.dataset.side === "h" ? m.home : m.away;
-        const p = participantFill(code, true);
-        if (!p.team) return;                 // slot chưa rõ đội → chưa chọn được
-        if (realWinner(m.num)) return;        // trận đã có kết quả thật → không cho đổi
-        const cur = getKoPicks();
-        if (cur[m.num] === p.team) delete cur[m.num];  // bấm lại đội đã chọn → bỏ chọn
-        else cur[m.num] = p.team;
-        saveKoPicks(cur);
-        renderBracket(window._allMatches || []);
-        return;
-      }
       // Tô sáng đường tới chung kết của trận này
       const path = new Set();
       let n = m.num;
@@ -4537,7 +4432,7 @@ function renderBracket(matches) {
       }
       // Bấm ô trận → mở thẳng đối đầu + diễn biến (không còn popup chi tiết từng đội)
       const RVI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Third-place": "Tranh hạng 3", "Final": "Chung kết" };
-      const rh = participantFill(m.home, false), ra = participantFill(m.away, false);
+      const rh = participantFill(m.home), ra = participantFill(m.away);
       openH2H({
         id: m.id, home: rh.team || rh.label, away: ra.team || ra.label,
         homeBadge: rh.badge || (rh.team ? flagURL(rh.team) : null),
@@ -4558,15 +4453,12 @@ async function exportBracketPremium(btn) {
     const ko = getKnockoutMatches();
     const byNum = {}; ko.forEach((m) => { byNum[m.num] = m; });
     const resolver = buildKoResolver();
-    const picks = getKoPicks();
     const realWinner = (n) => matchWinner(byNum[n]);
     const fillPart = (code) => {
-      const wm = String(code).match(/^W(\d+)$/i);
-      if (wm) { const n = +wm[1]; if (!realWinner(n) && picks[n]) return { team: picks[n], label: picks[n], known: true }; }
       const r = resolver.resolve(code);
       return { team: r.team || null, label: r.team || r.label || "?", known: !!r.team };
     };
-    const winnerOf = (n) => realWinner(n) || picks[n] || null;
+    const winnerOf = (n) => realWinner(n) || null;
     const sideOf = (m, which) => fillPart(which === "h" ? m.home : m.away);
     const champ = winnerOf(104);
 
@@ -4950,15 +4842,12 @@ async function exportRoundImage(btn) {
     const ko = getKnockoutMatches();
     const byNum = {}; ko.forEach((m) => { byNum[m.num] = m; });
     const resolver = buildKoResolver();
-    const picks = getKoPicks();
     const realWinner = (n) => matchWinner(byNum[n]);
     const fillPart = (code) => {
-      const wm = String(code).match(/^W(\d+)$/i);
-      if (wm) { const n = +wm[1]; if (!realWinner(n) && picks[n]) return { team: picks[n], label: picks[n], known: true }; }
       const r = resolver.resolve(code);
       return { team: r.team || null, label: r.team || r.label || "?", known: !!r.team };
     };
-    const winnerOf = (n) => realWinner(n) || picks[n] || null;
+    const winnerOf = (n) => realWinner(n) || null;
     const sideOf = (m, which) => fillPart(which === "h" ? m.home : m.away);
 
     // Vòng đang chuẩn bị đá = vòng SỚM NHẤT còn trận chưa có kết quả
