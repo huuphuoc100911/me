@@ -4412,7 +4412,7 @@ function renderBracket(matches) {
     </div>`;
 
   window._koMatches = ko;   // cho đồng hồ đếm ngược dùng
-  block.innerHTML = `<div class="ko-next" id="koNext"></div>${predictBar}<div class="bracket-scroll" id="bracketScroll">${svg}</div>${legend}`;
+  block.innerHTML = `${predictBar}<div class="ko-next" id="koNext"></div><div class="bracket-scroll" id="bracketScroll">${svg}</div>${legend}`;
   updateKoCountdown();
 
   const sharePrem = document.getElementById("koSharePremium");
