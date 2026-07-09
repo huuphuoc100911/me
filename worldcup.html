@@ -5628,10 +5628,10 @@ async function exportAllMatches(btn) {
     ringNames = ringNames.filter((nm) => flagImgs[nm]);   // chỉ giữ đội có cờ tải được → viền không bị hở
     const logoImg = await loadImg("/images/worldcup/logo-export.webp");
 
-    const M = 82, colGap = 26, cols = 4, blockW = 430;
+    const M = 88, colGap = 26, cols = 4, blockW = 430;
     const W = 2 * M + cols * blockW + (cols - 1) * colGap;
-    const headerH = 240, footerH = 70, secTitleH = 50, secGap = 24;
-    const ringInset = 46, fRW = 40, fRH = 27;   // viền 48 cờ đội tuyển quanh 4 cạnh
+    const headerH = 246, footerH = 74, secTitleH = 50, secGap = 24;
+    const ringInset = 50, fRW = 44, fRH = 29;   // viền cờ đội tuyển quanh 4 cạnh (to hơn, sát nhau)
     const grpHeadH = 32, grpRowH = 33, koCellH = 42, koGap = 10, blockGap = 24;
     const blockH = grpHeadH + 6 * grpRowH;
     const grpRows = Math.ceil((groupKeys.length || 1) / cols);
@@ -5676,8 +5676,8 @@ async function exportAllMatches(btn) {
     _exportBackdrop(ctx, W, H, rrect, goldGrad);
 
     // Header (đẩy xuống dưới dải cờ trên cùng)
-    let ty = 66;
-    if (logoImg) { const bh = 66, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 14; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 16; } else ty = 148;
+    let ty = 74;
+    if (logoImg) { const bh = 66, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 14; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 16; } else ty = 152;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("WORLD CUP 2026", W / 2, ty + 14); ctx.restore();
     ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 32, ty + 74); ctx.font = F(800, 34); ctx.fillText("LỊCH THI ĐẤU & KẾT QUẢ", W / 2, ty + 62); ctx.restore();
@@ -5818,14 +5818,17 @@ async function exportAllMatches(btn) {
 
     // ===== Viền: cờ 48 đội tuyển chạy quanh 4 cạnh, chia đều theo chu vi (không lệch) =====
     (function drawFlagRing() {
-      const n = ringNames.length; if (!n) return;
+      const u = ringNames.length; if (!u) return;
       const rL = ringInset, rT = ringInset, rR = W - ringInset, rB = H - ringInset;
-      const rw = rR - rL, rh = rB - rT, P = 2 * (rw + rh), step = P / n;
+      const rw = rR - rL, rh = rB - rT, P = 2 * (rw + rh);
+      // Lặp cờ đủ số vòng để phủ kín viền (mỗi đội xuất hiện đều nhau), cách nhau chỉ 1 xí
+      const cycles = Math.max(1, Math.round(P / (u * (fRW + 10))));
+      const N = u * cycles, step = P / N;
       const ptAt = (d) => { d = ((d % P) + P) % P; if (d < rw) return [rL + d, rT]; d -= rw; if (d < rh) return [rR, rT + d]; d -= rh; if (d < rw) return [rR - d, rB]; d -= rw; return [rL, rB - d]; };
-      for (let i = 0; i < n; i++) {
-        const img = flagImgs[ringNames[i]]; if (!img) continue;
+      for (let i = 0; i < N; i++) {
+        const img = flagImgs[ringNames[i % u]]; if (!img) continue;
         const p = ptAt((i + 0.5) * step);
-        ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 5;
+        ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 4;
         drawFlag(p[0] - fRW / 2, p[1] - fRH / 2, fRW, fRH, img); ctx.restore();
       }
     })();
