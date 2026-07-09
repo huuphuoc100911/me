@@ -5019,9 +5019,9 @@ async function exportRemainingBracket(btn) {
     const k = nDepths === 0 ? 1 : leavesStop(101).length;   // số lá mỗi bên
 
     // Kích thước — ô rộng hơn (đủ tên đội, không cắt "…"), tỷ lệ gần vuông hơn (giãn dọc)
-    const boxW = 264, boxH = 132, M = 54, footerH = 46, headerH = 232;
+    const boxW = 264, boxH = 132, M = 92, footerH = 60, headerH = 232;
     const stride = boxW + 34, centerGap = 58;
-    const rowPitch = k <= 1 ? 200 : k <= 2 ? 600 : k <= 4 ? 300 : 176;
+    const rowPitch = k <= 1 ? 200 : k <= 2 ? 440 : k <= 4 ? 280 : 164;
     const W = 2 * M + 2 * (nDepths >= 1 ? nDepths - 1 : 0) * stride + 3 * boxW + 2 * centerGap;
     const maxRow = k - 1;
     const extraV = maxRow === 0 ? 300 : 0;   // chỉ 1 hàng (bán kết) → thêm đệm dọc cho gần vuông
