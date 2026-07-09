@@ -5625,7 +5625,7 @@ async function exportAllMatches(btn) {
     const finalIt = (koByRound["Final"] || [])[0];
     const thirdIt = (koByRound["Third-place"] || [])[0];
     const hasFinalSec = !!(finalIt || thirdIt);
-    const fCW = 620, fCH = 94, tCW = 470, tCH = 74, fGap = 46, trophyH = 66;   // CHUNG KẾT (phải, to + cúp) · TRANH HẠNG 3 (trái, nhỏ)
+    const fCW = 620, fCH = 96, tCW = 470, tCH = 74, fGap = 46, trophyH = 96;   // CHUNG KẾT (phải, to + cúp) · TRANH HẠNG 3 (trái, nhỏ)
     const finalH = hasFinalSec ? secTitleH + trophyH + fCH : 0;
     const koH = brackSecs.filter((s) => s.L.length || s.R.length).reduce((a, s) => a + s.h + secGap, 0) + (hasFinalSec ? finalH + secGap : 0);
     const H = headerH + (groupKeys.length ? secTitleH + grpGridH + secGap : 0) + koH + footerH;
@@ -5698,6 +5698,14 @@ async function exportAllMatches(btn) {
       ctx.beginPath(); ctx.moveTo(cx - w * 0.5, topY); ctx.lineTo(cx + w * 0.5, topY); ctx.stroke();
       ctx.restore();
     };
+    // Tia sáng 4 cánh (sparkle) trang trí quanh cúp
+    const drawSpark = (cx, cy, r) => {
+      ctx.save(); ctx.fillStyle = "rgba(255,246,214,0.92)"; ctx.shadowColor = "rgba(246,224,146,0.85)"; ctx.shadowBlur = 9;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r); ctx.quadraticCurveTo(cx, cy, cx + r, cy);
+      ctx.quadraticCurveTo(cx, cy, cx, cy + r); ctx.quadraticCurveTo(cx, cy, cx - r, cy);
+      ctx.quadraticCurveTo(cx, cy, cx, cy - r); ctx.closePath(); ctx.fill(); ctx.restore();
+    };
 
     let Y = headerH;
     if (groupKeys.length) {
@@ -5727,8 +5735,20 @@ async function exportAllMatches(btn) {
     if (hasFinalSec) {
       drawSecTitle(Y, "CHUNG KẾT · TRANH HẠNG 3"); Y += secTitleH;
       const totalW = tCW + fGap + fCW, x0 = W / 2 - totalW / 2, cellsTop = Y + trophyH;
-      const tx = x0, fx = x0 + tCW + fGap;            // TRANH HẠNG 3 bên trái (nhỏ) · CHUNG KẾT bên phải (to)
-      drawTrophy(fx + fCW / 2, Y + 3, trophyH - 6);   // cúp vô địch trên ô chung kết
+      const tx = x0, fx = x0 + tCW + fGap, fcx = fx + fCW / 2;   // TRANH HẠNG 3 trái (nhỏ) · CHUNG KẾT phải (to)
+      // Spotlight vàng toả sau ô chung kết → làm nổi bật
+      ctx.save();
+      const spot = ctx.createRadialGradient(fcx, cellsTop + fCH * 0.15, 8, fcx, cellsTop + fCH * 0.15, fCW * 0.78);
+      spot.addColorStop(0, "rgba(246,224,146,0.24)"); spot.addColorStop(0.5, "rgba(233,200,107,0.09)"); spot.addColorStop(1, "rgba(233,200,107,0)");
+      ctx.fillStyle = spot; ctx.fillRect(fx - 70, Y - 8, fCW + 140, trophyH + fCH + 16);
+      ctx.restore();
+      // Cúp vô địch phía trên ô chung kết: dùng ẢNH LOGO FIFA26 (fallback: cúp vector)
+      if (logoImg) {
+        const iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, dh = trophyH - 8, s = dh / ih, dw = iw * s;
+        ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.75)"; ctx.shadowBlur = 26; ctx.drawImage(logoImg, fcx - dw / 2, Y + 3, dw, dh); ctx.restore();
+        drawSpark(fcx - dw / 2 - 15, Y + trophyH * 0.34, 9); drawSpark(fcx + dw / 2 + 15, Y + trophyH * 0.30, 7);
+        drawSpark(fcx + dw / 2 + 24, Y + trophyH * 0.6, 5);
+      } else drawTrophy(fcx, Y + 4, trophyH - 8);
       if (finalIt) drawMatch(fx, cellsTop, fCW, fCH, finalIt, true, 1.5);
       if (thirdIt) drawMatch(tx, cellsTop + (fCH - tCH) / 2, tCW, tCH, thirdIt, false, 1.18);
       Y += trophyH + fCH + secGap;
