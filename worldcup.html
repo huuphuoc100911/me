@@ -4877,7 +4877,7 @@ async function exportRoundImage(btn) {
     const cols = n <= 5 ? 1 : 2;
     const rows = Math.ceil(n / cols);
     const cardW = cols === 1 ? 800 : 700, cardH = 108;
-    const colGap = 56, rowGap = 26, M = 56, headerH = 242, footerH = 46;
+    const colGap = 56, rowGap = 26, M = 56, headerH = 268, footerH = 46;
     const W = 2 * M + cols * cardW + (cols - 1) * colGap;
     const H = headerH + rows * cardH + (rows - 1) * rowGap + footerH;
 
@@ -4901,12 +4901,12 @@ async function exportRoundImage(btn) {
 
     // Header: logo → WORLD CUP 2026 (nhỏ, trên) → TÊN VÒNG (to, dưới)
     let ty = 40;
-    if (logoImg) { const bh = 80, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 28; } else ty = 84;
+    if (logoImg) { const bh = 78, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 46; } else ty = 84;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {}
     ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 16); ctx.fillText("WORLD CUP 2026", W / 2, ty + 16); ctx.restore();
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {}
-    ctx.fillStyle = goldGrad(ty + 28, ty + 70); ctx.font = F(800, 44); ctx.fillText(roundName, W / 2, ty + 62); ctx.restore();
+    ctx.fillStyle = goldGrad(ty + 32, ty + 74); ctx.font = F(800, 44); ctx.fillText(roundName, W / 2, ty + 66); ctx.restore();
 
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke(); };
     // Huy hiệu GIỜ (hoặc tỉ số) ở GIỮA card, có nền bao quanh nổi bật
@@ -5018,16 +5018,17 @@ async function exportRemainingBracket(btn) {
     }
     const k = nDepths === 0 ? 1 : leavesStop(101).length;   // số lá mỗi bên
 
-    // Kích thước
-    const boxW = 208, boxH = 116, M = 54, footerH = 46, headerH = 232;
+    // Kích thước — ô rộng hơn (đủ tên đội, không cắt "…"), tỷ lệ gần vuông hơn (giãn dọc)
+    const boxW = 264, boxH = 132, M = 54, footerH = 46, headerH = 232;
     const stride = boxW + 34, centerGap = 58;
-    const rowPitch = k <= 1 ? 200 : k <= 2 ? 250 : k <= 4 ? 152 : 104;
+    const rowPitch = k <= 1 ? 200 : k <= 2 ? 600 : k <= 4 ? 300 : 176;
     const W = 2 * M + 2 * (nDepths >= 1 ? nDepths - 1 : 0) * stride + 3 * boxW + 2 * centerGap;
     const maxRow = k - 1;
-    const H = headerH + maxRow * rowPitch + boxH + footerH;
+    const extraV = maxRow === 0 ? 300 : 0;   // chỉ 1 hàng (bán kết) → thêm đệm dọc cho gần vuông
+    const H = headerH + maxRow * rowPitch + boxH + footerH + extraV;
     const sideName = (n) => n === 104 ? "C" : (leftSet.has(n) ? "L" : "R");
     const boxX = (n) => { const s = sideName(n); if (s === "C") return W / 2 - boxW / 2; const d = depthOf(roundOf[n]); return s === "L" ? M + d * stride : W - M - boxW - d * stride; };
-    const boxYTop = (n) => headerH + (rowOf[n] || 0) * rowPitch;
+    const boxYTop = (n) => headerH + extraV / 2 + (rowOf[n] || 0) * rowPitch;
     const cyC = (n) => boxYTop(n) + boxH / 2;
 
     // Cờ + logo
@@ -5059,10 +5060,9 @@ async function exportRemainingBracket(btn) {
 
     // Header
     let ty = 40;
-    if (logoImg) { const bh = 80, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 28; } else ty = 84;
+    if (logoImg) { const bh = 80, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 42; } else ty = 84;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("WORLD CUP 2026 · ĐƯỜNG TỚI CHUNG KẾT", W / 2, ty + 16); ctx.restore();
-    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 28, ty + 68); ctx.font = F(800, 42); ctx.fillText("TỪ " + roundName, W / 2, ty + 60); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = goldGrad(ty, ty + 30); ctx.font = F(800, 22); ctx.fillText("WORLD CUP 2026 · ĐƯỜNG TỚI CHUNG KẾT", W / 2, ty + 22); ctx.restore();
 
     // Đường nối
     ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.7;
@@ -5109,7 +5109,7 @@ async function exportRemainingBracket(btn) {
       const side = sideName(n) === "R" ? "R" : "L";
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       // ngày giờ nếu chưa đá
-      if (!done && m.ts) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#ffffff"; ctx.font = F(700, 13.5); ctx.fillText(fmtDT(m.ts), x + boxW / 2, y - 8); }
+      if (!done && m.ts && n !== 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#ffffff"; ctx.font = F(700, 13.5); ctx.fillText(fmtDT(m.ts), x + boxW / 2, y - 8); }
       // khung
       const g = ctx.createLinearGradient(0, y, 0, y + boxH);
       if (emph) { g.addColorStop(0, "rgba(233,200,107,0.18)"); g.addColorStop(1, "rgba(28,44,84,0.9)"); } else { g.addColorStop(0, "rgba(233,200,107,0.08)"); g.addColorStop(1, "rgba(20,33,63,0.92)"); }
@@ -5119,7 +5119,7 @@ async function exportRemainingBracket(btn) {
       ctx.strokeStyle = "rgba(217,178,74,0.32)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, y + rowH); ctx.lineTo(x + boxW - 12, y + rowH); ctx.stroke();
       teamRow(x, y, boxW, rowH, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win));
       teamRow(x, y + rowH, boxW, rowH, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win));
-      if (n === 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 15); ctx.fillText("CHUNG KẾT", x + boxW / 2, y - 12); ctx.restore(); }
+      if (n === 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; const lblY = (!done && m.ts) ? y - 38 : y - 14; ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 16); ctx.fillText("CHUNG KẾT", x + boxW / 2, lblY); ctx.restore(); if (!done && m.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 14); ctx.fillText(fmtDT(m.ts), x + boxW / 2, y - 13); } }
     });
 
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
