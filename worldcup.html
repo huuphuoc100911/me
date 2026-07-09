@@ -509,6 +509,7 @@
     margin-top: 1px; display: block;
   }
   .scorers-table .goals { color: var(--accent-2); font-weight: 800; font-size: 14px; }
+  .scorers-table .assists { color: #6ab7c9; font-weight: 700; }
 
   /* ===== Bảng vàng mọi thời đại ===== */
   .hall-row {
@@ -2925,16 +2926,16 @@ function renderScorers(scorers) {
     meta.textContent = "";
     return;
   }
-  const sorted = pool.sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0));
+  const sorted = pool.sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0) || (b.assists ?? 0) - (a.assists ?? 0));
   meta.textContent = `Top ${sorted.length}`;
   block.innerHTML = `
     <table class="scorers-table">
       <colgroup>
         <col class="s-pos"><col class="s-player">
-        <col class="s-num"><col class="s-num">
+        <col class="s-num"><col class="s-num"><col class="s-num">
       </colgroup>
       <thead>
-        <tr><th>#</th><th style="text-align:left">Cầu thủ</th><th>⚽ Bàn</th><th>Trận</th></tr>
+        <tr><th>#</th><th style="text-align:left">Cầu thủ</th><th>⚽ Bàn</th><th>🅰️ KT</th><th>Trận</th></tr>
       </thead>
       <tbody>
         ${sorted.map((s, i) => `
@@ -2945,6 +2946,7 @@ function renderScorers(scorers) {
               <div class="nm">${s.player || "—"}<small>${s.team || s.nationality || ""}</small></div>
             </div></td>
             <td class="goals">${s.goals ?? 0}</td>
+            <td class="assists">${s.assists ?? 0}</td>
             <td>${s.matches ?? 0}</td>
           </tr>`).join("")}
       </tbody>
@@ -5210,9 +5212,9 @@ async function exportScorers(btn) {
     await Promise.all(list.map(async (s, i) => { const img = await loadImg(flagOf(s)); if (img) flagImgs[i] = img; }));
     const logoImg = await loadImg("/images/worldcup/logo-export.webp");
 
-    const M = 50, headerH = 236, rowH = 70, footerH = 46, W = 920, n = list.length;
+    const M = 50, headerH = 236, rowH = 70, footerH = 46, W = 980, n = list.length;
     const H = headerH + n * rowH + footerH;
-    const listTop = headerH, goalsX = W - M - 150, matchesX = W - M - 34;
+    const listTop = headerH, goalsX = W - M - 244, assistsX = W - M - 134, matchesX = W - M - 34;
 
     const ratio = 2;
     const canvas = document.createElement("canvas"); canvas.width = W * ratio; canvas.height = H * ratio;
@@ -5242,7 +5244,7 @@ async function exportScorers(btn) {
     const nx0 = M + 52 + 52 + 18;   // vị trí bắt đầu tên (rank + flag)
     ctx.save(); try { ctx.letterSpacing = "1.5px"; } catch (e) {} ctx.fillStyle = "#c9b06a"; ctx.font = F(700, 12); ctx.textBaseline = "alphabetic";
     ctx.textAlign = "left"; ctx.fillText("CẦU THỦ", nx0, headerH - 12);
-    ctx.textAlign = "center"; ctx.fillText("BÀN", goalsX, headerH - 12); ctx.fillText("TRẬN", matchesX, headerH - 12);
+    ctx.textAlign = "center"; ctx.fillText("BÀN", goalsX, headerH - 12); ctx.fillText("KT", assistsX, headerH - 12); ctx.fillText("TRẬN", matchesX, headerH - 12);
     ctx.restore();
     ctx.strokeStyle = "rgba(217,178,74,0.35)"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(M, headerH - 2); ctx.lineTo(W - M, headerH - 2); ctx.stroke();
 
@@ -5274,6 +5276,8 @@ async function exportScorers(btn) {
       // bàn thắng
       ctx.textAlign = "center";
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 3; ctx.font = F(800, 28); ctx.fillStyle = goldGrad(cy - 16, cy + 16); ctx.fillText(String(s.goals ?? 0), goalsX, cy + 1); ctx.restore();
+      // kiến tạo (FD có thì hiện, null → 0)
+      ctx.font = F(700, 24); ctx.fillStyle = "#6ab7c9"; ctx.fillText(String(s.assists ?? 0), assistsX, cy + 1);
       // số trận
       ctx.font = F(700, 22); ctx.fillStyle = "#cdd6e6"; ctx.fillText(String(s.matches ?? 0), matchesX, cy + 1);
     });
