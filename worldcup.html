@@ -4980,12 +4980,12 @@ async function exportRoundImage(btn) {
     await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURL(nm)); if (img) flagImgs[nm] = img; }));
     const logoImg = await loadImg("/images/worldcup/logo-export.webp");
 
-    // Bố cục: 1 cột nếu ≤4 trận, 2 cột nếu nhiều hơn → tỉ lệ tự cân theo số trận
+    // Bố cục: mỗi trận 1 card NGANG (đội trái – giờ giữa – đội phải). 1 cột nếu ≤5 trận.
     const n = matches.length;
-    const cols = n <= 4 ? 1 : 2;
+    const cols = n <= 5 ? 1 : 2;
     const rows = Math.ceil(n / cols);
-    const cardW = 640, cardBodyH = 126, dateH = 30, cardH = cardBodyH + dateH;
-    const colGap = 70, rowGap = 34, M = 56, headerH = 214, footerH = 46;
+    const cardW = cols === 1 ? 800 : 700, cardH = 108;
+    const colGap = 56, rowGap = 26, M = 56, headerH = 200, footerH = 46;
     const W = 2 * M + cols * cardW + (cols - 1) * colGap;
     const H = headerH + rows * cardH + (rows - 1) * rowGap + footerH;
 
@@ -5014,47 +5014,55 @@ async function exportRoundImage(btn) {
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {}
     ctx.fillStyle = goldGrad(ty, ty + 46); ctx.font = F(800, 44); ctx.fillText(roundName, W / 2, ty + 38); ctx.restore();
     ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {}
-    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 16); ctx.fillText("WORLD CUP 2026  ·  CÁC TRẬN SẮP DIỄN RA", W / 2, ty + 66); ctx.restore();
+    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 16); ctx.fillText("WORLD CUP 2026", W / 2, ty + 66); ctx.restore();
 
-    // Vẽ 1 dòng đội trong card
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke(); };
-    const teamRow = (x, y, w, h, part, score, pen, isWin) => {
-      const cyR = y + h / 2, flag = part.team ? flagImgs[part.team] : null;
-      if (isWin) { const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, "rgba(233,200,107,0.20)"); g.addColorStop(1, "rgba(233,200,107,0.05)"); ctx.fillStyle = g; ctx.fillRect(x + 2, y + 1, w - 4, h - 2); }
-      ctx.textBaseline = "middle";
-      const fW = 42, fH = 28; let tx = x + 20;
-      if (flag) { drawFlag(x + 20, cyR - fH / 2, fW, fH, flag); tx = x + 20 + fW + 15; }
-      const scRsv = score != null ? (pen != null ? 74 : 46) : 24;
-      ctx.textAlign = "left"; ctx.font = F(800, 23); ctx.fillStyle = isWin ? goldGrad(cyR - 12, cyR + 12) : "#efe2b6";
-      ctx.fillText(clipText((part.label || "").toUpperCase(), (x + w - scRsv) - tx), tx, cyR + 1);
-      if (score != null) {
-        ctx.textAlign = "right"; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3;
-        ctx.font = F(800, 26); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb"; ctx.fillText(String(score), x + w - 18, cyR + 1);
-        const sw = ctx.measureText(String(score)).width; ctx.restore();
-        if (pen != null) { ctx.font = F(700, 14); ctx.fillStyle = "#c9b06a"; ctx.textAlign = "right"; ctx.fillText("(" + pen + ")", x + w - 18 - sw - 6, cyR + 1); }
+    // Huy hiệu GIỜ (hoặc tỉ số) ở GIỮA card, có nền bao quanh nổi bật
+    const drawCenterBadge = (cx, cy, m, done, showPen) => {
+      const bw = 156, bh = 66, bx = cx - bw / 2, by = cy - bh / 2;
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.5)"; ctx.shadowBlur = 12;
+      const g = ctx.createLinearGradient(0, by, 0, by + bh); g.addColorStop(0, "rgba(233,200,107,0.30)"); g.addColorStop(1, "rgba(169,120,29,0.15)");
+      ctx.fillStyle = g; rrect(bx, by, bw, bh, 12); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = goldGrad(by, by + bh); ctx.lineWidth = 2; rrect(bx, by, bw, bh, 12); ctx.stroke();
+      ctx.textAlign = "center";
+      if (done) {
+        ctx.textBaseline = "middle"; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3;
+        ctx.font = F(800, 30); ctx.fillStyle = "#fff6d8"; ctx.fillText(`${m.homeScore} - ${m.awayScore}`, cx, showPen ? cy - 6 : cy + 1); ctx.restore();
+        if (showPen) { ctx.textBaseline = "alphabetic"; ctx.font = F(700, 13); ctx.fillStyle = "#c9b06a"; ctx.fillText(`pen ${m.homePen}-${m.awayPen}`, cx, by + bh - 9); }
+      } else {
+        const d = new Date(m.ts), p = (k) => String(k).padStart(2, "0"); ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText(`${p(d.getDate())}/${p(d.getMonth() + 1)}`, cx, by + 27);
+        ctx.fillStyle = "#fff6d8"; ctx.font = F(800, 24); ctx.fillText(`${p(d.getHours())}:${p(d.getMinutes())}`, cx, by + 53);
       }
     };
 
     matches.forEach((m, idx) => {
       const col = cols === 1 ? 0 : (idx % cols), row = Math.floor(idx / cols);
-      const x = M + col * (cardW + colGap), yTop = headerH + row * (cardH + rowGap);
+      const x = M + col * (cardW + colGap), by = headerH + row * (cardH + rowGap);
       const done = m.homeScore != null && m.awayScore != null;
-      // nhãn ngày giờ (+ tranh hạng 3)
-      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-      const extra = m.round === "Third-place" ? "  ·  🥉 TRANH HẠNG 3" : "";
-      ctx.fillStyle = "#ffffff"; ctx.font = F(700, 15);
-      ctx.fillText((m.ts ? fmtDT(m.ts) : "") + extra || " ", x + cardW / 2, yTop + 19);
-      // khung card
-      const by = yTop + dateH, win = winnerOf(m.num);
+      const win = winnerOf(m.num);
       const pH = sideOf(m, "h"), pA = sideOf(m, "a");
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
-      const g = ctx.createLinearGradient(0, by, 0, by + cardBodyH); g.addColorStop(0, "rgba(233,200,107,0.10)"); g.addColorStop(1, "rgba(20,33,63,0.92)");
-      ctx.fillStyle = g; rrect(x, by, cardW, cardBodyH, 12); ctx.fill();
-      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.4)"; ctx.shadowBlur = 10; ctx.strokeStyle = goldGrad(by, by + cardBodyH); ctx.lineWidth = 2.2; rrect(x, by, cardW, cardBodyH, 12); ctx.stroke(); ctx.restore();
-      const rowH = cardBodyH / 2;
-      ctx.strokeStyle = "rgba(217,178,74,0.35)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 14, by + rowH); ctx.lineTo(x + cardW - 14, by + rowH); ctx.stroke();
-      teamRow(x, by, cardW, rowH, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win));
-      teamRow(x, by + rowH, cardW, rowH, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win));
+      const hWin = !!(win && pH.team === win), aWin = !!(win && pA.team === win);
+      // khung card ngang
+      const g = ctx.createLinearGradient(0, by, 0, by + cardH); g.addColorStop(0, "rgba(233,200,107,0.10)"); g.addColorStop(1, "rgba(20,33,63,0.92)");
+      ctx.fillStyle = g; rrect(x, by, cardW, cardH, 13); ctx.fill();
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.4)"; ctx.shadowBlur = 10; ctx.strokeStyle = goldGrad(by, by + cardH); ctx.lineWidth = 2.2; rrect(x, by, cardW, cardH, 13); ctx.stroke(); ctx.restore();
+      const cx = x + cardW / 2, cyR = by + cardH / 2, badgeHalf = 84, fW = 46, fH = 31;
+      // ĐỘI NHÀ (trái): cờ ở mép trái, tên căn trái
+      const hFlag = pH.team ? flagImgs[pH.team] : null;
+      let htx = x + 24; if (hFlag) { drawFlag(x + 24, cyR - fH / 2, fW, fH, hFlag); htx = x + 24 + fW + 16; }
+      ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.font = F(800, 25); ctx.fillStyle = hWin ? goldGrad(cyR - 13, cyR + 13) : "#eef0f5";
+      ctx.fillText(clipText((pH.label || "").toUpperCase(), (cx - badgeHalf - 16) - htx), htx, cyR + 1);
+      // ĐỘI KHÁCH (phải): cờ ở mép phải, tên căn phải
+      const aFlag = pA.team ? flagImgs[pA.team] : null;
+      let atx = x + cardW - 24; if (aFlag) { drawFlag(x + cardW - 24 - fW, cyR - fH / 2, fW, fH, aFlag); atx = x + cardW - 24 - fW - 16; }
+      ctx.textAlign = "right"; ctx.font = F(800, 25); ctx.fillStyle = aWin ? goldGrad(cyR - 13, cyR + 13) : "#eef0f5";
+      ctx.fillText(clipText((pA.label || "").toUpperCase(), atx - (cx + badgeHalf + 16)), atx, cyR + 1);
+      // GIỜ / tỉ số ở giữa
+      drawCenterBadge(cx, cyR, m, done, showPen);
+      // nhãn tranh hạng 3 (nếu có)
+      if (m.round === "Third-place") { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 12); ctx.fillText("🥉 TRANH HẠNG 3", cx, by - 6); }
     });
 
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
