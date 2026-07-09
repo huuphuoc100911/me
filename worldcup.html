@@ -5065,11 +5065,14 @@ async function exportRemainingBracket(btn) {
     ctx.strokeStyle = goldGrad(0, H); ctx.lineWidth = 3; rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
     ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; rrect(24, 24, W - 48, H - 48, 12); ctx.stroke(); ctx.globalAlpha = 1;
 
-    // Header
-    let ty = 40;
-    if (logoImg) { const bh = 80, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 42; } else ty = 84;
+    // Header: chỉ logo FIFA (đã bỏ dòng chữ) — logo TO & căn giữa vùng đầu
+    if (logoImg) {
+      const bh = 168, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s;
+      const ly = (headerH - dh) / 2;
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.42)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 3;
+      ctx.drawImage(logoImg, W / 2 - dw / 2, ly, dw, dh); ctx.restore();
+    }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = goldGrad(ty, ty + 30); ctx.font = F(800, 22); ctx.fillText("WORLD CUP 2026 · ĐƯỜNG TỚI CHUNG KẾT", W / 2, ty + 22); ctx.restore();
 
     // Đường nối
     ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.7;
@@ -5109,6 +5112,18 @@ async function exportRemainingBracket(btn) {
         ctx.fillText(clipText((part.label || "").toUpperCase(), (flag ? fx : inner) - gap - (x + ins)), x + ins, cyR + 1);
       }
     };
+    // Nhãn ngày–giờ nổi bật: viên thuốc nền vàng nhạt + viền vàng, chữ kem đậm (đặt ngay trên ô)
+    const drawDateBadge = (cx, topY, ts) => {
+      const txt = fmtDT(ts); ctx.font = F(800, 14.5);
+      const bh2 = 27, bw2 = ctx.measureText(txt).width + 26, bx = cx - bw2 / 2, by = topY - bh2 - 7;
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.45)"; ctx.shadowBlur = 9;
+      const g2 = ctx.createLinearGradient(0, by, 0, by + bh2);
+      g2.addColorStop(0, "rgba(233,200,107,0.30)"); g2.addColorStop(1, "rgba(169,120,29,0.15)");
+      ctx.fillStyle = g2; rrect(bx, by, bw2, bh2, bh2 / 2); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = goldGrad(by, by + bh2); ctx.lineWidth = 1.5; rrect(bx, by, bw2, bh2, bh2 / 2); ctx.stroke();
+      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff6d8"; ctx.font = F(800, 14.5);
+      ctx.fillText(txt, cx, by + bh2 / 2 + 0.5); ctx.textBaseline = "alphabetic";
+    };
     drawNodes.forEach((n) => {
       const m = byNum[n]; if (!m) return;
       const emph = n === 104;
@@ -5118,7 +5133,7 @@ async function exportRemainingBracket(btn) {
       const side = sideName(n) === "R" ? "R" : "L";
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       // ngày giờ nếu chưa đá
-      if (!done && m.ts && n !== 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#ffffff"; ctx.font = F(700, 13.5); ctx.fillText(fmtDT(m.ts), x + bw / 2, y - 8); }
+      if (!done && m.ts && n !== 104) drawDateBadge(x + bw / 2, y, m.ts);
       // khung
       const g = ctx.createLinearGradient(0, y, 0, y + bh);
       if (emph) { g.addColorStop(0, "rgba(233,200,107,0.30)"); g.addColorStop(0.5, "rgba(233,200,107,0.12)"); g.addColorStop(1, "rgba(28,44,84,0.94)"); } else { g.addColorStop(0, "rgba(233,200,107,0.08)"); g.addColorStop(1, "rgba(20,33,63,0.92)"); }
@@ -5130,7 +5145,7 @@ async function exportRemainingBracket(btn) {
       ctx.strokeStyle = "rgba(217,178,74,0.32)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, y + rowH); ctx.lineTo(x + bw - 12, y + rowH); ctx.stroke();
       teamRow(x, y, bw, rowH, side, pH, done ? m.homeScore : null, showPen ? m.homePen : null, !!(win && pH.team === win), sc);
       teamRow(x, y + rowH, bw, rowH, side, pA, done ? m.awayScore : null, showPen ? m.awayPen : null, !!(win && pA.team === win), sc);
-      if (n === 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; const lblY = (!done && m.ts) ? y - 42 : y - 16; ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = goldGrad(lblY - 20, lblY + 4); ctx.font = F(800, 22); ctx.fillText("CHUNG KẾT", x + bw / 2, lblY); ctx.restore(); if (!done && m.ts) { ctx.fillStyle = "#ffffff"; ctx.font = F(700, 15); ctx.fillText(fmtDT(m.ts), x + bw / 2, y - 15); } }
+      if (n === 104) { ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; const lblY = (!done && m.ts) ? y - 52 : y - 16; ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = goldGrad(lblY - 20, lblY + 4); ctx.font = F(800, 22); ctx.fillText("CHUNG KẾT", x + bw / 2, lblY); ctx.restore(); if (!done && m.ts) drawDateBadge(x + bw / 2, y, m.ts); }
     });
 
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
