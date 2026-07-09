@@ -2196,7 +2196,7 @@
   <!-- Vua phá lưới -->
   <div class="grid">
     <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">⚽</span> Vua phá lưới <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="scorersMeta">—</span></h2>
+      <h2 style="display:flex;align-items:center;gap:8px"><span class="icon">⚽</span> Vua phá lưới <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0" id="scorersMeta">—</span><button id="scorersShare" class="ko-pred-btn premium" style="margin-left:auto;font-size:11px;padding:5px 12px" title="Xuất ảnh top 10 vua phá lưới">🖼️ Xuất ảnh</button></h2>
       <div id="scorersBlock">
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
         <div class="skel-row"><div class="skeleton skel-line short"></div><div class="skeleton skel-line"></div><div class="skeleton skel-line short"></div></div>
@@ -2953,6 +2953,8 @@ function renderScorers(scorers) {
   block.querySelectorAll("tr[data-player]").forEach((tr) => {
     tr.addEventListener("click", () => openPlayer(tr.dataset.player));
   });
+  const shareBtn = document.getElementById("scorersShare");
+  if (shareBtn && !shareBtn._bound) { shareBtn._bound = true; shareBtn.addEventListener("click", () => exportScorers(shareBtn)); }
 }
 
 /* ===== Player profile modal (Wikipedia) ===== */
@@ -5187,6 +5189,106 @@ async function exportRemainingBracket(btn) {
     if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
   } catch (e) {
     console.warn("[export-remaining]", e);
+    alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
+  }
+}
+
+/* ===== Xuất ảnh TOP 10 VUA PHÁ LƯỚI (cờ + số bàn + số trận) ===== */
+async function exportScorers(btn) {
+  const oldTxt = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
+  try {
+    const all = (window._scorersData || []).filter((s) => s.player && (s.goals || 0) > 0);
+    if (!all.length) { alert("Chưa có dữ liệu vua phá lưới."); return; }
+    const list = all.slice().sort((a, b) => (b.goals - a.goals) || ((b.assists || 0) - (a.assists || 0)) || ((a.matches || 99) - (b.matches || 99))).slice(0, 10);
+
+    const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
+    const flagOf = (s) => flagURL(s.team) || flagURL(s.nationality) || s.teamBadge || null;
+    const flagImgs = {};
+    await Promise.all(list.map(async (s, i) => { const img = await loadImg(flagOf(s)); if (img) flagImgs[i] = img; }));
+    const logoImg = await loadImg("/images/worldcup/logo-export.webp");
+
+    const M = 50, headerH = 236, rowH = 70, footerH = 46, W = 920, n = list.length;
+    const H = headerH + n * rowH + footerH;
+    const listTop = headerH, goalsX = W - M - 150, matchesX = W - M - 34;
+
+    const ratio = 2;
+    const canvas = document.createElement("canvas"); canvas.width = W * ratio; canvas.height = H * ratio;
+    const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const goldGrad = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const clipText = (s, mw) => { s = String(s || ""); if (mw <= 0) return ""; if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+
+    // Nền + tia sáng + bokeh + vignette + khung
+    const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    (function () { const rcx = W / 2, rcy = headerH * 0.4, R = Math.max(W, H) * 0.72, rn = 20, wg = 0.15; const rg = ctx.createRadialGradient(rcx, rcy, 20, rcx, rcy, R); rg.addColorStop(0, "rgba(246,226,150,0.12)"); rg.addColorStop(1, "rgba(246,226,150,0)"); ctx.save(); ctx.fillStyle = rg; for (let i = 0; i < rn; i++) { const a = (i / rn) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(rcx, rcy); ctx.lineTo(rcx + Math.cos(a - wg) * R, rcy + Math.sin(a - wg) * R); ctx.lineTo(rcx + Math.cos(a + wg) * R, rcy + Math.sin(a + wg) * R); ctx.closePath(); ctx.fill(); } ctx.restore(); })();
+    (function () { const hsh = (i, kk) => { const v = Math.sin((i + 1) * kk) * 43758.5453; return v - Math.floor(v); }; ctx.save(); for (let i = 0; i < 20; i++) { const x = hsh(i, 12.9898) * W, y = hsh(i, 78.233) * H, t = hsh(i, 37.719); const rad = 3 + t * 9, a = 0.03 + t * 0.07; const gd = ctx.createRadialGradient(x, y, 0, x, y, rad); gd.addColorStop(0, `rgba(246,224,146,${a})`); gd.addColorStop(1, "rgba(246,224,146,0)"); ctx.fillStyle = gd; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill(); } ctx.restore(); })();
+    const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.72); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)"); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = goldGrad(0, H); ctx.lineWidth = 3; rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
+    ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; rrect(24, 24, W - 48, H - 48, 12); ctx.stroke(); ctx.globalAlpha = 1;
+
+    // Header: logo + WORLD CUP 2026 + VUA PHÁ LƯỚI
+    let ty = 30;
+    if (logoImg) { const bh = 66, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 14; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 22; } else ty = 84;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("WORLD CUP 2026", W / 2, ty + 14); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 30, ty + 74); ctx.font = F(800, 38); ctx.fillText("VUA PHÁ LƯỚI", W / 2, ty + 62); ctx.restore();
+
+    // Nhãn cột + gạch chân header
+    const nx0 = M + 52 + 52 + 18;   // vị trí bắt đầu tên (rank + flag)
+    ctx.save(); try { ctx.letterSpacing = "1.5px"; } catch (e) {} ctx.fillStyle = "#c9b06a"; ctx.font = F(700, 12); ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "left"; ctx.fillText("CẦU THỦ", nx0, headerH - 12);
+    ctx.textAlign = "center"; ctx.fillText("BÀN", goalsX, headerH - 12); ctx.fillText("TRẬN", matchesX, headerH - 12);
+    ctx.restore();
+    ctx.strokeStyle = "rgba(217,178,74,0.35)"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(M, headerH - 2); ctx.lineTo(W - M, headerH - 2); ctx.stroke();
+
+    // Hàng cầu thủ
+    const RANKC = { 1: "#f5c518", 2: "#c4ccd6", 3: "#d08a4e" };
+    list.forEach((s, i) => {
+      const ry = listTop + i * rowH, cy = ry + rowH / 2, top3 = i < 3;
+      const rg = ctx.createLinearGradient(0, ry, 0, ry + rowH);
+      if (top3) { rg.addColorStop(0, `rgba(233,200,107,${0.17 - i * 0.035})`); rg.addColorStop(1, "rgba(20,33,63,0.35)"); }
+      else { rg.addColorStop(0, i % 2 ? "rgba(255,255,255,0.035)" : "rgba(255,255,255,0.012)"); rg.addColorStop(1, "rgba(255,255,255,0.012)"); }
+      ctx.fillStyle = rg; rrect(M, ry + 5, W - 2 * M, rowH - 10, 11); ctx.fill();
+      if (top3) { ctx.save(); ctx.globalAlpha = 0.7; ctx.strokeStyle = goldGrad(ry, ry + rowH); ctx.lineWidth = 1.5; rrect(M, ry + 5, W - 2 * M, rowH - 10, 11); ctx.stroke(); ctx.restore(); }
+      // rank
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.font = F(800, top3 ? 27 : 22); ctx.fillStyle = top3 ? RANKC[i + 1] : "#8fa0c0";
+      ctx.fillText(String(i + 1), M + 24, cy + 1);
+      // cờ
+      const fw = 52, fh = 35, fx = M + 52, fy = cy - fh / 2, img = flagImgs[i];
+      ctx.fillStyle = "#fff"; rrect(fx, fy, fw, fh, 4); ctx.fill();
+      if (img) { ctx.save(); rrect(fx + 1, fy + 1, fw - 2, fh - 2, 3); ctx.clip(); ctx.drawImage(img, fx + 1, fy + 1, fw - 2, fh - 2); ctx.restore(); }
+      ctx.strokeStyle = goldGrad(fy, fy + fh); ctx.lineWidth = 1.4; rrect(fx, fy, fw, fh, 4); ctx.stroke();
+      // tên + đội
+      const nx = fx + fw + 18, nameW = goalsX - 58 - nx;
+      ctx.textAlign = "left";
+      ctx.font = F(800, 21); ctx.fillStyle = top3 ? "#fff6e2" : "#eef0f5";
+      ctx.fillText(clipText((s.player || "").toUpperCase(), nameW), nx, cy - 9);
+      ctx.font = F(600, 13); ctx.fillStyle = "#9fb0cf";
+      ctx.fillText(clipText(s.team || s.nationality || "", nameW), nx, cy + 12);
+      // bàn thắng
+      ctx.textAlign = "center";
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 3; ctx.font = F(800, 28); ctx.fillStyle = goldGrad(cy - 16, cy + 16); ctx.fillText(String(s.goals ?? 0), goalsX, cy + 1); ctx.restore();
+      // số trận
+      ctx.font = F(700, 22); ctx.fillStyle = "#cdd6e6"; ctx.fillText(String(s.matches ?? 0), matchesX, cy + 1);
+    });
+
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+    if (!blob) throw new Error("toBlob trả về rỗng");
+    const file = new File([blob], "vua-pha-luoi-worldcup-2026.png", { type: "image/png" });
+    let shared = false;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "Vua phá lưới World Cup 2026", text: "Top ghi bàn World Cup 2026 ⚽" }); shared = true; }
+      catch (e) { if (e && e.name === "AbortError") shared = true; }
+    }
+    if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
+  } catch (e) {
+    console.warn("[export-scorers]", e);
     alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
