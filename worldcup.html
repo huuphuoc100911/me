@@ -4874,7 +4874,7 @@ async function exportRoundImage(btn) {
     const cols = n <= 5 ? 1 : 2;
     const rows = Math.ceil(n / cols);
     const cardW = cols === 1 ? 800 : 700, cardH = 108;
-    const colGap = 56, rowGap = 26, M = 56, headerH = 200, footerH = 46;
+    const colGap = 56, rowGap = 26, M = 56, headerH = 218, footerH = 46;
     const W = 2 * M + cols * cardW + (cols - 1) * colGap;
     const H = headerH + rows * cardH + (rows - 1) * rowGap + footerH;
 
@@ -4896,14 +4896,14 @@ async function exportRoundImage(btn) {
     ctx.strokeStyle = goldGrad(0, H); ctx.lineWidth = 3; rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
     ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; rrect(24, 24, W - 48, H - 48, 12); ctx.stroke(); ctx.globalAlpha = 1;
 
-    // Header: logo + tên vòng + WORLD CUP 2026
-    let ty = 42;
-    if (logoImg) { const bh = 92, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 14; } else ty = 92;
+    // Header: logo → WORLD CUP 2026 (nhỏ, trên) → TÊN VÒNG (to, dưới)
+    let ty = 40;
+    if (logoImg) { const bh = 80, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 12; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 10; } else ty = 84;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {}
+    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 16); ctx.fillText("WORLD CUP 2026", W / 2, ty + 16); ctx.restore();
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {}
-    ctx.fillStyle = goldGrad(ty, ty + 46); ctx.font = F(800, 44); ctx.fillText(roundName, W / 2, ty + 38); ctx.restore();
-    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {}
-    ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 16); ctx.fillText("WORLD CUP 2026", W / 2, ty + 66); ctx.restore();
+    ctx.fillStyle = goldGrad(ty + 28, ty + 70); ctx.font = F(800, 44); ctx.fillText(roundName, W / 2, ty + 62); ctx.restore();
 
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke(); };
     // Huy hiệu GIỜ (hoặc tỉ số) ở GIỮA card, có nền bao quanh nổi bật
