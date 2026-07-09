@@ -5604,15 +5604,29 @@ async function exportAllMatches(btn) {
     const blockH = grpHeadH + 6 * grpRowH;
     const grpRows = Math.ceil((groupKeys.length || 1) / cols);
     const grpGridH = groupKeys.length ? (grpRows * blockH + (grpRows - 1) * blockGap) : 0;
-    const koSecs = [
-      { label: "VÒNG 1/16 · VÒNG 32 ĐỘI", items: koByRound["Round of 32"] || [] },
-      { label: "VÒNG 1/8", items: koByRound["Round of 16"] || [] },
-      { label: "TỨ KẾT", items: koByRound["Quarter-final"] || [] },
-      { label: "BÁN KẾT", items: koByRound["Semi-final"] || [] },
-      { label: "TRANH HẠNG 3 · CHUNG KẾT", items: [...(koByRound["Third-place"] || []), ...(koByRound["Final"] || [])] }
-    ].filter((s) => s.items.length);
-    koSecs.forEach((s) => { s.rows = Math.max(1, Math.ceil(s.items.length / cols)); s.h = secTitleH + s.rows * koCellH + (s.rows - 1) * koGap; });
-    const koH = koSecs.reduce((a, s) => a + s.h + secGap, 0);
+    // Knockout tách theo NHÁNH: trái (nhánh dưới node 101) bên trái, phải bên phải, chừa khe giữa
+    const centerGap = 100;
+    const koColW = (W - 2 * M - 2 * colGap - centerGap) / 4;
+    const leftSet = new Set((function d(nn) { return (typeof KO_FEED !== "undefined" && KO_FEED[nn]) ? [nn, ...d(KO_FEED[nn][0]), ...d(KO_FEED[nn][1])] : [nn]; })(101));
+    const isLeft = (it) => leftSet.has(it.m.num);
+    const brackSecs = [
+      { label: "VÒNG 1/16 · VÒNG 32 ĐỘI", round: "Round of 32" },
+      { label: "VÒNG 1/8", round: "Round of 16" },
+      { label: "TỨ KẾT", round: "Quarter-final" },
+      { label: "BÁN KẾT", round: "Semi-final" }
+    ];
+    brackSecs.forEach((s) => {
+      const items = koByRound[s.round] || [];
+      s.L = items.filter(isLeft).sort((a, b) => a.m.num - b.m.num);
+      s.R = items.filter((it) => !isLeft(it)).sort((a, b) => a.m.num - b.m.num);
+      s.rows = Math.max(1, Math.ceil(s.L.length / 2), Math.ceil(s.R.length / 2));
+      s.h = secTitleH + s.rows * koCellH + (s.rows - 1) * koGap;
+    });
+    const finalItems = [...(koByRound["Final"] || []), ...(koByRound["Third-place"] || [])];
+    const finalRows = finalItems.length;
+    const finalCellW = 580, finalCellH = 70, finalGap = 20;   // ô chung kết / tranh hạng 3 TO hơn hẳn
+    const finalH = finalItems.length ? secTitleH + finalRows * finalCellH + (finalRows - 1) * finalGap : 0;
+    const koH = brackSecs.filter((s) => s.L.length || s.R.length).reduce((a, s) => a + s.h + secGap, 0) + (finalItems.length ? finalH + secGap : 0);
     const H = headerH + (groupKeys.length ? secTitleH + grpGridH + secGap : 0) + koH + footerH;
 
     const ratio = 2;
@@ -5631,25 +5645,25 @@ async function exportAllMatches(btn) {
     if (logoImg) { const bh = 66, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 14; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 16; } else ty = 76;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("WORLD CUP 2026", W / 2, ty + 14); ctx.restore();
-    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 32, ty + 74); ctx.font = F(800, 34); ctx.fillText("TOÀN BỘ LỊCH THI ĐẤU", W / 2, ty + 62); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 32, ty + 74); ctx.font = F(800, 34); ctx.fillText("LỊCH THI ĐẤU & KẾT QUẢ", W / 2, ty + 62); ctx.restore();
 
     const drawFlag = (x, y, w, h, img) => { if (!img) return; ctx.fillStyle = "#fff"; rrect(x, y, w, h, 3); ctx.fill(); ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 2); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(x, y, w, h, 3); ctx.stroke(); };
-    const drawMatch = (x, y, w, h, it, hero) => {
+    const drawMatch = (x, y, w, h, it, hero, scale) => {
+      scale = scale || 1;
       const m = it.m, done = m.homeScore != null && m.awayScore != null, cy = y + h / 2;
       const showPen = done && m.homeScore === m.awayScore && m.homePen != null && m.awayPen != null;
       const winH = done && (m.homeScore > m.awayScore || (showPen && m.homePen > m.awayPen));
       const winA = done && (m.awayScore > m.homeScore || (showPen && m.awayPen > m.homePen));
-      if (hero) { const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, "rgba(233,200,107,0.22)"); g.addColorStop(1, "rgba(20,33,63,0.5)"); ctx.fillStyle = g; rrect(x, y + 2, w, h - 4, 9); ctx.fill(); ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 1.5; rrect(x, y + 2, w, h - 4, 9); ctx.stroke(); }
-      const fw = 26, fh = 18, gap = 8, cxc = x + w / 2;
-      let center = done ? `${m.homeScore}-${m.awayScore}` : fmtDT(m.ts), cw = done ? 54 : 106;
-      const chalf = cw / 2;
-      ctx.save(); const pg = ctx.createLinearGradient(0, cy - 13, 0, cy + 13); pg.addColorStop(0, "rgba(233,200,107,0.26)"); pg.addColorStop(1, "rgba(169,120,29,0.14)"); ctx.fillStyle = pg; rrect(cxc - chalf, cy - 13, cw, 26, 13); ctx.fill(); ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(cxc - chalf, cy - 13, cw, 26, 13); ctx.stroke(); ctx.restore();
-      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = F(800, done ? 15 : 12.5); ctx.fillStyle = done ? "#fff6d8" : "#e7c86c"; ctx.fillText(center, cxc, cy + 1);
-      if (showPen) { ctx.font = F(700, 9); ctx.fillStyle = "#c9b06a"; ctx.fillText(`p ${m.homePen}-${m.awayPen}`, cxc, cy + 15); }
+      if (hero) { const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, "rgba(233,200,107,0.22)"); g.addColorStop(1, "rgba(20,33,63,0.5)"); ctx.fillStyle = g; rrect(x, y + 2, w, h - 4, 11); ctx.fill(); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.55)"; ctx.shadowBlur = 20; ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 2.2; rrect(x, y + 2, w, h - 4, 11); ctx.stroke(); ctx.restore(); }
+      const fw = 26 * scale, fh = 18 * scale, gap = 8 * scale, cxc = x + w / 2, ph = 13 * scale;
+      const center = done ? `${m.homeScore}-${m.awayScore}` : fmtDT(m.ts), cw = (done ? 54 : 106) * scale, chalf = cw / 2;
+      ctx.save(); const pg = ctx.createLinearGradient(0, cy - ph, 0, cy + ph); pg.addColorStop(0, "rgba(233,200,107,0.26)"); pg.addColorStop(1, "rgba(169,120,29,0.14)"); ctx.fillStyle = pg; rrect(cxc - chalf, cy - ph, cw, ph * 2, ph); ctx.fill(); ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(cxc - chalf, cy - ph, cw, ph * 2, ph); ctx.stroke(); ctx.restore();
+      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = F(800, (done ? 15 : 12.5) * scale); ctx.fillStyle = done ? "#fff6d8" : "#e7c86c"; ctx.fillText(center, cxc, cy + 1);
+      if (showPen) { ctx.font = F(700, 9 * scale); ctx.fillStyle = "#c9b06a"; ctx.fillText(`p ${m.homePen}-${m.awayPen}`, cxc, cy + ph + 3 * scale); }
       const hfx = cxc - chalf - gap - fw; drawFlag(hfx, cy - fh / 2, fw, fh, flagImgs[it.ht]);
-      ctx.textAlign = "right"; ctx.font = F(winH ? 800 : 600, 15); ctx.fillStyle = winH ? "#ffe8a3" : "#e7ebf3"; ctx.fillText(clipText(it.hn, (hfx - gap) - (x + 10)), hfx - gap, cy + 1);
+      ctx.textAlign = "right"; ctx.font = F(winH ? 800 : 600, 15 * scale); ctx.fillStyle = winH ? "#ffe8a3" : "#e7ebf3"; ctx.fillText(clipText(it.hn, (hfx - gap) - (x + 10)), hfx - gap, cy + 1);
       const afx = cxc + chalf + gap; drawFlag(afx, cy - fh / 2, fw, fh, flagImgs[it.at]);
-      ctx.textAlign = "left"; ctx.font = F(winA ? 800 : 600, 15); ctx.fillStyle = winA ? "#ffe8a3" : "#e7ebf3"; ctx.fillText(clipText(it.an, (x + w - 10) - (afx + fw + gap)), afx + fw + gap, cy + 1);
+      ctx.textAlign = "left"; ctx.font = F(winA ? 800 : 600, 15 * scale); ctx.fillStyle = winA ? "#ffe8a3" : "#e7ebf3"; ctx.fillText(clipText(it.an, (x + w - 10) - (afx + fw + gap)), afx + fw + gap, cy + 1);
     };
     const drawSecTitle = (y, label) => {
       const cyc = y + secTitleH / 2; ctx.textAlign = "center"; ctx.textBaseline = "middle";
@@ -5673,11 +5687,21 @@ async function exportAllMatches(btn) {
       });
       Y += grpGridH + secGap;
     }
-    koSecs.forEach((s) => {
+    const orderL = [M + koColW + colGap, M];                                  // trái: cột trong (gần giữa) trước, rồi cột ngoài
+    const rInner = M + 2 * koColW + colGap + centerGap;
+    const orderR = [rInner, rInner + koColW + colGap];                        // phải: cột trong (gần giữa) trước, rồi cột ngoài
+    brackSecs.forEach((s) => {
+      if (!s.L.length && !s.R.length) return;
       drawSecTitle(Y, s.label); Y += secTitleH;
-      s.items.forEach((it, i) => { const c = i % cols, r = Math.floor(i / cols), x = M + c * (blockW + colGap), yy = Y + r * (koCellH + koGap); drawMatch(x, yy, blockW, koCellH, it, it.m.round === "Final"); });
+      s.L.forEach((it, i) => drawMatch(orderL[i % 2], Y + Math.floor(i / 2) * (koCellH + koGap), koColW, koCellH, it));
+      s.R.forEach((it, i) => drawMatch(orderR[i % 2], Y + Math.floor(i / 2) * (koCellH + koGap), koColW, koCellH, it));
       Y += s.rows * koCellH + (s.rows - 1) * koGap + secGap;
     });
+    if (finalItems.length) {
+      drawSecTitle(Y, "CHUNG KẾT · TRANH HẠNG 3"); Y += secTitleH;
+      finalItems.forEach((it, i) => drawMatch(W / 2 - finalCellW / 2, Y + i * (finalCellH + finalGap), finalCellW, finalCellH, it, it.m.round === "Final", 1.4));
+      Y += finalRows * finalCellH + (finalRows - 1) * finalGap + secGap;
+    }
 
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
     if (!blob) throw new Error("toBlob trả về rỗng");
