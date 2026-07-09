@@ -5304,6 +5304,24 @@ async function exportScorers(btn) {
   }
 }
 
+/* ===== Hàng công/thủ mạnh nhất TÍNH TRÊN TOÀN GIẢI (mọi trận đã đá, gồm cả knockout) ===== */
+function _bestAttackDefense(done, standings) {
+  const tgf = {}, tga = {}, tpl = {}, tb = {};
+  (standings || []).forEach((g) => (g.table || []).forEach((t) => { if (t.team) tb[t.team] = t.badge; }));
+  done.forEach((m) => {
+    // homeScore/awayScore = tỉ số 90'/120' (đã tách luân lưu) → đúng là số bàn thắng
+    tgf[m.home] = (tgf[m.home] || 0) + m.homeScore; tga[m.home] = (tga[m.home] || 0) + m.awayScore; tpl[m.home] = (tpl[m.home] || 0) + 1;
+    tgf[m.away] = (tgf[m.away] || 0) + m.awayScore; tga[m.away] = (tga[m.away] || 0) + m.homeScore; tpl[m.away] = (tpl[m.away] || 0) + 1;
+  });
+  let atk = null, def = null;
+  Object.keys(tpl).forEach((tm) => {
+    const gf = tgf[tm] || 0, ga = tga[tm] || 0, pl = tpl[tm] || 0;
+    if (!atk || gf > atk.gf || (gf === atk.gf && ga < atk.ga)) atk = { team: tm, gf, ga, played: pl, badge: tb[tm] };
+    if (!def || ga < def.ga || (ga === def.ga && pl > def.played)) def = { team: tm, gf, ga, played: pl, badge: tb[tm] };
+  });
+  return { atk, def };
+}
+
 /* ===== Nền chung cho ảnh export (navy + tia sáng + bokeh + vignette + khung vàng) ===== */
 function _exportBackdrop(ctx, W, H, rrect, goldGrad) {
   const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
@@ -5421,9 +5439,7 @@ async function exportTournamentStats(btn) {
     const totalMatches = all.length || done.length;
     let topG = done[0], bigW = done[0];
     done.forEach((m) => { if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m; if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m; });
-    const teams = (window._standings || []).flatMap((g) => g.table || []).filter((t) => (t.played || 0) > 0);
-    let atk = null, def = null;
-    teams.forEach((t) => { if (!atk || t.gf > atk.gf || (t.gf === atk.gf && (t.gd || 0) > (atk.gd || 0))) atk = t; if (!def || t.ga < def.ga || (t.ga === def.ga && (t.played || 0) > (def.played || 0))) def = t; });
+    const { atk, def } = _bestAttackDefense(done, window._standings);
 
     const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
     const names = new Set([topG.home, topG.away, bigW.home, bigW.away, atk && atk.team, def && def.team].filter(Boolean));
@@ -5764,12 +5780,7 @@ function renderTournamentStats() {
     if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m;
   });
   // Thống kê cấp đội (lấy từ BXH các bảng)
-  const teams = (window._standings || []).flatMap((g) => g.table || []).filter((t) => (t.played || 0) > 0);
-  let atk = null, def = null;
-  teams.forEach((t) => {
-    if (!atk || t.gf > atk.gf || (t.gf === atk.gf && (t.gd || 0) > (atk.gd || 0))) atk = t;
-    if (!def || t.ga < def.ga || (t.ga === def.ga && (t.played || 0) > (def.played || 0))) def = t;
-  });
+  const { atk, def } = _bestAttackDefense(done, window._standings);
   const ms = (m) => `${esc(m.home)} <b>${m.homeScore}-${m.awayScore}</b> ${esc(m.away)}`;
   const tflag = (t) => t && t.badge ? `<img src="${esc(t.badge)}" alt="" loading="lazy" onerror="this.style.display='none'">` : "";
   const teamRows = (atk || def) ? `
