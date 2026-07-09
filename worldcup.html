@@ -5625,7 +5625,9 @@ async function exportAllMatches(btn) {
     const finalIt = (koByRound["Final"] || [])[0];
     const thirdIt = (koByRound["Third-place"] || [])[0];
     const fCW = 640, fCH = 96, tCW = 480, tCH = 74, trophyH = 96;
-    const finalSecH = finalIt ? secTitleH + trophyH + fCH + secGap : 0;   // CHUNG KẾT: trung tâm (dưới vòng bảng, trên các vòng knockout)
+    const finalDone = !!(finalIt && finalIt.m.homeScore != null && finalIt.m.awayScore != null);
+    const champH = finalDone ? 98 : 0;   // dải "NHÀ VÔ ĐỊCH" nổi bật khi CK đã có kết quả
+    const finalSecH = finalIt ? secTitleH + trophyH + fCH + champH + secGap : 0;   // CHUNG KẾT: trung tâm (dưới vòng bảng, trên các vòng knockout)
     const thirdSecH = thirdIt ? secTitleH + tCH + secGap : 0;             // TRANH HẠNG 3: nằm cuối cùng
     const brackTotalH = brackSecs.filter((s) => s.L.length || s.R.length).reduce((a, s) => a + s.h + secGap, 0);
     const H = headerH + (groupKeys.length ? secTitleH + grpGridH + secGap : 0) + finalSecH + brackTotalH + thirdSecH + footerH;
@@ -5739,7 +5741,31 @@ async function exportAllMatches(btn) {
         drawSpark(fcx - dw / 2 - 15, Y + trophyH * 0.34, 9); drawSpark(fcx + dw / 2 + 15, Y + trophyH * 0.30, 7); drawSpark(fcx + dw / 2 + 24, Y + trophyH * 0.6, 5);
       } else drawTrophy(fcx, Y + 4, trophyH - 8);
       drawMatch(fx, cellsTop, fCW, fCH, finalIt, true, 1.5);
-      Y += trophyH + fCH + secGap;
+      // ===== Đội VÔ ĐỊCH — dải nổi bật khi CK đã có kết quả =====
+      const fm = finalIt.m, fPen = finalDone && fm.homeScore === fm.awayScore && fm.homePen != null && fm.awayPen != null;
+      const champHome = finalDone && (fm.homeScore > fm.awayScore || (fPen && fm.homePen > fm.awayPen));
+      const champAway = finalDone && (fm.awayScore > fm.homeScore || (fPen && fm.awayPen > fm.homePen));
+      if (champHome || champAway) {
+        const cName = champHome ? finalIt.hn : finalIt.an, cKey = champHome ? finalIt.ht : finalIt.at, cFlag = flagImgs[cKey];
+        const bTop = cellsTop + fCH + 18, bH = 74, cyc = bTop + bH / 2, fw2 = 62, fh2 = 42, ggap = 20;
+        ctx.font = F(800, 34); const nameW = ctx.measureText(cName).width;
+        const capTxt = "NHÀ VÔ ĐỊCH THẾ GIỚI 2026"; ctx.font = F(700, 14); const capW = ctx.measureText(capTxt).width + 25 * 3;
+        const contentW = fw2 + ggap + Math.max(nameW, capW), bW = Math.min(W - 2 * M, contentW + 130), bx = W / 2 - bW / 2;
+        // Nền dải vàng + viền phát sáng
+        ctx.save();
+        const pg = ctx.createLinearGradient(0, bTop, 0, bTop + bH); pg.addColorStop(0, "rgba(233,200,107,0.32)"); pg.addColorStop(1, "rgba(120,84,18,0.16)");
+        ctx.fillStyle = pg; rrect(bx, bTop, bW, bH, 15); ctx.fill();
+        ctx.shadowColor = "rgba(246,224,146,0.6)"; ctx.shadowBlur = 24; ctx.strokeStyle = goldGrad(bTop, bTop + bH); ctx.lineWidth = 2.6; rrect(bx, bTop, bW, bH, 15); ctx.stroke();
+        ctx.restore();
+        // Cờ đội vô địch (vòng sáng vàng) + tên lớn
+        const startX = W / 2 - contentW / 2, flagY = cyc - fh2 / 2, txX = startX + fw2 + ggap;
+        ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.75)"; ctx.shadowBlur = 16; drawFlag(startX, flagY, fw2, fh2, cFlag); ctx.restore();
+        ctx.textAlign = "left"; ctx.textBaseline = "middle";
+        ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText(capTxt, txX, cyc - 16); ctx.restore();
+        ctx.fillStyle = goldGrad(cyc - 2, cyc + 24); ctx.font = F(800, 34); ctx.fillText(cName, txX, cyc + 15);
+        drawSpark(bx + 24, cyc, 9); drawSpark(bx + bW - 24, cyc, 9);
+      }
+      Y += trophyH + fCH + champH + secGap;
     }
     const orderL = [M + koColW + colGap, M];                                  // trái: cột trong (gần giữa) trước, rồi cột ngoài
     const rInner = M + 2 * koColW + colGap + centerGap;
