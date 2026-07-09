@@ -5082,6 +5082,26 @@ async function exportRemainingBracket(btn) {
     }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
 
+    // ===== Dải trên cùng: khẩu hiệu + trang trí vàng (lấp khoảng trống) =====
+    (function () {
+      const my = 104, motto = "ROAD TO GLORY";
+      const drawStar = (cx, cy, r) => { ctx.beginPath(); for (let i = 0; i < 8; i++) { const ang = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 === 0 ? r : r * 0.4; const px = cx + Math.cos(ang) * rr, py = cy + Math.sin(ang) * rr; i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); } ctx.closePath(); ctx.fillStyle = goldGrad(cy - r, cy + r); ctx.fill(); };
+      ctx.save(); try { ctx.letterSpacing = "9px"; } catch (e) {} ctx.font = F(800, 27); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      const tw = ctx.measureText(motto).width;
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 6; ctx.fillStyle = goldGrad(my - 17, my + 17); ctx.fillText(motto, W / 2, my + 1); ctx.restore();
+      ctx.restore();
+      const half = tw / 2, gap = 30, lineLen = 96;
+      [-1, 1].forEach((dir) => {
+        const x0 = W / 2 + dir * (half + gap), x1 = x0 + dir * lineLen;
+        const grad = ctx.createLinearGradient(x0, 0, x1, 0);
+        grad.addColorStop(0, "rgba(233,200,107,0.9)"); grad.addColorStop(1, "rgba(233,200,107,0.04)");
+        ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, my); ctx.lineTo(x1, my); ctx.stroke();
+        drawStar(x1, my, 7);                          // sao lớn đầu ngoài
+        drawStar(x0 + dir * 2, my, 3.5);              // chấm sao nhỏ sát chữ
+      });
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    })();
+
     // Đường nối
     ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.7;
     drawNodes.forEach((n) => {
