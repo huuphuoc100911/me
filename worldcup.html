@@ -2148,6 +2148,9 @@
         </div>
       </div>
       <div class="tab-pane" data-pane="standings">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+          <button id="standingsShare" class="ko-pred-btn premium" style="font-size:11px;padding:5px 12px" title="Xuất ảnh bảng xếp hạng 12 bảng">🖼️ Xuất ảnh BXH</button>
+        </div>
         <div class="bxh-wrap" id="bxhBlock">
           <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div></div>
           <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skeleton skel-line"></div></div>
@@ -2189,7 +2192,7 @@
   <!-- Thống kê nhanh giải đấu -->
   <div class="grid">
     <div class="card" style="grid-column: 1 / -1">
-      <h2><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span></h2>
+      <h2 style="display:flex;align-items:center;gap:8px"><span class="icon">📈</span> Thống kê giải đấu <span style="font-size:11px; color:var(--text-fade); font-weight:400; text-transform:none; letter-spacing:0">tính trên các trận đã đá</span><button id="tourStatsShare" class="ko-pred-btn premium" style="margin-left:auto;font-size:11px;padding:5px 12px" title="Xuất ảnh thống kê giải đấu">🖼️ Xuất ảnh</button></h2>
       <div id="tourStatsBlock"><div class="loading-pulse">Sẽ hiển thị khi có trận kết thúc.</div></div>
     </div>
   </div>
@@ -2518,6 +2521,8 @@ function renderStandings(standings) {
       </table>
     </div>
   `).join("");
+  const sBtn = document.getElementById("standingsShare");
+  if (sBtn && !sBtn._bound) { sBtn._bound = true; sBtn.addEventListener("click", () => exportStandings(sBtn)); }
 }
 
 async function loadSports() {
@@ -5299,6 +5304,232 @@ async function exportScorers(btn) {
   }
 }
 
+/* ===== Nền chung cho ảnh export (navy + tia sáng + bokeh + vignette + khung vàng) ===== */
+function _exportBackdrop(ctx, W, H, rrect, goldGrad) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  (function () { const rcx = W / 2, rcy = H * 0.32, R = Math.max(W, H) * 0.72, rn = 20, wg = 0.15; const rg = ctx.createRadialGradient(rcx, rcy, 20, rcx, rcy, R); rg.addColorStop(0, "rgba(246,226,150,0.11)"); rg.addColorStop(1, "rgba(246,226,150,0)"); ctx.save(); ctx.fillStyle = rg; for (let i = 0; i < rn; i++) { const a = (i / rn) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(rcx, rcy); ctx.lineTo(rcx + Math.cos(a - wg) * R, rcy + Math.sin(a - wg) * R); ctx.lineTo(rcx + Math.cos(a + wg) * R, rcy + Math.sin(a + wg) * R); ctx.closePath(); ctx.fill(); } ctx.restore(); })();
+  (function () { const hsh = (i, kk) => { const v = Math.sin((i + 1) * kk) * 43758.5453; return v - Math.floor(v); }; ctx.save(); for (let i = 0; i < 22; i++) { const x = hsh(i, 12.9898) * W, y = hsh(i, 78.233) * H, t = hsh(i, 37.719); const rad = 3 + t * 9, a = 0.03 + t * 0.07; const gd = ctx.createRadialGradient(x, y, 0, x, y, rad); gd.addColorStop(0, `rgba(246,224,146,${a})`); gd.addColorStop(1, "rgba(246,224,146,0)"); ctx.fillStyle = gd; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill(); } ctx.restore(); })();
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.72); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)"); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = goldGrad(0, H); ctx.lineWidth = 3; rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
+  ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; rrect(24, 24, W - 48, H - 48, 12); ctx.stroke(); ctx.globalAlpha = 1;
+}
+
+/* ===== Xuất ảnh BẢNG XẾP HẠNG 12 bảng ===== */
+async function exportStandings(btn) {
+  const oldTxt = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
+  try {
+    const groups = (window._standings || []).filter((g) => g.table && g.table.length);
+    if (!groups.length) { alert("Chưa có dữ liệu bảng xếp hạng."); return; }
+    const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
+    const names = new Set(); groups.forEach((g) => g.table.forEach((t) => { if (t.team) names.add(t.team); }));
+    const flagImgs = {};
+    await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURL(nm)); if (img) flagImgs[nm] = img; }));
+    const logoImg = await loadImg("/images/worldcup/logo-export.webp");
+
+    const cols = groups.length >= 9 ? 4 : groups.length >= 5 ? 3 : Math.max(1, groups.length);
+    const gRows = Math.ceil(groups.length / cols);
+    const cardW = 340, headH = 36, teamH = 34, cardH = headH + 4 * teamH + 8;
+    const M = 44, colGap = 22, rowGap = 22, headerH = 208, footerH = 44;
+    const W = 2 * M + cols * cardW + (cols - 1) * colGap;
+    const H = headerH + gRows * cardH + (gRows - 1) * rowGap + footerH;
+
+    const ratio = 2;
+    const canvas = document.createElement("canvas"); canvas.width = W * ratio; canvas.height = H * ratio;
+    const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const goldGrad = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const clipText = (s, mw) => { s = String(s || ""); if (mw <= 0) return ""; if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+    _exportBackdrop(ctx, W, H, rrect, goldGrad);
+
+    // Header
+    let ty = 28;
+    if (logoImg) { const bh = 64, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 14; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 20; } else ty = 80;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("WORLD CUP 2026", W / 2, ty + 14); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 30, ty + 72); ctx.font = F(800, 36); ctx.fillText("BẢNG XẾP HẠNG", W / 2, ty + 60); ctx.restore();
+
+    const RANKC = { 1: "#f5c518", 2: "#c4ccd6" };
+    groups.forEach((g, gi) => {
+      const c = gi % cols, r = Math.floor(gi / cols);
+      const cx = M + c * (cardW + colGap), cyy = headerH + r * (cardH + rowGap);
+      // nền thẻ
+      const cg = ctx.createLinearGradient(0, cyy, 0, cyy + cardH); cg.addColorStop(0, "rgba(233,200,107,0.08)"); cg.addColorStop(1, "rgba(20,33,63,0.9)");
+      ctx.fillStyle = cg; rrect(cx, cyy, cardW, cardH, 12); ctx.fill();
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.3)"; ctx.shadowBlur = 8; ctx.strokeStyle = goldGrad(cyy, cyy + cardH); ctx.lineWidth = 1.5; rrect(cx, cyy, cardW, cardH, 12); ctx.stroke(); ctx.restore();
+      // tên bảng + nhãn cột
+      const gl = String(g.group || "").replace(/group\s*/i, "").trim();
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.save(); try { ctx.letterSpacing = "1px"; } catch (e) {} ctx.fillStyle = goldGrad(cyy + 8, cyy + 28); ctx.font = F(800, 18); ctx.fillText("BẢNG " + gl.toUpperCase(), cx + 16, cyy + headH / 2 + 1); ctx.restore();
+      const pX = cx + 240, gdX = cx + 282, ptsX = cx + 320;
+      ctx.textAlign = "center"; ctx.font = F(700, 11); ctx.fillStyle = "#9fb0cf";
+      ctx.fillText("Tr", pX, cyy + headH / 2 + 1); ctx.fillText("HS", gdX, cyy + headH / 2 + 1); ctx.fillText("Đ", ptsX, cyy + headH / 2 + 1);
+      ctx.strokeStyle = "rgba(217,178,74,0.28)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + 12, cyy + headH); ctx.lineTo(cx + cardW - 12, cyy + headH); ctx.stroke();
+      // các dòng đội
+      g.table.slice(0, 4).forEach((t, i) => {
+        const ry = cyy + headH + i * teamH, rcy = ry + teamH / 2, q = (t.pos || i + 1) <= 2;
+        if (q) { ctx.fillStyle = `rgba(233,200,107,${0.14 - i * 0.03})`; rrect(cx + 5, ry + 2, cardW - 10, teamH - 4, 7); ctx.fill(); ctx.fillStyle = RANKC[i + 1] || "#e7c86c"; rrect(cx + 5, ry + 4, 3.5, teamH - 8, 2); ctx.fill(); }
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.font = F(800, 15); ctx.fillStyle = q ? (RANKC[t.pos] || "#f5c518") : "#8fa0c0"; ctx.fillText(String(t.pos || i + 1), cx + 22, rcy + 1);
+        const fw = 28, fh = 19, fx = cx + 36, fy = rcy - fh / 2, img = t.team ? flagImgs[t.team] : null;
+        ctx.fillStyle = "#fff"; rrect(fx, fy, fw, fh, 3); ctx.fill();
+        if (img) { ctx.save(); rrect(fx + 1, fy + 1, fw - 2, fh - 2, 2); ctx.clip(); ctx.drawImage(img, fx + 1, fy + 1, fw - 2, fh - 2); ctx.restore(); }
+        ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(fx, fy, fw, fh, 3); ctx.stroke();
+        ctx.textAlign = "left"; ctx.font = F(q ? 800 : 700, 15); ctx.fillStyle = q ? "#fff6e2" : "#dbe2ee";
+        ctx.fillText(clipText(t.team || "", pX - 22 - (fx + fw + 10)), fx + fw + 10, rcy + 1);
+        ctx.textAlign = "center"; ctx.font = F(600, 14); ctx.fillStyle = "#aeb9cc"; ctx.fillText(String(t.played ?? 0), pX, rcy + 1);
+        ctx.fillStyle = "#aeb9cc"; ctx.fillText((t.gd > 0 ? "+" : "") + (t.gd ?? 0), gdX, rcy + 1);
+        ctx.font = F(800, 16); ctx.fillStyle = goldGrad(rcy - 10, rcy + 10); ctx.fillText(String(t.pts ?? 0), ptsX, rcy + 1);
+      });
+    });
+
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+    if (!blob) throw new Error("toBlob trả về rỗng");
+    const file = new File([blob], "bxh-worldcup-2026.png", { type: "image/png" });
+    let shared = false;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "BXH World Cup 2026", text: "Bảng xếp hạng vòng bảng World Cup 2026 ⚽" }); shared = true; }
+      catch (e) { if (e && e.name === "AbortError") shared = true; }
+    }
+    if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
+  } catch (e) {
+    console.warn("[export-standings]", e);
+    alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
+  }
+}
+
+/* ===== Xuất ảnh THỐNG KÊ GIẢI ĐẤU (infographic) ===== */
+async function exportTournamentStats(btn) {
+  const oldTxt = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
+  try {
+    const all = window._allMatches || [];
+    const done = all.filter((m) => m.homeScore != null && m.awayScore != null);
+    if (!done.length) { alert("Chưa có trận nào kết thúc."); return; }
+    const goals = done.reduce((s, m) => s + m.homeScore + m.awayScore, 0);
+    const avg = (goals / done.length).toFixed(2);
+    const cleanSheets = done.reduce((s, m) => s + (m.homeScore === 0 ? 1 : 0) + (m.awayScore === 0 ? 1 : 0), 0);
+    const draws = done.filter((m) => m.homeScore === m.awayScore).length;
+    const goalless = done.filter((m) => m.homeScore === 0 && m.awayScore === 0).length;
+    const btts = done.filter((m) => m.homeScore > 0 && m.awayScore > 0).length;
+    const big3 = done.filter((m) => (m.homeScore + m.awayScore) >= 3).length;
+    const drawPct = Math.round((draws / done.length) * 100), bttsPct = Math.round((btts / done.length) * 100);
+    const totalMatches = all.length || done.length;
+    let topG = done[0], bigW = done[0];
+    done.forEach((m) => { if ((m.homeScore + m.awayScore) > (topG.homeScore + topG.awayScore)) topG = m; if (Math.abs(m.homeScore - m.awayScore) > Math.abs(bigW.homeScore - bigW.awayScore)) bigW = m; });
+    const teams = (window._standings || []).flatMap((g) => g.table || []).filter((t) => (t.played || 0) > 0);
+    let atk = null, def = null;
+    teams.forEach((t) => { if (!atk || t.gf > atk.gf || (t.gf === atk.gf && (t.gd || 0) > (atk.gd || 0))) atk = t; if (!def || t.ga < def.ga || (t.ga === def.ga && (t.played || 0) > (def.played || 0))) def = t; });
+
+    const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
+    const names = new Set([topG.home, topG.away, bigW.home, bigW.away, atk && atk.team, def && def.team].filter(Boolean));
+    const flagImgs = {};
+    await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURL(nm)); if (img) flagImgs[nm] = img; }));
+    const logoImg = await loadImg("/images/worldcup/logo-export.webp");
+
+    const tiles = [
+      { v: String(goals), l: "⚽ Tổng bàn thắng", hero: true },
+      { v: avg, l: "📊 TB bàn / trận" },
+      { v: done.length + "/" + totalMatches, l: "✅ Trận đã đá" },
+      { v: String(cleanSheets), l: "🧤 Lần giữ sạch lưới" },
+      { v: draws + " · " + drawPct + "%", l: "🤝 Trận hòa" },
+      { v: String(goalless), l: "🚫 Trận 0-0" },
+      { v: btts + " · " + bttsPct + "%", l: "🔄 Cả 2 đội ghi bàn" },
+      { v: String(big3), l: "🎯 Trận ≥ 3 bàn" }
+    ];
+    const hls = [
+      { ic: "🔥", lb: "Nhiều bàn nhất", m: topG, tag: (topG.homeScore + topG.awayScore) + " bàn" },
+      { ic: "💥", lb: "Cách biệt lớn nhất", m: bigW, tag: "+" + Math.abs(bigW.homeScore - bigW.awayScore) },
+      atk ? { ic: "⚔️", lb: "Hàng công mạnh nhất", team: atk.team, tag: atk.gf + " bàn" } : null,
+      def ? { ic: "🛡️", lb: "Hàng thủ tốt nhất", team: def.team, tag: "thủng " + def.ga } : null
+    ].filter(Boolean);
+
+    const M = 46, tileGap = 20, hlH = 58, headerH = 214, footerH = 44;
+    const tileW = 252, tileH = 124, cols = 4, tRows = 2;
+    const W = 2 * M + cols * tileW + (cols - 1) * tileGap;
+    const tilesH = tRows * tileH + tileGap, hlsH = hls.length * hlH + (hls.length - 1) * 10;
+    const H = headerH + tilesH + 28 + hlsH + footerH;
+
+    const ratio = 2;
+    const canvas = document.createElement("canvas"); canvas.width = W * ratio; canvas.height = H * ratio;
+    const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const goldGrad = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const clipText = (s, mw) => { s = String(s || ""); if (mw <= 0) return ""; if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+    _exportBackdrop(ctx, W, H, rrect, goldGrad);
+
+    // Header
+    let ty = 28;
+    if (logoImg) { const bh = 64, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s, dh = ih * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 14; ctx.drawImage(logoImg, W / 2 - dw / 2, ty, dw, dh); ctx.restore(); ty += dh + 20; } else ty = 80;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("WORLD CUP 2026", W / 2, ty + 14); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = goldGrad(ty + 30, ty + 72); ctx.font = F(800, 36); ctx.fillText("THỐNG KÊ GIẢI ĐẤU", W / 2, ty + 60); ctx.restore();
+
+    // Tiles
+    tiles.forEach((t, i) => {
+      const c = i % cols, r = Math.floor(i / cols);
+      const x = M + c * (tileW + tileGap), y = headerH + r * (tileH + tileGap);
+      const g = ctx.createLinearGradient(0, y, 0, y + tileH);
+      if (t.hero) { g.addColorStop(0, "rgba(233,200,107,0.26)"); g.addColorStop(1, "rgba(28,44,84,0.9)"); } else { g.addColorStop(0, "rgba(233,200,107,0.09)"); g.addColorStop(1, "rgba(20,33,63,0.9)"); }
+      ctx.fillStyle = g; rrect(x, y, tileW, tileH, 14); ctx.fill();
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.35)"; ctx.shadowBlur = t.hero ? 16 : 8; ctx.strokeStyle = goldGrad(y, y + tileH); ctx.lineWidth = t.hero ? 2.4 : 1.5; rrect(x, y, tileW, tileH, 14); ctx.stroke(); ctx.restore();
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 4; ctx.font = F(800, t.hero ? 52 : 44); ctx.fillStyle = goldGrad(y + 26, y + 26 + (t.hero ? 52 : 44)); ctx.fillText(t.v, x + tileW / 2, y + (t.hero ? 74 : 70)); ctx.restore();
+      ctx.font = F(700, 15); ctx.fillStyle = "#cbd6ea"; ctx.fillText(t.l, x + tileW / 2, y + tileH - 18);
+    });
+
+    // Điểm nhấn
+    const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 3); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 2); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(x, y, w, h, 3); ctx.stroke(); };
+    let hy = headerH + tilesH + 28;
+    hls.forEach((h) => {
+      const rcy = hy + hlH / 2;
+      const g = ctx.createLinearGradient(0, hy, 0, hy + hlH); g.addColorStop(0, "rgba(255,255,255,0.04)"); g.addColorStop(1, "rgba(255,255,255,0.015)");
+      ctx.fillStyle = g; rrect(M, hy, W - 2 * M, hlH, 11); ctx.fill();
+      ctx.strokeStyle = "rgba(217,178,74,0.28)"; ctx.lineWidth = 1; rrect(M, hy, W - 2 * M, hlH, 11); ctx.stroke();
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.font = F(700, 24); ctx.fillText(h.ic, M + 18, rcy + 1);
+      ctx.font = F(700, 16); ctx.fillStyle = "#c9b06a"; ctx.fillText(h.lb, M + 54, rcy + 1);
+      const fw = 40, fh = 27; let vx = M + 240;
+      if (h.m) {
+        drawFlag(vx, rcy - fh / 2, fw, fh, flagImgs[h.m.home]); vx += fw + 10;
+        ctx.textAlign = "left"; ctx.font = F(800, 19); ctx.fillStyle = "#eef0f5"; ctx.fillText(clipText(h.m.home, 200), vx, rcy + 1);
+        ctx.save(); ctx.font = F(800, 20); ctx.fillStyle = goldGrad(rcy - 11, rcy + 11); ctx.textAlign = "center"; ctx.fillText(`${h.m.homeScore} - ${h.m.awayScore}`, W / 2 + 40, rcy + 1); ctx.restore();
+        const ax = W / 2 + 100;
+        drawFlag(ax, rcy - fh / 2, fw, fh, flagImgs[h.m.away]);
+        ctx.textAlign = "left"; ctx.font = F(800, 19); ctx.fillStyle = "#eef0f5"; ctx.fillText(clipText(h.m.away, 200), ax + fw + 10, rcy + 1);
+      } else if (h.team) {
+        drawFlag(vx, rcy - fh / 2, fw, fh, flagImgs[h.team]); vx += fw + 12;
+        ctx.textAlign = "left"; ctx.font = F(800, 21); ctx.fillStyle = "#fff6e2"; ctx.fillText(clipText(h.team, 340), vx, rcy + 1);
+      }
+      // tag phải
+      ctx.font = F(800, 16); const tw = ctx.measureText(h.tag).width, tgx = W - M - 22 - tw;
+      ctx.save(); const tg = ctx.createLinearGradient(0, rcy - 14, 0, rcy + 14); tg.addColorStop(0, "rgba(233,200,107,0.28)"); tg.addColorStop(1, "rgba(169,120,29,0.16)"); ctx.fillStyle = tg; rrect(tgx - 12, rcy - 15, tw + 24, 30, 15); ctx.fill(); ctx.strokeStyle = goldGrad(rcy - 15, rcy + 15); ctx.lineWidth = 1.2; rrect(tgx - 12, rcy - 15, tw + 24, 30, 15); ctx.stroke(); ctx.restore();
+      ctx.textAlign = "left"; ctx.fillStyle = "#fff6d8"; ctx.fillText(h.tag, tgx, rcy + 1);
+      hy += hlH + 10;
+    });
+
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+    if (!blob) throw new Error("toBlob trả về rỗng");
+    const file = new File([blob], "thong-ke-worldcup-2026.png", { type: "image/png" });
+    let shared = false;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "Thống kê World Cup 2026", text: "Thống kê giải World Cup 2026 ⚽" }); shared = true; }
+      catch (e) { if (e && e.name === "AbortError") shared = true; }
+    }
+    if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
+  } catch (e) {
+    console.warn("[export-stats]", e);
+    alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
+  }
+}
+
 /* ===== Cuộc đua suất hạng 3: xếp hạng 12 đội hạng 3, tô đậm 8 đội đi tiếp ===== */
 function renderThirdRace() {
   const block = document.getElementById("thirdRaceBlock");
@@ -5560,6 +5791,8 @@ function renderTournamentStats() {
       <div class="row">💥 <span class="lb">Cách biệt lớn nhất</span> ${ms(bigW)} <span class="tag">+${Math.abs(bigW.homeScore - bigW.awayScore)}</span></div>
       ${teamRows}
     </div>`;
+  const tBtn = document.getElementById("tourStatsShare");
+  if (tBtn && !tBtn._bound) { tBtn._bound = true; tBtn.addEventListener("click", () => exportTournamentStats(tBtn)); }
 }
 
 /* Đồng hồ đếm ngược 3 trận knockout kế tiếp (cập nhật mỗi giây) */
