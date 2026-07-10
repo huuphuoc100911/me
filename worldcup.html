@@ -6037,16 +6037,20 @@ async function exportTeamJourney(teamName, btn) {
     _exportBackdrop(ctx, W, H, rrect, goldGrad);
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 3); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 2); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(x, y, w, h, 3); ctx.stroke(); };
 
-    // Header: cờ to + tên đội + phụ đề
-    let hy = 34;
-    if (logoImg) { const bh = 44, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; ctx.save(); ctx.globalAlpha = 0.9; ctx.drawImage(logoImg, W - M - dw, 26, dw, bh); ctx.restore(); }
-    const bigF = flagImgs[teamName];
-    const bfw = 116, bfh = 78; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 12; drawFlag(M, hy, bfw, bfh, bigF); ctx.restore();
-    const tx = M + bfw + 22;
+    // Header: cờ + tên đội (căn GIỮA chiều dọc) + cúp to (sao lấp lánh) góc phải
+    const cyH = headerH / 2; let logoDw = 0;
+    if (logoImg) {
+      const bh = 78, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; logoDw = dw;
+      const lcx = W - M - dw / 2;
+      if (typeof _drawSparkles === "function") _drawSparkles(ctx, lcx, cyH, dw / 2, bh / 2);
+      ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 16; ctx.drawImage(logoImg, lcx - dw / 2, cyH - bh / 2, dw, bh); ctx.restore();
+    }
+    const bfw = 120, bfh = 80; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 12; drawFlag(M, cyH - bfh / 2, bfw, bfh, flagImgs[teamName]); ctx.restore();
+    const tx = M + bfw + 24, nameMaxW = (W - M - logoDw - 28) - tx;
     ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("HÀNH TRÌNH · WORLD CUP 2026", tx, hy + 20); ctx.restore();
-    ctx.fillStyle = goldGrad(hy + 30, hy + 74); ctx.font = F(800, 46); ctx.fillText(clipText(teamName.toUpperCase(), W - M - tx), tx, hy + 66);
-    if (wc.group) { ctx.fillStyle = "#c9d3e6"; ctx.font = F(600, 16); ctx.fillText(`Bảng ${wc.group}${wc.pos ? ` · Hạng ${wc.pos}` : ""}`, tx, hy + 92); }
+    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("HÀNH TRÌNH · WORLD CUP 2026", tx, cyH - 30); ctx.restore();
+    ctx.fillStyle = goldGrad(cyH - 30, cyH + 14); ctx.font = F(800, 46); ctx.fillText(clipText(teamName.toUpperCase(), nameMaxW), tx, cyH + 12);
+    if (wc.group) { ctx.fillStyle = "#c9d3e6"; ctx.font = F(600, 16); ctx.fillText(`Bảng ${wc.group}${wc.pos ? ` · Hạng ${wc.pos}` : ""}`, tx, cyH + 40); }
 
     // Dải thành tích: Trận · T-H-B · Bàn thắng · Bàn thua · Hiệu số
     const gd = GF - GA;
