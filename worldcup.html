@@ -2137,7 +2137,7 @@
 
   <!-- Trận sắp tới (carousel 4 trận) -->
   <div class="next-hero" id="nextHero" style="display:none">
-    <div class="lbl">⚡ <span id="nhLbl">Trận tiếp theo</span><button id="nhExport" class="nh-export" title="Xuất poster đếm ngược trận này">🖼️ Poster</button></div>
+    <div class="lbl">⚡ <span id="nhLbl">Trận tiếp theo</span><button id="nhExport" class="nh-export" title="Xuất poster trận đấu (ảnh dọc, đăng story)">🖼️ Poster</button></div>
     <div class="nh-track" id="nhTrack"></div>
     <div class="nh-dots" id="nhDots"></div>
   </div>
@@ -5479,6 +5479,16 @@ function _drawSparkles(ctx, cx, cy, hw, hh) {
   spark(cx - hw + hw * 0.10, cy - hh - hh * 0.12, hh * 0.10, 0.85);
   spark(cx + hw - hw * 0.10, cy - hh - hh * 0.16, hh * 0.11, 0.85);
 }
+// Đổi tên vòng (kể cả mã thô của Football-Data: LAST_16, QUARTER_FINALS…) → tiếng Việt
+function _roundVI(r) {
+  const M = {
+    "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Third-place": "Tranh hạng 3", "Final": "Chung kết",
+    "LAST_32": "Vòng 1/16", "LAST_16": "Vòng 1/8", "ROUND_OF_32": "Vòng 1/16", "ROUND_OF_16": "Vòng 1/8",
+    "QUARTER_FINALS": "Tứ kết", "QUARTER_FINAL": "Tứ kết", "SEMI_FINALS": "Bán kết", "SEMI_FINAL": "Bán kết",
+    "THIRD_PLACE": "Tranh hạng 3", "FINAL": "Chung kết", "GROUP_STAGE": "Vòng bảng"
+  };
+  return M[r] || r;
+}
 function _exportBackdrop(ctx, W, H, rrect, goldGrad) {
   const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
@@ -6128,12 +6138,11 @@ async function exportMatchReport(match, btn) {
     const winner = done && typeof matchWinner === "function" ? matchWinner(match) : null;
     const hWin = winner === home, aWin = winner === away;
     const penDraw = match.homePen != null && match.awayPen != null && match.homeScore === match.awayScore;
-    const RVI = { "Round of 32": "Vòng 1/16", "Round of 16": "Vòng 1/8", "Quarter-final": "Tứ kết", "Semi-final": "Bán kết", "Third-place": "Tranh hạng 3", "Final": "Chung kết" };
-    const roundLabel = match.group || RVI[match.round] || match.round || "";
+    const roundLabel = match.group || _roundVI(match.round) || "";
     const dt = match.ts ? new Date(match.ts) : null; const p2 = (k) => String(k).padStart(2, "0");
     const when = dt ? `${p2(dt.getDate())}/${p2(dt.getMonth() + 1)}/${dt.getFullYear()} · ${p2(dt.getHours())}:${p2(dt.getMinutes())}` : "";
 
-    const W = 860, M = 48, headerH = 116, vsH = 188, tlTitleH = 46, evRowH = 42, soRowH = 34, footerH = 46;
+    const W = 860, M = 48, headerH = 148, vsH = 188, tlTitleH = 46, evRowH = 48, soRowH = 34, footerH = 46;
     const soRows = so ? Math.max((so.home || []).length, (so.away || []).length) : 0;
     const tlH = evs.length ? tlTitleH + evs.length * evRowH + 16 : 0;
     const soH = so ? tlTitleH + soRows * soRowH + 16 : 0;
@@ -6149,10 +6158,10 @@ async function exportMatchReport(match, btn) {
     _exportBackdrop(ctx, W, H, rrect, goldGrad);
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.2; rrect(x, y, w, h, 4); ctx.stroke(); };
 
-    // Header: logo + WORLD CUP 2026 + vòng · ngày
-    if (logoImg) { const bh = 46, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 10; ctx.drawImage(logoImg, W / 2 - dw / 2, 22, dw, bh); ctx.restore(); }
+    // Header: cúp (có sao lấp lánh) + WORLD CUP 2026 + vòng · ngày
+    if (logoImg) { const bh = 62, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, 26 + bh / 2, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logoImg, W / 2 - dw / 2, 26, dw, bh); ctx.restore(); }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 13); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel.toUpperCase() : ""), W / 2, headerH - 20); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel.toUpperCase() : ""), W / 2, headerH - 18); ctx.restore();
 
     // Khối VS: cờ + tên 2 đội, tỉ số lớn ở giữa
     const vy = headerH, midY = vy + vsH / 2 - 6, fw = 118, fh = 79;
@@ -6177,27 +6186,30 @@ async function exportMatchReport(match, btn) {
       ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(M, cyc); ctx.lineTo(W / 2 - tw / 2 - 20, cyc); ctx.moveTo(W / 2 + tw / 2 + 20, cyc); ctx.lineTo(W - M, cyc); ctx.stroke();
       ctx.fillStyle = goldGrad(cyc - 12, cyc + 12); ctx.fillText(label, W / 2, cyc + 1); ctx.restore();
     };
-    const evIcon = (e) => e.type === "goal" ? (e.kind === "OWN" ? "🥅" : e.kind === "PENALTY" ? "🎯" : "⚽") : (e.type === "red" ? "🟥" : e.type === "yellowred" ? "🟨" : "🟨");
+    const drawEvIcon = (cx, cy, e) => {
+      if (e.type === "goal") { ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = F(400, 21); ctx.fillText(e.kind === "OWN" ? "🥅" : e.kind === "PENALTY" ? "🎯" : "⚽", cx, cy + 1); return; }
+      const cw = 13, ch = 18, card = (col, dx) => { ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 3; ctx.fillStyle = col; rrect(cx + dx - cw / 2, cy - ch / 2, cw, ch, 2.5); ctx.fill(); ctx.restore(); };
+      if (e.type === "yellowred") { card("#f5b301", -4.5); card("#ef4444", 4.5); }
+      else if (e.type === "red") card("#ef4444", 0);
+      else card("#f5b301", 0);
+    };
     const evName = (e) => (e.player || "—") + (e.type === "goal" && e.kind === "PENALTY" ? " (pen)" : e.type === "goal" && e.kind === "OWN" ? " (p.l.n)" : "");
 
     let Y = vy + vsH;
     if (evs.length) {
       drawTlTitle(Y, "DIỄN BIẾN TRẬN ĐẤU"); Y += tlTitleH;
-      const cxm = W / 2, half = 30;
+      const cxm = W / 2, pw = 58, ph = 28, pillHalf = pw / 2, icoL = cxm - pillHalf - 28, icoR = cxm + pillHalf + 28;
       evs.forEach((e) => {
-        const cy = Y + evRowH / 2, isHome = e.teamSide === "home";
-        // pill phút ở giữa
+        const cy = Y + evRowH / 2, isHome = e.teamSide === "home", goal = e.type === "goal";
         const min = (e.minute != null ? `${e.minute}${e.added ? "+" + e.added : ""}'` : "");
-        ctx.save(); const pw = 52, ph = 26; ctx.fillStyle = "rgba(233,200,107,0.14)"; rrect(cxm - pw / 2, cy - ph / 2, pw, ph, ph / 2); ctx.fill(); ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1; rrect(cxm - pw / 2, cy - ph / 2, pw, ph, ph / 2); ctx.stroke(); ctx.restore();
-        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 13); ctx.fillText(min, cxm, cy + 1);
-        const ico = evIcon(e), nm = evName(e), goal = e.type === "goal";
-        ctx.font = F(goal ? 800 : 700, 17); ctx.fillStyle = goal ? "#fff6d8" : "#d7deea";
+        ctx.save(); ctx.fillStyle = "rgba(233,200,107,0.14)"; rrect(cxm - pillHalf, cy - ph / 2, pw, ph, ph / 2); ctx.fill(); ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1; rrect(cxm - pillHalf, cy - ph / 2, pw, ph, ph / 2); ctx.stroke(); ctx.restore();
+        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 13.5); ctx.fillText(min, cxm, cy + 1);
         if (isHome) {
-          ctx.textAlign = "right"; const nx = cxm - half - 26; ctx.fillText(clipText(nm, nx - M - 6), nx, cy + 1);
-          ctx.textAlign = "left"; ctx.font = F(400, 18); ctx.fillText(ico, cxm - half - 22, cy + 1);
+          ctx.fillStyle = "#fff6d8"; drawEvIcon(icoL, cy, e);
+          ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillStyle = goal ? "#fff6d8" : "#d7deea"; ctx.font = F(goal ? 800 : 700, 18); ctx.fillText(clipText(evName(e), (icoL - 18) - M), icoL - 18, cy + 1);
         } else {
-          ctx.textAlign = "left"; const nx = cxm + half + 26; ctx.fillText(clipText(nm, (W - M) - nx - 6), nx, cy + 1);
-          ctx.textAlign = "right"; ctx.font = F(400, 18); ctx.fillText(ico, cxm + half + 22, cy + 1);
+          ctx.fillStyle = "#fff6d8"; drawEvIcon(icoR, cy, e);
+          ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = goal ? "#fff6d8" : "#d7deea"; ctx.font = F(goal ? 800 : 700, 18); ctx.fillText(clipText(evName(e), (W - M) - (icoR + 18)), icoR + 18, cy + 1);
         }
         Y += evRowH;
       });
@@ -6242,20 +6254,34 @@ async function exportCountdownPoster(match, btn) {
   if (btn) { btn.disabled = true; btn.textContent = "⏳…"; }
   try {
     if (!match) { alert("Chưa có trận sắp diễn ra."); return; }
-    const home = match.home, away = match.away;
+    const home = match.home, away = match.away, all = window._allMatches || [];
     const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
     const [hImg, aImg, logoImg] = await Promise.all([loadImg(flagURL(home) || match.homeBadge), loadImg(flagURL(away) || match.awayBadge), loadImg("/images/worldcup/logo-export.webp")]);
-    const RVI = { "Round of 32": "VÒNG 1/16", "Round of 16": "VÒNG 1/8", "Quarter-final": "TỨ KẾT", "Semi-final": "BÁN KẾT", "Third-place": "TRANH HẠNG 3", "Final": "CHUNG KẾT" };
-    const roundLabel = (match.group || RVI[match.round] || match.round || "").toString().toUpperCase();
+    const roundLabel = (match.group || _roundVI(match.round) || "").toString().toUpperCase();
     const dt = match.ts ? new Date(match.ts) : null; const p2 = (k) => String(k).padStart(2, "0");
     const wd = dt ? ["CHỦ NHẬT", "THỨ HAI", "THỨ BA", "THỨ TƯ", "THỨ NĂM", "THỨ SÁU", "THỨ BẢY"][dt.getDay()] : "";
     const when = dt ? `${wd}, ${p2(dt.getDate())}/${p2(dt.getMonth() + 1)}/${dt.getFullYear()} · ${p2(dt.getHours())}:${p2(dt.getMinutes())}` : "";
-    const diff = Math.max(0, (match.ts || 0) - Date.now());
-    const dd = Math.floor(diff / 86400000), hh = Math.floor((diff % 86400000) / 3600000), mm = Math.floor((diff % 3600000) / 60000);
     const live = match.ts && Date.now() >= match.ts;
 
-    const W = 820, M = 50, headerH = 116, bannerH = 60, vsH = 250, cdH = live ? 130 : 196, metaH = 62, footerH = 46;
-    const H = headerH + bannerH + vsH + cdH + metaH + footerH;
+    // Dữ liệu so sánh (luôn đúng dù xem lúc nào)
+    const wcH = typeof teamWcStats === "function" ? teamWcStats(home) : { form: [], group: null, pos: null };
+    const wcA = typeof teamWcStats === "function" ? teamWcStats(away) : { form: [], group: null, pos: null };
+    const rec = (t) => { const dn = all.filter((m) => (m.home === t || m.away === t) && m.homeScore != null && m.awayScore != null); let W = 0, D = 0, L = 0, GF = 0, GA = 0; dn.forEach((m) => { const hh = m.home === t; const gf = hh ? m.homeScore : m.awayScore, ga = hh ? m.awayScore : m.homeScore; GF += gf; GA += ga; if (gf > ga) W++; else if (gf < ga) L++; else D++; }); return { W, D, L, GF, GA, P: dn.length }; };
+    const rH = rec(home), rA = rec(away);
+    const scorerOf = (t) => (window._scorersData || []).filter((s) => s.team === t && (s.goals || 0) > 0).sort((a, b) => b.goals - a.goals)[0] || null;
+    const scH = scorerOf(home), scA = scorerOf(away);
+    const posTxt = (wc) => wc.group && wc.pos ? `${wc.pos === 1 ? "Nhất" : wc.pos === 2 ? "Nhì" : "Hạng " + wc.pos} bảng ${wc.group}` : null;
+    const cats = [];
+    if ((wcH.form || []).length || (wcA.form || []).length) cats.push({ label: "PHONG ĐỘ GẦN ĐÂY", kind: "form", h: wcH.form, a: wcA.form });
+    if (rH.P || rA.P) { cats.push({ label: "THÀNH TÍCH (T-H-B)", kind: "text", h: `${rH.W}-${rH.D}-${rH.L}`, a: `${rA.W}-${rA.D}-${rA.L}` }); cats.push({ label: "BÀN THẮNG · BÀN THUA", kind: "text", h: `${rH.GF} · ${rH.GA}`, a: `${rA.GF} · ${rA.GA}` }); }
+    if (scH || scA) cats.push({ label: "GHI BÀN NHIỀU NHẤT", kind: "scorer", h: scH, a: scA });
+    const pth = posTxt(wcH), pta = posTxt(wcA);
+    if (pth || pta) cats.push({ label: "VỊ TRÍ VÒNG BẢNG", kind: "text", h: pth || "—", a: pta || "—" });
+
+    // Bố cục DỌC (đăng story)
+    const W = 840, M = 52, headerH = 152, bannerH = 64, vsH = 300, kickH = 88, cmpHeadH = 54, catH = 84, footerH = 40;
+    const cmpH = cats.length ? cmpHeadH + cats.length * catH : 0;
+    const H = headerH + bannerH + vsH + kickH + cmpH + footerH;
     const ratio = 2;
     const canvas = document.createElement("canvas"); canvas.width = W * ratio; canvas.height = H * ratio;
     const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
@@ -6266,63 +6292,76 @@ async function exportCountdownPoster(match, btn) {
     _exportBackdrop(ctx, W, H, rrect, goldGrad);
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 5); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 4); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 2; rrect(x, y, w, h, 5); ctx.stroke(); };
 
-    // Header logo + WORLD CUP 2026
-    if (logoImg) { const bh = 48, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 10; ctx.drawImage(logoImg, W / 2 - dw / 2, 22, dw, bh); ctx.restore(); }
+    // Header: cúp (sao lấp lánh) + WORLD CUP 2026 · vòng
+    if (logoImg) { const bh = 64, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, 26 + bh / 2, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logoImg, W / 2 - dw / 2, 26, dw, bh); ctx.restore(); }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026", W / 2, headerH - 18); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel : ""), W / 2, headerH - 20); ctx.restore();
 
-    // Banner "TRẬN TÂM ĐIỂM" + vòng
+    // Banner
     const byc = headerH + bannerH / 2;
-    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.font = F(800, 26); ctx.textBaseline = "middle";
+    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.font = F(800, 27); ctx.textBaseline = "middle";
     const lbl = live ? "ĐANG DIỄN RA" : "TRẬN TÂM ĐIỂM"; const tw = ctx.measureText(lbl).width;
     ctx.strokeStyle = "rgba(217,178,74,0.45)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(M + 20, byc); ctx.lineTo(W / 2 - tw / 2 - 22, byc); ctx.moveTo(W / 2 + tw / 2 + 22, byc); ctx.lineTo(W - M - 20, byc); ctx.stroke();
     ctx.fillStyle = live ? "#f87171" : goldGrad(byc - 14, byc + 14); ctx.fillText(lbl, W / 2, byc + 1); ctx.restore();
 
-    // VS block: 2 cờ lớn + tên, VS phát sáng ở giữa
-    const vy = headerH + bannerH, midY = vy + vsH / 2 - 14, fw = 168, fh = 112;
-    const hcx = W * 0.265, acx = W * 0.735;
-    if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, midY, 46, 44);
+    // VS block
+    const vy = headerH + bannerH, midY = vy + vsH / 2 - 18, fw = 184, fh = 122, hcx = W * 0.27, acx = W * 0.73;
+    if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, midY, 48, 46);
     ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.45)"; ctx.shadowBlur = 16; drawFlag(hcx - fw / 2, midY - fh / 2, fw, fh, hImg); drawFlag(acx - fw / 2, midY - fh / 2, fw, fh, aImg); ctx.restore();
-    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(800, 27); ctx.fillStyle = "#f2f5fa";
-    ctx.fillText(clipText(home.toUpperCase(), W * 0.4), hcx, midY + fh / 2 + 40);
-    ctx.fillText(clipText(away.toUpperCase(), W * 0.4), acx, midY + fh / 2 + 40);
-    ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.6)"; ctx.shadowBlur = 24; ctx.fillStyle = goldGrad(midY - 34, midY + 34); ctx.font = F(800, 68); ctx.textBaseline = "middle"; ctx.fillText("VS", W / 2, midY); ctx.restore();
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(800, 28); ctx.fillStyle = "#f2f5fa";
+    ctx.fillText(clipText(home.toUpperCase(), W * 0.42), hcx, midY + fh / 2 + 42);
+    ctx.fillText(clipText(away.toUpperCase(), W * 0.42), acx, midY + fh / 2 + 42);
+    ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.6)"; ctx.shadowBlur = 24; ctx.fillStyle = goldGrad(midY - 36, midY + 36); ctx.font = F(800, 72); ctx.textBaseline = "middle"; ctx.fillText("VS", W / 2, midY); ctx.restore();
 
-    // Đồng hồ đếm ngược (ảnh tĩnh = mốc lúc xuất) hoặc "KICK OFF"
-    const cy0 = vy + vsH;
-    if (live) {
-      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#f87171"; ctx.font = F(800, 30);
-      ctx.fillText("🔴 Trận đấu đã bắt đầu", W / 2, cy0 + cdH / 2);
-    } else {
-      const tiles = [[dd, "NGÀY"], [hh, "GIỜ"], [mm, "PHÚT"]];
-      const tw2 = 176, tgap = 22, th = 132, totW = tiles.length * tw2 + (tiles.length - 1) * tgap, x0 = W / 2 - totW / 2, ty0 = cy0 + (cdH - th) / 2 - 6;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#9fb0cc"; ctx.font = F(700, 13); ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillText("THỜI GIAN CÒN LẠI", W / 2, ty0 - 12); ctx.restore();
-      tiles.forEach((t, i) => {
-        const x = x0 + i * (tw2 + tgap);
-        const bgc = ctx.createLinearGradient(0, ty0, 0, ty0 + th); bgc.addColorStop(0, "rgba(233,200,107,0.16)"); bgc.addColorStop(1, "rgba(20,33,63,0.78)");
-        ctx.fillStyle = bgc; rrect(x, ty0, tw2, th, 14); ctx.fill(); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.35)"; ctx.shadowBlur = 14; ctx.strokeStyle = goldGrad(ty0, ty0 + th); ctx.lineWidth = 2; rrect(x, ty0, tw2, th, 14); ctx.stroke(); ctx.restore();
-        ctx.textBaseline = "alphabetic"; ctx.fillStyle = goldGrad(ty0 + 26, ty0 + 92); ctx.font = F(800, 68); ctx.fillText(String(t[0]), x + tw2 / 2, ty0 + 84);
-        ctx.fillStyle = "#c9d3e6"; ctx.font = F(700, 15); ctx.save(); try { ctx.letterSpacing = "2px"; } catch (e) {} ctx.fillText(t[1], x + tw2 / 2, ty0 + 114); ctx.restore();
+    // Giờ đá (nổi bật, tĩnh nên luôn đúng)
+    const ky = vy + vsH, kcy = ky + kickH / 2;
+    ctx.save();
+    const kbg = ctx.createLinearGradient(0, ky + 12, 0, ky + kickH - 8); kbg.addColorStop(0, "rgba(233,200,107,0.14)"); kbg.addColorStop(1, "rgba(20,33,63,0.5)");
+    ctx.fillStyle = kbg; rrect(M, ky + 12, W - 2 * M, kickH - 20, 12); ctx.fill(); ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1.4; rrect(M, ky + 12, W - 2 * M, kickH - 20, 12); ctx.stroke(); ctx.restore();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff6d8"; ctx.font = F(800, 21);
+    ctx.fillText("🗓️ " + when + (match.venue ? "   📍 " + match.venue : ""), W / 2, kcy + 1);
+
+    // So sánh trước trận
+    const drawForm = (cx, cy, form) => {
+      const f = (form || []).slice(-5);
+      if (!f.length) { ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#8fa0bd"; ctx.font = F(600, 15); ctx.fillText("—", cx, cy); return; }
+      const dw = 26, gap = 7, total = f.length * dw + (f.length - 1) * gap; let x = cx - total / 2;
+      f.forEach((r) => { const col = r.res === "W" ? "#22c55e" : r.res === "L" ? "#ef4444" : "#94a3b8"; ctx.fillStyle = col; rrect(x, cy - dw / 2, dw, dw, 6); ctx.fill(); ctx.fillStyle = "#0b1220"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = F(800, 13); ctx.fillText(r.res === "W" ? "T" : r.res === "L" ? "B" : "H", x + dw / 2, cy + 1); x += dw + gap; });
+    };
+    const drawScorer = (cx, vY, s) => {
+      if (!s) { ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#8fa0bd"; ctx.font = F(600, 15); ctx.fillText("—", cx, vY); return; }
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#eef0f5"; ctx.font = F(700, 18); ctx.fillText(clipText(s.player, W * 0.4), cx, vY - 4);
+      ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 15); ctx.fillText(`${s.goals} bàn`, cx, vY + 18);
+    };
+    let cy = vy + vsH + kickH;
+    if (cats.length) {
+      const cyc = cy + cmpHeadH / 2; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.font = F(800, 21); const t2 = ctx.measureText("SO SÁNH TRƯỚC TRẬN").width;
+      ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(M, cyc); ctx.lineTo(W / 2 - t2 / 2 - 20, cyc); ctx.moveTo(W / 2 + t2 / 2 + 20, cyc); ctx.lineTo(W - M, cyc); ctx.stroke();
+      ctx.fillStyle = goldGrad(cyc - 12, cyc + 12); ctx.fillText("SO SÁNH TRƯỚC TRẬN", W / 2, cyc + 1); ctx.restore();
+      cy += cmpHeadH;
+      ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(W / 2, cy + 8); ctx.lineTo(W / 2, cy + cats.length * catH - 8); ctx.stroke();
+      cats.forEach((c, i) => {
+        const top = cy + i * catH, lblY = top + 26, valY = top + 60, hx = W * 0.27, ax = W * 0.73;
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.save(); try { ctx.letterSpacing = "2px"; } catch (e) {} ctx.fillStyle = "#9fb0cc"; ctx.font = F(700, 12.5); ctx.fillText(c.label, W / 2, lblY); ctx.restore();
+        if (c.kind === "form") { drawForm(hx, valY - 4, c.h); drawForm(ax, valY - 4, c.a); }
+        else if (c.kind === "scorer") { drawScorer(hx, valY, c.h); drawScorer(ax, valY, c.a); }
+        else { ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff6d8"; ctx.font = F(800, 27); ctx.fillText(clipText(c.h, W * 0.4), hx, valY); ctx.fillText(clipText(c.a, W * 0.4), ax, valY); }
+        if (i < cats.length - 1) { ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M, top + catH); ctx.lineTo(W - M, top + catH); ctx.stroke(); }
       });
     }
 
-    // Meta: ngày giờ + sân
-    const my = cy0 + cdH + metaH / 2;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff6d8"; ctx.font = F(700, 18);
-    ctx.fillText("🗓️ " + when + (match.venue ? "   📍 " + match.venue : ""), W / 2, my);
-
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
     if (!blob) throw new Error("toBlob trả về rỗng");
-    const file = new File([blob], `dem-nguoc-${home}-${away}-wc2026.png`.replace(/\s+/g, "-").toLowerCase(), { type: "image/png" });
+    const file = new File([blob], `tran-dau-${home}-${away}-wc2026.png`.replace(/\s+/g, "-").toLowerCase(), { type: "image/png" });
     let shared = false;
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: `${home} vs ${away} · World Cup 2026`, text: `${home} vs ${away}${live ? " đang diễn ra" : ` · còn ${dd} ngày ${hh} giờ`}! ⚽🏆` }); shared = true; }
+      try { await navigator.share({ files: [file], title: `${home} vs ${away} · World Cup 2026`, text: `${home} vs ${away}${roundLabel ? " · " + roundLabel : ""} · World Cup 2026 ⚽🏆` }); shared = true; }
       catch (e) { if (e && e.name === "AbortError") shared = true; }
     }
     if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
   } catch (e) {
-    console.warn("[export-countdown]", e);
+    console.warn("[export-matchup]", e);
     alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
