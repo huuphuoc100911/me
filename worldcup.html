@@ -6903,7 +6903,7 @@ function launchConfetti() {
   const KEY = "wc-notif";
   let enabled = localStorage.getItem(KEY) !== "0";
   const SHOW_EVERY = 15000, VISIBLE = 8500, FIRST_DELAY = 4000;
-  let queue = [], timer = null, current = null, lastConf = 0;
+  let queue = [], timer = null, current = null, lastConf = 0, firstShown = false;
 
   const btn = document.createElement("button");
   btn.className = "wc-notif-btn" + (enabled ? "" : " off");
@@ -6995,6 +6995,28 @@ function launchConfetti() {
     return pool;
   }
 
+  // Thông báo ĐẦU TIÊN khi mới vào: đội GẦN NHẤT vào vòng tiếp theo
+  function firstItem() {
+    const ko = (typeof getKnockoutMatches === "function") ? getKnockoutMatches() : [];
+    const roundByNum = {}; (typeof KO_TEMPLATE !== "undefined" ? KO_TEMPLATE : []).forEach(t => roundByNum[t.num] = t.round);
+    // 1) Ưu tiên: đội thắng ở trận KNOCKOUT gần nhất (vừa đi tiếp)
+    const koDone = ko.filter(m => m.homeScore != null && m.awayScore != null && m.round !== "Third-place" && matchWinner(m)).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    if (koDone.length) {
+      const m = koDone[0], w = matchWinner(m), par = KO_PARENT[m.num];
+      if (!par && m.round === "Final") return { icon: "🏆", title: "Nhà vô địch", text: `${fimg(w)}<b>${w}</b> VÔ ĐỊCH World Cup 2026! 🎉`, good: true };
+      const advTo = par ? RVI[roundByNum[par]] : null;
+      if (advTo) return { icon: "🎉", title: "Vừa giành vé đi tiếp", text: `${fimg(w)}<b>${w}</b> vừa vào <b>${advTo}</b>!`, good: true };
+    }
+    // 2) Chưa đá knockout → đội vượt qua vòng bảng ở trận GẦN NHẤT (top 2 bảng)
+    const pos = {}; (window._standings || []).forEach(g => { const gn = String(g.group || g.name || "").replace(/group\s*/i, "").trim(); (g.table || []).forEach((t, i) => { if (t.team) pos[t.team] = { p: i + 1, g: gn }; }); });
+    const gDone = (window._allMatches || []).filter(m => m.group && m.homeScore != null && m.awayScore != null && m.ts).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    for (const m of gDone) {
+      const cands = [m.home, m.away].filter(t => pos[t] && pos[t].p <= 2).sort((a, b) => pos[a].p - pos[b].p);
+      if (cands.length) { const w = cands[0], pp = pos[w]; return { icon: "🎉", title: "Vượt qua vòng bảng", text: `${fimg(w)}<b>${w}</b> ${pp.p === 1 ? "nhất" : "nhì"} bảng ${pp.g}, giành vé vào <b>Vòng 1/16</b>!`, good: true }; }
+    }
+    return null;
+  }
+
   const anyModalOpen = () => !!document.querySelector("#h2hModal.show, #koDetailModal.show, #playerModal.show, #teamModal.show");
   const shuffle = (a)=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
   function nextItem(){ if(!queue.length) queue = shuffle(buildPool()); return queue.shift(); }
@@ -7002,7 +7024,9 @@ function launchConfetti() {
 
   function showOne(){
     if(!enabled || document.visibilityState!=="visible" || anyModalOpen()) return;
-    const item = nextItem();
+    let item;
+    if (!firstShown) { item = firstItem(); if (item) firstShown = true; else item = nextItem(); }
+    else item = nextItem();
     if(!item) return;
     hideCurrent();
     const t=document.createElement("div");
