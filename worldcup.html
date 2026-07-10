@@ -409,7 +409,14 @@
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-bottom: 8px;
+    display: flex; align-items: center;
   }
+  .next-hero .lbl .nh-export {
+    margin-left: auto; background: rgba(245,158,11,0.14); border: 1px solid rgba(245,158,11,0.4);
+    color: var(--accent-2); font-weight: 700; font-size: 10px; letter-spacing: 0.5px;
+    padding: 4px 11px; border-radius: 999px; cursor: pointer; transition: all .15s; text-transform: none;
+  }
+  .next-hero .lbl .nh-export:hover { background: rgba(245,158,11,0.24); }
   .next-hero .nh-match {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -2130,7 +2137,7 @@
 
   <!-- Trận sắp tới (carousel 4 trận) -->
   <div class="next-hero" id="nextHero" style="display:none">
-    <div class="lbl">⚡ <span id="nhLbl">Trận tiếp theo</span></div>
+    <div class="lbl">⚡ <span id="nhLbl">Trận tiếp theo</span><button id="nhExport" class="nh-export" title="Xuất poster đếm ngược trận này">🖼️ Poster</button></div>
     <div class="nh-track" id="nhTrack"></div>
     <div class="nh-dots" id="nhDots"></div>
   </div>
@@ -2738,6 +2745,8 @@ function setupNextHero() {
 
   goSlide(_slideIdx, false);
   startAuto();
+  const nx = document.getElementById("nhExport");
+  if (nx && !nx._bound) { nx._bound = true; nx.addEventListener("click", () => exportCountdownPoster(_nextMatches[_slideIdx], nx)); }
 }
 
 function goSlide(i, userTriggered) {
@@ -6221,6 +6230,99 @@ async function exportMatchReport(match, btn) {
     if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
   } catch (e) {
     console.warn("[export-match]", e);
+    alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
+  }
+}
+
+/* ===== Xuất POSTER ĐẾM NGƯỢC trận tâm điểm (2 cờ lớn + VS + đồng hồ) ===== */
+async function exportCountdownPoster(match, btn) {
+  const oldTxt = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳…"; }
+  try {
+    if (!match) { alert("Chưa có trận sắp diễn ra."); return; }
+    const home = match.home, away = match.away;
+    const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
+    const [hImg, aImg, logoImg] = await Promise.all([loadImg(flagURL(home) || match.homeBadge), loadImg(flagURL(away) || match.awayBadge), loadImg("/images/worldcup/logo-export.webp")]);
+    const RVI = { "Round of 32": "VÒNG 1/16", "Round of 16": "VÒNG 1/8", "Quarter-final": "TỨ KẾT", "Semi-final": "BÁN KẾT", "Third-place": "TRANH HẠNG 3", "Final": "CHUNG KẾT" };
+    const roundLabel = (match.group || RVI[match.round] || match.round || "").toString().toUpperCase();
+    const dt = match.ts ? new Date(match.ts) : null; const p2 = (k) => String(k).padStart(2, "0");
+    const wd = dt ? ["CHỦ NHẬT", "THỨ HAI", "THỨ BA", "THỨ TƯ", "THỨ NĂM", "THỨ SÁU", "THỨ BẢY"][dt.getDay()] : "";
+    const when = dt ? `${wd}, ${p2(dt.getDate())}/${p2(dt.getMonth() + 1)}/${dt.getFullYear()} · ${p2(dt.getHours())}:${p2(dt.getMinutes())}` : "";
+    const diff = Math.max(0, (match.ts || 0) - Date.now());
+    const dd = Math.floor(diff / 86400000), hh = Math.floor((diff % 86400000) / 3600000), mm = Math.floor((diff % 3600000) / 60000);
+    const live = match.ts && Date.now() >= match.ts;
+
+    const W = 820, M = 50, headerH = 116, bannerH = 60, vsH = 250, cdH = live ? 130 : 196, metaH = 62, footerH = 46;
+    const H = headerH + bannerH + vsH + cdH + metaH + footerH;
+    const ratio = 2;
+    const canvas = document.createElement("canvas"); canvas.width = W * ratio; canvas.height = H * ratio;
+    const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const clipText = (s, mw) => { s = String(s || ""); if (mw <= 0) return ""; if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+    const goldGrad = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    _exportBackdrop(ctx, W, H, rrect, goldGrad);
+    const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 5); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 4); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 2; rrect(x, y, w, h, 5); ctx.stroke(); };
+
+    // Header logo + WORLD CUP 2026
+    if (logoImg) { const bh = 48, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 10; ctx.drawImage(logoImg, W / 2 - dw / 2, 22, dw, bh); ctx.restore(); }
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026", W / 2, headerH - 18); ctx.restore();
+
+    // Banner "TRẬN TÂM ĐIỂM" + vòng
+    const byc = headerH + bannerH / 2;
+    ctx.save(); try { ctx.letterSpacing = "5px"; } catch (e) {} ctx.font = F(800, 26); ctx.textBaseline = "middle";
+    const lbl = live ? "ĐANG DIỄN RA" : "TRẬN TÂM ĐIỂM"; const tw = ctx.measureText(lbl).width;
+    ctx.strokeStyle = "rgba(217,178,74,0.45)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(M + 20, byc); ctx.lineTo(W / 2 - tw / 2 - 22, byc); ctx.moveTo(W / 2 + tw / 2 + 22, byc); ctx.lineTo(W - M - 20, byc); ctx.stroke();
+    ctx.fillStyle = live ? "#f87171" : goldGrad(byc - 14, byc + 14); ctx.fillText(lbl, W / 2, byc + 1); ctx.restore();
+
+    // VS block: 2 cờ lớn + tên, VS phát sáng ở giữa
+    const vy = headerH + bannerH, midY = vy + vsH / 2 - 14, fw = 168, fh = 112;
+    const hcx = W * 0.265, acx = W * 0.735;
+    if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, midY, 46, 44);
+    ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.45)"; ctx.shadowBlur = 16; drawFlag(hcx - fw / 2, midY - fh / 2, fw, fh, hImg); drawFlag(acx - fw / 2, midY - fh / 2, fw, fh, aImg); ctx.restore();
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(800, 27); ctx.fillStyle = "#f2f5fa";
+    ctx.fillText(clipText(home.toUpperCase(), W * 0.4), hcx, midY + fh / 2 + 40);
+    ctx.fillText(clipText(away.toUpperCase(), W * 0.4), acx, midY + fh / 2 + 40);
+    ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.6)"; ctx.shadowBlur = 24; ctx.fillStyle = goldGrad(midY - 34, midY + 34); ctx.font = F(800, 68); ctx.textBaseline = "middle"; ctx.fillText("VS", W / 2, midY); ctx.restore();
+
+    // Đồng hồ đếm ngược (ảnh tĩnh = mốc lúc xuất) hoặc "KICK OFF"
+    const cy0 = vy + vsH;
+    if (live) {
+      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#f87171"; ctx.font = F(800, 30);
+      ctx.fillText("🔴 Trận đấu đã bắt đầu", W / 2, cy0 + cdH / 2);
+    } else {
+      const tiles = [[dd, "NGÀY"], [hh, "GIỜ"], [mm, "PHÚT"]];
+      const tw2 = 176, tgap = 22, th = 132, totW = tiles.length * tw2 + (tiles.length - 1) * tgap, x0 = W / 2 - totW / 2, ty0 = cy0 + (cdH - th) / 2 - 6;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#9fb0cc"; ctx.font = F(700, 13); ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillText("THỜI GIAN CÒN LẠI", W / 2, ty0 - 12); ctx.restore();
+      tiles.forEach((t, i) => {
+        const x = x0 + i * (tw2 + tgap);
+        const bgc = ctx.createLinearGradient(0, ty0, 0, ty0 + th); bgc.addColorStop(0, "rgba(233,200,107,0.16)"); bgc.addColorStop(1, "rgba(20,33,63,0.78)");
+        ctx.fillStyle = bgc; rrect(x, ty0, tw2, th, 14); ctx.fill(); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.35)"; ctx.shadowBlur = 14; ctx.strokeStyle = goldGrad(ty0, ty0 + th); ctx.lineWidth = 2; rrect(x, ty0, tw2, th, 14); ctx.stroke(); ctx.restore();
+        ctx.textBaseline = "alphabetic"; ctx.fillStyle = goldGrad(ty0 + 26, ty0 + 92); ctx.font = F(800, 68); ctx.fillText(String(t[0]), x + tw2 / 2, ty0 + 84);
+        ctx.fillStyle = "#c9d3e6"; ctx.font = F(700, 15); ctx.save(); try { ctx.letterSpacing = "2px"; } catch (e) {} ctx.fillText(t[1], x + tw2 / 2, ty0 + 114); ctx.restore();
+      });
+    }
+
+    // Meta: ngày giờ + sân
+    const my = cy0 + cdH + metaH / 2;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff6d8"; ctx.font = F(700, 18);
+    ctx.fillText("🗓️ " + when + (match.venue ? "   📍 " + match.venue : ""), W / 2, my);
+
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+    if (!blob) throw new Error("toBlob trả về rỗng");
+    const file = new File([blob], `dem-nguoc-${home}-${away}-wc2026.png`.replace(/\s+/g, "-").toLowerCase(), { type: "image/png" });
+    let shared = false;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: `${home} vs ${away} · World Cup 2026`, text: `${home} vs ${away}${live ? " đang diễn ra" : ` · còn ${dd} ngày ${hh} giờ`}! ⚽🏆` }); shared = true; }
+      catch (e) { if (e && e.name === "AbortError") shared = true; }
+    }
+    if (!shared) { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
+  } catch (e) {
+    console.warn("[export-countdown]", e);
     alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
