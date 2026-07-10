@@ -4071,6 +4071,8 @@ function flagURL(team) {
   const iso = ISO[team.toLowerCase().trim()];
   return iso ? `https://flagcdn.com/w40/${iso}.png` : null;
 }
+// Cờ độ phân giải cao cho ảnh export (w40 bị mờ khi phóng to)
+function flagURLHi(team) { const u = flagURL(team); return u ? u.replace("/w40/", "/w320/") : null; }
 const FAV_KEY = "wc-favs";
 const MAX_FAVS = 3;
 function getFavs() {
@@ -6007,7 +6009,7 @@ async function exportTeamJourney(teamName, btn) {
     const names = new Set([teamName]);
     grp.forEach((r) => r.oppT && names.add(r.oppT)); koMine.forEach((r) => r.oppT && names.add(r.oppT));
     const flagImgs = {};
-    await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURL(nm)); if (img) flagImgs[nm] = img; }));
+    await Promise.all([...names].map(async (nm) => { const img = await loadImg(flagURLHi(nm)); if (img) flagImgs[nm] = img; }));
     const logoImg = await loadImg("/images/worldcup/logo-export.webp");
 
     // Bố cục dọc
@@ -6133,7 +6135,7 @@ async function exportMatchReport(match, btn) {
     try { const r = await fetch(`/api/sports-events?ts=${match.ts}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}`); if (r.ok) d = await r.json(); } catch (e) {}
     const evs = (d.events || []).filter((e) => e.type !== "sub");
     const so = (d.shootout && ((d.shootout.home || []).length || (d.shootout.away || []).length)) ? d.shootout : null;
-    const [hImg, aImg, logoImg] = await Promise.all([loadImg(flagURL(home) || match.homeBadge), loadImg(flagURL(away) || match.awayBadge), loadImg("/images/worldcup/logo-export.webp")]);
+    const [hImg, aImg, logoImg] = await Promise.all([loadImg(flagURLHi(home) || match.homeBadge), loadImg(flagURLHi(away) || match.awayBadge), loadImg("/images/worldcup/logo-export.webp")]);
     const done = match.homeScore != null && match.awayScore != null;
     const winner = done && typeof matchWinner === "function" ? matchWinner(match) : null;
     const hWin = winner === home, aWin = winner === away;
@@ -6249,6 +6251,24 @@ async function exportMatchReport(match, btn) {
 }
 
 /* ===== Xuất POSTER ĐẾM NGƯỢC trận tâm điểm (2 cờ lớn + VS + đồng hồ) ===== */
+// Vua phá lưới của 1 ĐỘI — nếu không có trong top scorers (FD giới hạn) thì cộng dồn từ diễn biến ESPN
+async function _teamTopScorerESPN(teamName) {
+  const all = window._allMatches || [];
+  const mine = all.filter((m) => (m.home === teamName || m.away === teamName) && m.homeScore != null && m.awayScore != null && m.ts);
+  const cnt = {};
+  await Promise.all(mine.map(async (m) => {
+    try {
+      const side = m.home === teamName ? "home" : "away";
+      const r = await fetch(`/api/sports-events?ts=${m.ts}&home=${encodeURIComponent(m.home)}&away=${encodeURIComponent(m.away)}`);
+      if (!r.ok) return;
+      const d = await r.json();
+      (d.events || []).forEach((e) => { if (e.type === "goal" && e.teamSide === side && e.kind !== "OWN" && e.player) cnt[e.player] = (cnt[e.player] || 0) + 1; });
+    } catch (e) {}
+  }));
+  const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+  return top ? { player: top[0], goals: top[1], team: teamName } : null;
+}
+
 async function exportCountdownPoster(match, btn) {
   const oldTxt = btn ? btn.textContent : null;
   if (btn) { btn.disabled = true; btn.textContent = "⏳…"; }
@@ -6256,7 +6276,7 @@ async function exportCountdownPoster(match, btn) {
     if (!match) { alert("Chưa có trận sắp diễn ra."); return; }
     const home = match.home, away = match.away, all = window._allMatches || [];
     const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
-    const [hImg, aImg, logoImg] = await Promise.all([loadImg(flagURL(home) || match.homeBadge), loadImg(flagURL(away) || match.awayBadge), loadImg("/images/worldcup/logo-export.webp")]);
+    const [hImg, aImg, logoImg] = await Promise.all([loadImg(flagURLHi(home) || match.homeBadge), loadImg(flagURLHi(away) || match.awayBadge), loadImg("/images/worldcup/logo-export.webp")]);
     const roundLabel = (match.group || _roundVI(match.round) || "").toString().toUpperCase();
     const dt = match.ts ? new Date(match.ts) : null; const p2 = (k) => String(k).padStart(2, "0");
     const wd = dt ? ["CHỦ NHẬT", "THỨ HAI", "THỨ BA", "THỨ TƯ", "THỨ NĂM", "THỨ SÁU", "THỨ BẢY"][dt.getDay()] : "";
@@ -6269,7 +6289,10 @@ async function exportCountdownPoster(match, btn) {
     const rec = (t) => { const dn = all.filter((m) => (m.home === t || m.away === t) && m.homeScore != null && m.awayScore != null); let W = 0, D = 0, L = 0, GF = 0, GA = 0; dn.forEach((m) => { const hh = m.home === t; const gf = hh ? m.homeScore : m.awayScore, ga = hh ? m.awayScore : m.homeScore; GF += gf; GA += ga; if (gf > ga) W++; else if (gf < ga) L++; else D++; }); return { W, D, L, GF, GA, P: dn.length }; };
     const rH = rec(home), rA = rec(away);
     const scorerOf = (t) => (window._scorersData || []).filter((s) => s.team === t && (s.goals || 0) > 0).sort((a, b) => b.goals - a.goals)[0] || null;
-    const scH = scorerOf(home), scA = scorerOf(away);
+    let scH = scorerOf(home), scA = scorerOf(away);
+    // Không có trong top scorers FD → cộng dồn từ diễn biến ESPN (đảm bảo luôn có)
+    if (!scH) scH = await _teamTopScorerESPN(home);
+    if (!scA) scA = await _teamTopScorerESPN(away);
     const posTxt = (wc) => wc.group && wc.pos ? `${wc.pos === 1 ? "Nhất" : wc.pos === 2 ? "Nhì" : "Hạng " + wc.pos} bảng ${wc.group}` : null;
     const cats = [];
     if ((wcH.form || []).length || (wcA.form || []).length) cats.push({ label: "PHONG ĐỘ GẦN ĐÂY", kind: "form", h: wcH.form, a: wcA.form });
@@ -6279,7 +6302,7 @@ async function exportCountdownPoster(match, btn) {
     if (pth || pta) cats.push({ label: "VỊ TRÍ VÒNG BẢNG", kind: "text", h: pth || "—", a: pta || "—" });
 
     // Bố cục DỌC (đăng story)
-    const W = 840, M = 52, headerH = 152, bannerH = 64, vsH = 300, kickH = 88, cmpHeadH = 54, catH = 84, footerH = 40;
+    const W = 840, M = 58, headerH = 186, bannerH = 66, vsH = 306, kickH = 90, cmpHeadH = 54, catH = 84, footerH = 58;
     const cmpH = cats.length ? cmpHeadH + cats.length * catH : 0;
     const H = headerH + bannerH + vsH + kickH + cmpH + footerH;
     const ratio = 2;
@@ -6292,10 +6315,10 @@ async function exportCountdownPoster(match, btn) {
     _exportBackdrop(ctx, W, H, rrect, goldGrad);
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 5); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 4); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = goldGrad(y, y + h); ctx.lineWidth = 2; rrect(x, y, w, h, 5); ctx.stroke(); };
 
-    // Header: cúp (sao lấp lánh) + WORLD CUP 2026 · vòng
-    if (logoImg) { const bh = 64, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, 26 + bh / 2, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logoImg, W / 2 - dw / 2, 26, dw, bh); ctx.restore(); }
+    // Header: cúp (to & rõ, sao lấp lánh, chừa lề trên) + WORLD CUP 2026 · vòng
+    if (logoImg) { const bh = 84, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, 46 + bh / 2, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logoImg, W / 2 - dw / 2, 46, dw, bh); ctx.restore(); }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel : ""), W / 2, headerH - 20); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "4px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel : ""), W / 2, headerH - 22); ctx.restore();
 
     // Banner
     const byc = headerH + bannerH / 2;
@@ -6305,7 +6328,7 @@ async function exportCountdownPoster(match, btn) {
     ctx.fillStyle = live ? "#f87171" : goldGrad(byc - 14, byc + 14); ctx.fillText(lbl, W / 2, byc + 1); ctx.restore();
 
     // VS block
-    const vy = headerH + bannerH, midY = vy + vsH / 2 - 18, fw = 184, fh = 122, hcx = W * 0.27, acx = W * 0.73;
+    const vy = headerH + bannerH, midY = vy + vsH / 2 + 2, fw = 184, fh = 122, hcx = W * 0.27, acx = W * 0.73;
     if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, midY, 48, 46);
     ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.45)"; ctx.shadowBlur = 16; drawFlag(hcx - fw / 2, midY - fh / 2, fw, fh, hImg); drawFlag(acx - fw / 2, midY - fh / 2, fw, fh, aImg); ctx.restore();
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = F(800, 28); ctx.fillStyle = "#f2f5fa";
