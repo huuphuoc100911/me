@@ -6149,7 +6149,7 @@ async function exportMatchReport(match, btn) {
     const dt = match.ts ? new Date(match.ts) : null; const p2 = (k) => String(k).padStart(2, "0");
     const when = dt ? `${p2(dt.getDate())}/${p2(dt.getMonth() + 1)}/${dt.getFullYear()} · ${p2(dt.getHours())}:${p2(dt.getMinutes())}` : "";
 
-    const W = 860, M = 48, headerH = 148, vsH = 188, tlTitleH = 46, evRowH = 48, soRowH = 34, footerH = 46;
+    const W = 860, M = 48, headerH = 178, vsH = 188, tlTitleH = 46, evRowH = 48, soRowH = 34, footerH = 46;
     const soRows = so ? Math.max((so.home || []).length, (so.away || []).length) : 0;
     const tlH = evs.length ? tlTitleH + evs.length * evRowH + 16 : 0;
     const soH = so ? tlTitleH + soRows * soRowH + 16 : 0;
@@ -6165,10 +6165,10 @@ async function exportMatchReport(match, btn) {
     _exportBackdrop(ctx, W, H, rrect, goldGrad);
     const drawFlag = (x, y, w, h, img) => { ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill(); if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); } ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.2; rrect(x, y, w, h, 4); ctx.stroke(); };
 
-    // Header: cúp (có sao lấp lánh) + WORLD CUP 2026 + vòng · ngày
-    if (logoImg) { const bh = 62, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, 26 + bh / 2, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logoImg, W / 2 - dw / 2, 26, dw, bh); ctx.restore(); }
+    // Header: cúp (to & rõ, sao lấp lánh, chừa lề trên) + WORLD CUP 2026 + vòng · ngày
+    if (logoImg) { const bh = 84, iw = logoImg.naturalWidth || 1, ih = logoImg.naturalHeight || 1, s = bh / ih, dw = iw * s; if (typeof _drawSparkles === "function") _drawSparkles(ctx, W / 2, 46 + bh / 2, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logoImg, W / 2 - dw / 2, 46, dw, bh); ctx.restore(); }
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel.toUpperCase() : ""), W / 2, headerH - 18); ctx.restore();
+    ctx.save(); try { ctx.letterSpacing = "3px"; } catch (e) {} ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14); ctx.fillText("WORLD CUP 2026" + (roundLabel ? "  ·  " + roundLabel.toUpperCase() : ""), W / 2, headerH - 22); ctx.restore();
 
     // Khối VS: cờ + tên 2 đội, tỉ số lớn ở giữa
     const vy = headerH, midY = vy + vsH / 2 - 6, fw = 118, fh = 79;
