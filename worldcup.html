@@ -499,6 +499,11 @@
     font-weight: 600;
     letter-spacing: 0.5px;
   }
+  /* Danh sách dài (top 100) → cuộn trong khung, tiêu đề dính */
+  #scorersBlock { max-height: 520px; overflow-y: auto; overscroll-behavior: contain; }
+  #scorersBlock::-webkit-scrollbar { width: 8px; }
+  #scorersBlock::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  .scorers-table thead th { position: sticky; top: 0; z-index: 2; background: var(--bg-card); box-shadow: inset 0 -1px 0 var(--border); }
   .scorers-table .pos { color: var(--text-dim); }
   .scorers-table tr.top1 .pos { color: var(--accent-2); font-weight: 800; }
   .scorers-table .player-cell {

@@ -171,9 +171,9 @@ async function fromFootballData(key) {
   const [mr, sr, tr, ta] = await Promise.all([
     fetch(FD_BASE + "/matches", { headers }),
     fetch(FD_BASE + "/standings", { headers }),
-    fetch(FD_BASE + "/scorers?limit=20", { headers }),
+    fetch(FD_BASE + "/scorers?limit=100", { headers }),
     // Thử endpoint riêng theo assists (FD có thể không hỗ trợ sortBy ở tier free — fail silently)
-    fetch(FD_BASE + "/scorers?limit=20&sortBy=ASSISTS", { headers }).catch(() => ({ ok: false }))
+    fetch(FD_BASE + "/scorers?limit=100&sortBy=ASSISTS", { headers }).catch(() => ({ ok: false }))
   ]);
   if (!mr.ok) throw new Error("FD matches " + mr.status);
   const mj = await mr.json();
