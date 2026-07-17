@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a0f1e">
+<title>Bóng đá · Đại hội TDTT Thành phố Huế 2026</title>
+<style>
+  :root {
+    --bg: #0a0f1e; --bg-card: #121a2e; --bg-soft: #1a2439;
+    --border: rgba(255,255,255,0.09);
+    --text: #e8edf7; --text-dim: #a9b6cd; --text-fade: #6f7f9c;
+    --gold: #e7c86c; --gold-d: #a9781d;
+    --good: #34d399;
+    --shadow: 0 12px 34px rgba(0,0,0,0.45);
+  }
+  html.light {
+    --bg: #eef2f7; --bg-card: #ffffff; --bg-soft: #e9eef6;
+    --border: rgba(15,23,42,0.12);
+    --text: #0f172a; --text-dim: #475569; --text-fade: #7b8798;
+    --gold: #a9781d; --gold-d: #8a5f12;
+    --shadow: 0 10px 28px rgba(15,23,42,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+    padding-bottom: 60px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #1c2e58 0%, #122143 55%, #0a1430 100%);
+    border-bottom: 1px solid rgba(233,200,107,0.3);
+    padding: 34px 0 30px;
+  }
+  html.light .hero { background: linear-gradient(160deg, #1c2e58 0%, #16305e 60%, #0f2247 100%); }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 12%, rgba(246,226,150,0.16), transparent 62%);
+    pointer-events: none;
+  }
+  .hero-in { position: relative; text-align: center; }
+  .hero .ball { font-size: 40px; line-height: 1; filter: drop-shadow(0 4px 12px rgba(0,0,0,.5)); }
+  .hero .kicker {
+    margin-top: 8px; font-size: 12px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--gold); font-weight: 700;
+  }
+  html.light .hero .kicker { color: #e7c86c; }
+  .hero h1 {
+    margin-top: 6px; font-size: clamp(23px, 4.6vw, 40px); font-weight: 800; letter-spacing: 1px;
+    background: linear-gradient(180deg, #fbf1c2 0%, #e7c86c 48%, #a9781d 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero .sub { margin-top: 4px; color: #c9d3e6; font-size: clamp(13px, 2vw, 16px); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(233,200,107,0.12); border: 1px solid rgba(233,200,107,0.4);
+    color: #f0e2b4; padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+  }
+  .hero-actions { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  .btn {
+    border: 1px solid rgba(233,200,107,0.45); background: rgba(233,200,107,0.14);
+    color: var(--gold); font-weight: 700; font-size: 13px;
+    padding: 9px 18px; border-radius: 999px; cursor: pointer; transition: all .15s;
+  }
+  html.light .hero-actions .btn { color: #f0e2b4; }
+  .btn:hover { background: rgba(233,200,107,0.26); transform: translateY(-1px); }
+  .btn:disabled { opacity: .6; cursor: default; transform: none; }
+  .btn.primary { background: linear-gradient(180deg, #e7c86c, #a9781d); color: #26180a; border-color: transparent; }
+  .btn.primary:hover { filter: brightness(1.08); }
+
+  /* ===== Nav ===== */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+  }
+  .nav-in { display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; }
+  .nav a {
+    flex-shrink: 0; text-decoration: none; color: var(--text-dim);
+    font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid transparent; transition: all .15s; white-space: nowrap;
+  }
+  .nav a:hover, .nav a.on { color: var(--gold); background: rgba(233,200,107,0.1); border-color: rgba(233,200,107,0.3); }
+  .theme-btn {
+    margin-left: auto; flex-shrink: 0; background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 999px; padding: 7px 12px; cursor: pointer; font-size: 13px;
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--gold); }
+
+  /* ===== Section ===== */
+  section { margin-top: 34px; scroll-margin-top: 62px; }
+  .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .sec-head h2 {
+    font-size: 17px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--gold); display: flex; align-items: center; gap: 8px;
+  }
+  .sec-head .line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(233,200,107,0.45), transparent); }
+  .sec-head .note { font-size: 12px; color: var(--text-fade); font-weight: 500; }
+
+  /* ===== Groups ===== */
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(198px, 1fr)); gap: 12px; }
+  .gcard {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden; box-shadow: var(--shadow);
+    transition: transform .15s, border-color .15s;
+  }
+  .gcard:hover { transform: translateY(-3px); border-color: rgba(233,200,107,0.4); }
+  .gcard .gh {
+    padding: 11px 14px; font-weight: 800; font-size: 15px; letter-spacing: 2px;
+    color: #fff; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,.35);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .gcard .gh .cnt { font-size: 11px; letter-spacing: 0; opacity: .85; font-weight: 600; }
+  .gcard ol { list-style: none; padding: 6px 0; }
+  .gcard li {
+    display: flex; align-items: center; gap: 10px; padding: 9px 14px;
+    font-size: 14.5px; font-weight: 600;
+  }
+  .gcard li + li { border-top: 1px dashed var(--border); }
+  .gcard li .n {
+    width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px;
+    display: grid; place-items: center; font-size: 11px; font-weight: 800;
+    background: var(--bg-soft); color: var(--text-dim);
+  }
+  .gcard li .seed { margin-left: auto; font-size: 11px; color: var(--text-fade); font-weight: 700; }
+
+  /* ===== Schedule ===== */
+  .day { margin-bottom: 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+  .day-h {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: linear-gradient(90deg, rgba(233,200,107,0.14), transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .day-h .d { font-weight: 800; font-size: 14.5px; color: var(--gold); letter-spacing: .5px; }
+  .day-h .wd { font-size: 11.5px; color: var(--text-fade); font-weight: 600; }
+  .day-h .cnt { margin-left: auto; font-size: 11px; color: var(--text-fade); font-weight: 600; }
+  .m {
+    display: grid; grid-template-columns: 76px 62px 1fr auto; align-items: center; gap: 10px;
+    padding: 11px 14px; font-size: 14px;
+  }
+  .m + .m { border-top: 1px solid var(--border); }
+  .m:hover { background: var(--bg-soft); }
+  .m .t { font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .m .no {
+    font-size: 11px; font-weight: 800; color: var(--text-dim); background: var(--bg-soft);
+    border: 1px solid var(--border); border-radius: 999px; padding: 3px 0; text-align: center;
+  }
+  .m .code { font-weight: 600; color: var(--text); }
+  .m .code b { color: var(--gold); font-weight: 800; }
+  .m .tag {
+    font-size: 10.5px; font-weight: 800; letter-spacing: .5px; padding: 4px 9px; border-radius: 999px;
+    border: 1px solid; white-space: nowrap;
+  }
+  .tag.gr { color: #7dd3fc; border-color: rgba(125,211,252,.4); background: rgba(125,211,252,.1); }
+  .tag.tk { color: #fbbf24; border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.12); }
+  .tag.bk { color: #f87171; border-color: rgba(248,113,113,.45); background: rgba(248,113,113,.12); }
+  .m.open {
+    background: linear-gradient(90deg, rgba(52,211,153,0.16), transparent);
+    grid-template-columns: 76px 1fr;
+  }
+  .m.open .code { color: var(--good); font-weight: 800; letter-spacing: 1px; }
+
+  /* ===== Format ===== */
+  .fmt { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .fcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .fcard h3 { font-size: 13px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .fcard ul { list-style: none; font-size: 13.5px; color: var(--text-dim); }
+  .fcard li { padding: 4px 0 4px 16px; position: relative; }
+  .fcard li::before { content: "▸"; position: absolute; left: 0; color: var(--gold); }
+  .fcard li b { color: var(--text); }
+
+  /* ===== Roster ===== */
+  .r-tools { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .r-tools input {
+    flex: 1; min-width: 180px; background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 999px; padding: 9px 16px; font-size: 13.5px; outline: none;
+  }
+  .r-tools input:focus { border-color: var(--gold); }
+  .r-tools .stat { font-size: 12px; color: var(--text-fade); font-weight: 600; }
+  .roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .p {
+    display: flex; align-items: center; gap: 11px; padding: 11px 13px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    transition: transform .12s, border-color .12s;
+  }
+  .p:hover { transform: translateY(-2px); border-color: rgba(233,200,107,0.45); }
+  .p .av {
+    width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; display: grid; place-items: center;
+    font-weight: 800; font-size: 13px; color: #26180a;
+    background: linear-gradient(180deg, #e7c86c, #a9781d);
+  }
+  .p .info { min-width: 0; }
+  .p .nm { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p .dob { font-size: 11.5px; color: var(--text-fade); font-weight: 600; }
+  .p .age { margin-left: auto; flex-shrink: 0; font-size: 11px; font-weight: 800; color: var(--gold); }
+  .p .num { position: absolute; }
+
+  footer { margin-top: 40px; text-align: center; font-size: 12px; color: var(--text-fade); }
+
+  @media (max-width: 560px) {
+    .m { grid-template-columns: 62px 52px 1fr; gap: 8px; font-size: 13px; }
+    .m .tag { grid-column: 2 / -1; justify-self: start; }
+    .m.open { grid-template-columns: 62px 1fr; }
+    .hero { padding: 26px 0 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="ball">⚽</div>
+    <div class="kicker">Đại hội TDTT Thành phố Huế</div>
+    <h1>MÔN BÓNG ĐÁ 2026</h1>
+    <div class="sub">Bóc thăm chia bảng &amp; Lịch thi đấu</div>
+    <div class="chips">
+      <span class="chip">🗓️ 20/7 – 10/8/2026</span>
+      <span class="chip">📍 SVĐ Tự Do Huế · 02 Lê Quý Đôn, P. Phú Xuân</span>
+      <span class="chip">🏟️ 15 đội · 5 bảng · 21 trận</span>
+    </div>
+    <div class="hero-actions">
+      <button class="btn primary" id="exportBtn">🖼️ Xuất ảnh lịch thi đấu</button>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a href="#groups" class="on">Bảng đấu</a>
+    <a href="#schedule">Lịch thi đấu</a>
+    <a href="#format">Thể thức</a>
+    <a href="#roster">Danh sách cầu thủ</a>
+    <button class="theme-btn" id="themeBtn">🌙</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section id="groups">
+    <div class="sec-head">
+      <h2>🎱 Bóc thăm chia bảng</h2>
+      <div class="line"></div>
+      <span class="note">5 bảng · 3 đội/bảng</span>
+    </div>
+    <div class="groups" id="groupsBox"></div>
+  </section>
+
+  <section id="schedule">
+    <div class="sec-head">
+      <h2>🗓️ Lịch thi đấu</h2>
+      <div class="line"></div>
+      <span class="note">Tất cả các trận tại SVĐ Tự Do Huế</span>
+    </div>
+    <div id="schedBox"></div>
+  </section>
+
+  <section id="format">
+    <div class="sec-head">
+      <h2>📋 Thể thức thi đấu</h2>
+      <div class="line"></div>
+    </div>
+    <div class="fmt">
+      <div class="fcard">
+        <h3>Vòng bảng</h3>
+        <ul>
+          <li>5 bảng <b>A · B · C · D · E</b>, mỗi bảng <b>3 đội</b>.</li>
+          <li>Thi đấu vòng tròn 1 lượt trong bảng (<b>3 trận/bảng</b>).</li>
+          <li>Tổng <b>15 trận</b> vòng bảng (trận 1 → 15).</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Tứ kết (TK1 – TK4)</h3>
+        <ul>
+          <li><b>TK1:</b> Nhất A – Nhất B</li>
+          <li><b>TK2:</b> Nhất C – Nhì (A-B-D-E)</li>
+          <li><b>TK3:</b> Nhất D – Nhì (A-B-C-E)</li>
+          <li><b>TK4:</b> Nhất E – Nhì (A-B-C-D)</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Bán kết (BK1 – BK2)</h3>
+        <ul>
+          <li><b>BK1:</b> Thắng TK1 – Thắng TK3</li>
+          <li><b>BK2:</b> Thắng TK2 – Thắng TK4</li>
+          <li style="color:var(--text-fade)">Lịch chung kết chưa có trong thông báo (giải kéo dài đến 10/8/2026).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="roster">
+    <div class="sec-head">
+      <h2>👥 Danh sách cầu thủ</h2>
+      <div class="line"></div>
+      <span class="note">Danh sách đăng ký thi đấu</span>
+    </div>
+    <div class="r-tools">
+      <input type="search" id="rSearch" placeholder="🔍 Tìm cầu thủ…">
+      <span class="stat" id="rStat"></span>
+    </div>
+    <div class="roster" id="rosterBox"></div>
+  </section>
+
+  <footer>
+    Dữ liệu theo thông báo của Ban tổ chức Đại hội TDTT Thành phố Huế 2026.
+  </footer>
+</div>
+
+<script>
+/* ===================== DỮ LIỆU ===================== */
+const GROUPS = [
+  { name: "A", color: "#1d4ed8", teams: ["Hương An", "Mỹ Thượng", "Hà Châu"] },
+  { name: "B", color: "#16a34a", teams: ["Lộc An", "Kim Long", "Vỹ Dạ"] },
+  { name: "C", color: "#ea580c", teams: ["Thanh Thủy", "Dương Nỗ", "Phú Xuân"] },
+  { name: "D", color: "#9333ea", teams: ["Thuận An", "Thủy Xuân", "Thuận Hòa"] },
+  { name: "E", color: "#dc2626", teams: ["Phú Vinh", "An Cựu", "Phú Bài"] }
+];
+
+// stage: "group" | "tk" | "bk" | "open"
+const SCHEDULE = [
+  { date: "20/7/2026", time: "8h00",  no: 1,  code: "A1 - A2", stage: "group" },
+  { date: "20/7/2026", time: "14h00", no: 2,  code: "B1 - B2", stage: "group" },
+  { date: "20/7/2026", time: "15h30", no: null, code: "KHAI MẠC GIẢI", stage: "open" },
+  { date: "20/7/2026", time: "16h00", no: 3,  code: "C1 - C2", stage: "group" },
+  { date: "21/7/2026", time: "14h00", no: 4,  code: "D1 - D2", stage: "group" },
+  { date: "21/7/2026", time: "15h45", no: 5,  code: "E1 - E2", stage: "group" },
+  { date: "22/7/2026", time: "8h00",  no: 6,  code: "A3 - Thua trận (A1 - A2)", stage: "group" },
+  { date: "22/7/2026", time: "14h00", no: 7,  code: "B3 - Thua trận (B1 - B2)", stage: "group" },
+  { date: "22/7/2026", time: "15h45", no: 8,  code: "C3 - Thua trận (C1 - C2)", stage: "group" },
+  { date: "23/7/2026", time: "14h00", no: 9,  code: "D3 - Thua trận (D1 - D2)", stage: "group" },
+  { date: "23/7/2026", time: "15h45", no: 10, code: "E3 - Thua trận (E1 - E2)", stage: "group" },
+  { date: "24/7/2026", time: "8h00",  no: 11, code: "Thắng trận (A1 - A2) - A3", stage: "group" },
+  { date: "24/7/2026", time: "14h00", no: 12, code: "Thắng trận (B1 - B2) - B3", stage: "group" },
+  { date: "24/7/2026", time: "15h45", no: 13, code: "Thắng trận (C1 - C2) - C3", stage: "group" },
+  { date: "25/7/2026", time: "14h00", no: 14, code: "Thắng trận (D1 - D2) - D3", stage: "group" },
+  { date: "25/7/2026", time: "15h45", no: 15, code: "Thắng trận (E1 - E2) - E3", stage: "group" },
+  { date: "28/7/2026", time: "14h00", no: 16, code: "Nhất A - Nhất B",          stage: "tk", tag: "TK1" },
+  { date: "28/7/2026", time: "15h45", no: 17, code: "Nhất C - Nhì (A-B-D-E)",   stage: "tk", tag: "TK2" },
+  { date: "29/7/2026", time: "14h00", no: 18, code: "Nhất D - Nhì (A-B-C-E)",   stage: "tk", tag: "TK3" },
+  { date: "29/7/2026", time: "15h45", no: 19, code: "Nhất E - Nhì (A-B-C-D)",   stage: "tk", tag: "TK4" },
+  { date: "02/8/2026", time: "14h00", no: 20, code: "Thắng TK1 - Thắng TK3",    stage: "bk", tag: "BK1" },
+  { date: "02/8/2026", time: "15h45", no: 21, code: "Thắng TK2 - Thắng TK4",    stage: "bk", tag: "BK2" }
+];
+
+const VENUE = "SVĐ Tự Do Huế";
+
+const ROSTER = [
+  ["Phạm Trường", "30/04/2002"], ["Tống Phước Huỳnh", "04/07/2006"], ["Ngô Đắc Phú", "05/12/2005"],
+  ["Nguyễn Dành", "15/11/1990"], ["Nhật Nguyên", "20/11/2008"], ["Bạch Văn Triệu Kha", "21/03/2008"],
+  ["Võ Đại Hoàng Long", "10/06/2008"], ["Đỗ Viết Quý", "06/07/2005"], ["Bùi Văn Thắng", "29/12/1996"],
+  ["Bùi Hoàng", "18/10/2007"], ["Lê Viết Thanh", "05/09/1999"], ["Hồ Duy Tân", "18/01/2006"],
+  ["Hà Tuấn Vũ", "09/03/2009"], ["Nguyễn Văn Chiến", "21/09/1992"], ["Nguyễn Vũ", "06/01/2000"],
+  ["Nguyễn Đức Toản", "20/03/2003"], ["Ngô Đức Quang", "13/06/2005"], ["Huỳnh Thế Danh", "26/08/1992"],
+  ["Nguyễn Nhật Linh", "27/11/1998"], ["Huỳnh Thế Tiến", "13/06/1999"], ["Nguyễn Văn Hữu Phước", "26/03/1999"],
+  ["Tôn Thất Lê Nguyên", "28/02/2009"], ["Trần Long Nhật", "28/05/1999"], ["Trần Đức Anh", "04/10/2002"],
+  ["Nguyễn Quang Bình", "30/01/2004"]
+];
+
+/* ===================== HELPERS ===================== */
+const parseDMY = (s) => { const [d, m, y] = String(s).split("/").map(Number); return new Date(y, m - 1, d); };
+const WD = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+const weekdayOf = (dmy) => WD[parseDMY(dmy).getDay()];
+const ageOf = (dmy) => {
+  const b = parseDMY(dmy), now = new Date();
+  let a = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) a--;
+  return a;
+};
+const initials = (name) => {
+  const p = String(name).trim().split(/\s+/);
+  return ((p[0]?.[0] || "") + (p[p.length - 1]?.[0] || "")).toUpperCase();
+};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ===================== RENDER: BẢNG ===================== */
+(function renderGroups() {
+  document.getElementById("groupsBox").innerHTML = GROUPS.map((g) => `
+    <div class="gcard">
+      <div class="gh" style="background:linear-gradient(135deg, ${g.color}, ${g.color}bb)">
+        <span>Bảng ${g.name}</span><span class="cnt">${g.teams.length} đội</span>
+      </div>
+      <ol>
+        ${g.teams.map((t, i) => `
+          <li><span class="n">${i + 1}</span><span>${esc(t)}</span><span class="seed">${g.name}${i + 1}</span></li>
+        `).join("")}
+      </ol>
+    </div>`).join("");
+})();
+
+/* ===================== RENDER: LỊCH ===================== */
+(function renderSchedule() {
+  const days = [];
+  SCHEDULE.forEach((m) => {
+    let d = days.find((x) => x.date === m.date);
+    if (!d) days.push(d = { date: m.date, rows: [] });
+    d.rows.push(m);
+  });
+  const tagCls = (s) => s === "tk" ? "tk" : s === "bk" ? "bk" : "gr";
+  const tagTxt = (m) => m.tag || (m.stage === "group" ? "Vòng bảng" : "");
+  document.getElementById("schedBox").innerHTML = days.map((d) => {
+    const n = d.rows.filter((r) => r.stage !== "open").length;
+    return `
+    <div class="day">
+      <div class="day-h">
+        <span class="d">${d.date}</span>
+        <span class="wd">${weekdayOf(d.date)}</span>
+        <span class="cnt">${n} trận</span>
+      </div>
+      ${d.rows.map((m) => m.stage === "open" ? `
+        <div class="m open">
+          <div class="t">${m.time}</div>
+          <div class="code">🎉 ${esc(m.code)}</div>
+        </div>` : `
+        <div class="m">
+          <div class="t">${m.time}</div>
+          <div class="no">#${m.no}</div>
+          <div class="code">${esc(m.code)}</div>
+          <div class="tag ${tagCls(m.stage)}">${esc(tagTxt(m))}</div>
+        </div>`).join("")}
+    </div>`;
+  }).join("");
+})();
+
+/* ===================== RENDER: CẦU THỦ ===================== */
+function renderRoster(q) {
+  q = (q || "").trim().toLowerCase();
+  const list = ROSTER.map((p, i) => ({ no: i + 1, name: p[0], dob: p[1] }))
+    .filter((p) => !q || p.name.toLowerCase().includes(q));
+  document.getElementById("rosterBox").innerHTML = list.length ? list.map((p) => `
+    <div class="p">
+      <div class="av">${esc(initials(p.name))}</div>
+      <div class="info">
+        <div class="nm">${p.no}. ${esc(p.name)}</div>
+        <div class="dob">🎂 ${esc(p.dob)}</div>
+      </div>
+      <div class="age">${ageOf(p.dob)}t</div>
+    </div>`).join("")
+    : `<div style="color:var(--text-fade);font-size:13px;padding:8px">Không tìm thấy cầu thủ nào.</div>`;
+  const ages = ROSTER.map((p) => ageOf(p[1]));
+  const avg = (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1);
+  document.getElementById("rStat").textContent =
+    `${list.length}/${ROSTER.length} cầu thủ · TB ${avg} tuổi · trẻ nhất ${Math.min(...ages)}t · lớn nhất ${Math.max(...ages)}t`;
+}
+renderRoster("");
+document.getElementById("rSearch").addEventListener("input", (e) => renderRoster(e.target.value));
+
+/* ===================== THEME + NAV ===================== */
+const themeBtn = document.getElementById("themeBtn");
+const applyTheme = (t) => {
+  document.documentElement.classList.toggle("light", t === "light");
+  themeBtn.textContent = t === "light" ? "☀️" : "🌙";
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", t === "light" ? "#eef2f7" : "#0a0f1e");
+};
+let theme = localStorage.getItem("bdtp-theme") || "dark";
+applyTheme(theme);
+themeBtn.addEventListener("click", () => {
+  theme = theme === "light" ? "dark" : "light";
+  localStorage.setItem("bdtp-theme", theme); applyTheme(theme);
+});
+const links = [...document.querySelectorAll(".nav a")];
+const secs = links.map((a) => document.querySelector(a.getAttribute("href")));
+addEventListener("scroll", () => {
+  let cur = 0;
+  secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= 90) cur = i; });
+  links.forEach((a, i) => a.classList.toggle("on", i === cur));
+}, { passive: true });
+
+/* ===================== EXPORT CANVAS: LỊCH THI ĐẤU ===================== */
+async function exportSchedule(btn) {
+  const old = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
+  try {
+    // gom theo ngày
+    const days = [];
+    SCHEDULE.forEach((m) => {
+      let d = days.find((x) => x.date === m.date);
+      if (!d) days.push(d = { date: m.date, rows: [] });
+      d.rows.push(m);
+    });
+
+    const W = 1080, M = 46;
+    const headerH = 214, gTitleH = 44, gCardH = 152, gGap = 22;
+    const sTitleH = 46, dayH = 40, rowH = 40, dayGap = 12, footerH = 54;
+    const schedH = days.reduce((a, d) => a + dayH + d.rows.length * rowH + dayGap, 0);
+    const H = headerH + gTitleH + gCardH + gGap + sTitleH + schedH + footerH;
+
+    const ratio = 2;
+    const cv = document.createElement("canvas"); cv.width = W * ratio; cv.height = H * ratio;
+    const ctx = cv.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const clip = (s, mw) => { s = String(s || ""); if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+    const gold = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const LS = (px) => { try { ctx.letterSpacing = px; } catch (e) {} };
+
+    // ===== nền: gradient + tia sáng + bokeh + vignette + khung vàng =====
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    (function rays() {
+      const cx = W / 2, cy = H * 0.12, R = Math.max(W, H) * 0.8, n = 20, wg = 0.15;
+      const rg = ctx.createRadialGradient(cx, cy, 20, cx, cy, R);
+      rg.addColorStop(0, "rgba(246,226,150,0.13)"); rg.addColorStop(1, "rgba(246,226,150,0)");
+      ctx.save(); ctx.fillStyle = rg;
+      for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a - wg) * R, cy + Math.sin(a - wg) * R); ctx.lineTo(cx + Math.cos(a + wg) * R, cy + Math.sin(a + wg) * R); ctx.closePath(); ctx.fill(); }
+      ctx.restore();
+    })();
+    (function bokeh() {
+      const hsh = (i, k) => { const v = Math.sin((i + 1) * k) * 43758.5453; return v - Math.floor(v); };
+      ctx.save();
+      for (let i = 0; i < 22; i++) {
+        const x = hsh(i, 12.9898) * W, y = hsh(i, 78.233) * H, t = hsh(i, 37.719);
+        const rad = 3 + t * 9, a = 0.03 + t * 0.07;
+        const gd = ctx.createRadialGradient(x, y, 0, x, y, rad);
+        gd.addColorStop(0, `rgba(246,224,146,${a})`); gd.addColorStop(1, "rgba(246,224,146,0)");
+        ctx.fillStyle = gd; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    })();
+    const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.72);
+    vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = gold(0, H); ctx.lineWidth = 3; rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
+    ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; rrect(24, 24, W - 48, H - 48, 12); ctx.stroke(); ctx.globalAlpha = 1;
+
+    // ===== header =====
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.font = "44px system-ui, sans-serif"; ctx.fillText("⚽", W / 2, 74);
+    ctx.save(); LS("5px"); ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14);
+    ctx.fillText("ĐẠI HỘI TDTT THÀNH PHỐ HUẾ", W / 2, 100); ctx.restore();
+    ctx.save(); LS("3px"); ctx.fillStyle = gold(112, 156); ctx.font = F(800, 40);
+    ctx.fillText("LỊCH THI ĐẤU MÔN BÓNG ĐÁ", W / 2, 148); ctx.restore();
+    ctx.fillStyle = "#c9d3e6"; ctx.font = F(600, 15);
+    ctx.fillText("🗓️  Từ 20/7 đến 10/8/2026      📍  SVĐ Tự Do Huế · 02 Lê Quý Đôn, P. Phú Xuân", W / 2, 178);
+
+    const secTitle = (y, h, label) => {
+      const cy = y + h / 2; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.save(); LS("4px"); ctx.font = F(800, 22);
+      const tw = ctx.measureText(label).width;
+      ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(M, cy); ctx.lineTo(W / 2 - tw / 2 - 20, cy);
+      ctx.moveTo(W / 2 + tw / 2 + 20, cy); ctx.lineTo(W - M, cy); ctx.stroke();
+      ctx.fillStyle = gold(cy - 12, cy + 12); ctx.fillText(label, W / 2, cy + 1); ctx.restore();
+    };
+
+    // ===== bảng đấu =====
+    let Y = headerH;
+    secTitle(Y, gTitleH, "BÓC THĂM CHIA BẢNG"); Y += gTitleH;
+    const gw = (W - 2 * M - 4 * 12) / 5;
+    GROUPS.forEach((g, i) => {
+      const x = M + i * (gw + 12), hh = 38;
+      ctx.fillStyle = "rgba(20,33,63,0.72)"; rrect(x, Y, gw, gCardH, 12); ctx.fill();
+      ctx.strokeStyle = "rgba(217,178,74,0.3)"; ctx.lineWidth = 1.2; rrect(x, Y, gw, gCardH, 12); ctx.stroke();
+      ctx.save(); rrect(x, Y, gw, gCardH, 12); ctx.clip();
+      const hg = ctx.createLinearGradient(x, Y, x + gw, Y + hh);
+      hg.addColorStop(0, g.color); hg.addColorStop(1, g.color + "bb");
+      ctx.fillStyle = hg; ctx.fillRect(x, Y, gw, hh); ctx.restore();
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.save(); LS("2px"); ctx.fillStyle = "#fff"; ctx.font = F(800, 16);
+      ctx.fillText("BẢNG " + g.name, x + gw / 2, Y + hh / 2 + 1); ctx.restore();
+      g.teams.forEach((t, k) => {
+        const ry = Y + hh + k * 38, cy = ry + 19;
+        if (k) { ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, ry); ctx.lineTo(x + gw - 12, ry); ctx.stroke(); }
+        ctx.textAlign = "left"; ctx.fillStyle = "#7f8ba3"; ctx.font = F(800, 12);
+        ctx.fillText(g.name + (k + 1), x + 13, cy);
+        ctx.fillStyle = "#eef0f5"; ctx.font = F(700, 15);
+        ctx.fillText(clip(t, gw - 58), x + 42, cy);
+      });
+    });
+    Y += gCardH + gGap;
+
+    // ===== lịch =====
+    secTitle(Y, sTitleH, "LỊCH THI ĐẤU"); Y += sTitleH;
+    const tagColor = { tk: ["#fbbf24", "rgba(251,191,36,0.14)"], bk: ["#f87171", "rgba(248,113,113,0.14)"], group: ["#7dd3fc", "rgba(125,211,252,0.12)"] };
+    days.forEach((d) => {
+      const bw = W - 2 * M, bh = dayH + d.rows.length * rowH;
+      ctx.fillStyle = "rgba(20,33,63,0.6)"; rrect(M, Y, bw, bh, 12); ctx.fill();
+      ctx.strokeStyle = "rgba(217,178,74,0.28)"; ctx.lineWidth = 1.2; rrect(M, Y, bw, bh, 12); ctx.stroke();
+      // header ngày
+      ctx.save(); rrect(M, Y, bw, bh, 12); ctx.clip();
+      const dg = ctx.createLinearGradient(M, Y, M + bw * 0.6, Y);
+      dg.addColorStop(0, "rgba(233,200,107,0.18)"); dg.addColorStop(1, "rgba(233,200,107,0)");
+      ctx.fillStyle = dg; ctx.fillRect(M, Y, bw, dayH); ctx.restore();
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 16); ctx.fillText(d.date, M + 16, Y + dayH / 2 + 1);
+      ctx.fillStyle = "#8fa0bd"; ctx.font = F(600, 12.5); ctx.fillText(weekdayOf(d.date), M + 16 + ctx.measureText(d.date).width + 46, Y + dayH / 2 + 1);
+      ctx.textAlign = "right"; ctx.fillStyle = "#7f8ba3"; ctx.font = F(600, 12);
+      ctx.fillText(VENUE, M + bw - 16, Y + dayH / 2 + 1);
+      // rows
+      d.rows.forEach((m, i) => {
+        const ry = Y + dayH + i * rowH, cy = ry + rowH / 2;
+        if (i) { ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M + 14, ry); ctx.lineTo(M + bw - 14, ry); ctx.stroke(); }
+        if (m.stage === "open") {
+          ctx.save(); ctx.fillStyle = "rgba(52,211,153,0.12)"; ctx.fillRect(M + 1, ry, bw - 2, rowH); ctx.restore();
+          ctx.textAlign = "left"; ctx.textBaseline = "middle";
+          ctx.fillStyle = "#34d399"; ctx.font = F(800, 15); ctx.fillText(m.time, M + 16, cy);
+          ctx.save(); LS("2px"); ctx.fillStyle = "#34d399"; ctx.font = F(800, 15);
+          ctx.fillText("🎉 " + m.code, M + 110, cy); ctx.restore();
+          return;
+        }
+        ctx.textAlign = "left"; ctx.textBaseline = "middle";
+        ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 15); ctx.fillText(m.time, M + 16, cy);
+        // badge số trận
+        const bx = M + 92, bwid = 46, bhh = 22;
+        ctx.fillStyle = "rgba(255,255,255,0.07)"; rrect(bx, cy - bhh / 2, bwid, bhh, 11); ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.12)"; ctx.lineWidth = 1; rrect(bx, cy - bhh / 2, bwid, bhh, 11); ctx.stroke();
+        ctx.textAlign = "center"; ctx.fillStyle = "#c9d3e6"; ctx.font = F(800, 12);
+        ctx.fillText("#" + m.no, bx + bwid / 2, cy + 1);
+        // tag
+        const tc = tagColor[m.stage] || tagColor.group;
+        const label = m.tag || "Vòng bảng";
+        ctx.font = F(800, 12); const tgw = ctx.measureText(label).width + 20;
+        const tgx = M + bw - 16 - tgw;
+        ctx.fillStyle = tc[1]; rrect(tgx, cy - 11, tgw, 22, 11); ctx.fill();
+        ctx.strokeStyle = tc[0] + "66"; ctx.lineWidth = 1; rrect(tgx, cy - 11, tgw, 22, 11); ctx.stroke();
+        ctx.textAlign = "center"; ctx.fillStyle = tc[0]; ctx.fillText(label, tgx + tgw / 2, cy + 1);
+        // mã trận
+        ctx.textAlign = "left"; ctx.fillStyle = "#eef0f5"; ctx.font = F(700, 15);
+        ctx.fillText(clip(m.code, tgx - (M + 156)), M + 156, cy);
+      });
+      Y += bh + dayGap;
+    });
+
+    // ===== footer =====
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "#6f7f9c"; ctx.font = F(600, 12.5);
+    ctx.fillText("Theo thông báo của Ban tổ chức Đại hội TDTT Thành phố Huế 2026", W / 2, H - footerH / 2);
+
+    const blob = await new Promise((r) => cv.toBlob(r, "image/png"));
+    if (!blob) throw new Error("toBlob rỗng");
+    const file = new File([blob], "lich-thi-dau-bong-da-tdtt-hue-2026.png", { type: "image/png" });
+    let shared = false;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "Lịch thi đấu bóng đá · Đại hội TDTT TP Huế 2026", text: "Lịch thi đấu môn bóng đá ⚽" }); shared = true; }
+      catch (e) { if (e && e.name === "AbortError") shared = true; }
+    }
+    if (!shared) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+  } catch (e) {
+    console.warn("[export]", e);
+    alert("Không tạo được ảnh: " + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = old; }
+  }
+}
+document.getElementById("exportBtn").addEventListener("click", (e) => exportSchedule(e.currentTarget));
+</script>
+</body>
+</html>
