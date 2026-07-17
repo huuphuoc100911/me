@@ -45,6 +45,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "worldcup.personal.io.vn" }],
       "destination": "/worldcup.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "bongda.personal.io.vn" }],
+      "destination": "/bongda-thanhpho.html"
     }
   ]
 }
