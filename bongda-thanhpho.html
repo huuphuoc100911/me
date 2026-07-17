@@ -168,6 +168,25 @@
     grid-template-columns: 76px 1fr;
   }
   .m.open .code { color: var(--good); font-weight: 800; letter-spacing: 1px; }
+  /* Trận của đội mình */
+  .m.mine {
+    background: linear-gradient(90deg, rgba(233,200,107,0.16), rgba(233,200,107,0.03));
+    box-shadow: inset 3px 0 0 var(--gold);
+  }
+  .m.mine .code { color: #fff6d8; font-weight: 800; }
+  .m.mine .code em { color: var(--gold); font-style: normal; font-weight: 800; }
+  .m.mine .no { border-color: rgba(233,200,107,.5); color: var(--gold); }
+  .gcard li.mine {
+    background: linear-gradient(90deg, rgba(233,200,107,0.18), transparent);
+    box-shadow: inset 3px 0 0 var(--gold);
+  }
+  .gcard li.mine span:nth-child(2) { color: var(--gold); font-weight: 800; }
+  .gcard li.mine .n { background: linear-gradient(180deg,#e7c86c,#a9781d); color: #26180a; }
+  .mine-badge {
+    display: inline-block; margin-left: 6px; font-size: 9.5px; font-weight: 800; letter-spacing: .5px;
+    color: #26180a; background: linear-gradient(180deg,#e7c86c,#a9781d);
+    padding: 2px 7px; border-radius: 999px; vertical-align: 1px;
+  }
 
   /* ===== Format ===== */
   .fmt { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
@@ -226,6 +245,7 @@
       <span class="chip">🗓️ 20/7 – 10/8/2026</span>
       <span class="chip">📍 SVĐ Tự Do Huế · 02 Lê Quý Đôn, P. Phú Xuân</span>
       <span class="chip">🏟️ 15 đội · 5 bảng · 21 trận</span>
+      <span class="chip" style="background:linear-gradient(180deg,#e7c86c,#a9781d);color:#26180a;border-color:transparent;font-weight:800">⭐ Đội ta: Phú Bài (E3 · Bảng E)</span>
     </div>
     <div class="hero-actions">
       <button class="btn primary" id="exportBtn">🖼️ Xuất ảnh lịch thi đấu</button>
@@ -298,7 +318,7 @@
 
   <section id="roster">
     <div class="sec-head">
-      <h2>👥 Danh sách cầu thủ</h2>
+      <h2>👥 Danh sách cầu thủ · Đội Phú Bài</h2>
       <div class="line"></div>
       <span class="note">Danh sách đăng ký thi đấu</span>
     </div>
@@ -316,11 +336,12 @@
 
 <script>
 /* ===================== DỮ LIỆU ===================== */
+// Tên đội = phường/xã của TP Huế → viết theo đúng chính tả hành chính
 const GROUPS = [
-  { name: "A", color: "#1d4ed8", teams: ["Hương An", "Mỹ Thượng", "Hà Châu"] },
+  { name: "A", color: "#1d4ed8", teams: ["Hương An", "Mỹ Thượng", "Hóa Châu"] },
   { name: "B", color: "#16a34a", teams: ["Lộc An", "Kim Long", "Vỹ Dạ"] },
   { name: "C", color: "#ea580c", teams: ["Thanh Thủy", "Dương Nỗ", "Phú Xuân"] },
-  { name: "D", color: "#9333ea", teams: ["Thuận An", "Thủy Xuân", "Thuận Hòa"] },
+  { name: "D", color: "#9333ea", teams: ["Thuận An", "Thủy Xuân", "Thuận Hóa"] },
   { name: "E", color: "#dc2626", teams: ["Phú Vinh", "An Cựu", "Phú Bài"] }
 ];
 
@@ -387,6 +408,11 @@ const SEED = {};
 GROUPS.forEach((g) => g.teams.forEach((t, i) => { SEED[g.name + (i + 1)] = t; }));
 const resolveCode = (code) => String(code).replace(/\b([A-E][1-3])\b/g, (m) => SEED[m] || m);
 
+/* Đội của mình → tô đậm & làm nổi bật */
+const MY_TEAM = "Phú Bài";
+// Bỏ phần trong ngoặc ("Thua trận (X - Y)") rồi mới xét → chỉ tính khi đội THỰC SỰ ra sân
+const isMine = (code) => resolveCode(code).replace(/\([^)]*\)/g, "").includes(MY_TEAM);
+
 /* ===================== RENDER: BẢNG ===================== */
 (function renderGroups() {
   document.getElementById("groupsBox").innerHTML = GROUPS.map((g) => `
@@ -396,7 +422,7 @@ const resolveCode = (code) => String(code).replace(/\b([A-E][1-3])\b/g, (m) => S
       </div>
       <ol>
         ${g.teams.map((t, i) => `
-          <li><span class="n">${i + 1}</span><span>${esc(t)}</span><span class="seed">${g.name}${i + 1}</span></li>
+          <li class="${t === MY_TEAM ? "mine" : ""}"><span class="n">${i + 1}</span><span>${esc(t)}${t === MY_TEAM ? '<span class="mine-badge">ĐỘI TA</span>' : ""}</span><span class="seed">${g.name}${i + 1}</span></li>
         `).join("")}
       </ol>
     </div>`).join("");
@@ -427,12 +453,13 @@ const resolveCode = (code) => String(code).replace(/\b([A-E][1-3])\b/g, (m) => S
           <div class="t">${m.time}</div>
           <div class="code">🎉 ${esc(m.code)}</div>
         </div>`;
-        const rs = resolveCode(m.code);
+        const rs = resolveCode(m.code), mine = isMine(m.code);
+        const html = esc(rs).split(MY_TEAM).join(`<em>${MY_TEAM}</em>`);
         return `
-        <div class="m">
+        <div class="m${mine ? " mine" : ""}">
           <div class="t">${m.time}</div>
           <div class="no">#${m.no}</div>
-          <div class="code">${esc(rs)}${rs !== m.code ? `<span class="raw">${esc(m.code)}</span>` : ""}</div>
+          <div class="code">${mine ? "⭐ " : ""}${html}${mine ? '<span class="mine-badge">ĐỘI TA</span>' : ""}${rs !== m.code ? `<span class="raw">${esc(m.code)}</span>` : ""}</div>
           <div class="tag ${tagCls(m.stage)}">${esc(tagTxt(m))}</div>
         </div>`;
       }).join("")}
@@ -498,9 +525,9 @@ async function exportSchedule(btn) {
     });
 
     // ẢNH VUÔNG — lịch chia 2 cột cho cân đối
-    const S = 1400, W = S, H = S, M = 54;
-    const headerH = 196, gTitleH = 42, gCardH = 152, gGap = 20, sTitleH = 44, footerH = 52;
-    const dayH = 38, dayGap = 12, colGap = 26;
+    const S = 1600, W = S, H = S, M = 60;
+    const headerH = 222, gTitleH = 44, gCardH = 170, gGap = 24, sTitleH = 48, footerH = 56;
+    const dayH = 44, dayGap = 14, colGap = 30;
     const colW = (W - 2 * M - colGap) / 2;
     const schedTop = headerH + gTitleH + gCardH + gGap + sTitleH;
     const avail = H - footerH - schedTop;
@@ -514,8 +541,8 @@ async function exportSchedule(btn) {
       }
       return best || { k: days.length, max: hOf(days) };
     };
-    let rowH = 58, sp = splitAt(rowH);
-    while (sp.max > avail && rowH > 34) { rowH -= 2; sp = splitAt(rowH); }
+    let rowH = 72, sp = splitAt(rowH);
+    while (sp.max > avail && rowH > 40) { rowH -= 2; sp = splitAt(rowH); }
 
     const ratio = 2;
     const cv = document.createElement("canvas"); cv.width = W * ratio; cv.height = H * ratio;
@@ -558,17 +585,17 @@ async function exportSchedule(btn) {
 
     // ===== header =====
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.font = "44px system-ui, sans-serif"; ctx.fillText("⚽", W / 2, 74);
-    ctx.save(); LS("5px"); ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 14);
-    ctx.fillText("ĐẠI HỘI TDTT THÀNH PHỐ HUẾ", W / 2, 100); ctx.restore();
-    ctx.save(); LS("3px"); ctx.fillStyle = gold(112, 156); ctx.font = F(800, 40);
-    ctx.fillText("LỊCH THI ĐẤU MÔN BÓNG ĐÁ", W / 2, 148); ctx.restore();
-    ctx.fillStyle = "#c9d3e6"; ctx.font = F(600, 15);
-    ctx.fillText("🗓️  Từ 20/7 đến 10/8/2026      📍  SVĐ Tự Do Huế · 02 Lê Quý Đôn, P. Phú Xuân", W / 2, 178);
+    ctx.font = "50px system-ui, sans-serif"; ctx.fillText("⚽", W / 2, 78);
+    ctx.save(); LS("6px"); ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15);
+    ctx.fillText("ĐẠI HỘI TDTT THÀNH PHỐ HUẾ", W / 2, 110); ctx.restore();
+    ctx.save(); LS("3px"); ctx.fillStyle = gold(128, 178); ctx.font = F(800, 46);
+    ctx.fillText("LỊCH THI ĐẤU MÔN BÓNG ĐÁ", W / 2, 172); ctx.restore();
+    ctx.fillStyle = "#c9d3e6"; ctx.font = F(600, 16);
+    ctx.fillText("🗓️  Từ 20/7 đến 10/8/2026        📍  SVĐ Tự Do Huế · 02 Lê Quý Đôn, P. Phú Xuân", W / 2, 204);
 
     const secTitle = (y, h, label) => {
       const cy = y + h / 2; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.save(); LS("4px"); ctx.font = F(800, 22);
+      ctx.save(); LS("5px"); ctx.font = F(800, 24);
       const tw = ctx.measureText(label).width;
       ctx.strokeStyle = "rgba(217,178,74,0.4)"; ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.moveTo(M, cy); ctx.lineTo(W / 2 - tw / 2 - 20, cy);
@@ -581,23 +608,26 @@ async function exportSchedule(btn) {
     secTitle(Y, gTitleH, "BÓC THĂM CHIA BẢNG"); Y += gTitleH;
     const gw = (W - 2 * M - 4 * 12) / 5;
     GROUPS.forEach((g, i) => {
-      const x = M + i * (gw + 12), hh = 38;
-      ctx.fillStyle = "rgba(20,33,63,0.72)"; rrect(x, Y, gw, gCardH, 12); ctx.fill();
-      ctx.strokeStyle = "rgba(217,178,74,0.3)"; ctx.lineWidth = 1.2; rrect(x, Y, gw, gCardH, 12); ctx.stroke();
-      ctx.save(); rrect(x, Y, gw, gCardH, 12); ctx.clip();
+      const x = M + i * (gw + 12), hh = 44, gRow = 42;
+      ctx.fillStyle = "rgba(20,33,63,0.72)"; rrect(x, Y, gw, gCardH, 13); ctx.fill();
+      ctx.strokeStyle = "rgba(217,178,74,0.3)"; ctx.lineWidth = 1.2; rrect(x, Y, gw, gCardH, 13); ctx.stroke();
+      ctx.save(); rrect(x, Y, gw, gCardH, 13); ctx.clip();
       const hg = ctx.createLinearGradient(x, Y, x + gw, Y + hh);
       hg.addColorStop(0, g.color); hg.addColorStop(1, g.color + "bb");
-      ctx.fillStyle = hg; ctx.fillRect(x, Y, gw, hh); ctx.restore();
+      ctx.fillStyle = hg; ctx.fillRect(x, Y, gw, hh);
+      // nền vàng cho đội mình
+      g.teams.forEach((t, k) => { if (t === MY_TEAM) { ctx.fillStyle = "rgba(233,200,107,0.16)"; ctx.fillRect(x, Y + hh + k * gRow, gw, gRow); ctx.fillStyle = "#e7c86c"; ctx.fillRect(x, Y + hh + k * gRow, 3, gRow); } });
+      ctx.restore();
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.save(); LS("2px"); ctx.fillStyle = "#fff"; ctx.font = F(800, 16);
+      ctx.save(); LS("2px"); ctx.fillStyle = "#fff"; ctx.font = F(800, 18);
       ctx.fillText("BẢNG " + g.name, x + gw / 2, Y + hh / 2 + 1); ctx.restore();
       g.teams.forEach((t, k) => {
-        const ry = Y + hh + k * 38, cy = ry + 19;
-        if (k) { ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, ry); ctx.lineTo(x + gw - 12, ry); ctx.stroke(); }
-        ctx.textAlign = "left"; ctx.fillStyle = "#7f8ba3"; ctx.font = F(800, 12);
-        ctx.fillText(g.name + (k + 1), x + 13, cy);
-        ctx.fillStyle = "#eef0f5"; ctx.font = F(700, 15);
-        ctx.fillText(clip(t, gw - 58), x + 42, cy);
+        const ry = Y + hh + k * gRow, cy = ry + gRow / 2, mine = t === MY_TEAM;
+        if (k) { ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 14, ry); ctx.lineTo(x + gw - 14, ry); ctx.stroke(); }
+        ctx.textAlign = "left"; ctx.fillStyle = mine ? "#c9a24a" : "#7f8ba3"; ctx.font = F(800, 12.5);
+        ctx.fillText(g.name + (k + 1), x + 16, cy);
+        ctx.fillStyle = mine ? "#fff6d8" : "#eef0f5"; ctx.font = F(mine ? 800 : 700, 16.5);
+        ctx.fillText(clip((mine ? "★ " : "") + t, gw - 70), x + 50, cy);
       });
     });
     Y += gCardH + gGap;
@@ -614,42 +644,53 @@ async function exportSchedule(btn) {
       dg.addColorStop(0, "rgba(233,200,107,0.18)"); dg.addColorStop(1, "rgba(233,200,107,0)");
       ctx.fillStyle = dg; ctx.fillRect(x, y, bw, dayH); ctx.restore();
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 15.5); ctx.fillText(d.date, x + 14, y + dayH / 2 + 1);
+      ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 17); ctx.fillText(d.date, x + 18, y + dayH / 2 + 1);
       const dwid = ctx.measureText(d.date).width;
-      ctx.fillStyle = "#8fa0bd"; ctx.font = F(600, 12); ctx.fillText(weekdayOf(d.date), x + 14 + dwid + 12, y + dayH / 2 + 1);
-      ctx.textAlign = "right"; ctx.fillStyle = "#7f8ba3"; ctx.font = F(600, 11.5); ctx.fillText(VENUE, x + bw - 14, y + dayH / 2 + 1);
+      ctx.fillStyle = "#8fa0bd"; ctx.font = F(600, 12.5); ctx.fillText(weekdayOf(d.date), x + 18 + dwid + 14, y + dayH / 2 + 1);
+      ctx.textAlign = "right"; ctx.fillStyle = "#7f8ba3"; ctx.font = F(600, 12); ctx.fillText(VENUE, x + bw - 18, y + dayH / 2 + 1);
       d.rows.forEach((m, i) => {
         const ry = y + dayH + i * rowH, cy = ry + rowH / 2;
         if (i) { ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 12, ry); ctx.lineTo(x + bw - 12, ry); ctx.stroke(); }
         if (m.stage === "open") {
           ctx.save(); ctx.fillStyle = "rgba(52,211,153,0.12)"; ctx.fillRect(x + 1, ry, bw - 2, rowH); ctx.restore();
           ctx.textAlign = "left"; ctx.textBaseline = "middle";
-          ctx.fillStyle = "#34d399"; ctx.font = F(800, 15); ctx.fillText(m.time, x + 14, cy);
-          ctx.save(); LS("2px"); ctx.fillStyle = "#34d399"; ctx.font = F(800, 15);
-          ctx.fillText("🎉 " + m.code, x + 96, cy); ctx.restore();
+          ctx.fillStyle = "#34d399"; ctx.font = F(800, 16); ctx.fillText(m.time, x + 18, cy);
+          ctx.save(); LS("2px"); ctx.fillStyle = "#34d399"; ctx.font = F(800, 16);
+          ctx.fillText("🎉 " + m.code, x + 110, cy); ctx.restore();
           return;
         }
+        const mine = isMine(m.code);
+        if (mine) { // nền vàng + vạch trái cho trận của đội mình
+          ctx.save(); rrect(x, y, bw, bh, 12); ctx.clip();
+          const mg = ctx.createLinearGradient(x, ry, x + bw, ry);
+          mg.addColorStop(0, "rgba(233,200,107,0.20)"); mg.addColorStop(1, "rgba(233,200,107,0.02)");
+          ctx.fillStyle = mg; ctx.fillRect(x, ry, bw, rowH);
+          ctx.fillStyle = "#e7c86c"; ctx.fillRect(x, ry, 3, rowH); ctx.restore();
+        }
         ctx.textAlign = "left"; ctx.textBaseline = "middle";
-        ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 15); ctx.fillText(m.time, x + 14, cy);
+        ctx.fillStyle = "#e7c86c"; ctx.font = F(800, 16); ctx.fillText(m.time, x + 18, cy);
         // badge số trận
-        const bx = x + 78, bwid = 44, bhh = 22;
-        ctx.fillStyle = "rgba(255,255,255,0.07)"; rrect(bx, cy - bhh / 2, bwid, bhh, 11); ctx.fill();
-        ctx.strokeStyle = "rgba(255,255,255,0.12)"; ctx.lineWidth = 1; rrect(bx, cy - bhh / 2, bwid, bhh, 11); ctx.stroke();
-        ctx.textAlign = "center"; ctx.fillStyle = "#c9d3e6"; ctx.font = F(800, 12); ctx.fillText("#" + m.no, bx + bwid / 2, cy + 1);
+        const bx = x + 86, bwid = 48, bhh = 24;
+        ctx.fillStyle = mine ? "rgba(233,200,107,0.18)" : "rgba(255,255,255,0.07)"; rrect(bx, cy - bhh / 2, bwid, bhh, 12); ctx.fill();
+        ctx.strokeStyle = mine ? "rgba(233,200,107,0.55)" : "rgba(255,255,255,0.12)"; ctx.lineWidth = 1; rrect(bx, cy - bhh / 2, bwid, bhh, 12); ctx.stroke();
+        ctx.textAlign = "center"; ctx.fillStyle = mine ? "#e7c86c" : "#c9d3e6"; ctx.font = F(800, 12.5); ctx.fillText("#" + m.no, bx + bwid / 2, cy + 1);
         // tag vòng
         const tc = tagColor[m.stage] || tagColor.group, label = m.tag || "Vòng bảng";
-        ctx.font = F(800, 11.5); const tgw = ctx.measureText(label).width + 18, tgx = x + bw - 14 - tgw;
-        ctx.fillStyle = tc[1]; rrect(tgx, cy - 11, tgw, 22, 11); ctx.fill();
-        ctx.strokeStyle = tc[0] + "66"; ctx.lineWidth = 1; rrect(tgx, cy - 11, tgw, 22, 11); ctx.stroke();
+        ctx.font = F(800, 12); const tgw = ctx.measureText(label).width + 20, tgx = x + bw - 18 - tgw;
+        ctx.fillStyle = tc[1]; rrect(tgx, cy - 12, tgw, 24, 12); ctx.fill();
+        ctx.strokeStyle = tc[0] + "66"; ctx.lineWidth = 1; rrect(tgx, cy - 12, tgw, 24, 12); ctx.stroke();
         ctx.textAlign = "center"; ctx.fillStyle = tc[0]; ctx.fillText(label, tgx + tgw / 2, cy + 1);
         // tên đội (đã điền theo bốc thăm) + mã gốc bên dưới
-        const tx = x + 132, tw = tgx - 10 - tx, rs = resolveCode(m.code);
+        const tx = x + 150, tw = tgx - 14 - tx, rs = resolveCode(m.code);
         ctx.textAlign = "left";
         if (rs !== m.code) {
-          ctx.fillStyle = "#eef0f5"; ctx.font = F(700, 15); ctx.fillText(clip(rs, tw), tx, cy - 9);
-          ctx.fillStyle = "#7f8ba3"; ctx.font = F(600, 11.5); ctx.fillText(clip(m.code, tw), tx, cy + 12);
+          ctx.fillStyle = mine ? "#fff6d8" : "#eef0f5"; ctx.font = F(mine ? 800 : 700, 16);
+          ctx.fillText(clip((mine ? "★ " : "") + rs, tw), tx, cy - 11);
+          ctx.fillStyle = mine ? "#c9a24a" : "#7f8ba3"; ctx.font = F(600, 12);
+          ctx.fillText(clip(m.code, tw), tx, cy + 15);
         } else {
-          ctx.fillStyle = "#eef0f5"; ctx.font = F(700, 15); ctx.fillText(clip(rs, tw), tx, cy);
+          ctx.fillStyle = mine ? "#fff6d8" : "#eef0f5"; ctx.font = F(mine ? 800 : 700, 16);
+          ctx.fillText(clip((mine ? "★ " : "") + rs, tw), tx, cy);
         }
       });
       return bh;
