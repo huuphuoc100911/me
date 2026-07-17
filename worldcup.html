@@ -4656,15 +4656,20 @@ async function exportBracketPremium(btn) {
     ctx.globalAlpha = 0.55; ctx.lineWidth = 1.2; rrect(25, 25, W - 50, H - 50, 12); ctx.stroke(); ctx.globalAlpha = 1;
 
     // ===== Đường nối vàng (vẽ trước) =====
-    // Vẽ 2 lượt: nhánh chưa/không đi tiếp mờ trước, nhánh đội đã đi tiếp đậm + phát sáng đè lên
-    // → nhìn ra ngay đường đi của từng đội qua các vòng.
+    // Vẽ 2 lượt: nhánh đội bị loại mờ trước, nhánh đội còn đi tiếp đậm + phát sáng đè lên
+    // → đường sáng dừng lại đúng ở vòng mà đội đó thua, nhìn ra ngay hành trình từng đội.
+    const linkLive = (fn, tnum) => {
+      const w = winnerOf(fn); if (!w) return false;    // trận nguồn chưa có kết quả
+      const pw = winnerOf(tnum);
+      return pw ? pw === w : true;                     // trận đích đã xong: chỉ đội thắng; chưa xong: cả 2 đội còn cửa
+    };
     const strokeLinks = (advanced) => {
       KO_TEMPLATE.forEach((t) => {
         if (t.num === 103 || t.num === 104) return;   // 104: ô chung kết to vẽ riêng, không nối để tránh gạch thừa
         const feeders = KO_FEED[t.num]; if (!feeders) return;
         const ps = sideName(t.num);
         feeders.forEach((fn) => {
-          if (!!winnerOf(fn) !== advanced) return;   // trận nguồn đã có đội thắng ⇒ nhánh này là đường đi tiếp
+          if (linkLive(fn, t.num) !== advanced) return;
           const fs = sideName(fn);
           const fx = fs === "L" ? boxX(fn) + boxW : boxX(fn);
           const fy = cyC(fn);
