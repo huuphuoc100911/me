@@ -4656,20 +4656,32 @@ async function exportBracketPremium(btn) {
     ctx.globalAlpha = 0.55; ctx.lineWidth = 1.2; rrect(25, 25, W - 50, H - 50, 12); ctx.stroke(); ctx.globalAlpha = 1;
 
     // ===== Đường nối vàng (vẽ trước) =====
-    ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1.7;
-    KO_TEMPLATE.forEach((t) => {
-      if (t.num === 103 || t.num === 104) return;   // 104: ô chung kết to vẽ riêng, không nối để tránh gạch thừa
-      const feeders = KO_FEED[t.num]; if (!feeders) return;
-      const ps = sideName(t.num);
-      feeders.forEach((fn) => {
-        const fs = sideName(fn);
-        const fx = fs === "L" ? boxX(fn) + boxW : boxX(fn);
-        const fy = cyC(fn);
-        const px = ps === "L" ? boxX(t.num) : ps === "R" ? boxX(t.num) + boxW : (fs === "L" ? boxX(t.num) : boxX(t.num) + boxW);
-        const py = cyC(t.num); const mx = (fx + px) / 2;
-        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(mx, fy); ctx.lineTo(mx, py); ctx.lineTo(px, py); ctx.stroke();
+    // Vẽ 2 lượt: nhánh chưa/không đi tiếp mờ trước, nhánh đội đã đi tiếp đậm + phát sáng đè lên
+    // → nhìn ra ngay đường đi của từng đội qua các vòng.
+    const strokeLinks = (advanced) => {
+      KO_TEMPLATE.forEach((t) => {
+        if (t.num === 103 || t.num === 104) return;   // 104: ô chung kết to vẽ riêng, không nối để tránh gạch thừa
+        const feeders = KO_FEED[t.num]; if (!feeders) return;
+        const ps = sideName(t.num);
+        feeders.forEach((fn) => {
+          if (!!winnerOf(fn) !== advanced) return;   // trận nguồn đã có đội thắng ⇒ nhánh này là đường đi tiếp
+          const fs = sideName(fn);
+          const fx = fs === "L" ? boxX(fn) + boxW : boxX(fn);
+          const fy = cyC(fn);
+          const px = ps === "L" ? boxX(t.num) : ps === "R" ? boxX(t.num) + boxW : (fs === "L" ? boxX(t.num) : boxX(t.num) + boxW);
+          const py = cyC(t.num); const mx = (fx + px) / 2;
+          ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(mx, fy); ctx.lineTo(mx, py); ctx.lineTo(px, py); ctx.stroke();
+        });
       });
-    });
+    };
+    ctx.save();
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(217,178,74,0.26)"; ctx.lineWidth = 1.6;
+    strokeLinks(false);
+    ctx.strokeStyle = "#f4dc95"; ctx.lineWidth = 3.4;
+    ctx.shadowColor = "rgba(233,200,107,0.7)"; ctx.shadowBlur = 9;
+    strokeLinks(true);
+    ctx.restore();
 
     // ===== Nhãn tên vòng (header trên đầu mỗi cột, 2 bên đối xứng) =====
     (function roundLabels() {
