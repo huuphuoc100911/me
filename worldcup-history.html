@@ -401,16 +401,18 @@ renderAll();
 function fitBracket() {
   const scale = $("brkScale"); if (!scale) return;
   const wrap = document.querySelector(".brk-wrap"); if (!wrap) return;
-  scale.style.transform = "none"; wrap.style.height = "";
+  // reset để đo kích thước tự nhiên
+  scale.style.transform = "none"; wrap.style.height = ""; wrap.style.overflow = "";
   const avail = wrap.clientWidth, natural = scale.scrollWidth, nh = scale.offsetHeight;
-  let f = avail / natural;
-  if (f >= 1) { wrap.style.overflowX = "hidden"; return; }        // đã vừa, không cần thu nhỏ
+  const f = avail / natural;
+  if (f >= 1) return;                                              // đã vừa → giữ nguyên
   if (f >= 0.46) {                                                 // thu nhỏ vừa phải để hiện hết
     const tx = Math.max(0, (avail - natural * f) / 2);
     scale.style.transformOrigin = "top left";
     scale.style.transform = `translateX(${tx}px) scale(${f})`;
-    wrap.style.height = (nh * f) + "px"; wrap.style.overflowX = "hidden";
-  } else { wrap.style.overflowX = "auto"; }                        // quá hẹp (điện thoại) → vẫn cho kéo
+    wrap.style.height = Math.ceil(nh * f) + "px";
+    wrap.style.overflow = "hidden";                               // khoá cả 2 trục → không có scroll
+  } else { wrap.style.overflowX = "auto"; }                        // quá hẹp (điện thoại) → cho kéo ngang
 }
 window.addEventListener("resize", fitBracket);
 
@@ -691,7 +693,7 @@ async function exportBracket(btn) {
     })();
 
     // ----- dải NHÀ VÔ ĐỊCH + TRANH HẠNG 3 dưới ô CK -----
-    let by = fy + fH + 26;
+    let by = fy + fH + 40;
     (function champBanner() {
       const cw = 340, ch = 74, cxx = fcx - cw / 2;
       const g = ctx.createLinearGradient(0, by, 0, by + ch); g.addColorStop(0, "rgba(233,200,107,0.34)"); g.addColorStop(1, "rgba(169,120,29,0.14)");
@@ -702,12 +704,12 @@ async function exportBracket(btn) {
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.save(); LS("3px"); ctx.fillStyle = "#f0d98a"; ctx.font = F(700, 12); ctx.fillText("NHÀ VÔ ĐỊCH " + YEAR, fxx + fW2 + 16, by + ch / 2 - 13); ctx.restore();
       ctx.fillStyle = gold(by + ch / 2, by + ch / 2 + 22); ctx.font = F(800, 26); ctx.fillText(clip(d.champion.toUpperCase(), cw - fW2 - 54), fxx + fW2 + 16, by + ch / 2 + 12);
-      by += ch + 20;
+      by += ch + 38;
     })();
     (function thirdBox() {
       const tw = 300, th = 74, txx = fcx - tw / 2, t = d.third, twin = winOf(t);
       ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#d8b48a"; ctx.font = F(800, 13);
-      ctx.save(); LS("2px"); ctx.fillText("🥉 TRANH HẠNG 3", fcx, by - 6); ctx.restore();
+      ctx.save(); LS("2px"); ctx.fillText("🥉 TRANH HẠNG 3", fcx, by - 13); ctx.restore();
       const ph = (th - 8) / 2;
       const node0 = { x: txx, cy: by + ph / 2, side: "L" };
       plate(txx, by, tw, ph, "L", t[0], t[2], null, twin === t[0], tw / boxW);
