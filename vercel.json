@@ -53,7 +53,7 @@
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "history.personal.io.vn" }],
+      "has": [{ "type": "host", "value": "worldcup-history.personal.io.vn" }],
       "destination": "/worldcup-history.html"
     }
   ]
