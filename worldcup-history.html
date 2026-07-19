@@ -88,14 +88,13 @@
 
   /* ===== Bracket ===== */
   .brk-wrap { overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
-  .brk { display: flex; align-items: stretch; min-width: 1120px; gap: 0; }
+  .brk-scale { transform-origin: top left; }
+  .brk { display: flex; align-items: stretch; min-width: 1080px; gap: 0; }
   .side { display: flex; flex: 1; }
-  .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 0 12px; min-width: 176px; }
-  .round .rtitle { position: absolute; top: -2px; left: 0; right: 0; text-align: center;
-    font-size: 11px; letter-spacing: 1.5px; color: var(--gold); font-weight: 800; }
+  .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 0 10px; min-width: 168px; }
   .rounds-head { display: flex; }
   .rounds-head .rh { flex: 1; text-align: center; font-size: 11px; letter-spacing: 1.5px; color: var(--gold);
-    font-weight: 800; padding: 4px 0 10px; min-width: 176px; }
+    font-weight: 800; padding: 4px 0 10px; min-width: 168px; }
   .col-final { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 210px; padding: 0 6px; }
 
   .mt { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; }
@@ -129,6 +128,48 @@
   .thirdbox .rw .nm { flex: 1; color: var(--dim); }
   .thirdbox .rw.w .nm { color: #fff2cf; font-weight: 700; }
   .thirdbox .rw .sc { font-weight: 800; }
+
+  .mt.clickable, .finalbox.clickable, .thirdbox.clickable { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+  .mt.clickable:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.4), 0 0 0 1px var(--line); }
+  .finalbox.clickable:hover, .thirdbox.clickable:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  /* ===== Modal chi tiết trận ===== */
+  .mov { position: fixed; inset: 0; background: rgba(4,8,20,.72); backdrop-filter: blur(3px); z-index: 60;
+    display: none; align-items: flex-start; justify-content: center; padding: 28px 14px; overflow-y: auto; }
+  .mov.on { display: flex; }
+  .mbox { width: 100%; max-width: 480px; background: linear-gradient(180deg, #14203f, #0e1730); border: 1.5px solid var(--gold);
+    border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.55); overflow: hidden; position: relative; animation: pop .18s ease; }
+  @keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .mclose { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,.1); color: #fff; font-size: 20px; cursor: pointer; line-height: 1; z-index: 2; }
+  .mclose:hover { background: rgba(255,255,255,.2); }
+  .mhead { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 26px 18px 18px;
+    background: radial-gradient(120% 90% at 50% 0%, rgba(233,200,107,.14), transparent 70%); }
+  .mteam { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .mteam img { width: 62px; height: 42px; object-fit: cover; border-radius: 6px; border: 1.5px solid var(--gold); box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+  .mteam span { font-size: 14px; font-weight: 700; color: var(--dim); }
+  .mteam.win span { color: #fff6d8; }
+  .mscore { text-align: center; }
+  .mscore .sc { font-size: 34px; font-weight: 800; color: #fff; letter-spacing: 2px; }
+  .mscore .pen { font-size: 12px; color: var(--gold); font-weight: 700; margin-top: 2px; }
+  .mmeta { text-align: center; color: var(--gold); font-size: 12px; letter-spacing: 2px; font-weight: 700; padding: 2px 0 12px; }
+  .mres { margin: 0 18px 16px; padding: 11px 14px; border-radius: 11px; text-align: center; font-weight: 800; font-size: 14px;
+    background: linear-gradient(180deg, rgba(233,200,107,.18), rgba(20,33,63,.5)); border: 1px solid var(--line); color: #fff6d8; }
+  .mjour { padding: 0 18px 8px; }
+  .mjour h4 { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 1px; color: var(--gold);
+    margin: 12px 0 8px; text-transform: uppercase; }
+  .mjour h4 img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; }
+  .jrow { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; background: rgba(255,255,255,.03);
+    border: 1px solid var(--border); font-size: 13px; margin-bottom: 6px; }
+  .jrow .jr-rnd { width: 78px; color: var(--fade); font-size: 11px; flex-shrink: 0; }
+  .jrow .jr-opp { flex: 1; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jrow .jr-sc { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .jrow .jr-badge { width: 20px; text-align: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+  .jrow.w .jr-sc { color: #7ddca0; } .jrow.l .jr-sc { color: #e88; } .jrow.d .jr-sc { color: var(--dim); }
+  .jr-grp { padding: 7px 10px; border-radius: 9px; background: rgba(233,200,107,.06); border: 1px solid var(--border);
+    font-size: 12.5px; color: var(--dim); margin-bottom: 6px; }
+  .jr-grp b { color: #fff6e2; }
+  .mbottom { text-align: center; color: var(--fade); font-size: 11px; padding: 6px 18px 18px; }
 
   .foot { text-align: center; color: var(--fade); font-size: 12px; margin-top: 34px; line-height: 1.7; }
   .hint { text-align: center; color: var(--fade); font-size: 12px; margin: 2px 0 10px; }
@@ -166,6 +207,8 @@
     Cờ: flagcdn · Trang tổng hợp cá nhân
   </div>
 </div>
+
+<div class="mov" id="mov"><div class="mbox" id="movBody"></div></div>
 
 <script>
 /* ======================= CỜ ======================= */
@@ -300,7 +343,7 @@ function renderStandings() {
 }
 
 /* 1 trận nhỏ trên web */
-function matchHTML(m, cls) {
+function matchHTML(m, stage, idx) {
   if (!m) return "";
   const [h, a, hs, as, hp, ap] = m, w = winOf(m);
   const row = (tm, sc, pen, isW) => {
@@ -308,7 +351,7 @@ function matchHTML(m, cls) {
     return `<div class="rw ${isW ? "w" : ""}">${u ? `<img src="${u}" alt="">` : ""}<span class="nm">${tm}</span>${pen != null ? `<span class="pen">(${pen})</span>` : ""}<span class="sc">${sc}</span></div>`;
   };
   const showPen = hs === as && hp != null;
-  return `<div class="mt ${w ? "won" : ""} ${cls || ""}">
+  return `<div class="mt clickable ${w ? "won" : ""}" data-stage="${stage}" data-idx="${idx}">
     ${row(h, hs, showPen ? hp : null, w === h)}
     ${row(a, as, showPen ? ap : null, w === a)}</div>`;
 }
@@ -320,26 +363,26 @@ function renderBracket() {
     <div class="rh" style="min-width:210px">CHUNG KẾT</div>
     <div class="rh">BÁN KẾT</div><div class="rh">TỨ KẾT</div><div class="rh">VÒNG 1/8</div></div>`;
 
-  const leftR16 = [0, 1, 2, 3].map((i) => matchHTML(d.r16[i])).join("");
-  const leftQF = [0, 1].map((i) => matchHTML(d.qf[i])).join("");
-  const leftSF = matchHTML(d.sf[0]);
-  const rightR16 = [4, 5, 6, 7].map((i) => matchHTML(d.r16[i])).join("");
-  const rightQF = [2, 3].map((i) => matchHTML(d.qf[i])).join("");
-  const rightSF = matchHTML(d.sf[1]);
+  const leftR16 = [0, 1, 2, 3].map((i) => matchHTML(d.r16[i], "r16", i)).join("");
+  const leftQF = [0, 1].map((i) => matchHTML(d.qf[i], "qf", i)).join("");
+  const leftSF = matchHTML(d.sf[0], "sf", 0);
+  const rightR16 = [4, 5, 6, 7].map((i) => matchHTML(d.r16[i], "r16", i)).join("");
+  const rightQF = [2, 3].map((i) => matchHTML(d.qf[i], "qf", i)).join("");
+  const rightSF = matchHTML(d.sf[1], "sf", 1);
 
   const f = d.final, fw = winOf(f);
   const frow = (tm, sc, pen, isW) => { const u = flagURL(tm); return `<div class="rw ${isW ? "w" : ""}">${u ? `<img src="${u}" alt="">` : ""}<span class="nm">${tm}</span>${pen != null ? `<span class="pen">(${pen})</span>` : ""}<span class="sc">${sc}</span></div>`; };
   const fPen = f[2] === f[3] && f[4] != null;
-  const finalBox = `<div class="finalbox"><div class="flabel">CHUNG KẾT</div>
+  const finalBox = `<div class="finalbox clickable" data-stage="final" data-idx="0"><div class="flabel">CHUNG KẾT</div>
     ${frow(f[0], f[2], fPen ? f[4] : null, fw === f[0])}
     ${frow(f[1], f[3], fPen ? f[5] : null, fw === f[1])}</div>`;
 
   const t = d.third, tw = winOf(t);
   const trow = (tm, sc, isW) => { const u = flagURL(tm); return `<div class="rw ${isW ? "w" : ""}">${u ? `<img src="${u}" alt="">` : ""}<span class="nm">${tm}</span><span class="sc">${sc}</span></div>`; };
-  const thirdBox = `<div class="thirdbox"><div class="tlabel">🥉 TRANH HẠNG 3 <span>· ${YEAR}</span></div>
+  const thirdBox = `<div class="thirdbox clickable" data-stage="third" data-idx="0"><div class="tlabel">🥉 TRANH HẠNG 3 <span>· ${YEAR}</span></div>
     ${trow(t[0], t[2], tw === t[0])}${trow(t[1], t[3], tw === t[1])}</div>`;
 
-  $("brk").innerHTML = head + `<div class="brk">
+  $("brk").innerHTML = `<div class="brk-scale" id="brkScale">` + head + `<div class="brk">
     <div class="side left">
       <div class="round">${leftR16}</div><div class="round">${leftQF}</div><div class="round">${leftSF}</div>
     </div>
@@ -347,19 +390,111 @@ function renderBracket() {
     <div class="side right">
       <div class="round">${rightSF}</div><div class="round">${rightQF}</div><div class="round">${rightR16}</div>
     </div>
-  </div>`;
+  </div></div>`;
+  fitBracket();
 }
 
 function renderAll() { renderYears(); renderChamp(); renderStandings(); renderBracket(); }
 renderAll();
 
+/* ===== Tự thu nhỏ sơ đồ cho vừa khít bề ngang (khỏi kéo qua lại) ===== */
+function fitBracket() {
+  const scale = $("brkScale"); if (!scale) return;
+  const wrap = document.querySelector(".brk-wrap"); if (!wrap) return;
+  scale.style.transform = "none"; wrap.style.height = "";
+  const avail = wrap.clientWidth, natural = scale.scrollWidth, nh = scale.offsetHeight;
+  let f = avail / natural;
+  if (f >= 1) { wrap.style.overflowX = "hidden"; return; }        // đã vừa, không cần thu nhỏ
+  if (f >= 0.46) {                                                 // thu nhỏ vừa phải để hiện hết
+    const tx = Math.max(0, (avail - natural * f) / 2);
+    scale.style.transformOrigin = "top left";
+    scale.style.transform = `translateX(${tx}px) scale(${f})`;
+    wrap.style.height = (nh * f) + "px"; wrap.style.overflowX = "hidden";
+  } else { wrap.style.overflowX = "auto"; }                        // quá hẹp (điện thoại) → vẫn cho kéo
+}
+window.addEventListener("resize", fitBracket);
+
 /* section tabs */
 document.querySelectorAll(".stab").forEach((s) => s.addEventListener("click", () => {
   document.querySelectorAll(".stab").forEach((x) => x.classList.toggle("on", x === s));
   document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("on", p.id === "panel-" + s.dataset.tab));
+  if (s.dataset.tab === "brk") fitBracket();
 }));
 $("exBrk").addEventListener("click", (e) => exportBracket(e.currentTarget));
 $("exBxh").addEventListener("click", (e) => exportStandings(e.currentTarget));
+
+/* ======================= MODAL CHI TIẾT TRẬN ======================= */
+const RLABEL = { r16: "Vòng 1/8", qf: "Tứ kết", sf: "Bán kết", third: "Tranh hạng 3", final: "Chung kết" };
+const NEXT = { r16: "Tứ kết", qf: "Bán kết", sf: "Chung kết" };
+
+function teamGroupInfo(d, team) {
+  for (const [name, rows] of d.groups) {
+    const i = rows.findIndex((r) => r[0] === team);
+    if (i >= 0) { const [, w, dr, l, gf, ga] = rows[i]; return { group: name, pos: i + 1, w, dr, l, gf, ga }; }
+  }
+  return null;
+}
+/* Hành trình knockout của 1 đội tại giải (theo thứ tự thời gian) */
+function teamKOPath(d, team) {
+  const out = [];
+  const push = (m, label) => {
+    if (!m || (m[0] !== team && m[1] !== team)) return;
+    const home = m[0] === team, sf = home ? m[2] : m[3], sa = home ? m[3] : m[2], opp = home ? m[1] : m[0];
+    const win = winOf(m) === team, draw = m[2] === m[3];
+    const pen = draw && m[4] != null ? (home ? `${m[4]}-${m[5]}` : `${m[5]}-${m[4]}`) : null;
+    out.push({ label, opp, sf, sa, win, draw, pen });
+  };
+  d.r16.forEach((m) => push(m, "Vòng 1/8"));
+  d.qf.forEach((m) => push(m, "Tứ kết"));
+  d.sf.forEach((m) => push(m, "Bán kết"));
+  push(d.third, "Tranh hạng 3");
+  push(d.final, "Chung kết");
+  return out;
+}
+function journeyHTML(d, team) {
+  const g = teamGroupInfo(d, team), u = flagURL(team);
+  let html = `<div class="mjour"><h4>${u ? `<img src="${u}" alt="">` : ""}Hành trình ${team}</h4>`;
+  if (g) html += `<div class="jr-grp">Vòng bảng: <b>${g.pos === 1 ? "Nhất" : "Nhì"} bảng ${g.group}</b> · ${g.w}T ${g.dr}H ${g.l}B · ${g.gf}-${g.ga}</div>`;
+  teamKOPath(d, team).forEach((r) => {
+    const cls = r.win ? "w" : r.draw ? "d" : "l", badge = r.win ? "✓" : "✕";
+    html += `<div class="jrow ${cls}"><span class="jr-rnd">${r.label}</span><span class="jr-opp">vs ${r.opp}</span>` +
+      `<span class="jr-sc">${r.sf}-${r.sa}${r.pen ? ` <small>(${r.pen})</small>` : ""}</span><span class="jr-badge">${badge}</span></div>`;
+  });
+  return html + `</div>`;
+}
+function openMatch(stage, idx) {
+  const d = DATA[YEAR];
+  const m = stage === "final" ? d.final : stage === "third" ? d.third : d[stage][idx];
+  if (!m) return;
+  const [h, a, hs, as, hp, ap] = m, w = winOf(m), showPen = hs === as && hp != null;
+  const uh = flagURL(h), ua = flagURL(a);
+  // dòng kết quả
+  let res;
+  if (stage === "final") res = `🏆 ${w} — VÔ ĐỊCH ${YEAR}`;
+  else if (stage === "third") res = `🥉 ${w} — Hạng 3 chung cuộc`;
+  else res = `→ ${w} đi tiếp vào ${NEXT[stage]}`;
+  const penTxt = showPen ? `<div class="pen">luân lưu ${hp}-${ap}</div>` : "";
+  $("movBody").innerHTML = `
+    <button class="mclose" onclick="closeMatch()">×</button>
+    <div class="mhead">
+      <div class="mteam ${w === h ? "win" : ""}">${uh ? `<img src="${uh}" alt="">` : ""}<span>${h}</span></div>
+      <div class="mscore"><div class="sc">${hs} - ${as}</div>${penTxt}</div>
+      <div class="mteam ${w === a ? "win" : ""}">${ua ? `<img src="${ua}" alt="">` : ""}<span>${a}</span></div>
+    </div>
+    <div class="mmeta">${RLABEL[stage]} · WORLD CUP ${YEAR}</div>
+    <div class="mres">${res}</div>
+    ${journeyHTML(d, h)}
+    ${journeyHTML(d, a)}
+    <div class="mbottom">Kết quả chung cuộc · Nguồn: FIFA / Wikipedia</div>`;
+  $("mov").classList.add("on");
+}
+function closeMatch() { $("mov").classList.remove("on"); }
+$("brk").addEventListener("click", (e) => {
+  const el = e.target.closest("[data-stage]"); if (!el) return;
+  openMatch(el.dataset.stage, +el.dataset.idx);
+});
+$("mov").addEventListener("click", (e) => { if (e.target === $("mov")) closeMatch(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMatch(); });
 
 /* ======================= HỖ TRỢ EXPORT ======================= */
 const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
