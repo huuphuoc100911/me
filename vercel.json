@@ -50,6 +50,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "bongda.personal.io.vn" }],
       "destination": "/bongda-thanhpho.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "history.personal.io.vn" }],
+      "destination": "/worldcup-history.html"
     }
   ]
 }

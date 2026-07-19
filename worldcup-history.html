@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>World Cup — Lịch sử (2022 · 2018 · 2014)</title>
+<meta name="description" content="Sơ đồ knockout và bảng xếp hạng các kỳ World Cup 2022, 2018, 2014 — xuất ảnh đẹp" />
+<link rel="icon" type="image/jpeg" href="/images/worldcup/images.jpeg">
+<link rel="apple-touch-icon" href="/images/worldcup/images.jpeg">
+<meta name="theme-color" content="#0a1430" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a1024; --bg-card: #111a35; --bg-soft: #16224a; --border: #23335f;
+    --gold: #e7c86c; --gold-soft: #f4dc95; --text: #e8eefb; --dim: #9fb0cf; --fade: #6b7ba0;
+    --win: #f6e28f; --line: rgba(217,178,74,0.55);
+  }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(1200px 700px at 50% -10%, rgba(233,200,107,0.10), transparent 60%),
+      linear-gradient(180deg, #0c1430 0%, #0a1024 55%, #080d1e 100%);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 64px; }
+
+  /* ===== Header ===== */
+  .top { text-align: center; padding: 14px 0 6px; }
+  .top .kicker { letter-spacing: 5px; font-size: 12px; font-weight: 700; color: var(--gold); opacity: .9; }
+  .top h1 { font-size: clamp(26px, 6vw, 44px); font-weight: 800; letter-spacing: 1px; margin-top: 4px;
+    background: linear-gradient(180deg, #fbf1c2, #e7c86c 55%, #c69a3a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .top .sub { color: var(--dim); font-size: 14px; margin-top: 6px; }
+
+  /* ===== Year tabs ===== */
+  .years { display: flex; gap: 10px; justify-content: center; margin: 20px 0 8px; flex-wrap: wrap; }
+  .ytab { border: 1.5px solid var(--border); background: var(--bg-card); color: var(--dim);
+    padding: 12px 22px; border-radius: 14px; font-weight: 800; font-size: 17px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 118px; transition: .18s; }
+  .ytab small { font-weight: 600; font-size: 11px; color: var(--fade); letter-spacing: .5px; }
+  .ytab:hover { border-color: var(--line); color: var(--text); }
+  .ytab.on { border-color: var(--gold); color: #1a1204;
+    background: linear-gradient(180deg, #f6e29a, #e0be5f); box-shadow: 0 6px 22px rgba(233,200,107,.28); }
+  .ytab.on small { color: #5a4410; }
+
+  /* ===== Champion strip ===== */
+  .champ { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 16px auto 4px;
+    max-width: 560px; padding: 14px 20px; border-radius: 16px; border: 1.5px solid var(--gold);
+    background: linear-gradient(180deg, rgba(233,200,107,.16), rgba(20,33,63,.6)); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .champ img.flag { width: 54px; height: 36px; object-fit: cover; border-radius: 5px; border: 1.5px solid var(--gold); }
+  .champ .txt small { letter-spacing: 3px; font-size: 11px; color: var(--gold); font-weight: 700; }
+  .champ .txt div { font-size: 26px; font-weight: 800; color: #fff6d8; line-height: 1.1; }
+
+  /* ===== Section tabs ===== */
+  .stabs { display: flex; gap: 8px; justify-content: center; margin: 22px 0 4px; }
+  .stab { border: 1.5px solid var(--border); background: var(--bg-card); color: var(--dim);
+    padding: 10px 18px; border-radius: 11px; font-weight: 700; font-size: 14px; cursor: pointer; transition: .16s; }
+  .stab.on { border-color: var(--gold); color: var(--gold); background: rgba(233,200,107,.1); }
+
+  .panel { display: none; margin-top: 18px; }
+  .panel.on { display: block; }
+
+  .barbtns { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .exbtn { border: 1.5px solid var(--gold); border-radius: 11px; cursor: pointer; font-weight: 800; font-size: 14px;
+    padding: 10px 18px; color: #1a1204; background: linear-gradient(180deg, #f6e29a, #e0be5f);
+    box-shadow: 0 5px 18px rgba(233,200,107,.25); transition: .16s; }
+  .exbtn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .exbtn:disabled { opacity: .6; cursor: default; transform: none; }
+
+  /* ===== Standings ===== */
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  .gbox { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .gbox h3 { font-size: 13px; letter-spacing: 2px; color: var(--gold); padding: 12px 14px 8px; }
+  table.st { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.st th { color: var(--fade); font-weight: 600; font-size: 11px; padding: 4px 4px; text-align: center; }
+  table.st th.tm { text-align: left; padding-left: 8px; }
+  table.st td { padding: 8px 4px; text-align: center; border-top: 1px solid var(--border); }
+  table.st td.tm { text-align: left; }
+  table.st td.pos { width: 26px; color: var(--fade); font-weight: 700; }
+  .teamc { display: flex; align-items: center; gap: 8px; }
+  .teamc img { width: 24px; height: 16px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+  tr.q td { background: rgba(233,200,107,.07); }
+  tr.q td.pos { color: var(--gold); }
+  tr.q .teamc span { color: #fff6e2; font-weight: 700; }
+  td.pts { font-weight: 800; color: var(--gold); }
+  .gd-pos { color: #7ddca0; } .gd-neg { color: #e88; }
+
+  /* ===== Bracket ===== */
+  .brk-wrap { overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
+  .brk { display: flex; align-items: stretch; min-width: 1120px; gap: 0; }
+  .side { display: flex; flex: 1; }
+  .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 0 12px; min-width: 176px; }
+  .round .rtitle { position: absolute; top: -2px; left: 0; right: 0; text-align: center;
+    font-size: 11px; letter-spacing: 1.5px; color: var(--gold); font-weight: 800; }
+  .rounds-head { display: flex; }
+  .rounds-head .rh { flex: 1; text-align: center; font-size: 11px; letter-spacing: 1.5px; color: var(--gold);
+    font-weight: 800; padding: 4px 0 10px; min-width: 176px; }
+  .col-final { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 210px; padding: 0 6px; }
+
+  .mt { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; }
+  .mt .rw { display: flex; align-items: center; gap: 7px; padding: 7px 9px; font-size: 12.5px; }
+  .mt .rw + .rw { border-top: 1px solid var(--border); }
+  .mt .rw img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px rgba(255,255,255,.12); flex-shrink: 0; }
+  .mt .rw .nm { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--dim); }
+  .mt .rw .sc { font-weight: 800; color: var(--text); min-width: 14px; text-align: right; }
+  .mt .rw .pen { font-size: 10px; color: var(--fade); margin-left: -3px; }
+  .mt .rw.w { background: linear-gradient(90deg, rgba(233,200,107,.16), rgba(233,200,107,.05)); }
+  .mt .rw.w .nm { color: #fff6d8; font-weight: 800; }
+  .mt .rw.w .sc { color: var(--win); }
+  .mt.won { border-color: var(--line); box-shadow: 0 0 0 1px rgba(233,200,107,.18), 0 4px 14px rgba(0,0,0,.3); }
+
+  .finalbox { border: 1.6px solid var(--gold); border-radius: 14px; overflow: hidden; width: 100%;
+    background: linear-gradient(180deg, rgba(233,200,107,.16), rgba(16,26,53,.9)); box-shadow: 0 8px 28px rgba(233,200,107,.22); }
+  .finalbox .flabel { text-align: center; letter-spacing: 4px; font-size: 11px; color: var(--gold); font-weight: 800; padding: 8px 0 2px; }
+  .finalbox .rw { display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-size: 15px; }
+  .finalbox .rw + .rw { border-top: 1px solid rgba(233,200,107,.25); }
+  .finalbox .rw img { width: 30px; height: 20px; object-fit: cover; border-radius: 3px; }
+  .finalbox .rw .nm { flex: 1; font-weight: 700; }
+  .finalbox .rw.w .nm { color: #fff6d8; font-weight: 800; }
+  .finalbox .rw .sc { font-weight: 800; font-size: 18px; }
+  .finalbox .rw.w .sc { color: var(--win); }
+  .thirdbox { margin-top: 16px; width: 100%; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg-card); }
+  .thirdbox .tlabel { text-align: center; font-size: 11px; letter-spacing: 1px; color: #d8a; font-weight: 700; padding: 7px 0 2px; }
+  .thirdbox .tlabel span { color: var(--dim); }
+  .thirdbox .rw { display: flex; align-items: center; gap: 7px; padding: 7px 11px; font-size: 12.5px; }
+  .thirdbox .rw + .rw { border-top: 1px solid var(--border); }
+  .thirdbox .rw img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; }
+  .thirdbox .rw .nm { flex: 1; color: var(--dim); }
+  .thirdbox .rw.w .nm { color: #fff2cf; font-weight: 700; }
+  .thirdbox .rw .sc { font-weight: 800; }
+
+  .foot { text-align: center; color: var(--fade); font-size: 12px; margin-top: 34px; line-height: 1.7; }
+  .hint { text-align: center; color: var(--fade); font-size: 12px; margin: 2px 0 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="kicker">FIFA WORLD CUP</div>
+    <h1>NHÌN LẠI CÁC KỲ WORLD CUP</h1>
+    <div class="sub">Sơ đồ knockout &amp; bảng xếp hạng · xuất ảnh đẹp để chia sẻ</div>
+  </div>
+
+  <div class="years" id="years"></div>
+  <div class="champ" id="champ"></div>
+
+  <div class="stabs">
+    <div class="stab on" data-tab="brk">Sơ đồ Knockout</div>
+    <div class="stab" data-tab="bxh">Bảng xếp hạng</div>
+  </div>
+
+  <div class="panel on" id="panel-brk">
+    <div class="barbtns"><button class="exbtn" id="exBrk">🏆 Xuất ảnh sơ đồ</button></div>
+    <div class="hint">Đường sáng nối liền cho thấy hành trình đội đi tới chức vô địch · kéo ngang để xem hết sơ đồ</div>
+    <div class="brk-wrap"><div id="brk"></div></div>
+  </div>
+
+  <div class="panel" id="panel-bxh">
+    <div class="barbtns"><button class="exbtn" id="exBxh">🖼️ Xuất ảnh BXH</button></div>
+    <div class="grid2" id="bxh"></div>
+  </div>
+
+  <div class="foot">
+    Dữ liệu kết quả chung cuộc các kỳ FIFA World Cup · Nguồn: FIFA / Wikipedia<br>
+    Cờ: flagcdn · Trang tổng hợp cá nhân
+  </div>
+</div>
+
+<script>
+/* ======================= CỜ ======================= */
+const ISO = {
+  "algeria":"dz","argentina":"ar","australia":"au","austria":"at","belgium":"be",
+  "bosnia-herzegovina":"ba","bosnia and herzegovina":"ba","brazil":"br","cameroon":"cm","canada":"ca",
+  "chile":"cl","colombia":"co","costa rica":"cr","croatia":"hr","denmark":"dk","ecuador":"ec","egypt":"eg",
+  "england":"gb-eng","france":"fr","germany":"de","ghana":"gh","greece":"gr","honduras":"hn","iceland":"is",
+  "iran":"ir","italy":"it","ivory coast":"ci","japan":"jp","mexico":"mx","morocco":"ma","netherlands":"nl",
+  "nigeria":"ng","panama":"pa","peru":"pe","poland":"pl","portugal":"pt","qatar":"qa","russia":"ru",
+  "saudi arabia":"sa","senegal":"sn","serbia":"rs","south korea":"kr","spain":"es","sweden":"se",
+  "switzerland":"ch","tunisia":"tn","uruguay":"uy","usa":"us","wales":"gb-wls"
+};
+const flagURL = (t, hi) => { const c = ISO[String(t || "").toLowerCase().trim()]; return c ? `https://flagcdn.com/${hi ? "w320" : "w40"}/${c}.png` : null; };
+
+/* ======================= DỮ LIỆU =======================
+   Bảng: [tên, T, H, B, BT, BB]  (đã xếp theo thứ hạng chung cuộc; P=3, HS=BT-BB, Đ=T*3+H)
+   Knockout: mỗi trận [nhà, khách, tỉ_số_nhà, tỉ_số_khách, luân_lưu_nhà?, luân_lưu_khách?]
+   r16 xếp theo đúng nhánh: 4 cặp nửa trên (trái) → 4 cặp nửa dưới (phải);
+   qf[0]=r16[0]∧r16[1], qf[1]=r16[2]∧r16[3] (trái) · qf[2]=r16[4]∧r16[5], qf[3]=r16[6]∧r16[7] (phải)
+   sf[0]=qf0∧qf1 (trái) · sf[1]=qf2∧qf3 (phải) · final=sf0∧sf1 */
+const DATA = {
+  "2022": {
+    host: "Qatar", years: "21/11 – 18/12/2022", champion: "Argentina",
+    groups: [
+      ["A", [["Netherlands",2,1,0,5,1],["Senegal",2,0,1,5,4],["Ecuador",1,1,1,4,3],["Qatar",0,0,3,1,7]]],
+      ["B", [["England",2,1,0,9,2],["USA",1,2,0,2,1],["Iran",1,0,2,4,7],["Wales",0,1,2,1,6]]],
+      ["C", [["Argentina",2,0,1,5,2],["Poland",1,1,1,2,2],["Mexico",1,1,1,2,3],["Saudi Arabia",1,0,2,3,5]]],
+      ["D", [["France",2,0,1,6,3],["Australia",2,0,1,3,4],["Tunisia",1,1,1,1,1],["Denmark",0,1,2,1,3]]],
+      ["E", [["Japan",2,0,1,4,3],["Spain",1,1,1,9,3],["Germany",1,1,1,6,5],["Costa Rica",1,0,2,3,11]]],
+      ["F", [["Morocco",2,1,0,4,1],["Croatia",1,2,0,4,1],["Belgium",1,1,1,1,2],["Canada",0,0,3,2,7]]],
+      ["G", [["Brazil",2,0,1,3,1],["Switzerland",2,0,1,4,3],["Cameroon",1,1,1,4,4],["Serbia",0,1,2,5,8]]],
+      ["H", [["Portugal",2,0,1,6,4],["South Korea",1,1,1,4,4],["Uruguay",1,1,1,2,2],["Ghana",1,0,2,5,7]]]
+    ],
+    r16: [
+      ["Netherlands","USA",3,1], ["Argentina","Australia",2,1],
+      ["Japan","Croatia",1,1,1,3], ["Brazil","South Korea",4,1],
+      ["France","Poland",3,1], ["England","Senegal",3,0],
+      ["Morocco","Spain",0,0,3,0], ["Portugal","Switzerland",6,1]
+    ],
+    qf: [ ["Netherlands","Argentina",2,2,3,4], ["Croatia","Brazil",1,1,4,2], ["France","England",2,1], ["Morocco","Portugal",1,0] ],
+    sf: [ ["Argentina","Croatia",3,0], ["France","Morocco",2,0] ],
+    third: ["Croatia","Morocco",2,1],
+    final: ["Argentina","France",3,3,4,2]
+  },
+  "2018": {
+    host: "Nga", years: "14/6 – 15/7/2018", champion: "France",
+    groups: [
+      ["A", [["Uruguay",3,0,0,5,0],["Russia",2,0,1,8,4],["Saudi Arabia",1,0,2,2,7],["Egypt",0,0,3,2,6]]],
+      ["B", [["Spain",1,2,0,6,5],["Portugal",1,2,0,5,4],["Iran",1,1,1,2,2],["Morocco",0,1,2,2,4]]],
+      ["C", [["France",2,1,0,3,1],["Denmark",1,2,0,2,1],["Peru",1,0,2,2,2],["Australia",0,1,2,2,5]]],
+      ["D", [["Croatia",3,0,0,7,1],["Argentina",1,1,1,3,5],["Nigeria",1,0,2,3,4],["Iceland",0,1,2,2,5]]],
+      ["E", [["Brazil",2,1,0,5,1],["Switzerland",1,2,0,5,4],["Serbia",1,0,2,2,4],["Costa Rica",0,1,2,2,5]]],
+      ["F", [["Sweden",2,0,1,5,2],["Mexico",2,0,1,3,4],["South Korea",1,0,2,3,3],["Germany",1,0,2,2,4]]],
+      ["G", [["Belgium",3,0,0,9,2],["England",2,0,1,8,3],["Tunisia",1,0,2,5,8],["Panama",0,0,3,2,11]]],
+      ["H", [["Colombia",2,0,1,5,2],["Japan",1,1,1,4,4],["Senegal",1,1,1,4,4],["Poland",1,0,2,2,5]]]
+    ],
+    r16: [
+      ["France","Argentina",4,3], ["Uruguay","Portugal",2,1],
+      ["Brazil","Mexico",2,0], ["Belgium","Japan",3,2],
+      ["Spain","Russia",1,1,3,4], ["Croatia","Denmark",1,1,3,2],
+      ["Sweden","Switzerland",1,0], ["Colombia","England",1,1,3,4]
+    ],
+    qf: [ ["Uruguay","France",0,2], ["Brazil","Belgium",1,2], ["Russia","Croatia",2,2,3,4], ["Sweden","England",0,2] ],
+    sf: [ ["France","Belgium",1,0], ["Croatia","England",2,1] ],
+    third: ["Belgium","England",2,0],
+    final: ["France","Croatia",4,2]
+  },
+  "2014": {
+    host: "Brazil", years: "12/6 – 13/7/2014", champion: "Germany",
+    groups: [
+      ["A", [["Brazil",2,1,0,7,2],["Mexico",2,1,0,4,1],["Croatia",1,0,2,6,6],["Cameroon",0,0,3,1,9]]],
+      ["B", [["Netherlands",3,0,0,10,3],["Chile",2,0,1,5,3],["Spain",1,0,2,4,7],["Australia",0,0,3,3,9]]],
+      ["C", [["Colombia",3,0,0,9,2],["Greece",1,1,1,2,4],["Ivory Coast",1,0,2,4,5],["Japan",0,1,2,2,6]]],
+      ["D", [["Costa Rica",2,1,0,4,1],["Uruguay",2,0,1,4,4],["Italy",1,0,2,2,3],["England",0,1,2,2,4]]],
+      ["E", [["France",2,1,0,8,2],["Switzerland",2,0,1,7,6],["Ecuador",1,1,1,3,3],["Honduras",0,0,3,1,8]]],
+      ["F", [["Argentina",3,0,0,6,3],["Nigeria",1,1,1,3,3],["Bosnia-Herzegovina",1,0,2,4,4],["Iran",0,1,2,1,4]]],
+      ["G", [["Germany",2,1,0,7,2],["USA",1,1,1,4,4],["Portugal",1,1,1,4,7],["Ghana",0,1,2,4,6]]],
+      ["H", [["Belgium",3,0,0,4,1],["Algeria",1,1,1,6,5],["Russia",0,2,1,2,3],["South Korea",0,1,2,3,6]]]
+    ],
+    r16: [
+      ["Brazil","Chile",1,1,3,2], ["Colombia","Uruguay",2,0],
+      ["France","Nigeria",2,0], ["Germany","Algeria",2,1],
+      ["Netherlands","Mexico",2,1], ["Costa Rica","Greece",1,1,5,3],
+      ["Argentina","Switzerland",1,0], ["Belgium","USA",2,1]
+    ],
+    qf: [ ["Brazil","Colombia",2,1], ["France","Germany",0,1], ["Netherlands","Costa Rica",0,0,4,3], ["Argentina","Belgium",1,0] ],
+    sf: [ ["Brazil","Germany",1,7], ["Netherlands","Argentina",0,0,2,4] ],
+    third: ["Brazil","Netherlands",0,3],
+    final: ["Germany","Argentina",1,0]
+  }
+};
+
+/* winner của 1 trận [h,a,hs,as,hp,ap] */
+const winOf = (m) => { if (!m) return null; const [h,a,hs,as,hp,ap] = m; if (hs > as) return h; if (as > hs) return a; if (hp != null) return hp > ap ? h : a; return null; };
+
+/* ======================= STATE + RENDER ======================= */
+let YEAR = "2022";
+const $ = (id) => document.getElementById(id);
+
+function renderYears() {
+  $("years").innerHTML = Object.keys(DATA).map((y) =>
+    `<button class="ytab ${y === YEAR ? "on" : ""}" data-y="${y}">${y}<small>${DATA[y].host.toUpperCase()}</small></button>`
+  ).join("");
+  $("years").querySelectorAll(".ytab").forEach((b) => b.addEventListener("click", () => { YEAR = b.dataset.y; renderAll(); }));
+}
+
+function renderChamp() {
+  const d = DATA[YEAR], c = d.champion, u = flagURL(c);
+  $("champ").innerHTML =
+    `${u ? `<img class="flag" src="${u}" alt="">` : ""}
+     <div class="txt"><small>NHÀ VÔ ĐỊCH ${YEAR}</small><div>${c}</div></div>
+     <div style="font-size:34px">🏆</div>`;
+}
+
+function renderStandings() {
+  const d = DATA[YEAR];
+  $("bxh").innerHTML = d.groups.map(([name, rows]) => {
+    const body = rows.map((r, i) => {
+      const [tm, w, dr, l, gf, ga] = r, gd = gf - ga, pts = w * 3 + dr, u = flagURL(tm), q = i < 2;
+      const gdc = gd > 0 ? "gd-pos" : gd < 0 ? "gd-neg" : "";
+      return `<tr class="${q ? "q" : ""}">
+        <td class="pos">${i + 1}</td>
+        <td class="tm"><div class="teamc">${u ? `<img src="${u}" alt="">` : ""}<span>${tm}</span></div></td>
+        <td>3</td><td>${w}</td><td>${dr}</td><td>${l}</td><td>${gf}</td><td>${ga}</td>
+        <td class="${gdc}">${gd > 0 ? "+" + gd : gd}</td><td class="pts">${pts}</td></tr>`;
+    }).join("");
+    return `<div class="gbox"><h3>BẢNG ${name}</h3><table class="st">
+      <thead><tr><th></th><th class="tm">ĐỘI</th><th>P</th><th>T</th><th>H</th><th>B</th><th>BT</th><th>BB</th><th>HS</th><th>Đ</th></tr></thead>
+      <tbody>${body}</tbody></table></div>`;
+  }).join("");
+}
+
+/* 1 trận nhỏ trên web */
+function matchHTML(m, cls) {
+  if (!m) return "";
+  const [h, a, hs, as, hp, ap] = m, w = winOf(m);
+  const row = (tm, sc, pen, isW) => {
+    const u = flagURL(tm);
+    return `<div class="rw ${isW ? "w" : ""}">${u ? `<img src="${u}" alt="">` : ""}<span class="nm">${tm}</span>${pen != null ? `<span class="pen">(${pen})</span>` : ""}<span class="sc">${sc}</span></div>`;
+  };
+  const showPen = hs === as && hp != null;
+  return `<div class="mt ${w ? "won" : ""} ${cls || ""}">
+    ${row(h, hs, showPen ? hp : null, w === h)}
+    ${row(a, as, showPen ? ap : null, w === a)}</div>`;
+}
+
+function renderBracket() {
+  const d = DATA[YEAR];
+  const head = `<div class="rounds-head">
+    <div class="rh">VÒNG 1/8</div><div class="rh">TỨ KẾT</div><div class="rh">BÁN KẾT</div>
+    <div class="rh" style="min-width:210px">CHUNG KẾT</div>
+    <div class="rh">BÁN KẾT</div><div class="rh">TỨ KẾT</div><div class="rh">VÒNG 1/8</div></div>`;
+
+  const leftR16 = [0, 1, 2, 3].map((i) => matchHTML(d.r16[i])).join("");
+  const leftQF = [0, 1].map((i) => matchHTML(d.qf[i])).join("");
+  const leftSF = matchHTML(d.sf[0]);
+  const rightR16 = [4, 5, 6, 7].map((i) => matchHTML(d.r16[i])).join("");
+  const rightQF = [2, 3].map((i) => matchHTML(d.qf[i])).join("");
+  const rightSF = matchHTML(d.sf[1]);
+
+  const f = d.final, fw = winOf(f);
+  const frow = (tm, sc, pen, isW) => { const u = flagURL(tm); return `<div class="rw ${isW ? "w" : ""}">${u ? `<img src="${u}" alt="">` : ""}<span class="nm">${tm}</span>${pen != null ? `<span class="pen">(${pen})</span>` : ""}<span class="sc">${sc}</span></div>`; };
+  const fPen = f[2] === f[3] && f[4] != null;
+  const finalBox = `<div class="finalbox"><div class="flabel">CHUNG KẾT</div>
+    ${frow(f[0], f[2], fPen ? f[4] : null, fw === f[0])}
+    ${frow(f[1], f[3], fPen ? f[5] : null, fw === f[1])}</div>`;
+
+  const t = d.third, tw = winOf(t);
+  const trow = (tm, sc, isW) => { const u = flagURL(tm); return `<div class="rw ${isW ? "w" : ""}">${u ? `<img src="${u}" alt="">` : ""}<span class="nm">${tm}</span><span class="sc">${sc}</span></div>`; };
+  const thirdBox = `<div class="thirdbox"><div class="tlabel">🥉 TRANH HẠNG 3 <span>· ${YEAR}</span></div>
+    ${trow(t[0], t[2], tw === t[0])}${trow(t[1], t[3], tw === t[1])}</div>`;
+
+  $("brk").innerHTML = head + `<div class="brk">
+    <div class="side left">
+      <div class="round">${leftR16}</div><div class="round">${leftQF}</div><div class="round">${leftSF}</div>
+    </div>
+    <div class="col-final">${finalBox}${thirdBox}</div>
+    <div class="side right">
+      <div class="round">${rightSF}</div><div class="round">${rightQF}</div><div class="round">${rightR16}</div>
+    </div>
+  </div>`;
+}
+
+function renderAll() { renderYears(); renderChamp(); renderStandings(); renderBracket(); }
+renderAll();
+
+/* section tabs */
+document.querySelectorAll(".stab").forEach((s) => s.addEventListener("click", () => {
+  document.querySelectorAll(".stab").forEach((x) => x.classList.toggle("on", x === s));
+  document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("on", p.id === "panel-" + s.dataset.tab));
+}));
+$("exBrk").addEventListener("click", (e) => exportBracket(e.currentTarget));
+$("exBxh").addEventListener("click", (e) => exportStandings(e.currentTarget));
+
+/* ======================= HỖ TRỢ EXPORT ======================= */
+const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
+async function loadFlags(names) {
+  const map = {};
+  await Promise.all([...new Set(names)].filter(Boolean).map(async (nm) => { const img = await loadImg(flagURL(nm, true)); if (img) map[nm] = img; }));
+  return map;
+}
+function backdrop(ctx, W, H, rrect, gold) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c2e58"); bg.addColorStop(0.5, "#122143"); bg.addColorStop(1, "#0a1430");
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  (function () { const rcx = W / 2, rcy = H * 0.3, R = Math.max(W, H) * 0.72, rn = 20, wg = 0.15; const rg = ctx.createRadialGradient(rcx, rcy, 20, rcx, rcy, R); rg.addColorStop(0, "rgba(246,226,150,0.12)"); rg.addColorStop(1, "rgba(246,226,150,0)"); ctx.save(); ctx.fillStyle = rg; for (let i = 0; i < rn; i++) { const a = (i / rn) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(rcx, rcy); ctx.lineTo(rcx + Math.cos(a - wg) * R, rcy + Math.sin(a - wg) * R); ctx.lineTo(rcx + Math.cos(a + wg) * R, rcy + Math.sin(a + wg) * R); ctx.closePath(); ctx.fill(); } ctx.restore(); })();
+  (function () { const hsh = (i, kk) => { const v = Math.sin((i + 1) * kk) * 43758.5453; return v - Math.floor(v); }; ctx.save(); for (let i = 0; i < 26; i++) { const x = hsh(i, 12.9898) * W, y = hsh(i, 78.233) * H, t = hsh(i, 37.719); const rad = 3 + t * 10, a = 0.03 + t * 0.08; const gd = ctx.createRadialGradient(x, y, 0, x, y, rad); gd.addColorStop(0, `rgba(246,224,146,${a})`); gd.addColorStop(1, "rgba(246,224,146,0)"); ctx.fillStyle = gd; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill(); } ctx.restore(); })();
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.72); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.42)"); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = gold(0, H); ctx.lineWidth = 3; rrect(16, 16, W - 32, H - 32, 16); ctx.stroke();
+  ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; rrect(24, 24, W - 48, H - 48, 12); ctx.stroke(); ctx.globalAlpha = 1;
+}
+function sparkles(ctx, cx, cy, hw, hh) {
+  const spark = (x, y, r, alpha) => { ctx.save(); ctx.globalAlpha = alpha; const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.2); g.addColorStop(0, "rgba(255,249,222,0.95)"); g.addColorStop(0.5, "rgba(246,224,146,0.5)"); g.addColorStop(1, "rgba(246,224,146,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r); ctx.closePath(); ctx.fill(); ctx.restore(); };
+  spark(cx - hw - hw * 0.32, cy - hh * 0.18, hh * 0.20, 1);
+  spark(cx + hw + hw * 0.32, cy - hh * 0.10, hh * 0.20, 1);
+  spark(cx - hw - hw * 0.10, cy + hh * 0.62, hh * 0.13, 0.9);
+  spark(cx + hw + hw * 0.14, cy + hh * 0.55, hh * 0.15, 0.9);
+  spark(cx - hw + hw * 0.10, cy - hh - hh * 0.12, hh * 0.10, 0.85);
+  spark(cx + hw - hw * 0.10, cy - hh - hh * 0.16, hh * 0.11, 0.85);
+}
+async function saveCanvas(canvas, fname, title) {
+  const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
+  if (!blob) throw new Error("toBlob rỗng");
+  const file = new File([blob], fname, { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title, text: title }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/* ======================= XUẤT ẢNH SƠ ĐỒ ======================= */
+async function exportBracket(btn) {
+  const old = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
+  try {
+    const d = DATA[YEAR];
+    // gom mọi đội để nạp cờ
+    const names = [];
+    d.r16.concat(d.qf, d.sf, [d.third], [d.final]).forEach((m) => { names.push(m[0], m[1]); });
+    const flags = await loadFlags(names);
+    const logo = await loadImg("/images/worldcup/logo-export.webp");
+
+    // ----- hình học -----
+    const boxW = 200, boxH = 74, plateGap = 8, stride = 232, M = 54, rowPitch = 152;
+    const headerH = 210, footerH = 58;
+    const W = 1840, H = headerH + 4 * rowPitch + footerH;
+
+    // row của mỗi ô (0..3 mỗi bên); qf giữa cặp; sf giữa
+    const rowR16 = [0, 1, 2, 3];
+    const rowQF = [0.5, 2.5];
+    const rowSF = 1.5;
+    const yTop = (row) => headerH + row * rowPitch;
+    const leftX = (depth) => M + depth * stride;              // depth 0=r16,1=qf,2=sf
+    const rightX = (depth) => W - M - boxW - depth * stride;
+
+    const ratio = 2;
+    const cv = document.createElement("canvas"); cv.width = W * ratio; cv.height = H * ratio;
+    const ctx = cv.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const gold = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const clip = (s, mw) => { s = String(s || ""); if (mw <= 0) return ""; if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+    const LS = (px) => { try { ctx.letterSpacing = px; } catch (e) {} };
+
+    backdrop(ctx, W, H, rrect, gold);
+
+    // ----- toạ độ tâm mỗi trận (để nối) -----
+    const nodes = {};   // key -> {x, y (center), w, side, teams:[h,a], win}
+    const put = (key, x, row, m, side) => { nodes[key] = { x, cy: yTop(row) + boxH / 2, m, side, win: winOf(m) }; };
+    rowR16.forEach((r, i) => put("L16_" + i, leftX(0), r, d.r16[i], "L"));
+    [0, 1].forEach((i) => put("LQF_" + i, leftX(1), rowQF[i], d.qf[i], "L"));
+    put("LSF", leftX(2), rowSF, d.sf[0], "L");
+    rowR16.forEach((r, i) => put("R16_" + i, rightX(0), r, d.r16[4 + i], "R"));
+    [0, 1].forEach((i) => put("RQF_" + i, rightX(1), rowQF[i], d.qf[2 + i], "R"));
+    put("RSF", rightX(2), rowSF, d.sf[1], "R");
+
+    // ----- đường nối: mờ trước, sáng (đội thắng trận đích) đè lên -----
+    // mỗi liên kết: [nút nguồn, nút đích]
+    const links = [
+      ["L16_0", "LQF_0"], ["L16_1", "LQF_0"], ["L16_2", "LQF_1"], ["L16_3", "LQF_1"],
+      ["LQF_0", "LSF"], ["LQF_1", "LSF"],
+      ["R16_0", "RQF_0"], ["R16_1", "RQF_0"], ["R16_2", "RQF_1"], ["R16_3", "RQF_1"],
+      ["RQF_0", "RSF"], ["RQF_1", "RSF"]
+    ];
+    const linkLive = (srcKey, dstKey) => {
+      const s = nodes[srcKey], t = nodes[dstKey]; if (!s.win) return false;
+      return t.win ? t.win === s.win : true;
+    };
+    const drawLink = (srcKey, dstKey) => {
+      const s = nodes[srcKey], t = nodes[dstKey], side = s.side;
+      const fx = side === "L" ? s.x + boxW : s.x, fy = s.cy;
+      const px = side === "L" ? t.x : t.x + boxW, py = t.cy, mx = (fx + px) / 2;
+      ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(mx, fy); ctx.lineTo(mx, py); ctx.lineTo(px, py); ctx.stroke();
+    };
+    ctx.save(); ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(217,178,74,0.26)"; ctx.lineWidth = 1.7;
+    links.forEach((l) => { if (!linkLive(l[0], l[1])) drawLink(l[0], l[1]); });
+    ctx.strokeStyle = "#f4dc95"; ctx.lineWidth = 3.4; ctx.shadowColor = "rgba(233,200,107,0.7)"; ctx.shadowBlur = 9;
+    links.forEach((l) => { if (linkLive(l[0], l[1])) drawLink(l[0], l[1]); });
+    // nối bán kết → chung kết (ô CK to ở giữa)
+    ctx.restore();
+
+    // ----- nhãn vòng -----
+    (function labels() {
+      const RL = ["VÒNG 1/8", "TỨ KẾT", "BÁN KẾT"];
+      const ly = headerH - 24;
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#e7c86c";
+      ctx.save(); LS("2px"); ctx.font = F(800, 15);
+      for (let dd = 0; dd < 3; dd++) { ctx.fillText(RL[dd], leftX(dd) + boxW / 2, ly); ctx.fillText(RL[dd], rightX(dd) + boxW / 2, ly); }
+      ctx.restore();
+    })();
+
+    // ----- cờ + plate -----
+    const flagW = 34, flagH = 23;
+    const drawFlag = (x, y, w, h, img) => {
+      ctx.fillStyle = "#fff"; rrect(x, y, w, h, 4); ctx.fill();
+      if (img) { ctx.save(); rrect(x + 1, y + 1, w - 2, h - 2, 3); ctx.clip(); ctx.drawImage(img, x + 1, y + 1, w - 2, h - 2); ctx.restore(); }
+      ctx.strokeStyle = gold(y, y + h); ctx.lineWidth = 1.5; rrect(x, y, w, h, 4); ctx.stroke();
+    };
+    // 1 dòng đội trong 1 ô
+    const plate = (x, y, w, h, side, team, score, pen, isWin, S) => {
+      S = S || 1;
+      const rad = 9 * S, ins = 12 * S, gap = 7 * S, fW = flagW * S, fH = flagH * S;
+      const g = ctx.createLinearGradient(0, y, 0, y + h);
+      if (isWin) { g.addColorStop(0, "rgba(233,200,107,0.34)"); g.addColorStop(1, "rgba(169,120,29,0.16)"); }
+      else { g.addColorStop(0, "#1a2c53"); g.addColorStop(1, "#0f1d3b"); }
+      ctx.fillStyle = g; rrect(x, y, w, h, rad); ctx.fill();
+      if (isWin) { ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.6)"; ctx.shadowBlur = 9 * S; }
+      ctx.strokeStyle = gold(y, y + h); ctx.lineWidth = (isWin ? 2 : 1.3) * Math.max(1, S * 0.9); rrect(x, y, w, h, rad); ctx.stroke();
+      if (isWin) ctx.restore();
+      const cyR = y + h / 2, flag = flags[team], nameCol = isWin ? gold(cyR - 9 * S, cyR + 9 * S) : "#efe2b6";
+      ctx.textBaseline = "middle";
+      const scRsv = (pen != null ? 44 : 26) * S;
+      const drawScore = (edgeX, dir) => {
+        ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
+        ctx.font = F(800, 20 * S); ctx.fillStyle = isWin ? "#fff6d8" : "#f2e4bb"; ctx.textAlign = dir > 0 ? "left" : "right";
+        ctx.fillText(String(score), edgeX, cyR + 1); const sw = ctx.measureText(String(score)).width; ctx.restore();
+        if (pen != null) { ctx.font = F(700, 12 * S); ctx.fillStyle = "#c9b06a"; ctx.textAlign = dir > 0 ? "left" : "right"; ctx.fillText("(" + pen + ")", edgeX + dir * (sw + 4), cyR + 1); }
+      };
+      if (side === "R") {
+        let inner = x + ins; drawScore(inner, 1); inner += scRsv; const fx = inner;
+        if (flag) drawFlag(fx, cyR - fH / 2, fW, fH, flag);
+        ctx.textAlign = "right"; ctx.font = F(800, 14.5 * S); ctx.fillStyle = nameCol;
+        ctx.fillText(clip(team.toUpperCase(), (x + w - ins) - (fx + fW + gap)), x + w - ins, cyR + 1);
+      } else {
+        let inner = x + w - ins; drawScore(inner, -1); inner -= scRsv; const fx = inner - fW;
+        if (flag) drawFlag(fx, cyR - fH / 2, fW, fH, flag);
+        ctx.textAlign = "left"; ctx.font = F(800, 14.5 * S); ctx.fillStyle = nameCol;
+        ctx.fillText(clip(team.toUpperCase(), fx - gap - (x + ins)), x + ins, cyR + 1);
+      }
+    };
+    const drawMatch = (node, S) => {
+      S = S || 1; const w = boxW * S, h = boxH * S, x = node.x - (S > 1 ? (w - boxW) / 2 : 0);
+      const y = node.cy - h / 2, ph = (h - plateGap) / 2, m = node.m, win = node.win;
+      const showPen = m[2] === m[3] && m[4] != null;
+      plate(x, y, w, ph, node.side, m[0], m[2], showPen ? m[4] : null, win === m[0], S);
+      plate(x, y + ph + plateGap, w, ph, node.side, m[1], m[3], showPen ? m[5] : null, win === m[1], S);
+    };
+    Object.keys(nodes).forEach((k) => drawMatch(nodes[k]));
+
+    // ----- ô CHUNG KẾT to ở giữa -----
+    const fW = 300, fH = 128, fGap = 12, fcx = W / 2, fcy = yTop(rowSF) + boxH / 2;
+    const fx = fcx - fW / 2, fy = fcy - fH / 2, f = d.final, fwin = winOf(f), fpen = f[2] === f[3] && f[4] != null;
+    // nối 2 bán kết vào ô chung kết (sáng nếu đội đó vào CK)
+    (function linkFinal() {
+      const half = [["LSF", fx], ["RSF", fx + fW]];
+      half.forEach(([sk, targetX]) => {
+        const s = nodes[sk]; if (!s) return;
+        const advanced = s.win && (s.win === f[0] || s.win === f[1]);
+        const startX = s.side === "L" ? s.x + boxW : s.x, startY = s.cy, mx = (startX + targetX) / 2;
+        ctx.save(); ctx.lineJoin = "round"; ctx.lineCap = "round";
+        if (advanced) { ctx.strokeStyle = "#f4dc95"; ctx.lineWidth = 3.4; ctx.shadowColor = "rgba(233,200,107,0.7)"; ctx.shadowBlur = 9; }
+        else { ctx.strokeStyle = "rgba(217,178,74,0.26)"; ctx.lineWidth = 1.7; }
+        ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(mx, startY); ctx.lineTo(mx, fcy); ctx.lineTo(targetX, fcy); ctx.stroke();
+        ctx.restore();
+      });
+    })();
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); LS("7px"); ctx.fillStyle = "#f0d98a"; ctx.font = F(800, 22); ctx.fillText("CHUNG KẾT", fcx, fy - 14); ctx.restore();
+    const fnode = { x: fx, cy: fcy, m: f, side: "C", win: fwin };
+    // vẽ ô CK bằng plate lớn (căn giữa)
+    (function drawFinalBox() {
+      const ph = (fH - fGap) / 2, S = fW / boxW;
+      plate(fx, fy, fW, ph, "L", f[0], f[2], fpen ? f[4] : null, fwin === f[0], S);
+      plate(fx, fy + ph + fGap, fW, ph, "L", f[1], f[3], fpen ? f[5] : null, fwin === f[1], S);
+    })();
+
+    // ----- dải NHÀ VÔ ĐỊCH + TRANH HẠNG 3 dưới ô CK -----
+    let by = fy + fH + 26;
+    (function champBanner() {
+      const cw = 340, ch = 74, cxx = fcx - cw / 2;
+      const g = ctx.createLinearGradient(0, by, 0, by + ch); g.addColorStop(0, "rgba(233,200,107,0.34)"); g.addColorStop(1, "rgba(169,120,29,0.14)");
+      ctx.fillStyle = g; rrect(cxx, by, cw, ch, 14); ctx.fill();
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.6)"; ctx.shadowBlur = 14; ctx.strokeStyle = gold(by, by + ch); ctx.lineWidth = 2.4; rrect(cxx, by, cw, ch, 14); ctx.stroke(); ctx.restore();
+      const cf = flags[d.champion], fW2 = 46, fH2 = 31, fxx = cxx + 20;
+      if (cf) { sparkles(ctx, fxx + fW2 / 2, by + ch / 2, fW2 / 2 + 4, fH2 / 2 + 4); drawFlag(fxx, by + ch / 2 - fH2 / 2, fW2, fH2, cf); }
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.save(); LS("3px"); ctx.fillStyle = "#f0d98a"; ctx.font = F(700, 12); ctx.fillText("NHÀ VÔ ĐỊCH " + YEAR, fxx + fW2 + 16, by + ch / 2 - 13); ctx.restore();
+      ctx.fillStyle = gold(by + ch / 2, by + ch / 2 + 22); ctx.font = F(800, 26); ctx.fillText(clip(d.champion.toUpperCase(), cw - fW2 - 54), fxx + fW2 + 16, by + ch / 2 + 12);
+      by += ch + 20;
+    })();
+    (function thirdBox() {
+      const tw = 300, th = 74, txx = fcx - tw / 2, t = d.third, twin = winOf(t);
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#d8b48a"; ctx.font = F(800, 13);
+      ctx.save(); LS("2px"); ctx.fillText("🥉 TRANH HẠNG 3", fcx, by - 6); ctx.restore();
+      const ph = (th - 8) / 2;
+      const node0 = { x: txx, cy: by + ph / 2, side: "L" };
+      plate(txx, by, tw, ph, "L", t[0], t[2], null, twin === t[0], tw / boxW);
+      plate(txx, by + ph + 8, tw, ph, "L", t[1], t[3], null, twin === t[1], tw / boxW);
+    })();
+
+    // ----- logo + tiêu đề (giữa–trên) -----
+    const tgx = W / 2, tgy = 96;
+    if (logo) {
+      const bh = 78, iw = logo.naturalWidth || 1, ih = logo.naturalHeight || 1, s = bh / ih, dw = iw * s;
+      sparkles(ctx, tgx, tgy, dw / 2, bh / 2);
+      ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 18; ctx.drawImage(logo, tgx - dw / 2, tgy - bh / 2, dw, bh); ctx.restore();
+    }
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); LS("6px"); ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("FIFA WORLD CUP", tgx, tgy + 62); ctx.restore();
+    ctx.save(); LS("3px"); ctx.fillStyle = gold(tgy + 74, tgy + 108); ctx.font = F(800, 40); ctx.fillText(YEAR + " · " + d.host.toUpperCase(), tgx, tgy + 106); ctx.restore();
+
+    // ----- footer -----
+    ctx.fillStyle = "#8595b8"; ctx.font = F(600, 13); ctx.fillText("Đường sáng = hành trình tới chức vô địch · Dữ liệu FIFA / Wikipedia", W / 2, H - 22);
+
+    await saveCanvas(cv, `so-do-worldcup-${YEAR}.png`, `Sơ đồ knockout World Cup ${YEAR}`);
+  } catch (e) { console.warn("[export-bracket]", e); alert("Không tạo được ảnh: " + (e && e.message ? e.message : e)); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = old; } }
+}
+
+/* ======================= XUẤT ẢNH BẢNG XẾP HẠNG ======================= */
+async function exportStandings(btn) {
+  const old = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang tạo ảnh…"; }
+  try {
+    const d = DATA[YEAR];
+    const names = [];
+    d.groups.forEach(([, rows]) => rows.forEach((r) => names.push(r[0])));
+    const flags = await loadFlags(names);
+    const logo = await loadImg("/images/worldcup/logo-export.webp");
+
+    const cols = 4, gRows = 2, cardW = 400, headH = 38, teamH = 36;
+    const cardH = headH + 4 * teamH + 8;
+    const M = 46, colGap = 22, rowGap = 22, headerH = 214, footerH = 46;
+    const W = 2 * M + cols * cardW + (cols - 1) * colGap;
+    const H = headerH + gRows * cardH + (gRows - 1) * rowGap + footerH;
+
+    const ratio = 2;
+    const cv = document.createElement("canvas"); cv.width = W * ratio; cv.height = H * ratio;
+    const ctx = cv.getContext("2d"); ctx.scale(ratio, ratio);
+    const F = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    const gold = (y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, "#fbf1c2"); g.addColorStop(0.45, "#e7c86c"); g.addColorStop(0.55, "#d8b24a"); g.addColorStop(1, "#a9781d"); return g; };
+    const clip = (s, mw) => { s = String(s || ""); if (mw <= 0) return ""; if (ctx.measureText(s).width <= mw) return s; while (s.length > 1 && ctx.measureText(s + "…").width > mw) s = s.slice(0, -1); return s + "…"; };
+    const LS = (px) => { try { ctx.letterSpacing = px; } catch (e) {} };
+    backdrop(ctx, W, H, rrect, gold);
+
+    // header
+    const tgx = W / 2;
+    if (logo) { const bh = 70, iw = logo.naturalWidth || 1, ih = logo.naturalHeight || 1, s = bh / ih, dw = iw * s; sparkles(ctx, tgx, 66, dw / 2, bh / 2); ctx.save(); ctx.shadowColor = "rgba(246,224,146,0.5)"; ctx.shadowBlur = 16; ctx.drawImage(logo, tgx - dw / 2, 30, dw, bh); ctx.restore(); }
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.save(); LS("5px"); ctx.fillStyle = "#e7c86c"; ctx.font = F(700, 15); ctx.fillText("FIFA WORLD CUP " + YEAR + " · " + d.host.toUpperCase(), tgx, 132); ctx.restore();
+    ctx.save(); LS("4px"); ctx.fillStyle = gold(148, 190); ctx.font = F(800, 38); ctx.fillText("BẢNG XẾP HẠNG VÒNG BẢNG", tgx, 182); ctx.restore();
+
+    const RANKC = { 0: "#f5c518", 1: "#c4ccd6" };
+    d.groups.forEach(([name, rows], gi) => {
+      const c = gi % cols, r = Math.floor(gi / cols);
+      const cx = M + c * (cardW + colGap), cyy = headerH + r * (cardH + rowGap);
+      const cg = ctx.createLinearGradient(0, cyy, 0, cyy + cardH); cg.addColorStop(0, "rgba(233,200,107,0.08)"); cg.addColorStop(1, "rgba(20,33,63,0.9)");
+      ctx.fillStyle = cg; rrect(cx, cyy, cardW, cardH, 12); ctx.fill();
+      ctx.save(); ctx.shadowColor = "rgba(233,200,107,0.3)"; ctx.shadowBlur = 8; ctx.strokeStyle = gold(cyy, cyy + cardH); ctx.lineWidth = 1.5; rrect(cx, cyy, cardW, cardH, 12); ctx.stroke(); ctx.restore();
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.save(); LS("1px"); ctx.fillStyle = gold(cyy + 8, cyy + 30); ctx.font = F(800, 18); ctx.fillText("BẢNG " + name, cx + 16, cyy + headH / 2 + 1); ctx.restore();
+      const pX = cx + 286, gdX = cx + 330, ptsX = cx + 376;
+      ctx.textAlign = "center"; ctx.font = F(700, 11); ctx.fillStyle = "#9fb0cf";
+      ctx.fillText("Tr", pX, cyy + headH / 2 + 1); ctx.fillText("HS", gdX, cyy + headH / 2 + 1); ctx.fillText("Đ", ptsX, cyy + headH / 2 + 1);
+      ctx.strokeStyle = "rgba(217,178,74,0.28)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + 12, cyy + headH); ctx.lineTo(cx + cardW - 12, cyy + headH); ctx.stroke();
+      rows.forEach((row, i) => {
+        const [tm, w, dr, l, gf, ga] = row, gd = gf - ga, pts = w * 3 + dr, q = i < 2;
+        const ry = cyy + headH + i * teamH, rcy = ry + teamH / 2;
+        if (q) { ctx.fillStyle = `rgba(233,200,107,${0.14 - i * 0.03})`; rrect(cx + 5, ry + 2, cardW - 10, teamH - 4, 7); ctx.fill(); ctx.fillStyle = RANKC[i] || "#e7c86c"; rrect(cx + 5, ry + 4, 3.5, teamH - 8, 2); ctx.fill(); }
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.font = F(800, 15); ctx.fillStyle = q ? (RANKC[i] || "#f5c518") : "#8fa0c0"; ctx.fillText(String(i + 1), cx + 22, rcy + 1);
+        const fw = 30, fh = 20, fxx = cx + 38, fyy = rcy - fh / 2, img = flags[tm];
+        ctx.fillStyle = "#fff"; rrect(fxx, fyy, fw, fh, 3); ctx.fill();
+        if (img) { ctx.save(); rrect(fxx + 1, fyy + 1, fw - 2, fh - 2, 2); ctx.clip(); ctx.drawImage(img, fxx + 1, fyy + 1, fw - 2, fh - 2); ctx.restore(); }
+        ctx.strokeStyle = "rgba(217,178,74,0.5)"; ctx.lineWidth = 1; rrect(fxx, fyy, fw, fh, 3); ctx.stroke();
+        ctx.textAlign = "left"; ctx.font = F(q ? 800 : 700, 15); ctx.fillStyle = q ? "#fff6e2" : "#dbe2ee";
+        ctx.fillText(clip(tm, pX - 22 - (fxx + fw + 10)), fxx + fw + 10, rcy + 1);
+        ctx.textAlign = "center"; ctx.font = F(600, 14); ctx.fillStyle = "#aeb9cc"; ctx.fillText("3", pX, rcy + 1);
+        ctx.fillStyle = gd > 0 ? "#8fd6a8" : gd < 0 ? "#e0a0a0" : "#aeb9cc"; ctx.fillText((gd > 0 ? "+" : "") + gd, gdX, rcy + 1);
+        ctx.font = F(800, 16); ctx.fillStyle = gold(rcy - 10, rcy + 10); ctx.fillText(String(pts), ptsX, rcy + 1);
+      });
+    });
+
+    ctx.textAlign = "center"; ctx.fillStyle = "#8595b8"; ctx.font = F(600, 13); ctx.fillText("2 đội đầu mỗi bảng đi tiếp · Dữ liệu FIFA / Wikipedia", W / 2, H - 22);
+
+    await saveCanvas(cv, `bxh-worldcup-${YEAR}.png`, `Bảng xếp hạng World Cup ${YEAR}`);
+  } catch (e) { console.warn("[export-standings]", e); alert("Không tạo được ảnh: " + (e && e.message ? e.message : e)); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = old; } }
+}
+</script>
+</body>
+</html>
