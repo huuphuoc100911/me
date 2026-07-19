@@ -155,21 +155,15 @@
   .mmeta { text-align: center; color: var(--gold); font-size: 12px; letter-spacing: 2px; font-weight: 700; padding: 2px 0 12px; }
   .mres { margin: 0 18px 16px; padding: 11px 14px; border-radius: 11px; text-align: center; font-weight: 800; font-size: 14px;
     background: linear-gradient(180deg, rgba(233,200,107,.18), rgba(20,33,63,.5)); border: 1px solid var(--line); color: #fff6d8; }
-  .mjour { padding: 0 18px 8px; }
-  .mjour h4 { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 1px; color: var(--gold);
-    margin: 12px 0 8px; text-transform: uppercase; }
-  .mjour h4 img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; }
-  .jrow { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; background: rgba(255,255,255,.03);
-    border: 1px solid var(--border); font-size: 13px; margin-bottom: 6px; }
-  .jrow .jr-rnd { width: 78px; color: var(--fade); font-size: 11px; flex-shrink: 0; }
-  .jrow .jr-opp { flex: 1; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .jrow .jr-sc { font-weight: 800; font-variant-numeric: tabular-nums; }
-  .jrow .jr-badge { width: 20px; text-align: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
-  .jrow.w .jr-sc { color: #7ddca0; } .jrow.l .jr-sc { color: #e88; } .jrow.d .jr-sc { color: var(--dim); }
-  .jr-grp { padding: 7px 10px; border-radius: 9px; background: rgba(233,200,107,.06); border: 1px solid var(--border);
-    font-size: 12.5px; color: var(--dim); margin-bottom: 6px; }
-  .jr-grp b { color: #fff6e2; }
-  .mbottom { text-align: center; color: var(--fade); font-size: 11px; padding: 6px 18px 18px; }
+  .mstats { margin: 0 18px 6px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .mstats-t { font-size: 11px; letter-spacing: 2px; color: var(--gold); font-weight: 800; padding: 10px 14px 8px; background: rgba(233,200,107,.06); }
+  .mstats .stat { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; border-top: 1px solid var(--border); }
+  .mstats .stat .k { color: var(--dim); font-size: 13px; }
+  .mstats .stat .v { font-weight: 800; font-size: 16px; color: var(--text); display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+  .mstats .stat .v img { width: 26px; height: 17px; object-fit: cover; border-radius: 3px; border: 1px solid var(--gold); }
+  .mstats .stat .v.win { color: #fff6d8; }
+  .mstats .stat .v.dim { color: var(--fade); font-weight: 600; font-size: 13px; }
+  .mbottom { text-align: center; color: var(--fade); font-size: 11px; padding: 10px 18px 18px; }
 
   .foot { text-align: center; color: var(--fade); font-size: 12px; margin-top: 34px; line-height: 1.7; }
   .hint { text-align: center; color: var(--fade); font-size: 12px; margin: 2px 0 10px; }
@@ -429,53 +423,30 @@ $("exBxh").addEventListener("click", (e) => exportStandings(e.currentTarget));
 const RLABEL = { r16: "Vòng 1/8", qf: "Tứ kết", sf: "Bán kết", third: "Tranh hạng 3", final: "Chung kết" };
 const NEXT = { r16: "Tứ kết", qf: "Bán kết", sf: "Chung kết" };
 
-function teamGroupInfo(d, team) {
-  for (const [name, rows] of d.groups) {
-    const i = rows.findIndex((r) => r[0] === team);
-    if (i >= 0) { const [, w, dr, l, gf, ga] = rows[i]; return { group: name, pos: i + 1, w, dr, l, gf, ga }; }
-  }
-  return null;
-}
-/* Hành trình knockout của 1 đội tại giải (theo thứ tự thời gian) */
-function teamKOPath(d, team) {
-  const out = [];
-  const push = (m, label) => {
-    if (!m || (m[0] !== team && m[1] !== team)) return;
-    const home = m[0] === team, sf = home ? m[2] : m[3], sa = home ? m[3] : m[2], opp = home ? m[1] : m[0];
-    const win = winOf(m) === team, draw = m[2] === m[3];
-    const pen = draw && m[4] != null ? (home ? `${m[4]}-${m[5]}` : `${m[5]}-${m[4]}`) : null;
-    out.push({ label, opp, sf, sa, win, draw, pen });
-  };
-  d.r16.forEach((m) => push(m, "Vòng 1/8"));
-  d.qf.forEach((m) => push(m, "Tứ kết"));
-  d.sf.forEach((m) => push(m, "Bán kết"));
-  push(d.third, "Tranh hạng 3");
-  push(d.final, "Chung kết");
-  return out;
-}
-function journeyHTML(d, team) {
-  const g = teamGroupInfo(d, team), u = flagURL(team);
-  let html = `<div class="mjour"><h4>${u ? `<img src="${u}" alt="">` : ""}Hành trình ${team}</h4>`;
-  if (g) html += `<div class="jr-grp">Vòng bảng: <b>${g.pos === 1 ? "Nhất" : "Nhì"} bảng ${g.group}</b> · ${g.w}T ${g.dr}H ${g.l}B · ${g.gf}-${g.ga}</div>`;
-  teamKOPath(d, team).forEach((r) => {
-    const cls = r.win ? "w" : r.draw ? "d" : "l", badge = r.win ? "✓" : "✕";
-    html += `<div class="jrow ${cls}"><span class="jr-rnd">${r.label}</span><span class="jr-opp">vs ${r.opp}</span>` +
-      `<span class="jr-sc">${r.sf}-${r.sa}${r.pen ? ` <small>(${r.pen})</small>` : ""}</span><span class="jr-badge">${badge}</span></div>`;
-  });
-  return html + `</div>`;
-}
 function openMatch(stage, idx) {
   const d = DATA[YEAR];
   const m = stage === "final" ? d.final : stage === "third" ? d.third : d[stage][idx];
   if (!m) return;
-  const [h, a, hs, as, hp, ap] = m, w = winOf(m), showPen = hs === as && hp != null;
-  const uh = flagURL(h), ua = flagURL(a);
-  // dòng kết quả
+  const [h, a, hs, as, hp, ap] = m, w = winOf(m), loser = w === h ? a : h, showPen = hs === as && hp != null;
+  const uh = flagURL(h), ua = flagURL(a), uw = flagURL(w);
+  // dòng kết cục
   let res;
   if (stage === "final") res = `🏆 ${w} — VÔ ĐỊCH ${YEAR}`;
-  else if (stage === "third") res = `🥉 ${w} — Hạng 3 chung cuộc`;
-  else res = `→ ${w} đi tiếp vào ${NEXT[stage]}`;
-  const penTxt = showPen ? `<div class="pen">luân lưu ${hp}-${ap}</div>` : "";
+  else if (stage === "third") res = `🥉 ${w} — Đoạt hạng 3 chung cuộc`;
+  else res = `${w} thắng, đi tiếp vào ${NEXT[stage]}`;
+  const penTxt = showPen ? `<div class="pen">luân lưu ${hp} - ${ap}</div>` : "";
+  // chi tiết kết quả trận
+  const stats = [];
+  if (showPen) {
+    stats.push(["Hết 120 phút", `${hs} - ${as} (hòa)`]);
+    stats.push(["Loạt luân lưu", `${hp} - ${ap}`]);
+  } else {
+    stats.push(["Tỉ số chung cuộc", `${hs} - ${as}`]);
+  }
+  stats.push(["Đội thắng", `${uw ? `<img src="${uw}" alt="">` : ""}${w}`, false, true]);
+  stats.push([stage === "final" ? "Á quân" : stage === "third" ? "Hạng 4" : "Bị loại", loser]);
+  const statHTML = stats.map(([k, v, dim, win]) =>
+    `<div class="stat"><span class="k">${k}</span><span class="v ${win ? "win" : ""} ${dim ? "dim" : ""}">${v}</span></div>`).join("");
   $("movBody").innerHTML = `
     <button class="mclose" onclick="closeMatch()">×</button>
     <div class="mhead">
@@ -485,8 +456,7 @@ function openMatch(stage, idx) {
     </div>
     <div class="mmeta">${RLABEL[stage]} · WORLD CUP ${YEAR}</div>
     <div class="mres">${res}</div>
-    ${journeyHTML(d, h)}
-    ${journeyHTML(d, a)}
+    <div class="mstats"><div class="mstats-t">KẾT QUẢ TRẬN ĐẤU</div>${statHTML}</div>
     <div class="mbottom">Kết quả chung cuộc · Nguồn: FIFA / Wikipedia</div>`;
   $("mov").classList.add("on");
 }
