@@ -55,6 +55,10 @@
       "source": "/",
       "has": [{ "type": "host", "value": "wc-history.personal.io.vn" }],
       "destination": "/worldcup-history.html"
+    },
+    {
+      "source": "/:file(.*\\.html)",
+      "destination": "/uoymedia/:file"
     }
   ]
 }
