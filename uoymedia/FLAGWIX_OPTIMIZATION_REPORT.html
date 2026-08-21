@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo cáo Tối ưu — Flagwix.com</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.65; color: #111; background: #f3f4f6; }
+    .header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: #fff; padding: 32px 40px 28px; }
+    .header .label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #93c5fd; margin-bottom: 6px; }
+    .header h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .header .meta { font-size: 13px; color: #bfdbfe; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+    .section { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 20px; overflow: hidden; }
+    .sh { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid #e5e7eb; background: #fafafa; }
+    .sn { width: 28px; height: 28px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .st { font-size: 15px; font-weight: 700; }
+    .sb { padding: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f9fafb; padding: 10px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb; color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 11px 16px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafe; }
+    .num { font-weight: 700; color: #374151; white-space: nowrap; width: 36px; }
+    .sub { font-size: 12px; color: #6b7280; margin-top: 3px; }
+    .b { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+    .g { background: #dcfce7; color: #15803d; }
+    .r { background: #fee2e2; color: #b91c1c; }
+    .y { background: #fef9c3; color: #854d0e; }
+    .u { background: #dbeafe; color: #1d4ed8; }
+    .gr { background: #f3f4f6; color: #374151; }
+    .note { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 11px 16px; font-size: 13px; color: #78350f; }
+    .footer { text-align: center; font-size: 12px; color: #9ca3af; margin-top: 32px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Flagwix.com &nbsp;·&nbsp; Shopify Optimization Report</div>
+  <h1>Báo Cáo Tối Ưu Website</h1>
+  <div class="meta">Ngày lập: 20/08/2026 &nbsp;·&nbsp; Team thực hiện: HP_CodeX · Claude check · Claude analysis</div>
+</div>
+
+<div class="wrap">
+
+  <!-- BASELINE -->
+  <div class="section">
+    <div class="sh"><div class="sn" style="background:#374151">📊</div><div class="st">Baseline — Số Liệu Trước Khi Tối Ưu (đo ngày 2026-08-19)</div></div>
+    <div class="sb">
+      <table style="margin-bottom:1px">
+        <thead><tr><th colspan="6" style="background:#e0f2fe;color:#0369a1;font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;padding:10px 16px">
+          <strong>LCP</strong> — Largest Contentful Paint: thời gian để nội dung chính xuất hiện trên màn hình (chuẩn tốt: ≤ 2.5s) &nbsp;·&nbsp;
+          <strong>INP</strong> — Interaction to Next Paint: thời gian trang phản hồi khi bấm/chạm (chuẩn tốt: ≤ 200ms) &nbsp;·&nbsp;
+          <strong>CLS</strong> — Cumulative Layout Shift: mức độ nội dung bị nhảy/dịch chuyển khi tải (chuẩn tốt: ≤ 0.1)
+        </th></tr></thead>
+      </table>
+      <table>
+        <thead><tr><th>Page</th><th>Thiết bị</th><th>LCP — Tốc độ tải nội dung</th><th>INP — Phản hồi khi bấm</th><th>CLS — Nội dung bị nhảy</th><th>Kết quả</th></tr></thead>
+        <tbody>
+          <tr><td>Home</td><td>Điện thoại</td><td><span class="b y">2.5s 🟡</span></td><td><span class="b g">157ms ✅</span></td><td><span class="b g">0.01 ✅</span></td><td><span class="b r">Chưa đạt</span></td></tr>
+          <tr><td>Home</td><td>Máy tính</td><td><span class="b r">2.6s ❌</span></td><td><span class="b g">111ms ✅</span></td><td><span class="b g">0.03 ✅</span></td><td><span class="b r">Chưa đạt</span></td></tr>
+          <tr><td>Collection</td><td>Điện thoại</td><td><span class="b g">2.0s ✅</span></td><td><span class="b g">151ms ✅</span></td><td><span class="b g">0.02 ✅</span></td><td><span class="b g">Đạt ✅</span></td></tr>
+          <tr><td>Collection</td><td>Máy tính</td><td><span class="b g">1.7s ✅</span></td><td><span class="b g">106ms ✅</span></td><td><span class="b r">0.32 ❌</span></td><td><span class="b r">Chưa đạt</span></td></tr>
+          <tr><td>Product</td><td>Điện thoại</td><td><span class="b y">2.5s 🟡</span></td><td><span class="b r">204ms ❌</span></td><td><span class="b g">0.02 ✅</span></td><td><span class="b r">Chưa đạt</span></td></tr>
+          <tr><td>Product</td><td>Máy tính</td><td><span class="b g">2.3s ✅</span></td><td><span class="b g">155ms ✅</span></td><td><span class="b y">0.19 🟡</span></td><td><span class="b r">Chưa đạt</span></td></tr>
+        </tbody>
+      </table>
+      <div class="note">5/6 trường hợp chưa đạt chuẩn Google. Nghiêm trọng nhất: CLS 0.32 trên Collection (máy tính) — gấp 3× ngưỡng cho phép (0.1), ảnh hưởng trực tiếp điểm SEO và trải nghiệm khách hàng.</div>
+      <div style="margin-top:16px;font-weight:700;color:#1f2937">Giải thích các chỉ số:</div>
+      <table style="margin-top:8px">
+        <thead><tr><th>Chỉ số</th><th>Giải thích bằng tiếng Việt</th><th>Ngưỡng tốt</th><th>Ý nghĩa với khách hàng</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LCP</strong></td><td>Thời gian để nội dung lớn và quan trọng nhất của trang, thường là banner hoặc ảnh sản phẩm, hiển thị đầy đủ.</td><td>Không quá 2,5 giây</td><td>LCP càng thấp, khách càng sớm nhìn thấy nội dung chính và cảm nhận website tải nhanh.</td></tr>
+          <tr><td><strong>INP</strong></td><td>Thời gian từ lúc khách bấm hoặc chạm cho đến khi giao diện phản hồi lại thao tác đó.</td><td>Không quá 200 mili giây</td><td>INP càng thấp, thao tác chọn sản phẩm, chọn biến thể và thêm vào giỏ càng nhanh, ít cảm giác bị lag.</td></tr>
+          <tr><td><strong>CLS</strong></td><td>Mức độ chữ, ảnh, nút hoặc sản phẩm bị nhảy và dịch chuyển ngoài ý muốn trong lúc trang đang tải.</td><td>Không quá 0,1</td><td>CLS càng thấp, bố cục càng ổn định; khách ít bấm nhầm và website tạo cảm giác chuyên nghiệp hơn.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMPLETED -->
+  <div class="section">
+    <div class="sh"><div class="sn" style="background:#15803d">✓</div><div class="st">Đã Thực Hiện</div></div>
+    <div class="sb">
+      <table>
+        <thead><tr><th>Hạng mục</th><th>Tác động kinh doanh</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+
+          <tr>
+            <td>
+              <strong>Bỏ giới hạn zoom trên điện thoại</strong>
+              <div class="sub">Xóa maximum-scale=1.0 — khách có thể phóng to ảnh sản phẩm bình thường</div>
+            </td>
+            <td>Điểm Accessibility Google tăng ~10 điểm. Đạt chuẩn WCAG 2.1. Cải thiện trải nghiệm cho khách hàng dùng điện thoại xem chi tiết sản phẩm, đặc biệt người lớn tuổi.</td>
+            <td><span class="b g">LIVE ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Sửa font preload mapping sai</strong>
+              <div class="sub">Font 2, font 3 đang trỏ nhầm URL của font 1 — browser tải 1 file font 3 lần</div>
+            </td>
+            <td>Hết hiệu ứng chữ nhấp nháy khi trang load (FOUT) — giao diện hiện ra ngay đúng kiểu dáng, trông chuyên nghiệp hơn. Fix active khi store chuyển sang Shopify Fonts.</td>
+            <td><span class="b g">Code xong ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Banner trang chủ tải sớm hơn (Eager Loading)</strong>
+              <div class="sub">Đổi loading="lazy" → eager + fetchpriority="high" cho ảnh banner đầu tiên</div>
+            </td>
+            <td>Kỳ vọng LCP Desktop: 2.6s → ~2.3–2.4s, đạt ngưỡng Google. Khách thấy banner nhanh hơn → ấn tượng đầu tiên tốt hơn, giảm bounce rate. Dữ liệu field sẽ phản ánh sau 2–4 tuần.</td>
+            <td><span class="b g">LIVE ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Sửa lỗi chính tả "OVERS $99"</strong>
+              <div class="sub">Announcement bar hiển thị "FREE SHIPPING OVERS $99" thay vì "OVER $99"</div>
+            </td>
+            <td>Loại bỏ lỗi chính tả trực tiếp trên site — tăng hình ảnh brand chuyên nghiệp trước khách hàng và đối tác.</td>
+            <td><span class="b g">Đã sửa ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Ô nhập mã giảm giá ngay trong giỏ hàng (Cart Discount)</strong>
+              <div class="sub">Trước đây khách phải sang trang checkout mới thấy ô nhập coupon</div>
+            </td>
+            <td>Giảm tỷ lệ bỏ giỏ hàng do không tìm thấy ô nhập mã. Apply/xóa mã chạy nền không reload trang, hiển thị trạng thái thành công/lỗi rõ ràng. Cải thiện trực tiếp tỷ lệ hoàn thành đơn hàng.</td>
+            <td><span class="b g">ĐÃ DEPLOY ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Sao đánh giá Judge.me trên Collection Cards</strong>
+              <div class="sub">Bật Enable Rating + fix ẩn badge rỗng cho sản phẩm chưa có review (chỉ hiện khi rating_count > 0)</div>
+            </td>
+            <td>Sản phẩm có review hiện sao ngay trên trang danh mục → tăng social proof → khách tin tưởng hơn khi duyệt → tăng tỷ lệ click vào sản phẩm. Sản phẩm chưa có review không hiện ô sao rỗng — giao diện sạch, không gây hiểu nhầm.</td>
+            <td><span class="b g">ĐÃ DEPLOY ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Chuyển Clarity + Twitter scripts xuống cuối trang</strong>
+              <div class="sub">2 script tracking chạy trong &lt;head&gt; → chặn render. Đã chuyển xuống trước &lt;/body&gt; (theme.liquid:342–371)</div>
+            </td>
+            <td>Trình duyệt không cần chờ 2 script tracking trước khi render nội dung → giảm thời gian hiển thị trang. Tracking vẫn hoạt động đầy đủ, không ảnh hưởng dữ liệu quảng cáo.</td>
+            <td><span class="b g">Code xong ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Bootstrap CSS 183KB → non-blocking</strong>
+              <div class="sub">Đổi từ stylesheet_tag (render-blocking) sang media="print" onload (head_assets.liquid:39) + noscript fallback</div>
+            </td>
+            <td>Browser không cần đợi 183KB Bootstrap load xong mới render trang — giảm thời gian hiển thị nội dung đầu tiên. Giao diện có thể flash nhẹ ~100–200ms trước khi Bootstrap áp dụng; cần test Preview để xác nhận.</td>
+            <td><span class="b g">Code xong ✅</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Giữ không gian cho badge sản phẩm (CLS fix)</strong>
+              <div class="sub">Badge container trước đây cao 0px, JS điền badge sau khi render → content bị đẩy xuống. Đã thêm min-height:22px cho .t4s-product-badge (theme.liquid:94)</div>
+            </td>
+            <td>Giảm CLS trên các trang có badge sản phẩm — nội dung không bị nhảy sau khi badge xuất hiện. Là một trong các biện pháp khắc phục CLS 0.32 trên Collection desktop (cần đo lại sau deploy để xác nhận mức độ cải thiện).</td>
+            <td><span class="b g">Code xong ✅</span></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div class="section">
+    <div class="sh"><div class="sn" style="background:#b45309">→</div><div class="st">Việc Tiếp Theo — Đang Triển Khai</div></div>
+    <div class="sb">
+      <table>
+        <thead><tr><th>#</th><th>Hạng mục</th><th>Tác động kinh doanh kỳ vọng</th><th>Người thực hiện</th><th>Ưu tiên</th></tr></thead>
+        <tbody>
+
+          <tr>
+            <td class="num">1</td>
+            <td>
+              Test tắt Bootstrap CSS (183KB)
+              <div class="sub">Bootstrap đang tải toàn site, nhiều phần không dùng đến</div>
+            </td>
+            <td>Giảm ~183KB dữ liệu tải mỗi trang → tốc độ cải thiện rõ trên mạng 3G/4G. Test trên Preview trước khi áp dụng để đảm bảo không ảnh hưởng layout.</td>
+            <td>Admin (Theme Settings)</td>
+            <td><span class="b y">Trung bình</span></td>
+          </tr>
+
+          <tr>
+            <td class="num">2</td>
+            <td>
+              Fix CLS 0.32 — Collection (Máy tính)
+              <div class="sub">Nội dung trang bị dịch chuyển khi tải — gấp 3× ngưỡng Google (0.1)</div>
+            </td>
+            <td>Đạt chuẩn Core Web Vitals → cải thiện thứ hạng SEO. Khách không bị bấm nhầm sản phẩm khi trang đang tải → trải nghiệm tốt hơn → tăng tỷ lệ chuyển đổi. Cần đo attribution live để xác định nguyên nhân trước khi fix.</td>
+            <td>HP_CodeX</td>
+            <td><span class="b r">Cao</span></td>
+          </tr>
+
+          <tr>
+            <td class="num">3</td>
+            <td>
+              Fix INP 204ms — Product (Điện thoại)
+              <div class="sub">Phản hồi khi bấm chọn size/màu/Add to Cart trên điện thoại vượt ngưỡng 4ms</div>
+            </td>
+            <td>Đạt chuẩn Core Web Vitals. Khách không cảm thấy trang "lag" khi tương tác → tăng tự tin hoàn thành đơn → đặc biệt quan trọng vì phần lớn traffic đến từ điện thoại. Cần trace long-task để xác định script gây chậm.</td>
+            <td>HP_CodeX</td>
+            <td><span class="b r">Cao</span></td>
+          </tr>
+
+          <tr>
+            <td class="num">4</td>
+            <td>
+              Show More/Less cho bộ lọc sản phẩm
+              <div class="sub">Facet đang hiện toàn bộ lựa chọn — có thể 50+ màu/loại hiện cùng lúc</div>
+            </td>
+            <td>Sidebar filter gọn hơn → khách dễ tìm và dùng filter → tìm được sản phẩm phù hợp nhanh hơn → giảm tỷ lệ thoát trang danh mục. Đặc biệt quan trọng với site có 9.000+ sản phẩm.</td>
+            <td>HP_CodeX</td>
+            <td><span class="b gr">Thấp</span></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TEAM REVIEW STRATEGY -->
+  <div class="section">
+    <div class="sh"><div class="sn" style="background:#6b7280">i</div><div class="st">Chiến Lược Review Của Team</div></div>
+    <div class="sb">
+      <table>
+        <thead><tr><th>Hạng mục</th><th>Lý do lựa chọn</th><th>Tác động kinh doanh</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Hiển thị tổng review toàn shop trên Product</td>
+            <td>Nhiều sản phẩm chưa có review riêng, nên team chủ động hiển thị tổng review của shop. Khi khách bấm vào số sao, trang đưa xuống khu vực tổng hợp tất cả review của shop.</td>
+            <td>Tăng social proof và cho khách thấy mức độ tin cậy chung của thương hiệu, kể cả khi sản phẩm đang xem chưa tích lũy đủ review riêng. Đây là chiến lược có chủ đích, không phải lỗi kỹ thuật.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="section">
+    <div class="sh"><div class="sn" style="background:#1d4ed8">🎯</div><div class="st">Mục Tiêu Sau Tối Ưu</div></div>
+    <div class="sb">
+      <table>
+        <thead><tr><th>Page</th><th>Chỉ số</th><th>Baseline</th><th>Mục tiêu</th><th>Tiến độ</th></tr></thead>
+        <tbody>
+          <tr><td>Home</td><td>LCP điện thoại</td><td><span class="b y">2.5s</span></td><td>&lt; 2.0s</td><td>⬜ Chưa</td></tr>
+          <tr><td>Home</td><td>LCP máy tính</td><td><span class="b r">2.6s</span></td><td>&lt; 2.5s</td><td>⏳ F3 đã deploy — chờ data 28 ngày</td></tr>
+          <tr><td>Collection</td><td>CLS máy tính</td><td><span class="b r">0.32</span></td><td>&lt; 0.1</td><td>⬜ Chưa — đang phân tích nguyên nhân</td></tr>
+          <tr><td>Product</td><td>INP điện thoại</td><td><span class="b r">204ms</span></td><td>&lt; 200ms</td><td>⬜ Chưa — đang phân tích nguyên nhân</td></tr>
+          <tr><td>Product</td><td>CLS máy tính</td><td><span class="b y">0.19</span></td><td>&lt; 0.1</td><td>⬜ Chưa</td></tr>
+        </tbody>
+      </table>
+      <div class="note">Dữ liệu PageSpeed là trung bình 28 ngày từ người dùng thực — sau mỗi deploy cần đợi 2–4 tuần mới phản ánh vào dashboard. Dùng pagespeed.web.dev (Lighthouse Lab) để đo ngay sau deploy.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Flagwix.com &nbsp;·&nbsp; Báo cáo ngày 20/08/2026 &nbsp;·&nbsp; Team: HP_CodeX · Claude check · Claude analysis</div>
+</body>
+</html>

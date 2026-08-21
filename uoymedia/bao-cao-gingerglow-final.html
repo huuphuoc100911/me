@@ -267,11 +267,11 @@
   <!-- ===== SUMMARY ===== -->
   <div class="summary-grid">
     <div class="summary-card">
-      <div class="number">30</div>
+      <div class="number">33</div>
       <div class="label">Tính năng hoàn thành</div>
     </div>
     <div class="summary-card">
-      <div class="number">6</div>
+      <div class="number">7</div>
       <div class="label">Khu vực được cải thiện</div>
     </div>
     <div class="summary-card">
@@ -288,7 +288,7 @@
   <div class="section">
     <div class="section-title"><span class="icon">🎯</span> Mục Tiêu Chung</div>
     <p style="font-size:15px; color:#444; line-height:1.85;">
-      Toàn bộ 30 cải tiến đều hướng đến một mục tiêu duy nhất: <strong>tăng tỷ lệ khách xem hàng → bỏ giỏ → hoàn tất thanh toán (Conversion Rate — CR)</strong>. Công việc được chia thành 6 nhóm chính: tối ưu trang sản phẩm, cải thiện trang giỏ hàng, header &amp; điều hướng, giao diện toàn store, hệ thống theo dõi hành vi mua hàng, và trải nghiệm mobile &amp; carousel.
+      Toàn bộ 33 cải tiến đều hướng đến một mục tiêu duy nhất: <strong>tăng tỷ lệ khách xem hàng → bỏ giỏ → hoàn tất thanh toán (Conversion Rate — CR)</strong>. Công việc được chia thành 7 nhóm chính: tối ưu trang sản phẩm, cải thiện trang giỏ hàng, header &amp; điều hướng, giao diện toàn store, hệ thống theo dõi hành vi mua hàng, trải nghiệm mobile &amp; carousel, và cart drawer &amp; UX checkout.
     </p>
   </div>
 
@@ -435,6 +435,42 @@
         <div class="feat-impact">→ Khách thấy "còn thiếu $X nữa là được giảm $Y" → thêm hàng để đạt ngưỡng → tăng AOV và tỷ lệ hoàn tất đơn.</div>
       </div>
     </div>
+
+    <div class="sub-heading">2.3 — Làm Nổi Bật Thông Tin Giảm Giá Trên Cart Page</div>
+
+    <div class="feature-row">
+      <div class="feat-num">32</div>
+      <div class="feat-content">
+        <div class="feat-title">Highlight mã coupon, số tiền còn lại & mức giảm — in đậm + màu xanh brand <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">
+          Trên trang /cart, trong thanh tiến trình auto-discount và trong danh sách discount đã được áp dụng, các thông tin quan trọng được làm nổi bật:
+          <ul style="margin: 10px 0 0 16px; font-size:13.5px; color:#555; line-height:2;">
+            <li>Tên mã coupon (GGL5, GGL7, GGL10) — <strong style="color:#096821;">in đậm + màu xanh brand</strong></li>
+            <li>Số tiền còn thiếu để đạt ngưỡng kế tiếp — <strong>in đậm</strong></li>
+            <li>Mức giảm tiếp theo ($5 OFF / $7 OFF / $10 OFF) — <strong style="color:#096821;">in đậm + màu xanh brand</strong></li>
+            <li>Tên và số tiền discount đã áp dụng trong cart summary — <strong style="color:#096821;">in đậm + màu xanh brand</strong></li>
+          </ul>
+        </div>
+        <div class="feat-impact">→ Khách đọc ngay được thông tin ưu đãi quan trọng — không lẫn vào đoạn text thường → tăng động lực thêm hàng để đạt ngưỡng và hoàn tất đơn.</div>
+      </div>
+    </div>
+
+    <div class="sub-heading">2.4 — Cart Drawer Sau Khi Thêm Sản Phẩm</div>
+
+    <div class="feature-row">
+      <div class="feat-num">31</div>
+      <div class="feat-content">
+        <div class="feat-title">Cart Drawer tự mở sau Add to Cart <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">
+          Khi khách bấm Add to Cart, nút mua hiển thị trạng thái loading và khóa thao tác lặp trong lúc Shopify xử lý. Chỉ sau khi sản phẩm được thêm thành công và dữ liệu giỏ hàng cập nhật xong, cart drawer mới trượt ra mượt từ bên phải với sản phẩm vừa thêm, số lượng, tổng tiền và các hành động tiếp theo.
+          <br/><br/>
+          Drawer có nút <strong>Checkout</strong> và <strong>View cart</strong>; khách vẫn có thể bấm icon cart trên header để đi thẳng đến trang giỏ hàng đầy đủ. Nếu thêm sản phẩm thất bại, drawer không mở và lỗi được hiển thị tại form mua hàng.
+          <br/><br/>
+          Trên mobile, danh sách sản phẩm có vùng cuộn riêng, phần tổng tiền và CTA luôn nhìn thấy, đồng thời drawer chừa một phần backdrop để khách nhận biết đây là popup.
+        </div>
+        <div class="feat-impact">→ Xác nhận ngay sản phẩm đã vào giỏ và đưa Checkout/View cart đến gần khách hơn, giảm khựng và giảm rơi rụng sau thao tác Add to Cart.</div>
+      </div>
+    </div>
   </div>
 
   <!-- ===== NHÓM 3: HEADER & ĐIỀU HƯỚNG ===== -->
@@ -473,6 +509,15 @@
         <div class="feat-title">Icon giỏ hàng rung nhẹ thu hút sự chú ý <span class="badge badge-new">Mới</span></div>
         <div class="feat-desc">Biểu tượng giỏ hàng rung nhẹ mỗi 3 giây (rung 0.36 giây, nghỉ 2.6 giây, lặp lại). Chuyển động nhẹ nhàng như túi đang treo. Tắt tự động nếu khách dùng thiết bị đã bật chế độ "giảm chuyển động".</div>
         <div class="feat-impact">→ Thu hút thị giác → nhắc khách kiểm tra giỏ hàng → tăng khả năng hoàn tất mua.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">33</div>
+      <div class="feat-content">
+        <div class="feat-title">Icon giỏ hàng — Click đi thẳng tới /cart & khôi phục animation rung <span class="badge badge-fix">Sửa lỗi</span></div>
+        <div class="feat-desc">Sau khi kích hoạt Cart Drawer, icon giỏ hàng trên header bị đổi thành button (chỉ mở drawer) và mất class <code>action__cart</code> — khiến animation rung biến mất và click không còn sang trang /cart. Đã fix: đổi trigger thành anchor <code>&lt;a href="/cart"&gt;</code> với đúng class — click icon đi thẳng đến trang giỏ hàng đầy đủ, animation rung theo chu kỳ 3 giây hoạt động lại. Cart Drawer vẫn tự mở sau ATC qua event listener riêng, không bị ảnh hưởng.</div>
+        <div class="feat-impact">→ Khách click icon cart đi thẳng đến trang /cart để review đơn; animation thu hút sự chú ý được khôi phục sau khi vô tình bị mất.</div>
       </div>
     </div>
 
@@ -696,6 +741,21 @@
           <td><span class="tag-med">🟡 Trung bình</span></td>
         </tr>
         <tr>
+          <td><strong>Cart Drawer sau Add to Cart (#31)</strong></td>
+          <td>Xác nhận sản phẩm đã thêm và đưa Checkout/View cart đến ngay bước kế tiếp → giảm ma sát sau ATC</td>
+          <td><span class="tag-high">🔴 Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Highlight coupon & discount cart (#32)</strong></td>
+          <td>Mã coupon và mức giảm nổi bật → khách đọc ngay → tăng động lực thêm hàng đạt ngưỡng</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Cart icon → /cart + wiggle (#33)</strong></td>
+          <td>Link trực tiếp đến /cart giảm nhầm lẫn; animation rung thu hút thị giác → nhắc khách hoàn tất đơn đang bỏ dở</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
           <td><strong>Trang Happy Customers (#30)</strong></td>
           <td>Social proof tập trung — đọc nhiều review thực ở một chỗ → tăng tin tưởng → giảm do dự mua hàng</td>
           <td><span class="tag-high">🔴 Cao</span></td>
@@ -718,6 +778,9 @@
       <div class="status-item"><span>Typography & giao diện toàn store</span><span class="status-done">✅ Hoàn chỉnh</span></div>
       <div class="status-item"><span>Judge.me reviews cleanup</span><span class="status-done">✅ Hoàn chỉnh</span></div>
       <div class="status-item"><span>Trang Happy Customers (#30)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Cart Drawer sau ATC (#31)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Highlight coupon & discount cart page (#32)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Cart icon → /cart + animation rung (#33)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
       <div class="status-item"><span style="font-weight:700;">Deploy lên Shopify (theme push — 18–21/08)</span><span class="status-done">✅ Đã deploy</span></div>
       <div class="status-item"><span>Mobile Product Card Spacing (#23)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
       <div class="status-item"><span>Featured Blog Carousel — fix & autoplay (#24)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
@@ -743,9 +806,9 @@
   </div>
 
   <div class="report-footer">
-    Báo cáo tổng hợp bởi nhóm phát triển GingerglowGift &nbsp;·&nbsp; Cập nhật 21/08/2026
+    Báo cáo tổng hợp bởi nhóm phát triển GingerglowGift &nbsp;·&nbsp; Cập nhật 21/08/2026 — 33 tính năng
     <br/>
-    Tài liệu kỹ thuật đầy đủ: <code>FEATURE_LOG.md</code> trong repository dự án (30 tính năng, chi tiết file & code)
+    Tài liệu kỹ thuật đầy đủ: <code>FEATURE_LOG.md</code> trong repository dự án (33 tính năng, chi tiết file & code)
   </div>
 
 </div>
