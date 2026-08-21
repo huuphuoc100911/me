@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo Cáo Toàn Diện — GingerglowGift Shopify Store</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      line-height: 1.7;
+    }
+    .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* Header */
+    .report-header {
+      background: linear-gradient(135deg, #096821 0%, #0d8a2c 100%);
+      color: white;
+      padding: 44px 48px;
+      border-radius: 16px;
+      margin-bottom: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .report-header::after {
+      content: '';
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+    }
+    .report-header h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+    .report-header .subtitle { font-size: 15px; opacity: 0.88; margin-bottom: 20px; }
+    .report-header .meta {
+      display: flex; gap: 28px; flex-wrap: wrap;
+      font-size: 13.5px; opacity: 0.82;
+    }
+    .report-header .meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* Summary numbers */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .summary-card {
+      background: white;
+      border-radius: 12px;
+      padding: 22px 16px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border-top: 4px solid #096821;
+    }
+    .summary-card .number { font-size: 34px; font-weight: 800; color: #096821; line-height: 1; }
+    .summary-card .label { font-size: 12.5px; color: #666; margin-top: 6px; }
+
+    /* Section */
+    .section {
+      background: white;
+      border-radius: 14px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #096821;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8f5e9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title .icon { font-size: 22px; }
+
+    /* Sub-section heading */
+    .sub-heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+      background: #f0f9f1;
+      border-left: 4px solid #096821;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0 14px;
+    }
+
+    /* Feature row */
+    .feature-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .feature-row:last-child { border-bottom: none; }
+    .feat-num {
+      min-width: 30px; height: 30px;
+      background: #e8f5e9;
+      color: #096821;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      flex-shrink: 0;
+    }
+    .feat-content { flex: 1; }
+    .feat-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #1a1a2e; }
+    .feat-desc { font-size: 13.5px; color: #555; line-height: 1.65; }
+    .feat-impact {
+      margin-top: 6px;
+      font-size: 12.5px;
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      vertical-align: middle;
+    }
+    .badge-new { background: #096821; color: white; }
+    .badge-fix { background: #e65100; color: white; }
+    .badge-improve { background: #1565c0; color: white; }
+
+    /* Discount tiers */
+    .discount-tiers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .tier-card {
+      background: linear-gradient(135deg, #e8f5e9, #f1f8f2);
+      border: 1px solid #a5d6a7;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .tier-amount { font-size: 26px; font-weight: 800; color: #096821; }
+    .tier-code { font-size: 13px; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; margin: 6px 0; display: inline-block; }
+    .tier-condition { font-size: 12px; color: #555; }
+
+    /* Data grid */
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .data-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: #333;
+      background: #f1f8f2;
+      padding: 8px 10px;
+      border-radius: 7px;
+    }
+    .dot { width: 8px; height: 8px; background: #096821; border-radius: 50%; flex-shrink: 0; }
+
+    /* Impact table */
+    .impact-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .impact-table th {
+      background: #096821;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .impact-table th:first-child { border-radius: 8px 0 0 0; }
+    .impact-table th:last-child { border-radius: 0 8px 0 0; }
+    .impact-table td { padding: 11px 16px; border-bottom: 1px solid #f0f0f0; }
+    .impact-table tr:last-child td { border-bottom: none; }
+    .impact-table tr:nth-child(even) td { background: #f9fffe; }
+
+    .tag-high { display: inline-block; background: #ffebee; color: #c62828; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 12px; }
+    .tag-med { display: inline-block; background: #fff3e0; color: #e65100; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 12px; }
+    .tag-low { display: inline-block; background: #e3f2fd; color: #1565c0; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 12px; }
+
+    /* Status */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      font-size: 13.5px;
+    }
+    .status-done { color: #2e7d32; font-weight: 700; }
+    .status-pending { color: #e65100; font-weight: 700; }
+
+    /* Next steps */
+    .step-list { display: flex; flex-direction: column; gap: 12px; }
+    .step-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 30px; height: 30px;
+      background: #096821;
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      flex-shrink: 0;
+    }
+    .step-text { font-size: 14px; color: #333; padding-top: 4px; }
+
+    /* Footer */
+    .report-footer {
+      text-align: center;
+      margin-top: 44px;
+      padding-top: 24px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 13px;
+      color: #999;
+    }
+
+    @media (max-width: 640px) {
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .discount-tiers { grid-template-columns: 1fr; }
+      .data-grid { grid-template-columns: 1fr 1fr; }
+      .status-grid { grid-template-columns: 1fr; }
+      .section { padding: 22px 18px; }
+      .report-header { padding: 28px 24px; }
+    }
+    @media print {
+      body { background: white; }
+      .page { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== HEADER ===== -->
+  <div class="report-header">
+    <h1>Báo Cáo Tối Ưu Website — GingerglowGift</h1>
+    <div class="subtitle">Toàn bộ cải tiến giao diện, tính năng mới và hệ thống dữ liệu — tổng hợp từ nhóm phát triển</div>
+    <div class="meta">
+      <span>📅 Thực hiện: 18–21/08/2026</span>
+      <span>🏪 Store: GingerglowGift (Shopify)</span>
+      <span>👨‍💻 Nhóm: HP_CodeX · Claude analysis · Claude check</span>
+    </div>
+  </div>
+
+  <!-- ===== SUMMARY ===== -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="number">30</div>
+      <div class="label">Tính năng hoàn thành</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">6</div>
+      <div class="label">Khu vực được cải thiện</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">13</div>
+      <div class="label">Loại dữ liệu ATC thu thập</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">3</div>
+      <div class="label">Mức giảm giá tự động</div>
+    </div>
+  </div>
+
+  <!-- ===== MỤC TIÊU ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🎯</span> Mục Tiêu Chung</div>
+    <p style="font-size:15px; color:#444; line-height:1.85;">
+      Toàn bộ 30 cải tiến đều hướng đến một mục tiêu duy nhất: <strong>tăng tỷ lệ khách xem hàng → bỏ giỏ → hoàn tất thanh toán (Conversion Rate — CR)</strong>. Công việc được chia thành 6 nhóm chính: tối ưu trang sản phẩm, cải thiện trang giỏ hàng, header &amp; điều hướng, giao diện toàn store, hệ thống theo dõi hành vi mua hàng, và trải nghiệm mobile &amp; carousel.
+    </p>
+  </div>
+
+  <!-- ===== NHÓM 1: TRANG SẢN PHẨM ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🛍️</span> Nhóm 1 — Trang Sản Phẩm (Product Page)</div>
+    <p style="font-size:13.5px; color:#666; margin-bottom:4px;">Đây là trang khách nhìn thấy trước khi quyết định mua. Mọi thứ trên trang này đều ảnh hưởng trực tiếp đến CR.</p>
+
+    <div class="sub-heading">1.1 — Thanh "Thêm vào giỏ" cố định khi cuộn (Sticky ATC Bar)</div>
+    <div class="feature-row">
+      <div class="feat-num">1</div>
+      <div class="feat-content">
+        <div class="feat-title">Sticky Add-to-Cart Bar <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">
+          Khi khách cuộn qua nút mua chính, một thanh nhỏ xuất hiện cố định ở cuối màn hình, hiển thị: ảnh thumbnail sản phẩm, tên, giá, ô chọn số lượng, và nút "Thêm vào giỏ". Thanh tự ẩn khi nút mua chính đang nhìn thấy được, và hiện lại khi cuộn xuống xa hơn. Đồng bộ hai chiều với nút chính khi khách đổi variant hoặc số lượng.
+        </div>
+        <div class="feat-impact">→ Khách muốn mua bất cứ lúc nào đều có thể bấm ngay, không cần cuộn ngược lên đầu trang.</div>
+      </div>
+    </div>
+
+    <div class="sub-heading">1.2 — Dải Mã Giảm Giá (Coupon Strip)</div>
+    <div class="feature-row">
+      <div class="feat-num">15</div>
+      <div class="feat-content">
+        <div class="feat-title">Banner 3 mức ưu đãi GGL5 / GGL7 / GGL10 <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">
+          Dải màu xanh nhạt trải dài toàn màn hình phía trên phần thông tin sản phẩm, hiển thị rõ 3 mốc ưu đãi:
+        </div>
+        <div class="discount-tiers" style="margin-top:12px;">
+          <div class="tier-card">
+            <div class="tier-amount">$5 OFF</div>
+            <div class="tier-code">Code: GGL5</div>
+            <div class="tier-condition">Đơn hàng từ $99</div>
+          </div>
+          <div class="tier-card">
+            <div class="tier-amount">$7 OFF</div>
+            <div class="tier-code">Code: GGL7</div>
+            <div class="tier-condition">Đơn hàng từ $149</div>
+          </div>
+          <div class="tier-card">
+            <div class="tier-amount">$10 OFF</div>
+            <div class="tier-code">Code: GGL10</div>
+            <div class="tier-condition">Đơn hàng từ $249</div>
+          </div>
+        </div>
+        <div class="feat-desc" style="margin-top:8px;">
+          Desktop hiển thị 3 cột song song, mobile thu gọn để vẫn đọc được trên màn hình nhỏ. Đây là thông tin nhìn thấy ngay từ đầu trang — khách biết rõ cần mua bao nhiêu để được giảm.
+        </div>
+        <div class="feat-impact">→ Khuyến khích khách thêm sản phẩm để đạt ngưỡng, tăng giá trị đơn hàng trung bình (AOV).</div>
+      </div>
+    </div>
+
+    <div class="sub-heading">1.3 — Các cải tiến giao diện trang sản phẩm</div>
+
+    <div class="feature-row">
+      <div class="feat-num">5</div>
+      <div class="feat-content">
+        <div class="feat-title">Sắp xếp lại thứ tự thông tin <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Điều chỉnh thứ tự: Tiêu đề → Đánh giá → Giá → Variant → <strong>Lợi ích sản phẩm (Benefits)</strong> → Nút mua → Mô tả → Giao hàng. Khách thấy lợi ích sản phẩm trước khi bấm mua, thay vì phải cuộn xuống tìm.</div>
+        <div class="feat-impact">→ Khách nhận thấy giá trị sản phẩm sớm hơn → quyết định nhanh hơn.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">6</div>
+      <div class="feat-content">
+        <div class="feat-title">Thông tin giao hàng dạng pill gọn <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Thay thế khối thông tin giao hàng 3 bước cũ bằng component pill gọn — icon xe tải trong vòng tròn xanh thương hiệu, tiêu đề đậm và chi tiết nhỏ bên cạnh. Khách đọc ngay được mà không mất diện tích.</div>
+        <div style="margin:10px 0 6px;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(9,104,33,0.2);border-radius:10px;background:rgba(9,104,33,0.06);max-width:420px;">
+          <span style="display:grid;width:32px;height:32px;flex:0 0 32px;place-items:center;border-radius:50%;background:#096821;color:#fff;">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M3 5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2h2.4a2 2 0 0 1 1.66.89l1.6 2.4c.22.33.34.72.34 1.11V16a2 2 0 0 1-2 2h-.17a3 3 0 0 1-5.66 0H9.83a3 3 0 0 1-5.66 0H4a2 2 0 0 1-2-2V5Zm14 4v3h3v-.6L18.4 9H17ZM7 16a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm10 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
+          </span>
+          <span style="display:grid;gap:2px;font-family:inherit;">
+            <strong style="font-size:14px;font-weight:600;line-height:1.2;">Ships in 1–3 business days</strong>
+            <small style="color:rgba(26,26,46,0.7);font-size:12px;line-height:1.25;">Estimated delivery in 10–14 business days</small>
+          </span>
+        </div>
+        <div class="feat-impact">→ Khách biết thời gian giao hàng ngay lập tức, giảm do dự.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">7–9</div>
+      <div class="feat-content">
+        <div class="feat-title">Dọn dẹp khu vực đánh giá khách hàng (Judge.me) <span class="badge badge-fix">Sửa lỗi</span></div>
+        <div class="feat-desc">Phần đánh giá sản phẩm bị một khoảng trắng khổng lồ ~500px ở desktop. Nguyên nhân: cài đặt chiều cao cố định "small" = 50% chiều cao màn hình. Đã sửa về "tự động", xóa padding thừa, giảm khoảng cách giữa các phần. Dùng selector ổn định thay ID động (ID cũ bị mất mỗi khi theme editor chỉnh sửa).</div>
+        <div class="feat-impact">→ Trang sản phẩm gọn hơn, khách thấy đánh giá mà không phải cuộn qua vùng trắng lớn.</div>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feat-num">30</div>
+      <div class="feat-content">
+        <div class="feat-title">Trang Happy Customers — Tổng hợp tất cả đánh giá <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">Tạo trang chuyên biệt <a href="https://gingerglowgifts.com/pages/happy-customers" target="_blank" style="color:#096821;">gingerglowgifts.com/pages/happy-customers</a> hiển thị toàn bộ đánh giá khách hàng từ Judge.me. Khách có thể xem tất cả review mà không cần vào từng trang sản phẩm riêng lẻ.</div>
+        <div class="feat-impact">→ Social proof tập trung — khách đọc nhiều đánh giá thực → tăng tin tưởng → quyết định mua nhanh hơn.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NHÓM 2: TRANG GIỎ HÀNG ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🛒</span> Nhóm 2 — Trang Giỏ Hàng (Cart Page)</div>
+    <p style="font-size:13.5px; color:#666; margin-bottom:4px;">Trang giỏ hàng là bước cuối trước khi khách bấm thanh toán. Thiết kế chuyên nghiệp ở đây giảm tỷ lệ bỏ giỏ.</p>
+
+    <div class="sub-heading">2.1 — Thiết Kế Lại Giao Diện Giỏ Hàng</div>
+
+    <div class="feature-row">
+      <div class="feat-num">18</div>
+      <div class="feat-content">
+        <div class="feat-title">Cart Page Redesign — Card style hiện đại <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">
+          Mỗi sản phẩm trong giỏ hàng được hiển thị trong một card riêng biệt: nền trắng, bo góc 10px, đổ bóng nhẹ. Ảnh sản phẩm bo góc, tên 15px đậm, variant 13px mờ. Nút xóa chuyển màu đỏ khi hover. Giá hiển thị đúng thứ tự: giá gốc gạch ngang trước, giá sale sau — đồng bộ với chuẩn e-commerce quốc tế và hỗ trợ screen reader.
+        </div>
+        <div class="feat-impact">→ Giao diện giỏ hàng chuyên nghiệp, dễ đọc → khách tin tưởng hơn khi nhìn thấy tóm tắt đơn hàng.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">19</div>
+      <div class="feat-content">
+        <div class="feat-title">Cart Page Polish — Tinh chỉnh chi tiết <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">
+          Tiêu đề giỏ hàng (H1) đổi sang màu xanh brand + đậm vừa phải. Ô nhập mã giảm giá luôn mở sẵn (không cần bấm toggle thêm bước). Khu vực tóm tắt đơn hàng (cart summary) có viền bo góc gọn, không kéo dài toàn màn hình. "You may also like" đổi chữ màu xanh brand + bold, giá hiển thị đúng thứ tự.
+        </div>
+        <div class="feat-impact">→ Mỗi chi tiết nhỏ tạo cảm giác đồng nhất và chuyên nghiệp cho toàn trang.</div>
+      </div>
+    </div>
+
+    <div class="sub-heading">2.2 — Hệ Thống Giảm Giá Tự Động (Auto-Discount)</div>
+
+    <div class="feature-row">
+      <div class="feat-num">20</div>
+      <div class="feat-content">
+        <div class="feat-title">Auto-Discount Progress Bar — Thanh tiến trình + tự động áp mã <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">
+          <strong>Tính năng nổi bật nhất của cart page.</strong> Hệ thống hoạt động hoàn toàn tự động:
+          <br/><br/>
+          <strong>Thanh tiến trình:</strong> Hiển thị khách đang ở đâu so với 3 mốc ($99 / $149 / $249). Có nhãn tại mỗi mốc. Thanh fill xanh brand khi tiến đến mỗi mốc. Khi vượt mốc, bar không bị nhảy ngược.
+          <br/><br/>
+          <strong>Tự động áp mã:</strong> Khi subtotal đạt ngưỡng, mã GGL5/7/10 tương ứng được áp dụng ngay vào giỏ hàng mà không cần khách nhập tay. Khi thêm hàng lên ngưỡng cao hơn, hệ thống tự thay mã cũ bằng mã mới.
+          <br/><br/>
+          <strong>Kỹ thuật:</strong> Dùng Shopify Cart API, không reload trang, tránh áp lại cùng mã 2 lần.
+        </div>
+        <div class="feat-impact">→ Khách thấy "còn thiếu $X nữa là được giảm $Y" → thêm hàng để đạt ngưỡng → tăng AOV và tỷ lệ hoàn tất đơn.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NHÓM 3: HEADER & ĐIỀU HƯỚNG ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🔝</span> Nhóm 3 — Header, Menu & Điều Hướng</div>
+
+    <div class="feature-row">
+      <div class="feat-num">13</div>
+      <div class="feat-content">
+        <div class="feat-title">Sticky Header — Header cố định khi cuộn <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Logo, menu và biểu tượng giỏ hàng luôn hiển thị ở trên khi khách cuộn xuống. Trang sản phẩm tự căn chỉnh theo chiều cao header. Dùng cơ chế native của theme để không ảnh hưởng hiệu năng.</div>
+        <div class="feat-impact">→ Khách có thể điều hướng hoặc xem giỏ hàng bất cứ lúc nào.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">14</div>
+      <div class="feat-content">
+        <div class="feat-title">Header nhỏ gọn hơn (Compact Header) <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Giảm padding dọc của header — chiếm ít viewport hơn khi dính, logo/menu/icon vẫn hiển thị đầy đủ và đúng căn chỉnh.</div>
+        <div class="feat-impact">→ Khách thấy nội dung sản phẩm nhiều hơn trên màn hình.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">2</div>
+      <div class="feat-content">
+        <div class="feat-title">Icon header màu xanh thương hiệu <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Các biểu tượng trên header (tìm kiếm, giỏ hàng, menu) đổi sang màu xanh brand #096821 thay vì màu mặc định của theme. Đồng bộ với identity màu xanh xuyên suốt store.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">12</div>
+      <div class="feat-content">
+        <div class="feat-title">Icon giỏ hàng rung nhẹ thu hút sự chú ý <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">Biểu tượng giỏ hàng rung nhẹ mỗi 3 giây (rung 0.36 giây, nghỉ 2.6 giây, lặp lại). Chuyển động nhẹ nhàng như túi đang treo. Tắt tự động nếu khách dùng thiết bị đã bật chế độ "giảm chuyển động".</div>
+        <div class="feat-impact">→ Thu hút thị giác → nhắc khách kiểm tra giỏ hàng → tăng khả năng hoàn tất mua.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">21</div>
+      <div class="feat-content">
+        <div class="feat-title">Sửa lỗi menu mobile — Header xanh bị mất khi cuộn <span class="badge badge-fix">Sửa lỗi</span></div>
+        <div class="feat-desc">Khi khách mở menu trên điện thoại và cuộn danh mục, thanh tiêu đề màu xanh thương hiệu biến mất, kéo theo nút X (đóng menu) cũng biến mất — khách bị kẹt không biết cách đóng menu. Đã sửa: thanh tiêu đề giờ luôn cố định, nút X luôn hiển thị.</div>
+        <div class="feat-impact">→ Khách mobile không bị kẹt menu → tiếp tục mua sắm bình thường.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NHÓM 4: TYPOGRAPHY & GIAO DIỆN TOÀN STORE ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🎨</span> Nhóm 4 — Giao Diện Toàn Store</div>
+
+    <div class="feature-row">
+      <div class="feat-num">16</div>
+      <div class="feat-content">
+        <div class="feat-title">Đồng bộ font chữ giá tiền toàn store <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Trước đây giá hiển thị to nhỏ không đều giữa trang sản phẩm, trang danh mục, kết quả tìm kiếm, sticky bar, giỏ hàng. Đã đồng bộ thống nhất: giá sale 22px / đậm 600 / màu xanh brand; giá gốc gạch ngang 16px / thường / mờ. Áp dụng trên toàn bộ store qua CSS variables.</div>
+        <div class="feat-impact">→ Tạo cảm giác nhất quán, chuyên nghiệp — tăng độ tin cậy của brand.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">3–4</div>
+      <div class="feat-content">
+        <div class="feat-title">Sửa line-height và căn chỉnh text toàn trang <span class="badge badge-fix">Sửa lỗi</span></div>
+        <div class="feat-desc">CSS cũ ép line-height và căn giữa h2 trên toàn bộ trang bằng `!important` — làm icon/button bị méo và h2 ở homepage/collection bị căn giữa sai. Đã scope lại chỉ áp dụng cho nội dung text, để icon/button tự điều chỉnh.</div>
+        <div class="feat-impact">→ Layout đúng ở mọi trang, icon/button không bị lệch.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">10–11</div>
+      <div class="feat-content">
+        <div class="feat-title">Giảm padding thừa trong trang sản phẩm <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Giảm khoảng cách dọc trong phần thông tin sản phẩm (desktop 12px, mobile 8px) và phần gợi ý sản phẩm liên quan (từ 48px xuống 32px). Trang gọn hơn, khách thấy nhiều nội dung hơn trên cùng một màn hình.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">17</div>
+      <div class="feat-content">
+        <div class="feat-title">Footer cách nội dung chính 40px <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Footer bị quá sát phần nội dung trên. Thêm khoảng cách 40px chỉ giữa nội dung chính và footer, không ảnh hưởng các section bên trong footer.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NHÓM 5: HỆ THỐNG THEO DÕI ATC ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📊</span> Nhóm 5 — Hệ Thống Theo Dõi Hành Vi Mua Hàng (ATC Tracking)</div>
+    <p style="font-size:13.5px; color:#666; margin-bottom:16px;">Đây là hệ thống hoàn toàn mới — thu thập dữ liệu để ra quyết định tối ưu dựa trên hành vi thực tế của khách hàng, không phải phỏng đoán.</p>
+
+    <div class="feature-row">
+      <div class="feat-num">22</div>
+      <div class="feat-content">
+        <div class="feat-title">ATC Click Tracking — Ghi log từng lần "Thêm vào giỏ" <span class="badge badge-new">Mới</span></div>
+        <div class="feat-desc">
+          Mỗi khi khách click nút "Thêm vào giỏ" (dù là nút chính hay nút sticky), hệ thống tự động ghi lại 13 thông tin vào Google Sheet:
+          <div class="data-grid" style="margin-top:12px;">
+            <div class="data-item"><span class="dot"></span>Ngày</div>
+            <div class="data-item"><span class="dot"></span>Giờ</div>
+            <div class="data-item"><span class="dot"></span>Loại nút (chính / sticky)</div>
+            <div class="data-item"><span class="dot"></span>Mã sản phẩm (Product ID)</div>
+            <div class="data-item"><span class="dot"></span>Tên sản phẩm</div>
+            <div class="data-item"><span class="dot"></span>Variant đã chọn</div>
+            <div class="data-item"><span class="dot"></span>Số lượng</div>
+            <div class="data-item"><span class="dot"></span>Địa chỉ IP</div>
+            <div class="data-item"><span class="dot"></span>Quốc gia</div>
+            <div class="data-item"><span class="dot"></span>Bang / Tỉnh</div>
+            <div class="data-item"><span class="dot"></span>Thành phố</div>
+            <div class="data-item"><span class="dot"></span>URL trang sản phẩm</div>
+            <div class="data-item"><span class="dot"></span>Thiết bị (Mobile/Desktop)</div>
+          </div>
+          <br/>
+          <strong>Sự cố đã xử lý:</strong> Dịch vụ lấy địa lý (ipapi.co) bị chặn bởi trình duyệt → chuyển sang ipinfo.io (50.000 lượt/tháng miễn phí, hỗ trợ đúng chuẩn). Nếu ipinfo.io cũng lỗi, hệ thống tự fallback sang ipify để lấy tối thiểu địa chỉ IP.
+          <br/><br/>
+          🔗 <strong>Xem dữ liệu ATC tại:</strong> <a href="https://docs.google.com/spreadsheets/d/18HoLT1MtFMLBuAGLUojVfcZUyflanp1zXzYKH8eEfPQ/edit?gid=800111393#gid=800111393" target="_blank" style="color:#096821; font-weight:600;">Google Sheets — ATC Logs GingerglowGift</a>
+        </div>
+        <div class="feat-impact">→ Sau 7–14 ngày có đủ data thực tế để quyết định: sản phẩm nào được ATC nhiều, giờ nào bán chạy, khách từ bang nào mua nhiều → điều chỉnh quảng cáo và sản phẩm chính xác hơn.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NHÓM 6: MOBILE CAROUSEL & PRODUCT CARD ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📱</span> Nhóm 6 — Mobile Carousel & Product Card (21/08/2026)</div>
+    <p style="font-size:13.5px; color:#666; margin-bottom:4px;">Gói cải tiến tập trung vào trải nghiệm mobile: card sản phẩm có khoảng thở, tất cả carousel tự slide và nút điều hướng đồng bộ toàn store.</p>
+
+    <div class="sub-heading">6.1 — Mobile Product Card Layout</div>
+
+    <div class="feature-row">
+      <div class="feat-num">23</div>
+      <div class="feat-content">
+        <div class="feat-title">Khoảng cách card sản phẩm trên mobile — Recommended Products & Featured Collection <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">
+          Trên mobile, hai khu vực "Recommended Products" (product page) và "Featured Collection" (homepage) trước đây bị sát mép màn hình. Đã thêm gutter trái/phải 16px, padding trong card cho tiêu đề (10px 12px 0) và giá (10px 12px 12px). Tiêu đề sản phẩm giới hạn 3 dòng bằng <code>-webkit-line-clamp: 3</code> như desktop, không bị lộ dòng thứ 4. Nút prev/next trên mobile khóa cứng 40×40px, icon 18×18px.
+        </div>
+        <div class="feat-impact">→ Card sản phẩm gọn, dễ đọc trên điện thoại — không bị cắt chữ hay sát lề màn hình.</div>
+      </div>
+    </div>
+
+    <div class="sub-heading">6.2 — Carousel Tự Động Slide & Opacity Nút Điều Hướng</div>
+
+    <div class="feature-row">
+      <div class="feat-num">24</div>
+      <div class="feat-content">
+        <div class="feat-title">Featured Blog Carousel — Nút prev/next đúng tỷ lệ + Autoplay <span class="badge badge-fix">Sửa lỗi</span></div>
+        <div class="feat-desc">Icon prev/next blog carousel bị co méo do thiếu ràng buộc kích thước. Đã khóa nút 40×40px, icon 18×18px. Bật autoplay mỗi 3 giây kèm loop reset sạch về đầu (không DOM reorder). Card width dùng <code>calc((100% - gap) / 2)</code> để vừa chính xác cả nhóm bài lẻ.</div>
+        <div class="feat-impact">→ Blog carousel chạy mượt, icon không bị méo, khách thấy đủ bài viết mới nhất.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">25–26</div>
+      <div class="feat-content">
+        <div class="feat-title">Opacity 0.72 nút prev/next mobile — Recommended Products & Featured Collection <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Nút điều hướng carousel trên mobile được mờ nhẹ (opacity 0.72) để khách vẫn thấy nội dung phía sau. Đồng thời sửa lỗi Product List carousel không tự slide: bổ sung <code>carousel_autoplay</code> + <code>autoplay_loop_reset</code> để loại bỏ double offset (16px gutter + 16px CSS padding) gây lệch khi auto scroll.</div>
+        <div class="feat-impact">→ Carousel trơn tru, nút bán trong suốt không che nội dung, slide đúng vị trí sau mỗi lần auto.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">27</div>
+      <div class="feat-content">
+        <div class="feat-title">Custom Product Carousel — Icon nhỏ hơn, Opacity & Autoplay cả Desktop/Mobile <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Carousel sản phẩm tùy biến (block <code>ai_gen_block</code>) dùng custom element riêng, không nhận param từ resource-list. Đã giảm nút từ 48×48px xuống 34×34px, icon 15×15px, opacity 0.72. Autoplay 3 giây trên cả desktop và mobile, pause khi kéo tay, tôn trọng <code>prefers-reduced-motion</code>.</div>
+        <div class="feat-impact">→ Carousel sản phẩm tùy biến đồng bộ phong cách với các carousel còn lại.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">28</div>
+      <div class="feat-content">
+        <div class="feat-title">Collection List Carousel — Autoplay & Opacity mobile <span class="badge badge-improve">Cải thiện</span></div>
+        <div class="feat-desc">Collection List carousel (homepage) bổ sung autoplay 3 giây cho cả layout carousel trực tiếp và mobile fallback. Autoplay bật <code>autoplay_loop_reset</code> để không render gutters gây double offset. Scope CSS riêng: mobile khóa nút 40×40px, icon 18×18px, opacity 0.72.</div>
+        <div class="feat-impact">→ Tất cả carousel danh mục tự chạy — khách thấy nhiều collection hơn mà không cần kéo tay.</div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feat-num">29</div>
+      <div class="feat-content">
+        <div class="feat-title">Audit Opacity Toàn Bộ Carousel — Guard CSS Cuối File <span class="badge badge-fix">Sửa lỗi</span></div>
+        <div class="feat-desc">Kiểm tra lại toàn bộ 4 carousel resource-list (Featured Blog, Recommended Products, Product List/Featured Collection, Collection List) và bổ sung rule guard cuối <code>custom.css</code> với specificity cao: nút active opacity 0.72, nút disabled opacity 0.4 trên mobile. Dùng <code>:not(:disabled)</code> để trạng thái interaction của theme không ghi đè.</div>
+        <div class="feat-impact">→ Opacity đồng bộ toàn bộ store — không carousel nào bị thiếu khi deploy.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TÁC ĐỘNG CR ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📈</span> Tổng Hợp Tác Động Đến Tỷ Lệ Chuyển Đổi</div>
+    <table class="impact-table">
+      <thead>
+        <tr>
+          <th style="width:35%">Tính năng</th>
+          <th style="width:45%">Lý do ảnh hưởng đến CR</th>
+          <th style="width:20%">Mức độ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sticky ATC Bar</strong></td>
+          <td>Khách không phải cuộn ngược để mua — giảm ma sát mua hàng</td>
+          <td><span class="tag-high">🔴 Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Coupon Strip GGL5/7/10</strong></td>
+          <td>Khách thấy ưu đãi từ đầu → có lý do để thêm hàng đạt ngưỡng</td>
+          <td><span class="tag-high">🔴 Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Auto-Discount Progress Bar</strong></td>
+          <td>"Còn thiếu $X nữa" → tâm lý muốn đạt ngưỡng → thêm hàng → tăng AOV</td>
+          <td><span class="tag-high">🔴 Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>ATC Tracking System</strong></td>
+          <td>Dữ liệu thực để ra quyết định đúng thay vì phỏng đoán</td>
+          <td><span class="tag-high">🔴 Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Cart Page Redesign</strong></td>
+          <td>Giao diện chuyên nghiệp → tăng tin tưởng → giảm bỏ giỏ ở bước cuối</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Sửa menu mobile</strong></td>
+          <td>Khách mobile (60–70% traffic) không bị kẹt → tiếp tục mua được</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Sticky Header</strong></td>
+          <td>Điều hướng luôn sẵn có → giảm thoát trang vì không tìm được menu</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Cart Icon Animation</strong></td>
+          <td>Thu hút thị giác → nhắc khách hoàn tất đơn đang bỏ dở trong giỏ</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Đồng bộ giá, layout, typography</strong></td>
+          <td>Tính nhất quán → tăng độ tin cậy → giảm nghi ngờ khi mua</td>
+          <td><span class="tag-low">🟢 Thấp</span></td>
+        </tr>
+        <tr>
+          <td><strong>Mobile Product Card Spacing (#23)</strong></td>
+          <td>Card sản phẩm có khoảng thở, không sát lề → khách đọc dễ hơn → tăng click vào sản phẩm</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Carousel Autoplay toàn store (#24–#28)</strong></td>
+          <td>Sản phẩm/danh mục/blog tự hiện → khách thấy nhiều lựa chọn hơn mà không cần kéo tay</td>
+          <td><span class="tag-med">🟡 Trung bình</span></td>
+        </tr>
+        <tr>
+          <td><strong>Trang Happy Customers (#30)</strong></td>
+          <td>Social proof tập trung — đọc nhiều review thực ở một chỗ → tăng tin tưởng → giảm do dự mua hàng</td>
+          <td><span class="tag-high">🔴 Cao</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== TRẠNG THÁI ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">✅</span> Trạng Thái Triển Khai</div>
+    <div class="status-grid">
+      <div class="status-item"><span>Sticky ATC Bar</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Coupon Strip GGL5/7/10</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Auto-Discount + Progress Bar</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>ATC Tracking → Google Sheets</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Cart Page Redesign & Polish</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Sửa mobile menu drawer</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Sticky Header + Compact</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Typography & giao diện toàn store</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Judge.me reviews cleanup</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Trang Happy Customers (#30)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span style="font-weight:700;">Deploy lên Shopify (theme push — 18–21/08)</span><span class="status-done">✅ Đã deploy</span></div>
+      <div class="status-item"><span>Mobile Product Card Spacing (#23)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Featured Blog Carousel — fix & autoplay (#24)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Carousel Opacity 0.72 mobile (#25–#29)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Product List + Collection List Autoplay (#26, #28)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+      <div class="status-item"><span>Custom Product Carousel — icon & autoplay (#27)</span><span class="status-done">✅ Hoàn chỉnh</span></div>
+    </div>
+  </div>
+
+  <!-- ===== BƯỚC TIẾP THEO ===== -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🚀</span> Bước Tiếp Theo</div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Thu thập dữ liệu ATC 7–14 ngày:</strong> Để hệ thống ghi đủ dữ liệu hành vi khách thực tế trước khi phân tích.</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Phân tích và tối ưu tiếp:</strong> Dựa trên dữ liệu — sản phẩm nào ATC nhiều nhất, giờ nào khách mua cao điểm, bang/quốc gia nào có tỷ lệ cao → điều chỉnh ngân sách quảng cáo và ưu tiên sản phẩm.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    Báo cáo tổng hợp bởi nhóm phát triển GingerglowGift &nbsp;·&nbsp; Cập nhật 21/08/2026
+    <br/>
+    Tài liệu kỹ thuật đầy đủ: <code>FEATURE_LOG.md</code> trong repository dự án (30 tính năng, chi tiết file & code)
+  </div>
+
+</div>
+</body>
+</html>
