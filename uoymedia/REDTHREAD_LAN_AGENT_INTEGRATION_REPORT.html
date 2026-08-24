@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đề xuất tích hợp RedThread và LAN Agent máy thêu</title>
+  <style>
+    :root { --ink:#17202a; --muted:#667085; --red:#b42318; --red2:#f04438; --cream:#fffaf5; --line:#eadfd8; --green:#087443; --amber:#b54708; --blue:#175cd3; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f4f1ee; font:15px/1.65 Inter,Segoe UI,Arial,sans-serif; }
+    .page { max-width:1080px; margin:32px auto; background:#fff; box-shadow:0 12px 45px rgba(50,35,25,.10); }
+    header { padding:56px 64px 48px; color:#fff; background:linear-gradient(135deg,#7a1f1a,#c1362c 62%,#e15d50); }
+    header .eyebrow { font-size:12px; letter-spacing:.18em; text-transform:uppercase; opacity:.8; }
+    h1 { max-width:760px; margin:12px 0 10px; font-size:38px; line-height:1.16; }
+    header p { max-width:770px; margin:0; color:#fff3ef; font-size:17px; }
+    .meta { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:26px; font-size:13px; opacity:.92; }
+    main { padding:44px 64px 60px; }
+    h2 { margin:40px 0 14px; color:#7a1f1a; font-size:24px; line-height:1.3; }
+    h3 { margin:24px 0 8px; font-size:18px; }
+    p { margin:8px 0 14px; }
+    .lead { font-size:18px; }
+    .callout { margin:20px 0; padding:18px 22px; border-left:5px solid var(--red2); background:var(--cream); }
+    .callout strong { color:var(--red); }
+    .architecture { display:grid; grid-template-columns:1fr 70px 1fr 70px 1fr; align-items:center; gap:8px; margin:24px 0; }
+    .node { min-height:145px; padding:20px 16px; border:1px solid var(--line); border-radius:14px; background:#fff; text-align:center; }
+    .node b { display:block; margin-bottom:8px; color:#7a1f1a; font-size:17px; }
+    .arrow { color:var(--red2); text-align:center; font-size:27px; font-weight:700; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:18px 0; }
+    .card { padding:20px; border:1px solid var(--line); border-radius:14px; background:#fff; }
+    .card .n { display:inline-grid; width:30px; height:30px; place-items:center; margin-bottom:10px; color:#fff; border-radius:50%; background:var(--red2); font-weight:700; }
+    .flow { margin:12px 0 20px; padding:16px 18px; border:1px solid #dbe4f0; border-radius:10px; background:#f7f9fc; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; white-space:pre-wrap; }
+    table { width:100%; margin:16px 0 24px; border-collapse:collapse; }
+    th,td { padding:12px 14px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:#fbf5f2; color:#7a1f1a; }
+    code { padding:2px 5px; border-radius:5px; background:#f1f3f5; font-size:.9em; }
+    pre { overflow:auto; padding:18px; color:#f8fafc; border-radius:12px; background:#182230; font-size:13px; line-height:1.55; }
+    pre code { padding:0; color:inherit; background:transparent; font-size:inherit; }
+    ul,ol { padding-left:22px; }
+    li { margin:6px 0; }
+    .tag { display:inline-block; margin:2px 4px 2px 0; padding:3px 8px; border-radius:99px; font-size:12px; font-weight:700; }
+    .green{color:var(--green);background:#ecfdf3}.amber{color:var(--amber);background:#fffaeb}.blue{color:var(--blue);background:#eff8ff}.gray{color:#475467;background:#f2f4f7}.red{color:var(--red);background:#fef3f2}
+    footer { padding:25px 64px; color:#fff; background:#3e1714; font-size:13px; }
+    @media(max-width:800px){.page{margin:0}.architecture,.cards{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}header,main,footer{padding-left:24px;padding-right:24px}h1{font-size:30px}}
+    @media print { body{background:#fff}.page{margin:0;max-width:none;box-shadow:none}.card,.node,table,pre{break-inside:avoid} }
+  </style>
+</head>
+<body>
+<article class="page">
+  <header>
+    <div class="eyebrow">Tài liệu trao đổi kỹ thuật</div>
+    <h1>Đề xuất tích hợp RedThread ↔ LAN Agent máy thêu</h1>
+    <p>Mục tiêu: chuyển file thiết kế qua mạng LAN, tự động dọn file sau khi hoàn thành và đồng bộ trạng thái vận hành máy về RedThread.</p>
+    <div class="meta"><span>Phiên bản đề xuất: 1.0</span><span>Ngày: 24/08/2026</span><span>Trạng thái: Chờ hai bên xác nhận</span></div>
+  </header>
+  <main>
+    <h2>1. Kết luận quan trọng</h2>
+    <p class="lead">RedThread và LAN Agent là hai hệ thống độc lập. RedThread chạy trên cloud nên không thể truy cập trực tiếp IP nội bộ hoặc thư mục của máy thêu.</p>
+    <div class="callout"><strong>File phải được xóa tại máy thêu bởi LAN Agent.</strong> RedThread chỉ phát sinh yêu cầu xóa; LAN Agent nhận lệnh, xóa file trong LAN rồi gửi kết quả <code>DELETED</code> hoặc <code>DELETE_FAILED</code> về RedThread.</div>
+
+    <h2>2. Kiến trúc đề xuất</h2>
+    <div class="architecture">
+      <div class="node"><b>RedThread Cloud</b>Quản lý đơn hàng, Batch, QR, file thiết kế, hàng đợi công việc và lịch sử trạng thái.</div>
+      <div class="arrow">⇄</div>
+      <div class="node"><b>LAN Agent</b>Tool của bên máy thêu, chạy trên PC tại xưởng; chủ động gọi API RedThread.</div>
+      <div class="arrow">⇄</div>
+      <div class="node"><b>Máy thêu</b>Nhận/xóa file qua SMB, FTP, hot-folder hoặc SDK của hãng máy.</div>
+    </div>
+    <p>LAN Agent nên <strong>chủ động kết nối ra internet</strong> bằng HTTPS để lấy việc. RedThread không cần mở kết nối từ cloud vào LAN, không lưu tài khoản SMB/FTP của xưởng và không cần biết IP riêng của máy thêu.</p>
+
+    <h2>3. Phân chia trách nhiệm</h2>
+    <table>
+      <thead><tr><th>Hạng mục</th><th>RedThread</th><th>LAN Agent / bên máy thêu</th></tr></thead>
+      <tbody>
+        <tr><td>Tạo Batch, chọn máy</td><td>Quản lý nghiệp vụ và tạo lệnh gửi file</td><td>Nhận lệnh theo đúng máy đã đăng ký</td></tr>
+        <tr><td>File thiết kế</td><td>Cung cấp manifest, URL tải có thời hạn, checksum</td><td>Tải, kiểm checksum, đổi tên an toàn và chép vào máy</td></tr>
+        <tr><td>Xóa file</td><td>Tạo lệnh <code>DELETE_PENDING</code></td><td>Xóa file vật lý và callback kết quả</td></tr>
+        <tr><td>Trạng thái máy</td><td>Lưu, tổng hợp và hiển thị timeline</td><td>Đọc status/error từ máy hoặc nhận nhập tay, gửi heartbeat/event</td></tr>
+        <tr><td>Retry và audit</td><td>Giữ trạng thái job, số lần thử và lịch sử</td><td>Thực thi idempotent; retry không tạo bản sao hoặc xóa nhầm</td></tr>
+      </tbody>
+    </table>
+
+    <h2>4. Ba luồng nghiệp vụ</h2>
+    <div class="cards">
+      <section class="card"><span class="n">1</span><h3>Gửi file</h3><p>Khi người dùng tạo Batch, chọn máy và bấm “Send to Machine”, RedThread tạo deployment. Agent nhận job, tải file và chép sang máy.</p></section>
+      <section class="card"><span class="n">2</span><h3>Xóa file</h3><p>Khi đạt mốc hoàn thành đã thống nhất, RedThread tạo lệnh xóa. Agent xóa đúng file đã triển khai rồi báo kết quả.</p></section>
+      <section class="card"><span class="n">3</span><h3>Monitor máy</h3><p>Agent gửi heartbeat/status định kỳ. RedThread tách status máy khỏi status đơn hàng và tính thời gian chạy, dừng, lỗi.</p></section>
+    </div>
+
+    <h3>4.1. Gửi file thiết kế</h3>
+    <div class="flow">RedThread: tạo Batch + chọn Machine
+→ RedThread: tạo deployment QUEUED
+→ LAN Agent: poll và claim job
+→ LAN Agent: tải manifest + file, kiểm checksum
+→ LAN Agent: chép sang máy bằng giao thức được hỗ trợ
+→ LAN Agent: báo COPIED / VERIFIED hoặc FAILED</div>
+    <p>Vòng đời đề xuất: <span class="tag gray">QUEUED</span><span class="tag blue">CLAIMED</span><span class="tag blue">DOWNLOADING</span><span class="tag amber">COPIED</span><span class="tag green">VERIFIED</span><span class="tag red">FAILED</span></p>
+
+    <h3>4.2. Xóa file sau khi hoàn thành</h3>
+    <div class="flow">QR/event hoàn thành trên RedThread
+→ RedThread: tạo DELETE_PENDING cho deployment
+→ LAN Agent: nhận lệnh và đối chiếu machine + remote path
+→ LAN Agent: xóa file tại máy thêu
+→ LAN Agent: báo DELETED hoặc DELETE_FAILED</div>
+    <div class="callout"><strong>Cần chốt mốc xóa:</strong> QR đầu tiên hiện mang nghĩa “bắt đầu sản xuất”, không được dùng để xóa. Hai bên cần chọn: xóa khi item hoàn thành, khi cả Batch hoàn thành, hoặc dùng một QR/event riêng tại máy mang nghĩa “thêu xong”. Khuyến nghị an toàn: chỉ xóa khi toàn bộ công việc dùng file đó đã hoàn thành.</div>
+
+    <h3>4.3. Theo dõi trạng thái máy</h3>
+    <p>Status của máy độc lập với status của Batch/đơn hàng:</p>
+    <p><span class="tag gray">OFFLINE</span><span class="tag gray">IDLE</span><span class="tag green">RUNNING</span><span class="tag amber">PAUSED</span><span class="tag red">ERROR</span></p>
+    <p>Agent gửi heartbeat khoảng 30 giây/lần, gồm status, batch/file hiện tại, thời điểm bắt đầu status và mã lỗi nếu có. Nếu không nhận heartbeat quá ngưỡng cấu hình, RedThread suy ra <code>OFFLINE</code>. Việc nhận diện <code>ERROR</code> tự động chỉ khả thi khi máy có API/SDK/log mà Agent đọc được.</p>
+
+    <h2>5. API contract sơ bộ</h2>
+    <p>Đây là contract để hai bên thảo luận, chưa phải đặc tả cuối cùng. Agent xác thực bằng token riêng theo workspace/agent; mọi request dùng HTTPS.</p>
+    <pre><code>POST /api/v1/lan-agents/heartbeat
+{
+  "agentId": "agent-factory-a",
+  "machines": [{
+    "machineId": "machine-01",
+    "status": "RUNNING",
+    "currentBatchId": "batch-042",
+    "currentFile": "B042_design.dst",
+    "statusSince": "2026-08-24T13:58:00+07:00",
+    "errorCode": null
+  }]
+}
+
+GET  /api/v1/lan-agents/{agentId}/jobs?after={cursor}
+POST /api/v1/deployments/{deploymentId}/claim
+GET  /api/v1/deployments/{deploymentId}/manifest
+POST /api/v1/deployments/{deploymentId}/events
+
+// event payload ví dụ
+{
+  "eventId": "uuid-do-agent-tao",
+  "status": "VERIFIED",
+  "machineId": "machine-01",
+  "remotePath": "designs/B042_design.dst",
+  "checksum": "sha256:...",
+  "occurredAt": "2026-08-24T14:03:00+07:00",
+  "message": null
+}</code></pre>
+
+    <h2>6. Quy tắc kỹ thuật bắt buộc</h2>
+    <ul>
+      <li><strong>Idempotency:</strong> gửi lại cùng <code>eventId</code> hoặc xử lý lại cùng job không được tạo file trùng, xóa nhầm hay đổi trạng thái sai.</li>
+      <li><strong>Claim/lease:</strong> một job chỉ do một Agent xử lý tại một thời điểm; lease hết hạn thì có thể claim lại.</li>
+      <li><strong>Kiểm file:</strong> Agent kiểm kích thước và SHA-256 trước khi chép; chỉ báo <code>VERIFIED</code> sau khi xác minh file đích.</li>
+      <li><strong>Xóa an toàn:</strong> chỉ xóa đúng <code>remotePath</code> của deployment, không nhận đường dẫn tùy ý ngoài thư mục cấu hình.</li>
+      <li><strong>Offline/retry:</strong> khi mất mạng, Agent lưu hàng đợi cục bộ và callback lại; RedThread lưu lỗi và cho phép retry.</li>
+      <li><strong>Bảo mật:</strong> token có thể thu hồi/rotate; không gửi mật khẩu SMB/FTP lên RedThread; log không chứa secret.</li>
+      <li><strong>Audit:</strong> lưu ai tạo lệnh, Agent nào nhận, thời gian copy/xóa, checksum và thông báo lỗi.</li>
+    </ul>
+
+    <h2>7. Thông tin cần bên LAN Agent xác nhận</h2>
+    <ol>
+      <li>Hãng và model chính xác của từng máy thêu.</li>
+      <li>Cơ chế nhận file: SMB, FTP/SFTP, hot-folder, vendor API/SDK hay phương án khác.</li>
+      <li>Xác nhận quy ước cho các file RedThread gửi sang: file thêu <strong>DST</strong> và ảnh tham chiếu <strong>PNG hoặc JPG</strong>; đồng thời cho biết giới hạn tên file, ký tự và độ dài.</li>
+      <li>Máy có API/SDK/log để đọc RUNNING, IDLE, PAUSED, ERROR và error code không?</li>
+      <li>Một PC Agent quản lý bao nhiêu máy? Agent có chạy 24/7 và tự khởi động lại không?</li>
+      <li>File phải xóa khi một item xong, toàn bộ Batch xong, hay theo event “thêu xong” riêng?</li>
+    </ol>
+
+    <h2>8. Kế hoạch phối hợp</h2>
+    <table>
+      <thead><tr><th>Giai đoạn</th><th>Kết quả cần đạt</th></tr></thead>
+      <tbody>
+        <tr><td>1. Khảo sát máy</td><td>Bên LAN Agent trả lời 6 câu hỏi và cung cấp mẫu file/status.</td></tr>
+        <tr><td>2. Chốt contract</td><td>Hai bên thống nhất endpoint, payload, auth, trạng thái, retry và mốc xóa.</td></tr>
+        <tr><td>3. Prototype</td><td>Chạy end-to-end với một máy test: gửi một file → xác minh → hoàn thành → xóa.</td></tr>
+        <tr><td>4. Monitor</td><td>Gửi heartbeat/status thật và đối chiếu timeline lỗi/dừng.</td></tr>
+        <tr><td>5. Pilot</td><td>Chạy giới hạn tại một máy/xưởng, đo lỗi trước khi mở rộng.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>Đầu ra mong muốn sau buổi trao đổi:</strong> xác nhận giao thức kết nối máy, nguồn dữ liệu status thật, mốc xóa file và người phụ trách kỹ thuật của mỗi bên. Sau đó RedThread sẽ hoàn thiện OpenAPI spec để hai team code song song.</div>
+  </main>
+  <footer>Tài liệu đề xuất tích hợp kỹ thuật — RedThread × LAN Agent máy thêu. Có thể in trực tiếp hoặc Save as PDF từ trình duyệt.</footer>
+</article>
+</body>
+</html>
