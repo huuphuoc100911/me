@@ -42,6 +42,9 @@
   .mini i { display:block; height:100%; background:var(--acc2); }
   a.zip { display:inline-block; margin-top:16px; padding:12px 20px; border-radius:12px; background:var(--ok); color:#052e16; font-weight:700; text-decoration:none; }
   a.zip:hover { filter: brightness(1.1); }
+  .retry { background:none; color:var(--acc2); font-size:12px; padding:2px 6px; border:1px solid rgba(251,113,133,.4); border-radius:6px; font-weight:500; }
+  .retry:hover { background: rgba(244,63,94,.15); }
+  .retry.all { font-size:13px; padding:8px 14px; margin-top:14px; margin-right:8px; }
   .toggle { background:none; color:var(--mut); font-size:13px; padding:6px 0; font-weight:500; }
   .toggle:hover { background:none; color:var(--txt); }
   .empty { color:var(--mut); text-align:center; padding:40px 0; font-size:14px; }
@@ -94,13 +97,16 @@ function render(list) {
 }
 
 function card(j) {
-  const isActive = !['done','failed'].includes(j.status);
+  const retrying = j.retrying > 0;
+  const isActive = !['done','failed'].includes(j.status) || retrying;
   const pct = j.total ? Math.round((j.done + j.failed) / j.total * 100) : (j.status==='resolving' ? 5 : 0);
-  const cls = j.status==='done' ? 'done' : j.status==='failed' ? 'failed' : 'active';
+  const cls = retrying ? 'active' : j.status==='done' ? 'done' : j.status==='failed' ? 'failed' : 'active';
+  const label = retrying ? `Đang tải lại ${j.retrying} bài` : STATUS[j.status];
   const open = expanded.has(j.id) || isActive;
   const tracks = j.tracks.map(t => {
     const p = Math.round(t.progress*100);
-    const s = t.status==='downloading' ? p+'%' : TSTAT[t.status];
+    const s = t.status==='failed' ? `<button class="retry" onclick="retry('${j.id}', ${t.index})">↻ thử lại</button>`
+            : t.status==='downloading' ? p+'%' : TSTAT[t.status];
     return `<div class="tr ${t.status}">
       <div class="n">${String(t.index).padStart(2,'0')}</div>
       <div class="t" title="${esc(t.title)}">${esc(t.title)}${t.error ? `<small>${esc(t.error)}</small>` : ''}
@@ -114,14 +120,24 @@ function card(j) {
         <div class="title">${esc(j.title || j.url)}</div>
         <div class="meta">${j.total ? `${j.done}/${j.total} bài${j.failed ? ` · <span style="color:var(--bad)">${j.failed} lỗi</span>` : ''}` : ''}</div>
       </div>
-      <span class="badge ${cls}">${STATUS[j.status]}</span>
+      <span class="badge ${cls}">${label}</span>
     </div>
     ${j.error ? `<div class="err">${esc(j.error)}</div>` : ''}
     <div class="bar"><i style="width:${pct}%"></i></div>
     ${j.zip_ready ? `<a class="zip" href="/api/jobs/${j.id}/zip" download>⬇ Tải ${esc(j.zip_name)}</a>` : ''}
+    ${j.failed && !retrying ? `<button class="retry all" onclick="retry('${j.id}')">↻ Thử lại ${j.failed} bài lỗi</button>` : ''}
     ${j.total ? `<button class="toggle" onclick="toggle('${j.id}')">${open ? '▾ Ẩn' : '▸ Xem'} danh sách bài</button>` : ''}
     ${open ? `<div class="tracks">${tracks}</div>` : ''}
   </div>`;
+}
+
+async function retry(id, index) {
+  const url = index ? `/api/jobs/${id}/tracks/${index}/retry` : `/api/jobs/${id}/retry`;
+  const r = await fetch(url, { method:'POST' });
+  if (!r.ok) { errEl.textContent = (await r.json()).detail || 'Lỗi'; return; }
+  const j = await r.json();
+  render(current.map(x => x.id === id ? j : x));
+  watch(id);
 }
 
 function toggle(id) { expanded.has(id) ? expanded.delete(id) : expanded.add(id); render(current); }
@@ -136,7 +152,7 @@ async function watch(id) {
     if (!r.ok) break;
     const j = await r.json();
     render(current.map(x => x.id === id ? j : x));
-    if (['done','failed'].includes(j.status)) break;
+    if (['done','failed'].includes(j.status) && !j.retrying) break;
   }
   active.delete(id);
 }
@@ -144,7 +160,7 @@ async function watch(id) {
 (async () => {
   const list = await (await fetch('/api/jobs')).json();
   render(list);
-  list.filter(j => !['done','failed'].includes(j.status)).forEach(j => watch(j.id));
+  list.filter(j => !['done','failed'].includes(j.status) || j.retrying).forEach(j => watch(j.id));
 })();
 </script>
 </body>

@@ -53,6 +53,26 @@ def job(job_id: str):
     return j.to_dict()
 
 
+@app.post("/api/jobs/{job_id}/retry")
+def retry_all(job_id: str):
+    """Thu lai tat ca bai loi. Neu job da xong, bai tai duoc se duoc noi them vao ZIP."""
+    j = dl.get_job(job_id)
+    if not j:
+        raise HTTPException(404, "Khong co job nay")
+    return {"retried": dl.retry_failed(j), **j.to_dict()}
+
+
+@app.post("/api/jobs/{job_id}/tracks/{index}/retry")
+def retry_one(job_id: str, index: int):
+    j = dl.get_job(job_id)
+    if not j:
+        raise HTTPException(404, "Khong co job nay")
+    n = dl.retry_failed(j, index)
+    if not n:
+        raise HTTPException(400, "Bai nay khong o trang thai loi")
+    return j.to_dict()
+
+
 @app.get("/api/jobs/{job_id}/zip")
 def zip_file(job_id: str):
     j = dl.get_job(job_id)

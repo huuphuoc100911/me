@@ -18,6 +18,8 @@ DOWNLOADS = BASE / "downloads"
 COOKIES = BASE / "cookies.txt"          # tuy chon: cho playlist private / video gioi han tuoi
 MAX_TRACKS = 200                        # chan mix "RD..." vo tan
 PARALLEL = 3                            # so bai tai song song
+ATTEMPTS = 2                            # tu thu lai khi loi (403 tam thoi cua YouTube)
+RETRY_DELAY = 3
 JOB_TTL = 24 * 3600                     # xoa job cu sau 24h
 
 _ffmpeg_dir: str | None = None
@@ -70,9 +72,10 @@ class Track:
     progress: float = 0.0        # 0..1 (phan tai)
     error: str = ""
     file: str = ""
+    retry: bool = False          # dang duoc thu lai thu cong
 
     def to_dict(self):
-        return {k: getattr(self, k) for k in ("index", "id", "title", "status", "progress", "error")}
+        return {k: getattr(self, k) for k in ("index", "id", "title", "status", "progress", "error", "retry")}
 
 
 @dataclass
@@ -86,6 +89,7 @@ class Job:
     zip_path: str = ""
     zip_name: str = ""
     created: float = field(default_factory=time.time)
+    lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     @property
     def dir(self) -> Path:
@@ -94,6 +98,7 @@ class Job:
     def to_dict(self):
         done = sum(1 for t in self.tracks if t.status == "done")
         failed = sum(1 for t in self.tracks if t.status == "failed")
+        retrying = sum(1 for t in self.tracks if t.retry and t.status in ("pending", "downloading", "converting"))
         return {
             "id": self.id,
             "url": self.url,
@@ -103,6 +108,7 @@ class Job:
             "total": len(self.tracks),
             "done": done,
             "failed": failed,
+            "retrying": retrying,
             "zip_ready": self.status == "done" and bool(self.zip_path),
             "zip_name": self.zip_name,
             "tracks": [t.to_dict() for t in self.tracks],
@@ -194,38 +200,81 @@ def _download_one(job: Job, t: Track):
         ],
         "progress_hooks": [hook],
     }
-    t.status = "downloading"
-    try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(t.url, download=True)
-        path = (info.get("requested_downloads") or [{}])[0].get("filepath")
-        if not path or not os.path.exists(path):
-            raise RuntimeError("Khong tim thay file MP3 sau khi convert")
-        t.file, t.status, t.progress = path, "done", 1.0
-        if info.get("title"):
-            t.title = info["title"]
-    except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        msg = re.sub(r"\x1b\[[0-9;]*m", "", msg)          # bo ma mau ANSI
-        msg = msg.replace("ERROR: ", "").split("\n")[0]
-        t.status, t.error = "failed", msg[:300]
+    t.status, t.error, t.progress = "downloading", "", 0.0
+    for attempt in range(ATTEMPTS):
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(t.url, download=True)
+            path = (info.get("requested_downloads") or [{}])[0].get("filepath")
+            if not path or not os.path.exists(path):
+                raise RuntimeError("Khong tim thay file MP3 sau khi convert")
+            t.file, t.status, t.progress = path, "done", 1.0
+            if info.get("title"):
+                t.title = info["title"]
+            return
+        except Exception as e:  # noqa: BLE001
+            msg = re.sub(r"\x1b\[[0-9;]*m", "", str(e))     # bo ma mau ANSI
+            msg = msg.replace("ERROR: ", "").split("\n")[0]
+            t.error = msg[:300]
+            if attempt < ATTEMPTS - 1:                       # 403/timeout cua YouTube hay la tam thoi
+                t.status, t.progress = "downloading", 0.0
+                time.sleep(RETRY_DELAY)
+    t.status = "failed"
 
 
-def _zip(job: Job):
-    files = [t.file for t in job.tracks if t.status == "done" and t.file]
-    if not files:
-        raise RuntimeError("Khong tai duoc bai nao.")
-    job.zip_name = _safe_name(job.title) + ".zip"
-    zip_path = job.dir / job.zip_name
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_STORED) as zf:   # mp3 nen them khong duoc gi
+def _add_to_zip(job: Job) -> int:
+    """Nhet moi mp3 da xong vao zip (tao moi neu chua co, noi them neu da co). Goi trong job.lock."""
+    files = [t.file for t in job.tracks if t.status == "done" and t.file and os.path.exists(t.file)]
+    if not job.zip_path:
+        job.zip_name = _safe_name(job.title) + ".zip"
+        job.zip_path = str(job.dir / job.zip_name)
+    mode = "a" if os.path.exists(job.zip_path) else "w"
+    added = 0
+    with zipfile.ZipFile(job.zip_path, mode, zipfile.ZIP_STORED) as zf:   # mp3 nen them khong duoc gi
+        have = set(zf.namelist())
         for f in files:
-            zf.write(f, arcname=os.path.basename(f))
-    job.zip_path = str(zip_path)
+            name = os.path.basename(f)
+            if name not in have:
+                zf.write(f, arcname=name)
+                added += 1
     for f in files:                       # giu zip, bo mp3 roi de tiet kiem o dia
         try:
             os.remove(f)
         except OSError:
             pass
+    return added
+
+
+def _zip(job: Job):
+    with job.lock:
+        if not any(t.status == "done" and t.file for t in job.tracks):
+            raise RuntimeError("Khong tai duoc bai nao.")
+        _add_to_zip(job)
+
+
+def retry_failed(job: Job, index: int | None = None) -> int:
+    """Thu lai cac bai loi (hoac 1 bai theo index). Tra ve so bai duoc thu lai."""
+    tracks = [t for t in job.tracks if t.status == "failed" and (index is None or t.index == index)]
+    if not tracks:
+        return 0
+    for t in tracks:
+        t.status, t.error, t.progress, t.retry = "pending", "", 0.0, True
+    threading.Thread(target=_retry_worker, args=(job, tracks), daemon=True).start()
+    return len(tracks)
+
+
+def _retry_worker(job: Job, tracks: list[Track]):
+    with ThreadPoolExecutor(max_workers=PARALLEL) as ex:
+        list(ex.map(lambda t: _download_one(job, t), tracks))
+    for t in tracks:
+        t.retry = False
+    # Job con dang tai -> _zip cua luong chinh se gom luon. Job da xong/loi -> tu noi vao zip.
+    with job.lock:
+        if job.status in ("done", "failed") and any(t.status == "done" and t.file for t in job.tracks):
+            _add_to_zip(job)
+            job.status, job.error = "done", ""
+    for p in job.dir.glob("*.jpg"):
+        p.unlink(missing_ok=True)
 
 
 def _run(job: Job):
