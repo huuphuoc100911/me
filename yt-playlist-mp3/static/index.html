@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playlist → MP3</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0; --mut:#94a3b8; --ok:#22c55e; --bad:#ef4444; --acc:#f43f5e; --acc2:#fb7185; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--txt); font-family:Inter,system-ui,sans-serif; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  h1 span { color: var(--acc); }
+  .sub { color: var(--mut); margin: 0 0 28px; font-size: 14px; }
+  form { display:flex; gap:10px; }
+  input { flex:1; padding: 14px 16px; border-radius: 12px; border:1px solid var(--line); background:var(--card); color:var(--txt); font-size:15px; outline:none; }
+  input:focus { border-color: var(--acc); }
+  button { padding: 14px 22px; border-radius: 12px; border:0; background:var(--acc); color:#fff; font-weight:600; font-size:15px; cursor:pointer; white-space:nowrap; }
+  button:hover { background: var(--acc2); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .err { color: var(--bad); margin-top: 10px; font-size: 14px; min-height: 18px; }
+  .card { background:var(--card); border-radius:16px; padding:20px; margin-top:24px; box-shadow:0 10px 30px rgba(0,0,0,.3); }
+  .head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .title { font-weight:600; font-size:17px; }
+  .meta { color:var(--mut); font-size:13px; margin-top:4px; }
+  .badge { font-size:12px; padding:4px 10px; border-radius:999px; background:#334155; color:var(--txt); }
+  .badge.done { background: rgba(34,197,94,.15); color: var(--ok); }
+  .badge.failed { background: rgba(239,68,68,.15); color: var(--bad); }
+  .badge.active { background: rgba(244,63,94,.15); color: var(--acc2); }
+  .bar { height:8px; background:#0f172a; border-radius:99px; overflow:hidden; margin:14px 0 6px; }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--acc),var(--acc2)); width:0; transition: width .4s; }
+  .tracks { margin-top:14px; border-top:1px solid var(--line); }
+  .tr { display:grid; grid-template-columns: 34px 1fr 90px; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid #263449; font-size:14px; }
+  .tr .n { color:var(--mut); font-variant-numeric: tabular-nums; }
+  .tr .t { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tr .t small { display:block; color:var(--bad); font-size:12px; white-space:normal; }
+  .tr .s { text-align:right; font-size:12px; color:var(--mut); font-variant-numeric: tabular-nums; }
+  .tr.done .s { color: var(--ok); }
+  .tr.failed .s { color: var(--bad); }
+  .mini { height:3px; background:#0f172a; border-radius:99px; overflow:hidden; margin-top:5px; }
+  .mini i { display:block; height:100%; background:var(--acc2); }
+  a.zip { display:inline-block; margin-top:16px; padding:12px 20px; border-radius:12px; background:var(--ok); color:#052e16; font-weight:700; text-decoration:none; }
+  a.zip:hover { filter: brightness(1.1); }
+  .toggle { background:none; color:var(--mut); font-size:13px; padding:6px 0; font-weight:500; }
+  .toggle:hover { background:none; color:var(--txt); }
+  .empty { color:var(--mut); text-align:center; padding:40px 0; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Playlist <span>→</span> MP3</h1>
+  <p class="sub">Dán link playlist YouTube, bấm tải. Mỗi bài được convert MP3 320 kbps, gắn ảnh bìa, rồi gom thành 1 file ZIP.</p>
+
+  <form id="f">
+    <input id="url" type="url" placeholder="https://www.youtube.com/playlist?list=..." required autofocus>
+    <button id="go" type="submit">Tải playlist</button>
+  </form>
+  <div class="err" id="err"></div>
+
+  <div id="jobs"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const jobsEl = $('#jobs'), errEl = $('#err');
+const active = new Set();
+const expanded = new Set();
+
+const STATUS = { queued:'Đang xếp hàng', resolving:'Đang đọc playlist…', downloading:'Đang tải', zipping:'Đang nén ZIP…', done:'Hoàn tất', failed:'Lỗi' };
+const TSTAT  = { pending:'chờ', downloading:'', converting:'convert…', done:'✓ xong', failed:'✗ lỗi' };
+
+$('#f').addEventListener('submit', async e => {
+  e.preventDefault();
+  errEl.textContent = '';
+  $('#go').disabled = true;
+  try {
+    const r = await fetch('/api/jobs', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: $('#url').value }) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.detail || 'Lỗi');
+    $('#url').value = '';
+    expanded.add(j.id);
+    render([j, ...current.filter(x => x.id !== j.id)]);
+    watch(j.id);
+  } catch (ex) { errEl.textContent = ex.message; }
+  finally { $('#go').disabled = false; }
+});
+
+let current = [];
+function render(list) {
+  current = list;
+  if (!list.length) { jobsEl.innerHTML = '<div class="empty">Chưa có playlist nào.</div>'; return; }
+  jobsEl.innerHTML = list.map(card).join('');
+}
+
+function card(j) {
+  const isActive = !['done','failed'].includes(j.status);
+  const pct = j.total ? Math.round((j.done + j.failed) / j.total * 100) : (j.status==='resolving' ? 5 : 0);
+  const cls = j.status==='done' ? 'done' : j.status==='failed' ? 'failed' : 'active';
+  const open = expanded.has(j.id) || isActive;
+  const tracks = j.tracks.map(t => {
+    const p = Math.round(t.progress*100);
+    const s = t.status==='downloading' ? p+'%' : TSTAT[t.status];
+    return `<div class="tr ${t.status}">
+      <div class="n">${String(t.index).padStart(2,'0')}</div>
+      <div class="t" title="${esc(t.title)}">${esc(t.title)}${t.error ? `<small>${esc(t.error)}</small>` : ''}
+        ${t.status==='downloading' ? `<div class="mini"><i style="width:${p}%"></i></div>` : ''}</div>
+      <div class="s">${s}</div>
+    </div>`;
+  }).join('');
+  return `<div class="card" data-id="${j.id}">
+    <div class="head">
+      <div>
+        <div class="title">${esc(j.title || j.url)}</div>
+        <div class="meta">${j.total ? `${j.done}/${j.total} bài${j.failed ? ` · <span style="color:var(--bad)">${j.failed} lỗi</span>` : ''}` : ''}</div>
+      </div>
+      <span class="badge ${cls}">${STATUS[j.status]}</span>
+    </div>
+    ${j.error ? `<div class="err">${esc(j.error)}</div>` : ''}
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    ${j.zip_ready ? `<a class="zip" href="/api/jobs/${j.id}/zip" download>⬇ Tải ${esc(j.zip_name)}</a>` : ''}
+    ${j.total ? `<button class="toggle" onclick="toggle('${j.id}')">${open ? '▾ Ẩn' : '▸ Xem'} danh sách bài</button>` : ''}
+    ${open ? `<div class="tracks">${tracks}</div>` : ''}
+  </div>`;
+}
+
+function toggle(id) { expanded.has(id) ? expanded.delete(id) : expanded.add(id); render(current); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function watch(id) {
+  if (active.has(id)) return;
+  active.add(id);
+  while (true) {
+    await new Promise(r => setTimeout(r, 1200));
+    const r = await fetch('/api/jobs/' + id);
+    if (!r.ok) break;
+    const j = await r.json();
+    render(current.map(x => x.id === id ? j : x));
+    if (['done','failed'].includes(j.status)) break;
+  }
+  active.delete(id);
+}
+
+(async () => {
+  const list = await (await fetch('/api/jobs')).json();
+  render(list);
+  list.filter(j => !['done','failed'].includes(j.status)).forEach(j => watch(j.id));
+})();
+</script>
+</body>
+</html>
