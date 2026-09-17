@@ -44,6 +44,10 @@
   a.zip:hover { filter: brightness(1.1); }
   .retry { background:none; color:var(--acc2); font-size:12px; padding:2px 6px; border:1px solid rgba(251,113,133,.4); border-radius:6px; font-weight:500; }
   .retry:hover { background: rgba(244,63,94,.15); }
+  .cancel { background:none; color:var(--mut); font-size:13px; padding:8px 14px; border:1px solid var(--line); border-radius:8px; font-weight:500; }
+  .cancel:hover { background: rgba(239,68,68,.12); color: var(--bad); border-color: var(--bad); }
+  .badge.cancelled { background: rgba(148,163,184,.15); color: var(--mut); }
+  .tr.cancelled .s, .tr.cancelled .t { color: var(--mut); }
   .retry.all { font-size:13px; padding:8px 14px; margin-top:14px; margin-right:8px; }
   .toggle { background:none; color:var(--mut); font-size:13px; padding:6px 0; font-weight:500; }
   .toggle:hover { background:none; color:var(--txt); }
@@ -70,8 +74,9 @@ const jobsEl = $('#jobs'), errEl = $('#err');
 const active = new Set();
 const expanded = new Set();
 
-const STATUS = { queued:'Đang xếp hàng', resolving:'Đang đọc playlist…', downloading:'Đang tải', zipping:'Đang nén ZIP…', done:'Hoàn tất', failed:'Lỗi' };
-const TSTAT  = { pending:'chờ', downloading:'', converting:'convert…', done:'✓ xong', failed:'✗ lỗi' };
+const STATUS = { queued:'Đang xếp hàng', resolving:'Đang đọc playlist…', downloading:'Đang tải', zipping:'Đang nén ZIP…', done:'Hoàn tất', failed:'Lỗi', cancelled:'Đã hủy', cancelling:'Đang hủy…' };
+const TSTAT  = { pending:'chờ', downloading:'', converting:'convert…', done:'✓ xong', failed:'✗ lỗi', cancelled:'hủy' };
+const ENDED  = ['done','failed','cancelled'];
 
 $('#f').addEventListener('submit', async e => {
   e.preventDefault();
@@ -98,14 +103,14 @@ function render(list) {
 
 function card(j) {
   const retrying = j.retrying > 0;
-  const isActive = !['done','failed'].includes(j.status) || retrying;
+  const isActive = !ENDED.includes(j.status) || retrying;
   const pct = j.total ? Math.round((j.done + j.failed) / j.total * 100) : (j.status==='resolving' ? 5 : 0);
-  const cls = retrying ? 'active' : j.status==='done' ? 'done' : j.status==='failed' ? 'failed' : 'active';
+  const cls = retrying ? 'active' : ENDED.includes(j.status) ? j.status : 'active';
   const label = retrying ? `Đang tải lại ${j.retrying} bài` : STATUS[j.status];
   const open = expanded.has(j.id) || isActive;
   const tracks = j.tracks.map(t => {
     const p = Math.round(t.progress*100);
-    const s = t.status==='failed' ? `<button class="retry" onclick="retry('${j.id}', ${t.index})">↻ thử lại</button>`
+    const s = ['failed','cancelled'].includes(t.status) ? `<button class="retry" onclick="retry('${j.id}', ${t.index})">↻ thử lại</button>`
             : t.status==='downloading' ? p+'%' : TSTAT[t.status];
     return `<div class="tr ${t.status}">
       <div class="n">${String(t.index).padStart(2,'0')}</div>
@@ -125,10 +130,18 @@ function card(j) {
     ${j.error ? `<div class="err">${esc(j.error)}</div>` : ''}
     <div class="bar"><i style="width:${pct}%"></i></div>
     ${j.zip_ready ? `<a class="zip" href="/api/jobs/${j.id}/zip" download>⬇ Tải ${esc(j.zip_name)}</a>` : ''}
-    ${j.failed && !retrying ? `<button class="retry all" onclick="retry('${j.id}')">↻ Thử lại ${j.failed} bài lỗi</button>` : ''}
+    ${j.failed && !retrying ? `<button class="retry all" onclick="retry('${j.id}')">↻ Thử lại ${j.failed} bài</button>` : ''}
+    ${isActive && !['zipping','cancelling'].includes(j.status) ? `<button class="cancel" onclick="cancelJob('${j.id}')">✕ Hủy tải</button>` : ''}
     ${j.total ? `<button class="toggle" onclick="toggle('${j.id}')">${open ? '▾ Ẩn' : '▸ Xem'} danh sách bài</button>` : ''}
     ${open ? `<div class="tracks">${tracks}</div>` : ''}
   </div>`;
+}
+
+async function cancelJob(id) {
+  if (!confirm('Hủy tải? Những bài đã xong vẫn được gom vào ZIP.')) return;
+  const r = await fetch(`/api/jobs/${id}/cancel`, { method:'POST' });
+  if (!r.ok) { errEl.textContent = (await r.json()).detail || 'Lỗi'; return; }
+  render(current.map(x => x.id === id ? { ...x, status: 'cancelling' } : x));
 }
 
 async function retry(id, index) {
@@ -152,7 +165,7 @@ async function watch(id) {
     if (!r.ok) break;
     const j = await r.json();
     render(current.map(x => x.id === id ? j : x));
-    if (['done','failed'].includes(j.status) && !j.retrying) break;
+    if (ENDED.includes(j.status) && !j.retrying) break;
   }
   active.delete(id);
 }
@@ -160,7 +173,7 @@ async function watch(id) {
 (async () => {
   const list = await (await fetch('/api/jobs')).json();
   render(list);
-  list.filter(j => !['done','failed'].includes(j.status) || j.retrying).forEach(j => watch(j.id));
+  list.filter(j => !ENDED.includes(j.status) || j.retrying).forEach(j => watch(j.id));
 })();
 </script>
 </body>

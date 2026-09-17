@@ -68,7 +68,7 @@ class Track:
     id: str
     title: str
     url: str
-    status: str = "pending"      # pending | downloading | converting | done | failed
+    status: str = "pending"      # pending | downloading | converting | done | failed | cancelled
     progress: float = 0.0        # 0..1 (phan tai)
     error: str = ""
     file: str = ""
@@ -82,7 +82,7 @@ class Track:
 class Job:
     id: str
     url: str
-    status: str = "queued"       # queued | resolving | downloading | zipping | done | failed
+    status: str = "queued"       # queued | resolving | downloading | zipping | done | failed | cancelled
     title: str = ""
     tracks: list[Track] = field(default_factory=list)
     error: str = ""
@@ -90,6 +90,7 @@ class Job:
     zip_name: str = ""
     created: float = field(default_factory=time.time)
     lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+    cancel: threading.Event = field(default_factory=threading.Event, repr=False)
 
     @property
     def dir(self) -> Path:
@@ -97,7 +98,7 @@ class Job:
 
     def to_dict(self):
         done = sum(1 for t in self.tracks if t.status == "done")
-        failed = sum(1 for t in self.tracks if t.status == "failed")
+        failed = sum(1 for t in self.tracks if t.status in ("failed", "cancelled"))
         retrying = sum(1 for t in self.tracks if t.retry and t.status in ("pending", "downloading", "converting"))
         return {
             "id": self.id,
@@ -109,7 +110,7 @@ class Job:
             "done": done,
             "failed": failed,
             "retrying": retrying,
-            "zip_ready": self.status == "done" and bool(self.zip_path),
+            "zip_ready": self.status in ("done", "cancelled") and bool(self.zip_path),
             "zip_name": self.zip_name,
             "tracks": [t.to_dict() for t in self.tracks],
         }
@@ -175,8 +176,13 @@ def _download_one(job: Job, t: Track):
     if not t.url:
         t.status, t.error = "failed", "Khong co URL"
         return
+    if job.cancel.is_set():
+        t.status = "cancelled"
+        return
 
     def hook(d):
+        if job.cancel.is_set():                  # ngat yt-dlp giua chung
+            raise yt_dlp.utils.DownloadCancelled("Da huy")
         if d["status"] == "downloading":
             total = d.get("total_bytes") or d.get("total_bytes_estimate") or 0
             if total:
@@ -213,6 +219,9 @@ def _download_one(job: Job, t: Track):
                 t.title = info["title"]
             return
         except Exception as e:  # noqa: BLE001
+            if job.cancel.is_set() or isinstance(e, yt_dlp.utils.DownloadCancelled):
+                t.status, t.error, t.progress = "cancelled", "", 0.0
+                return
             msg = re.sub(r"\x1b\[[0-9;]*m", "", str(e))     # bo ma mau ANSI
             msg = msg.replace("ERROR: ", "").split("\n")[0]
             t.error = msg[:300]
@@ -254,13 +263,23 @@ def _zip(job: Job):
 
 def retry_failed(job: Job, index: int | None = None) -> int:
     """Thu lai cac bai loi (hoac 1 bai theo index). Tra ve so bai duoc thu lai."""
-    tracks = [t for t in job.tracks if t.status == "failed" and (index is None or t.index == index)]
+    tracks = [t for t in job.tracks if t.status in ("failed", "cancelled") and (index is None or t.index == index)]
     if not tracks:
         return 0
+    job.cancel.clear()
     for t in tracks:
         t.status, t.error, t.progress, t.retry = "pending", "", 0.0, True
     threading.Thread(target=_retry_worker, args=(job, tracks), daemon=True).start()
     return len(tracks)
+
+
+def cancel_job(job: Job) -> bool:
+    """Huy: bai dang tai bi ngat, bai chua tai bi bo, bai da xong van duoc gom vao ZIP."""
+    active = job.status not in ("done", "failed", "cancelled") or any(t.retry for t in job.tracks)
+    if not active:
+        return False
+    job.cancel.set()
+    return True
 
 
 def _retry_worker(job: Job, tracks: list[Track]):
@@ -270,7 +289,7 @@ def _retry_worker(job: Job, tracks: list[Track]):
         t.retry = False
     # Job con dang tai -> _zip cua luong chinh se gom luon. Job da xong/loi -> tu noi vao zip.
     with job.lock:
-        if job.status in ("done", "failed") and any(t.status == "done" and t.file for t in job.tracks):
+        if job.status in ("done", "failed", "cancelled") and any(t.status == "done" and t.file for t in job.tracks):
             _add_to_zip(job)
             job.status, job.error = "done", ""
     for p in job.dir.glob("*.jpg"):
@@ -286,6 +305,13 @@ def _run(job: Job):
         job.status = "downloading"
         with ThreadPoolExecutor(max_workers=PARALLEL) as ex:
             list(ex.map(lambda t: _download_one(job, t), job.tracks))
+
+        if job.cancel.is_set():
+            with job.lock:
+                if any(t.status == "done" and t.file for t in job.tracks):
+                    _add_to_zip(job)          # giu lai nhung bai da tai xong
+            job.status = "cancelled"
+            return
 
         job.status = "zipping"
         _zip(job)

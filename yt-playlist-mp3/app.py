@@ -53,6 +53,16 @@ def job(job_id: str):
     return j.to_dict()
 
 
+@app.post("/api/jobs/{job_id}/cancel")
+def cancel(job_id: str):
+    j = dl.get_job(job_id)
+    if not j:
+        raise HTTPException(404, "Khong co job nay")
+    if not dl.cancel_job(j):
+        raise HTTPException(400, "Job da ket thuc, khong huy duoc")
+    return j.to_dict()
+
+
 @app.post("/api/jobs/{job_id}/retry")
 def retry_all(job_id: str):
     """Thu lai tat ca bai loi. Neu job da xong, bai tai duoc se duoc noi them vao ZIP."""
