@@ -15,7 +15,9 @@
   <meta property="og:title" content="Thị Huyền ❤️ Hữu Phước — Kỷ niệm 1 năm yêu nhau">
   <meta property="og:description" content="18/10/2025 — 18/10/2026 · Một năm yêu thương, ngàn năm hạnh phúc 💕">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Trang kỷ niệm 1 năm yêu nhau của Thị Huyền và Hữu Phước 💕">
   <meta name="theme-color" content="#1a0a14">
   <style>
@@ -597,6 +599,42 @@
     .gallery-item video {
       width: 100%;
       display: block;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .gallery-item.loaded img,
+    .gallery-item.loaded video { opacity: 1; }
+
+    /* Khung cho nhap nhay trong luc anh/video chua tai xong */
+    .gallery-item.loading {
+      min-height: 180px;
+      background: linear-gradient(100deg,
+        rgba(255,255,255,0.04) 30%,
+        rgba(255,107,138,0.12) 50%,
+        rgba(255,255,255,0.04) 70%) var(--soft);
+      background-size: 240% 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+    .gallery-item.loading .play-icon { opacity: 0; }
+    @keyframes shimmer {
+      from { background-position: 180% 0; }
+      to   { background-position: -80% 0; }
+    }
+
+    /* Tai loi -> hien dau hieu thay vi o trong */
+    .gallery-item.failed {
+      min-height: 120px;
+      animation: none;
+      background: var(--soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+    }
+    .gallery-item.failed::after {
+      content: '🥀';
+      font-size: 1.8rem;
+      opacity: 0.35;
     }
     .gallery-item .play-icon {
       position: absolute;
@@ -1075,6 +1113,18 @@
     <div class="letter-sign">— Hữu Phước gửi Thị Huyền 💗</div>
   </div>
 
+  <!-- MILESTONES -->
+  <div class="milestones reveal">
+    <div class="section-title">Những cột mốc đáng nhớ ✨</div>
+    <div class="milestone-list" id="milestoneList"></div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-heart">📸</div>
+    <div class="divider-line"></div>
+  </div>
+
   <!-- PHOTO GALLERY -->
   <div class="gallery reveal">
     <div class="section-title">Khoảnh khắc của chúng mình 📸</div>
@@ -1088,18 +1138,6 @@
     <img id="lbImg" src="" alt="">
     <video id="lbVideo" src="" controls playsinline style="display:none"></video>
     <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
-  </div>
-
-  <div class="divider">
-    <div class="divider-line"></div>
-    <div class="divider-heart">📸</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- MILESTONES -->
-  <div class="milestones reveal">
-    <div class="section-title">Những cột mốc đáng nhớ ✨</div>
-    <div class="milestone-list" id="milestoneList"></div>
   </div>
 
   <!-- FOOTER -->
@@ -1434,18 +1472,42 @@ function shuffle(arr) {
 }
 
 const galleryImages = shuffle(GALLERY_FILES);
+
+// Chi tai anh/video khi sap cuon toi, va chi hien ra khi da tai xong.
+// (loading="lazy" khong ap dung cho <video>, nen dung IntersectionObserver cho ca hai.)
+const mediaObserver = new IntersectionObserver((entries, obs) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    loadMedia(entry.target);
+    obs.unobserve(entry.target);
+  });
+}, { rootMargin: '400px 0px' });   // tai truoc 400px de cuon toi la co san
+
+function loadMedia(item) {
+  const el = item.querySelector('img, video');
+  if (!el || el.dataset.loaded) return;
+  el.dataset.loaded = '1';
+  el.src = el.dataset.src;
+  if (el.tagName === 'VIDEO') el.load();
+}
+
+function markLoaded(item) { item.classList.remove('loading'); item.classList.add('loaded'); }
+function markFailed(item) { item.classList.remove('loading'); item.classList.add('failed'); }
+
 galleryImages.forEach((src, i) => {
   const item = document.createElement('div');
-  item.className = 'gallery-item';
+  item.className = 'gallery-item loading';
   const path = 'images/love/' + src;
 
   if (isVideo(src)) {
     const vid = document.createElement('video');
-    vid.src = path + '#t=0.001';
+    vid.dataset.src = path + '#t=0.001';   // chua gan src -> chua tai gi ca
     vid.muted = true;
     vid.loop = true;
     vid.playsInline = true;
     vid.preload = 'metadata';
+    vid.addEventListener('loadeddata', () => markLoaded(item));
+    vid.addEventListener('error', () => markFailed(item));
     // Hover thì play preview
     item.addEventListener('mouseenter', () => vid.play().catch(() => {}));
     item.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
@@ -1457,14 +1519,19 @@ galleryImages.forEach((src, i) => {
     item.appendChild(play);
   } else {
     const img = document.createElement('img');
-    img.src = path;
+    img.dataset.src = path;
     img.alt = 'Kỷ niệm ' + (i + 1);
-    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('load', () => markLoaded(item));
+    img.addEventListener('error', () => markFailed(item));
     item.appendChild(img);
   }
 
-  item.addEventListener('click', () => openLightbox(i));
+  item.addEventListener('click', () => {
+    if (!item.classList.contains('failed')) openLightbox(i);
+  });
   galleryEl.appendChild(item);
+  mediaObserver.observe(item);
 });
 
 // Lightbox
