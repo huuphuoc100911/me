@@ -1062,6 +1062,79 @@
     .next-ms .nm-when { color: var(--rose); font-weight: 600; }
     @media (max-width: 520px) { .next-ms { font-size: 0.75rem; margin-top: 14px; padding-top: 12px; } }
 
+    /* ── CHE DO KY NIEM (chi hien dung ngay co moc) ──────── */
+    .anniv {
+      position: fixed; inset: 0; z-index: 10001;
+      display: none;
+      align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at 50% 35%, #4a1730 0%, #1a0a14 55%, #0a0409 100%);
+      overflow: hidden;
+      text-align: center;
+      padding: 24px;
+    }
+    .anniv.show { display: flex; }
+    .anniv-inner {
+      position: relative; z-index: 2;
+      max-width: 560px;
+      animation: annivRise 1.1s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes annivRise {
+      from { opacity: 0; transform: translateY(28px) scale(0.96); }
+      to   { opacity: 1; transform: none; }
+    }
+    .anniv-icon { font-size: 4.2rem; line-height: 1; animation: annivBeat 1.6s ease-in-out infinite; }
+    @keyframes annivBeat { 0%,100% { transform: scale(1); } 45% { transform: scale(1.14); } }
+    .anniv-hi {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2rem; color: var(--gold2);
+      margin-top: 10px;
+    }
+    .anniv-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem; font-weight: 700;
+      margin: 6px 0 14px;
+      background: linear-gradient(90deg, var(--rose), var(--gold), var(--rose2));
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .anniv-names { font-size: 1.05rem; letter-spacing: 0.04em; }
+    .anniv-dates { color: var(--mut); font-size: 0.84rem; margin-top: 8px; }
+    .anniv-days {
+      margin: 22px auto 0; padding: 14px 26px;
+      display: inline-block;
+      border: 1px solid var(--border); border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+    }
+    .anniv-days b { display: block; font-size: 2.4rem; color: var(--gold2); line-height: 1.1; }
+    .anniv-days span { font-size: 0.76rem; color: var(--mut); letter-spacing: 0.08em; }
+    .anniv-actions { margin-top: 26px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .anniv-btn {
+      padding: 13px 26px; border-radius: 999px; border: none;
+      background: linear-gradient(90deg, var(--rose2), var(--rose));
+      color: #fff; font-family: inherit; font-size: 0.92rem; font-weight: 700;
+      cursor: pointer; box-shadow: 0 8px 24px rgba(244,63,94,0.4);
+    }
+    .anniv-btn.ghost {
+      background: none; border: 1px solid var(--border); color: var(--mut);
+      box-shadow: none; font-weight: 500;
+    }
+    .anniv-btn.ghost:hover { color: var(--white); border-color: var(--rose); }
+
+    /* Phao giay roi */
+    .confetti { position: absolute; top: -20px; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: confettiFall linear infinite; }
+    @keyframes confettiFall {
+      0%   { opacity: 0; transform: translateY(-10vh) rotate(0deg); }
+      8%   { opacity: 1; }
+      100% { opacity: 0.9; transform: translateY(110vh) translateX(var(--cx)) rotate(var(--cr)); }
+    }
+    @media (max-width: 520px) {
+      .anniv-icon { font-size: 3.4rem; }
+      .anniv-hi { font-size: 1.6rem; }
+      .anniv-title { font-size: 1.55rem; }
+      .anniv-days b { font-size: 2rem; }
+      .anniv-btn { padding: 12px 20px; font-size: 0.86rem; }
+    }
+
     /* ── TRINH CHIEU ANH ─────────────────────────────────── */
     .slideshow-btn {
       display: block;
@@ -1414,6 +1487,22 @@
     Made with <span class="heart">❤️</span> · Mãi mãi yêu em
   </div>
 
+</div>
+
+<!-- CHE DO KY NIEM -->
+<div class="anniv" id="anniv">
+  <div class="anniv-inner">
+    <div class="anniv-icon" id="annivIcon">💕</div>
+    <div class="anniv-hi">Chúc mừng</div>
+    <div class="anniv-title" id="annivTitle"></div>
+    <div class="anniv-names">Thị Huyền <span style="color:var(--rose)">❤️</span> Hữu Phước</div>
+    <div class="anniv-dates" id="annivDates"></div>
+    <div class="anniv-days"><b id="annivDays">0</b><span>NGÀY BÊN NHAU</span></div>
+    <div class="anniv-actions">
+      <button class="anniv-btn" id="annivPlay">Xem lại kỷ niệm 💕</button>
+      <button class="anniv-btn ghost" id="annivClose">Vào trang</button>
+    </div>
+  </div>
 </div>
 
 <!-- TRINH CHIEU ANH -->
@@ -2351,6 +2440,76 @@ window.addEventListener('load', () => {
     document.getElementById('loadingScreen').classList.add('hide');
   }, 1600);
 });
+
+
+// ── CHE DO KY NIEM ───────────────────────────────────────────────────────────
+// Trang tu bien hinh vao dung ngay co moc. Them ?xem-truoc vao dia chi de
+// xem thu bat ky luc nao ma khong phai cho toi ngay.
+const annivEl = document.getElementById('anniv');
+const CONFETTI_COLORS = ['#ff6b8a', '#ffb3c6', '#f5c842', '#fde68a', '#ff4d73', '#ffffff'];
+
+function annivConfetti(n) {
+  annivEl.querySelectorAll('.confetti').forEach(c => c.remove());
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i');
+    c.className = 'confetti';
+    c.style.cssText = `
+      left: ${Math.random() * 100}%;
+      background: ${CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]};
+      --cx: ${(Math.random() - 0.5) * 220}px;
+      --cr: ${(Math.random() - 0.5) * 900}deg;
+      animation-duration: ${Math.random() * 3 + 3.5}s;
+      animation-delay: ${Math.random() * 4}s;
+      width: ${Math.random() * 5 + 6}px;
+      height: ${Math.random() * 7 + 9}px;`;
+    frag.appendChild(c);
+  }
+  annivEl.appendChild(frag);
+}
+
+function annivShow(ms) {
+  document.getElementById('annivIcon').textContent = ms.icon;
+  document.getElementById('annivTitle').textContent = ms.name.replace(/\s*[🎉💕]+\s*$/, '');
+  document.getElementById('annivDates').textContent = `${fmtVN(new Date(START))} — ${ms.date}`;
+  const days = Math.max(0, Math.floor((Date.now() - START) / DAY));
+  document.getElementById('annivDays').textContent = days.toLocaleString('vi-VN');
+  annivConfetti(70);
+  annivEl.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function annivHide() {
+  annivEl.classList.remove('show');
+  annivEl.querySelectorAll('.confetti').forEach(c => c.remove());
+  document.body.style.overflow = '';
+}
+
+document.getElementById('annivClose').addEventListener('click', annivHide);
+document.getElementById('annivPlay').addEventListener('click', () => { annivHide(); ssOpen(0); });
+
+(function initAnniv() {
+  const xemTruoc = new URLSearchParams(location.search).has('xem-truoc');
+  const todayMs = milestones.filter(m => m.key === todayKey);
+
+  let ms;
+  if (xemTruoc) {
+    // Xem thu: uu tien moc tron nam, khong co thi lay moc gan nhat sap toi
+    ms = milestones.find(m => /Kỷ niệm \d+ năm/.test(m.name) && m.ts >= Date.now())
+      || milestones.find(m => m.ts >= Date.now())
+      || milestones[milestones.length - 1];
+  } else {
+    if (!todayMs.length) return;
+    // Uu tien moc "lon" neu mot ngay co nhieu moc
+    ms = todayMs.find(m => /Kỷ niệm|Sinh nhật/.test(m.name)) || todayMs[0];
+    // Moi ngay chi chao mot lan, F5 lai khong hien nua
+    try {
+      if (localStorage.getItem('anniv-seen') === todayKey) return;
+      localStorage.setItem('anniv-seen', todayKey);
+    } catch {}
+  }
+  setTimeout(() => annivShow(ms), xemTruoc ? 300 : 1900);   // doi man hinh tai xong
+})();
 
 // ── SCROLL REVEAL ───────────────────────────────────────────────────────────
 const revealObserver = new IntersectionObserver((entries) => {
