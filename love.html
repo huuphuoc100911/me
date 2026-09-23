@@ -689,6 +689,66 @@
       box-shadow: 0 20px 80px rgba(0,0,0,0.5);
       object-fit: contain;
     }
+    /* Thanh nut goc tren: chia se + tai ve */
+    .lightbox-tools {
+      position: absolute;
+      top: 16px; left: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 2;
+    }
+    .lb-tool {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-family: inherit;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .lb-tool:hover { background: rgba(255,107,138,0.3); color: #fff; }
+    .lb-counter {
+      position: absolute;
+      bottom: 18px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Thong bao nho hien giua man hinh */
+    .toast {
+      position: fixed;
+      left: 50%; bottom: 80px;
+      transform: translateX(-50%) translateY(16px);
+      z-index: 10000;
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: rgba(255,107,138,0.95);
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 520px) {
+      .lightbox-tools { top: 12px; left: 12px; gap: 6px; }
+      .lb-tool { padding: 7px 11px; font-size: 0.75rem; }
+      .lb-tool .lb-tool-text { display: none; }   /* dien thoai: chi hien icon */
+    }
+
     .lightbox-close {
       position: absolute;
       top: 16px; right: 20px;
@@ -1145,6 +1205,11 @@
   <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox">
     <button class="lightbox-close" id="lbClose">&times;</button>
+    <div class="lightbox-tools">
+      <button class="lb-tool" id="lbShare" title="Chia sẻ tấm này">🔗 <span class="lb-tool-text">Chia sẻ</span></button>
+      <a class="lb-tool" id="lbDownload" download title="Tải về máy">⬇ <span class="lb-tool-text">Tải về</span></a>
+    </div>
+    <div class="lb-counter" id="lbCounter"></div>
     <button class="lightbox-nav lightbox-prev" id="lbPrev">&#8249;</button>
     <img id="lbImg" src="" alt="">
     <video id="lbVideo" src="" controls playsinline style="display:none"></video>
@@ -1157,6 +1222,9 @@
   </div>
 
 </div>
+
+<!-- THONG BAO NHO -->
+<div class="toast" id="toast"></div>
 
 <!-- MUSIC BUTTON -->
 <button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc nền">🎵</button>
@@ -1526,7 +1594,7 @@ function buildGallery(list) {
 
 fetch(MEDIA_DIR + 'images.json')
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(list => buildGallery(list))
+  .then(list => { buildGallery(list); openFromHash(); })
   .catch(() => {
     galleryEl.innerHTML = '<p style="opacity:.6;text-align:center;padding:30px 0">Chưa tải được thư viện ảnh 🥀</p>';
   });
@@ -1562,12 +1630,86 @@ function closeLightbox() {
   lightboxEl.classList.remove('active');
   lbVideoEl.pause();
   document.body.style.overflow = '';
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
 }
 function stepLightbox(delta) {
   if (!galleryImages.length) return;
   currentLbIndex = (currentLbIndex + delta + galleryImages.length) % galleryImages.length;
   showLightboxMedia(galleryImages[currentLbIndex]);
 }
+
+// ── CHIA SE / TAI VE TUNG TAM ────────────────────────────────────────────────
+const lbCounterEl  = document.getElementById('lbCounter');
+const lbDownloadEl = document.getElementById('lbDownload');
+const toastEl      = document.getElementById('toast');
+let toastTimer = null;
+
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+
+/** Dia chi rieng cua 1 tam: .../love#anh=<ten-file> */
+function mediaLink(m) {
+  return location.origin + location.pathname + '#anh=' + encodeURIComponent(m.f);
+}
+
+document.getElementById('lbShare').addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const m = galleryImages[currentLbIndex];
+  if (!m) return;
+  const url = mediaLink(m);
+  const data = { title: 'Tình Yêu Của Chúng Mình 💕', text: 'Xem khoảnh khắc này của tụi mình nè 💕', url };
+
+  if (navigator.share) {                       // dien thoai: mo bang chia se cua he dieu hanh
+    try { await navigator.share(data); return; }
+    catch (err) { if (err.name === 'AbortError') return; }
+  }
+  try {                                        // may tinh: chep link
+    await navigator.clipboard.writeText(url);
+    toast('Đã chép link tấm này 💕');
+  } catch {
+    prompt('Sao chép link này:', url);
+  }
+});
+
+/** Cap nhat nut tai ve + bo dem + dia chi tren thanh dia chi */
+const _showLightboxMedia = showLightboxMedia;
+showLightboxMedia = function (m) {
+  _showLightboxMedia(m);
+  lbDownloadEl.href = MEDIA_DIR + m.f;
+  lbDownloadEl.setAttribute('download', m.f);
+  lbCounterEl.textContent = `${currentLbIndex + 1} / ${galleryImages.length}`;
+  history.replaceState(null, '', '#anh=' + encodeURIComponent(m.f));
+};
+
+// ── VUOT TRAI/PHAI TREN DIEN THOAI ───────────────────────────────────────────
+let touchX = 0, touchY = 0;
+lightboxEl.addEventListener('touchstart', (e) => {
+  touchX = e.changedTouches[0].clientX;
+  touchY = e.changedTouches[0].clientY;
+}, { passive: true });
+lightboxEl.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - touchX;
+  const dy = e.changedTouches[0].clientY - touchY;
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) stepLightbox(dx < 0 ? 1 : -1);
+  else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) closeLightbox();   // vuot xuong de dong
+}, { passive: true });
+
+/** Mo dung tam anh neu dia chi co #anh=... */
+function openFromHash() {
+  const m = location.hash.match(/^#anh=(.+)$/);
+  if (!m || !galleryImages.length) return;
+  const file = decodeURIComponent(m[1]);
+  const i = galleryImages.findIndex(x => x.f === file);
+  if (i >= 0) openLightbox(i);
+  else toast('Không tìm thấy tấm này 🥀');
+}
+window.addEventListener('hashchange', () => {
+  if (!lightboxEl.classList.contains('active')) openFromHash();
+});
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 lightboxEl.addEventListener('click', (e) => { if (e.target === lightboxEl) closeLightbox(); });
