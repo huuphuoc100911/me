@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Kết Nối & Truyền Mẫu Thêu Không Dây - Dahao A15</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                        cyber: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            accent: '#06b6d4',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .cyber-grid {
+            background-size: 30px 30px;
+            background-image: 
+                linear-gradient(to right, rgba(2, 132, 199, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(2, 132, 199, 0.05) 1px, transparent 1px);
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(14, 165, 233, 0.15);
+        }
+        .glow-effect-lg {
+            box-shadow: 0 0 40px -10px rgba(14, 165, 233, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyber-500 selection:text-white cyber-grid min-h-screen">
+
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-cyber-400 flex items-center justify-center text-white shadow-lg shadow-cyber-500/20">
+                    <i class="fa-solid fa-wifi text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-cyber-400 bg-clip-text text-transparent">Dahao Embroidery</span>
+                    <span class="hidden sm:inline-block text-xs text-slate-400 font-medium ml-2 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">Wireless Doc</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-1 text-sm font-semibold">
+                <a href="#overview" class="px-3 py-2 text-slate-300 hover:text-cyber-400 rounded-lg hover:bg-slate-900 transition">Thông Số Network</a>
+                <a href="#a15-setup" class="px-3 py-2 text-slate-300 hover:text-cyber-400 rounded-lg hover:bg-slate-900 transition">Cấu Hình A15</a>
+                <a href="#ping-test" class="px-3 py-2 text-slate-300 hover:text-cyber-400 rounded-lg hover:bg-slate-900 transition">Kiểm Tra Ping</a>
+                <a href="#upload-flow" class="px-3 py-2 text-slate-300 hover:text-cyber-400 rounded-lg hover:bg-slate-900 transition">Quy Trình 4 Bước</a>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="window.print()" class="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                    <i class="fa-solid fa-print"></i>
+                    <span>In Hướng Dẫn</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative pt-12 pb-16 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-brand-950/40 via-transparent to-transparent -z-10"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-950 border border-brand-500/30 text-cyber-400 text-xs font-semibold mb-6 shadow-inner">
+                <span class="flex h-2 w-2 rounded-full bg-cyber-400 animate-pulse"></span>
+                Dahao Embroidery Solution • Connectivity Guide
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                Quy Trình Kết Nối & Truyền Mẫu Thêu <br class="hidden sm:inline">
+                <span class="bg-gradient-to-r from-cyber-400 via-brand-500 to-indigo-400 bg-clip-text text-transparent">Không Dây Qua Wifi</span>
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-slate-400 text-base sm:text-lg mb-8 leading-relaxed">
+                Hướng dẫn từng bước cấu hình dải mạng IP, kiểm tra kết nối mạng không dây và tải mẫu thêu <code class="text-cyber-400 font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">.DST</code> từ máy tính sang màn hình **Dahao A15** thông qua phần mềm **EMB DesignServer**.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#upload-flow" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-cyber-500 hover:from-brand-500 hover:to-cyber-400 text-white font-bold text-sm shadow-lg shadow-cyber-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Xem Quy Trình Upload Mẫu</span>
+                </a>
+                <a href="#overview" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Cấu Hình Thông Số IP</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 pb-24">
+
+        <section id="overview" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-brand-900/60 border border-brand-500/30 flex items-center justify-center text-cyber-400">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Phần 1: Bảng Thông Số Cấu Hình Mạng Chuẩn</h2>
+                    <p class="text-slate-400 text-sm">Cả máy tính và máy thêu bắt buộc phải chung dải IP (Subnet)</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden glow-effect">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-300 font-semibold uppercase text-xs tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th class="py-4 px-6">Thành Phần Thiết Bị</th>
+                                <th class="py-4 px-6">Thông Số Ví Dụ (Wifi 192.168.0.x)</th>
+                                <th class="py-4 px-6">Trạng Thái / Mô Tả Hướng Dẫn</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="py-4 px-6 font-semibold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-wifi text-cyber-400"></i>
+                                    Tên Mạng Wifi (SSID)
+                                </td>
+                                <td class="py-4 px-6 font-mono text-cyber-400 font-semibold">RED THREAD T2</td>
+                                <td class="py-4 px-6 text-slate-400">Cả PC và Máy thêu A15 phải bắt chung 1 điểm phát Wifi này.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition bg-slate-900/40">
+                                <td class="py-4 px-6 font-semibold text-white">
+                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 mr-2"></span>
+                                    IP Máy Tính (PC Server)
+                                </td>
+                                <td class="py-4 px-6 font-mono text-emerald-400 font-bold bg-emerald-950/20 rounded">192.168.0.200</td>
+                                <td class="py-4 px-6 text-slate-400">Kiểm tra qua lệnh <code class="text-slate-200 bg-slate-800 px-1 py-0.5 rounded font-mono">ipconfig</code> trên PC (dải mạng hiện tại).</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="py-4 px-6 font-semibold text-white">
+                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyber-400 mr-2"></span>
+                                    IP Máy Thêu A15 (Dòng C43)
+                                </td>
+                                <td class="py-4 px-6 font-mono text-cyber-400 font-bold bg-cyber-950/30 rounded">192.168.0.213</td>
+                                <td class="py-4 px-6 text-slate-400">Nhập đúng địa chỉ IP thực tế do Wifi cấp cho A15 vào dòng **C43**.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition bg-slate-900/40">
+                                <td class="py-4 px-6 font-semibold text-white">IP Máy Chủ / Server (Dòng C44)</td>
+                                <td class="py-4 px-6 font-mono text-amber-400 font-semibold">192.168.0.200</td>
+                                <td class="py-4 px-6 text-slate-400">Điền chính xác địa chỉ IP của Máy tính vào dòng **C44** trên A15.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="py-4 px-6 font-semibold text-white">Mặt Nạ Mạng / Subnet Mask (C45)</td>
+                                <td class="py-4 px-6 font-mono text-slate-300">255.255.255.0</td>
+                                <td class="py-4 px-6 text-slate-400">Lớp mặt nạ mạng con tiêu chuẩn mặc định.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition bg-slate-900/40">
+                                <td class="py-4 px-6 font-semibold text-white">Cổng Mạng / Gateway (C46)</td>
+                                <td class="py-4 px-6 font-mono text-indigo-400 font-semibold">192.168.0.1</td>
+                                <td class="py-4 px-6 text-slate-400">Địa chỉ Gateway của Router Wifi mới (Trang 3/4 cài đặt A15).</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="py-4 px-6 font-semibold text-white">Cổng Máy Chủ / Port (C41)</td>
+                                <td class="py-4 px-6 font-mono text-purple-400 font-semibold">3865</td>
+                                <td class="py-4 px-6 text-slate-400">Cổng giao tiếp mặc định của phần mềm Dahao EMB DesignServer.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="a15-setup" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 rounded-xl bg-brand-900/60 border border-brand-500/30 flex items-center justify-center text-cyber-400">
+                    <i class="fa-solid fa-display"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Phần 2: Quy Trình Cấu Hình Trên Màn Hình A15</h2>
+                    <p class="text-slate-400 text-sm">Các thao tác điều chỉnh cài đặt mạng trực tiếp trên máy thêu</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Step Card 1 -->
+                <div class="bg-slate-900/80 border border-slate-800 hover:border-brand-500/50 rounded-2xl p-6 relative transition duration-300 flex flex-col justify-between glow-effect">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold font-mono px-2.5 py-1 rounded-md bg-brand-950 text-cyber-400 border border-brand-800">BƯỚC 01</span>
+                            <i class="fa-solid fa-wifi text-slate-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Bắt Sóng Wifi Mới</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                            Nhấn vào biểu tượng **Wifi (có dấu X)** ở góc trên màn hình A15. Chọn tên Wifi mới (ví dụ: <span class="text-cyber-400 font-medium">RED THREAD T2</span>), nhập mật khẩu và ấn **Tích xanh**.
+                        </p>
+                    </div>
+                    <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800/80 text-xs text-slate-300">
+                        <i class="fa-solid fa-circle-info text-cyber-400 mr-1.5"></i>
+                        Ghi nhớ số <code class="text-cyber-400 font-mono">192.168.0.xxx</code> xuất hiện ở dòng chữ "IP mạng không dây" trên cùng.
+                    </div>
+                </div>
+
+                <!-- Step Card 2 -->
+                <div class="bg-slate-900/80 border border-slate-800 hover:border-brand-500/50 rounded-2xl p-6 relative transition duration-300 flex flex-col justify-between glow-effect">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold font-mono px-2.5 py-1 rounded-md bg-brand-950 text-cyber-400 border border-brand-800">BƯỚC 02</span>
+                            <i class="fa-solid fa-pen-to-square text-slate-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Sửa C43 & C44 (Trang 2/4)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                            Vào menu Cài đặt tham số mạng. 
+                            <br>• Dòng **7 (C44)**: Nhập IP máy tính <code class="text-amber-400 font-mono">192.168.0.200</code>.
+                            <br>• Dòng **9 (C43)**: Nhập IP thực tế vừa nhận <code class="text-cyber-400 font-mono">192.168.0.213</code>.
+                        </p>
+                    </div>
+                    <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800/80 text-xs text-slate-300">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1.5"></i>
+                        Đảm bảo chọn biểu tượng Cây Bút và bấm **Lưu** sau mỗi dòng.
+                    </div>
+                </div>
+
+                <!-- Step Card 3 -->
+                <div class="bg-slate-900/80 border border-slate-800 hover:border-brand-500/50 rounded-2xl p-6 relative transition duration-300 flex flex-col justify-between glow-effect">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold font-mono px-2.5 py-1 rounded-md bg-brand-950 text-cyber-400 border border-brand-800">BƯỚC 03</span>
+                            <i class="fa-solid fa-gears text-slate-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Chỉnh C46 & Khóa IP (Trang 3/4)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                            Chuyển sang trang 3/4:
+                            <br>• Dòng **1 (C46)**: Đổi Gateway thành <code class="text-indigo-400 font-mono">192.168.0.1</code>.
+                            <br>• Dòng **3 (Z03 - DHCP)**: Bật sang **OFF** để khóa không cho đổi IP tự động.
+                        </p>
+                    </div>
+                    <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800/80 text-xs text-slate-300">
+                        <i class="fa-solid fa-power-off text-emerald-400 mr-1.5"></i>
+                        Nếu bị đứt mạng, hãy tắt công tắc nguồn A15 khoảng 10s rồi bật lại.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ping-test" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-brand-900/60 border border-brand-500/30 flex items-center justify-center text-cyber-400">
+                    <i class="fa-solid fa-terminal"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Phần 3: Kiểm Tra Kết Nối Mạng (Ping Test)</h2>
+                    <p class="text-slate-400 text-sm">Xác nhận máy tính đã nhìn thấy máy thêu trước khi mở phần mềm</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <!-- CMD Window Header -->
+                <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                        <span class="text-xs text-slate-400 font-mono ml-2">Command Prompt - [Administrator]</span>
+                    </div>
+                    <button onclick="copyPingCommand()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+                        <i class="fa-regular fa-copy"></i> Copy Command
+                    </button>
+                </div>
+
+                <!-- CMD Terminal Content -->
+                <div class="p-6 font-mono text-sm leading-relaxed space-y-3 bg-slate-950/90 text-slate-300 overflow-x-auto">
+                    <p><span class="text-emerald-400">C:\Users\ADMIN&gt;</span> <span class="text-white font-semibold" id="cmdText">ping 192.168.0.213</span></p>
+                    <p class="text-slate-500">Pinging 192.168.0.213 with 32 bytes of data:</p>
+                    <p class="text-emerald-400">Reply from 192.168.0.213: bytes=32 time=9ms TTL=64</p>
+                    <p class="text-emerald-400">Reply from 192.168.0.213: bytes=32 time=13ms TTL=64</p>
+                    <p class="text-emerald-400">Reply from 192.168.0.213: bytes=32 time=7ms TTL=64</p>
+                    <p class="text-emerald-400">Reply from 192.168.0.213: bytes=32 time=7ms TTL=64</p>
+                    <br>
+                    <p class="text-slate-400">Ping statistics for 192.168.0.213:</p>
+                    <p class="text-slate-300 pl-4">Packets: Sent = 4, Received = 4, <span class="text-emerald-400 font-bold">Lost = 0 (0% loss)</span>,</p>
+                    <p class="text-slate-400">Approximate round trip times in milli-seconds:</p>
+                    <p class="text-slate-300 pl-4">Minimum = 7ms, Maximum = 13ms, Average = 9ms</p>
+                </div>
+            </div>
+
+            <!-- Ping Status Callout -->
+            <div class="mt-4 p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex items-start gap-3">
+                <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-emerald-400">Thông Mạng Thành Công (0% Lost)</h4>
+                    <p class="text-xs text-slate-300 mt-0.5">Khi nhận được các dòng <code class="text-emerald-300 font-mono">Reply from...</code> nghĩa là đường truyền Wifi giữa PC và máy thêu A15 đã sẵn sàng 100%.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="upload-flow" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 rounded-xl bg-brand-900/60 border border-brand-500/30 flex items-center justify-center text-cyber-400">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Phần 4: Quy Trình 4 Bước Upload Mẫu Thêu</h2>
+                    <p class="text-slate-400 text-sm">Các thao tác gửi file từ máy tính sang màn hình A15</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Flow Step 1 -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 glow-effect transition duration-300 hover:border-slate-700">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-cyber-400 flex items-center justify-center text-white font-extrabold text-xl shrink-0 shadow-lg shadow-cyber-500/20">
+                            01
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-brand-950 text-cyber-400 border border-brand-800">Thao tác trên PC</span>
+                                <h3 class="text-lg font-bold text-white">Khởi Chạy Quyền Administrator</h3>
+                            </div>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Nhấp chuột phải vào biểu tượng ứng dụng <strong class="text-white">EMB DESIGNSERVER</strong> trên Desktop -> Chọn <strong class="text-cyber-400">Run as administrator</strong>.
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg border border-emerald-800/50">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Biểu tượng máy thêu <strong class="font-mono">CN: 1115</strong> (hoặc IP) sẽ hiện sáng màu xanh lá trong giao diện.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flow Step 2 -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 glow-effect transition duration-300 hover:border-slate-700">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-cyber-400 flex items-center justify-center text-white font-extrabold text-xl shrink-0 shadow-lg shadow-cyber-500/20">
+                            02
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-brand-950 text-cyber-400 border border-brand-800">Thao tác trên PC</span>
+                                <h3 class="text-lg font-bold text-white">Chọn Mẫu Thêu Từ Ổ Đĩa (Send From Disk)</h3>
+                            </div>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Bấm vào nút <strong class="text-white"><i class="fa-solid fa-folder-open text-amber-400 mr-1"></i> Send From Disk</strong> trên thanh công cụ phần mềm. Duyệt thư mục lưu trữ mẫu thêu trên máy tính và chọn file thiết kế (định dạng <code class="text-cyber-400 font-mono">.DST</code>, <code class="text-cyber-400 font-mono">.DSB</code>).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flow Step 3 -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 glow-effect transition duration-300 hover:border-slate-700">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-cyber-400 flex items-center justify-center text-white font-extrabold text-xl shrink-0 shadow-lg shadow-cyber-500/20">
+                            03
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-brand-950 text-cyber-400 border border-brand-800">Thao tác trên PC</span>
+                                <h3 class="text-lg font-bold text-white">Phát Lệnh Gửi File Sang Máy Thêu</h3>
+                            </div>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Nhấp chọn khung máy thêu đích <strong class="text-white font-mono">CN: 1115</strong> màu xanh lá -> Bấm nút <strong class="text-cyber-400">Send / Truyền</strong>. File sẽ được đẩy trực tiếp qua Wifi nội bộ sang máy thêu.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flow Step 4 -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 glow-effect transition duration-300 hover:border-slate-700">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-cyber-400 flex items-center justify-center text-white font-extrabold text-xl shrink-0 shadow-lg shadow-cyber-500/20">
+                            04
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800">Thao tác trên A15</span>
+                                <h3 class="text-lg font-bold text-white">Lưu File Vào Bộ Nhớ A15 & Chạy Thêu</h3>
+                            </div>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Trên màn hình A15: Vào mục <strong class="text-white">Bộ nhớ / Mẫu thêu</strong> -> Nhấn nút <strong class="text-cyber-400">Nhận mẫu từ Mạng (Network/Server)</strong>. Chọn tên file vừa truyền từ PC và nhấn <strong class="text-emerald-400">Lưu</strong> để chuẩn bị canh khung & chạy thêu.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500 text-xs space-y-2">
+            <p>© 2026 Dahao Embroidery Wireless Solution • Tài liệu Hướng dẫn Kỹ thuật Vận hành Máy Thêu A15</p>
+            <p class="text-slate-600">Hệ thống hỗ trợ phần mềm EMB DesignServer & Màn hình điều khiển Dahao A15</p>
+        </div>
+    </footer>
+
+    <script>
+        function copyPingCommand() {
+            const textToCopy = "ping 192.168.0.213";
+            const tempInput = document.createElement("input");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            // Notification toast
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-5 right-5 bg-cyber-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg z-50 animate-bounce";
+            toast.innerText = "Đã sao chép lệnh: " + textToCopy;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+    </script>
+</body>
+</html>

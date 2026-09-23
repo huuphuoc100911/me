@@ -50,7 +50,7 @@
     <div class="eyebrow">Tài liệu trao đổi kỹ thuật</div>
     <h1>Đề xuất tích hợp RedThread ↔ LAN Agent máy thêu</h1>
     <p>Mục tiêu: chuyển file thiết kế qua mạng LAN, tự động dọn file sau khi hoàn thành và đồng bộ trạng thái vận hành máy về RedThread.</p>
-    <div class="meta"><span>Phiên bản đề xuất: 1.0</span><span>Ngày: 24/08/2026</span><span>Trạng thái: Chờ hai bên xác nhận</span></div>
+    <div class="meta"><span>Phiên bản đề xuất: 1.1</span><span>Ngày: 24/08/2026</span><span>Trạng thái: Bổ sung API trạng thái máy &amp; heartbeat</span></div>
   </header>
   <main>
     <h2>1. Kết luận quan trọng</h2>
@@ -108,15 +108,182 @@
     <p><span class="tag gray">OFFLINE</span><span class="tag gray">IDLE</span><span class="tag green">RUNNING</span><span class="tag amber">PAUSED</span><span class="tag red">ERROR</span></p>
     <p>Agent gửi heartbeat khoảng 30 giây/lần, gồm status, batch/file hiện tại, thời điểm bắt đầu status và mã lỗi nếu có. Nếu không nhận heartbeat quá ngưỡng cấu hình, RedThread suy ra <code>OFFLINE</code>. Việc nhận diện <code>ERROR</code> tự động chỉ khả thi khi máy có API/SDK/log mà Agent đọc được.</p>
 
-    <h2>5. API contract sơ bộ</h2>
+    <h2>5. Luồng trạng thái máy</h2>
+    <h3>5.1. State machine</h3>
+    <p>Status của máy thêu hoàn toàn độc lập với status của Batch hoặc đơn hàng. RedThread lưu từng bản ghi trạng thái có timestamp để tính được khoảng thời gian chạy, dừng và lỗi.</p>
+    <div class="flow">OFFLINE  ──(agent kết nối)──▶  IDLE
+IDLE     ──(máy bắt đầu chạy)──▶  RUNNING
+RUNNING  ──(tạm dừng giữa chừng)──▶  PAUSED
+RUNNING  ──(máy báo lỗi)──▶  ERROR
+PAUSED   ──(tiếp tục)──▶  RUNNING
+PAUSED   ──(máy báo lỗi)──▶  ERROR
+ERROR    ──(đã xử lý / reset)──▶  IDLE
+bất kỳ   ──(heartbeat ngưng quá ngưỡng)──▶  OFFLINE (RedThread tự suy ra)</div>
+    <p>Trạng thái hợp lệ: <span class="tag gray">OFFLINE</span><span class="tag gray">IDLE</span><span class="tag green">RUNNING</span><span class="tag amber">PAUSED</span><span class="tag red">ERROR</span></p>
+
+    <h3>5.2. Cách RedThread biết máy nào đang gửi status</h3>
+    <div class="callout"><strong>Định danh qua 2 lớp:</strong> (1) <code>agentToken</code> trong header xác định LAN Agent + workspace; (2) <code>machineId</code> trong body trỏ đúng máy đã đăng ký. Backend validate <code>machine.workspace_id == agent.workspace_id</code> trước khi lưu bất kỳ status nào.</div>
+    <table>
+      <thead><tr><th>Thành phần</th><th>Nơi lưu</th><th>Vai trò định danh</th></tr></thead>
+      <tbody>
+        <tr><td><code>Authorization: Bearer &lt;agentToken&gt;</code></td><td>Header HTTPS</td><td>Xác định LAN Agent và workspace; token do Admin RedThread cấp, có thể thu hồi</td></tr>
+        <tr><td><code>machineId</code></td><td>Request body</td><td>ID của bản ghi Machine trong DB (bảng <code>machines</code>, đã có trường <code>workspace_id</code>)</td></tr>
+        <tr><td>Validate cross-workspace</td><td>Backend middleware</td><td><code>machine.workspace_id == agent.workspace_id</code> → reject nếu lệch; ngăn chặn spoofing giữa các xưởng</td></tr>
+      </tbody>
+    </table>
+    <p>Dữ liệu cần thêm vào DB: bảng <code>lan_agent_tokens</code> (id, workspace_id, name, token_hash, is_active). Backend đã có <code>Machine</code> model với <code>WorkspaceID</code> — không cần sửa schema máy.</p>
+
+    <h3>5.3. Vòng đời trạng thái trên DB</h3>
+    <p>Mỗi lần status thay đổi, RedThread ghi 1 bản ghi vào <code>machine_status_events</code>:</p>
+    <table>
+      <thead><tr><th>Cột</th><th>Kiểu</th><th>Ý nghĩa</th></tr></thead>
+      <tbody>
+        <tr><td><code>machine_id</code></td><td>uint FK</td><td>Máy thêu nào</td></tr>
+        <tr><td><code>status</code></td><td>varchar</td><td>OFFLINE / IDLE / RUNNING / PAUSED / ERROR</td></tr>
+        <tr><td><code>batch_id</code></td><td>uint nullable</td><td>Batch đang chạy khi chuyển trạng thái (nếu có)</td></tr>
+        <tr><td><code>current_file</code></td><td>varchar nullable</td><td>Tên file .DST đang thêu</td></tr>
+        <tr><td><code>error_code</code></td><td>varchar nullable</td><td>Mã lỗi máy (nếu status = ERROR)</td></tr>
+        <tr><td><code>error_message</code></td><td>text nullable</td><td>Mô tả lỗi từ máy / nhân viên nhập tay</td></tr>
+        <tr><td><code>occurred_at</code></td><td>timestamptz</td><td>Thời điểm trạng thái bắt đầu (do Agent báo)</td></tr>
+        <tr><td><code>ended_at</code></td><td>timestamptz nullable</td><td>Thời điểm kết thúc — RedThread tự điền khi nhận status tiếp theo</td></tr>
+        <tr><td><code>duration_seconds</code></td><td>int computed</td><td><code>ended_at - occurred_at</code> → dùng để tổng hợp uptime/downtime</td></tr>
+        <tr><td><code>source</code></td><td>varchar</td><td>HEARTBEAT / EVENT / MANUAL / TIMEOUT</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. API Heartbeat và Event Timeline (lỗi &amp; dừng)</h2>
+    <h3>6.1. Heartbeat định kỳ — 30 giây/lần</h3>
+    <p>LAN Agent gửi heartbeat để báo máy vẫn online và cập nhật status hiện tại. Nếu RedThread không nhận được heartbeat trong 90 giây (3 chu kỳ), tự động ghi sự kiện <code>OFFLINE</code>.</p>
+    <pre><code>POST /api/v1/lan-agents/heartbeat
+Authorization: Bearer &lt;agentToken&gt;
+Content-Type: application/json
+
+{
+  "agentId": "agent-factory-a",
+  "machines": [
+    {
+      "machineId": 1,
+      "status": "RUNNING",
+      "currentBatchId": 42,
+      "currentFile": "B042_design.dst",
+      "statusSince": "2026-08-24T13:58:00+07:00",
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "machineId": 2,
+      "status": "IDLE",
+      "currentBatchId": null,
+      "currentFile": null,
+      "statusSince": "2026-08-24T14:01:00+07:00",
+      "errorCode": null,
+      "errorMessage": null
+    }
+  ]
+}
+
+// Response 200 OK
+{
+  "accepted": [1, 2],
+  "rejected": [],
+  "serverTime": "2026-08-24T14:02:10+07:00"
+}</code></pre>
+    <p>Quy tắc heartbeat: Agent gộp <strong>tất cả máy</strong> thuộc workspace vào 1 request; RedThread chỉ ghi <code>machine_status_events</code> khi status <em>thay đổi</em> so với bản ghi cuối cùng — không ghi thừa khi máy đang RUNNING ổn định.</p>
+
+    <h3>6.2. Event ngay lập tức — lỗi và dừng</h3>
+    <p>Khi có sự kiện đột xuất (máy lỗi, dừng đột ngột, khởi động lại) — không chờ heartbeat 30 giây mà push ngay:</p>
+    <pre><code>POST /api/v1/lan-agents/machine-events
+Authorization: Bearer &lt;agentToken&gt;
+Content-Type: application/json
+
+{
+  "eventId": "evt-uuid-do-agent-tao",   // idempotency key
+  "machineId": 1,
+  "status": "ERROR",
+  "previousStatus": "RUNNING",
+  "currentBatchId": 42,
+  "currentFile": "B042_design.dst",
+  "errorCode": "THREAD_BREAK",
+  "errorMessage": "Đứt chỉ màu 3 lần liên tiếp, máy tự dừng",
+  "occurredAt": "2026-08-24T14:05:30+07:00",
+  "source": "MACHINE_SDK"               // hoặc MANUAL nếu nhân viên nhập tay
+}
+
+// Response 201 Created
+{
+  "eventId": "evt-uuid-do-agent-tao",
+  "recorded": true,
+  "batchNotified": true   // RedThread đã ghi log vào BatchLog và notify assignees
+}</code></pre>
+
+    <h3>6.3. Timeline trạng thái — dùng cho màn hình monitor</h3>
+    <p>RedThread tổng hợp <code>machine_status_events</code> thành timeline để hiển thị trên Dashboard:</p>
+    <pre><code>GET /api/v1/machines/{machineId}/timeline?from=2026-08-24T00:00:00+07:00&amp;to=2026-08-24T23:59:59+07:00
+Authorization: Bearer &lt;userToken&gt;   // token của nhân viên đăng nhập RedThread
+
+// Response 200 OK
+{
+  "machineId": 1,
+  "machineName": "Máy thêu A1",
+  "period": { "from": "...", "to": "..." },
+  "summary": {
+    "totalRunningSeconds": 18600,
+    "totalPausedSeconds": 1200,
+    "totalErrorSeconds": 420,
+    "totalOfflineSeconds": 3780,
+    "uptimePercent": 86.1
+  },
+  "events": [
+    {
+      "status": "RUNNING",
+      "occurredAt": "2026-08-24T08:00:00+07:00",
+      "endedAt":    "2026-08-24T13:10:00+07:00",
+      "durationSeconds": 18600,
+      "batchId": 42,
+      "currentFile": "B042_design.dst",
+      "errorCode": null
+    },
+    {
+      "status": "ERROR",
+      "occurredAt": "2026-08-24T13:10:00+07:00",
+      "endedAt":    "2026-08-24T13:17:00+07:00",
+      "durationSeconds": 420,
+      "batchId": 42,
+      "errorCode": "THREAD_BREAK",
+      "errorMessage": "Đứt chỉ màu 3 lần liên tiếp"
+    },
+    {
+      "status": "PAUSED",
+      "occurredAt": "2026-08-24T13:17:00+07:00",
+      "endedAt":    "2026-08-24T13:37:00+07:00",
+      "durationSeconds": 1200,
+      "batchId": 42,
+      "source": "MANUAL"
+    }
+  ]
+}</code></pre>
+
+    <h3>6.4. Luồng thông báo khi lỗi</h3>
+    <div class="flow">Máy thêu gặp lỗi (THREAD_BREAK, JAM, POWER, ...)
+→ LAN Agent đọc status từ SDK/log/nhân viên nhập
+→ POST /api/v1/lan-agents/machine-events  (push ngay, không chờ heartbeat)
+→ RedThread ghi machine_status_events: status=ERROR, errorCode, occurredAt
+→ RedThread ghi BatchLog: "Máy A1 báo lỗi THREAD_BREAK lúc 13:10"
+→ RedThread push notification cho assignees của Batch đang chạy
+→ Nhân viên xử lý máy → reset → Agent gửi status=IDLE hoặc RUNNING
+→ RedThread đóng event lỗi: ended_at = thời điểm event mới, tính duration</div>
+
+    <div class="callout"><strong>Câu hỏi RedThread cần xác nhận với bên máy:</strong> Máy có SDK/API/log để đọc mã lỗi tự động không? Nếu không, LAN Agent cần cung cấp form nhập tay cho nhân viên. Cả hai cách đều hợp lệ — chỉ khác <code>"source": "MACHINE_SDK"</code> hay <code>"source": "MANUAL"</code>.</div>
+
+    <h2>7. API contract sơ bộ</h2>
     <p>Đây là contract để hai bên thảo luận, chưa phải đặc tả cuối cùng. Agent xác thực bằng token riêng theo workspace/agent; mọi request dùng HTTPS.</p>
     <pre><code>POST /api/v1/lan-agents/heartbeat
 {
   "agentId": "agent-factory-a",
   "machines": [{
-    "machineId": "machine-01",
+    "machineId": 1,
     "status": "RUNNING",
-    "currentBatchId": "batch-042",
+    "currentBatchId": 42,
     "currentFile": "B042_design.dst",
     "statusSince": "2026-08-24T13:58:00+07:00",
     "errorCode": null
@@ -132,14 +299,14 @@ POST /api/v1/deployments/{deploymentId}/events
 {
   "eventId": "uuid-do-agent-tao",
   "status": "VERIFIED",
-  "machineId": "machine-01",
+  "machineId": 1,
   "remotePath": "designs/B042_design.dst",
   "checksum": "sha256:...",
   "occurredAt": "2026-08-24T14:03:00+07:00",
   "message": null
 }</code></pre>
 
-    <h2>6. Quy tắc kỹ thuật bắt buộc</h2>
+    <h2>8. Quy tắc kỹ thuật bắt buộc</h2>
     <ul>
       <li><strong>Idempotency:</strong> gửi lại cùng <code>eventId</code> hoặc xử lý lại cùng job không được tạo file trùng, xóa nhầm hay đổi trạng thái sai.</li>
       <li><strong>Claim/lease:</strong> một job chỉ do một Agent xử lý tại một thời điểm; lease hết hạn thì có thể claim lại.</li>
@@ -150,17 +317,17 @@ POST /api/v1/deployments/{deploymentId}/events
       <li><strong>Audit:</strong> lưu ai tạo lệnh, Agent nào nhận, thời gian copy/xóa, checksum và thông báo lỗi.</li>
     </ul>
 
-    <h2>7. Thông tin cần bên LAN Agent xác nhận</h2>
+    <h2>9. Thông tin cần bên LAN Agent xác nhận</h2>
     <ol>
       <li>Hãng và model chính xác của từng máy thêu.</li>
       <li>Cơ chế nhận file: SMB, FTP/SFTP, hot-folder, vendor API/SDK hay phương án khác.</li>
       <li>Xác nhận quy ước cho các file RedThread gửi sang: file thêu <strong>DST</strong> và ảnh tham chiếu <strong>PNG hoặc JPG</strong>; đồng thời cho biết giới hạn tên file, ký tự và độ dài.</li>
-      <li>Máy có API/SDK/log để đọc RUNNING, IDLE, PAUSED, ERROR và error code không?</li>
+      <li>Máy có API/SDK/log để đọc RUNNING, IDLE, PAUSED, ERROR và error code không? Nếu không, nhân viên sẽ nhập tay — cần form gì?</li>
       <li>Một PC Agent quản lý bao nhiêu máy? Agent có chạy 24/7 và tự khởi động lại không?</li>
       <li>File phải xóa khi một item xong, toàn bộ Batch xong, hay theo event “thêu xong” riêng?</li>
     </ol>
 
-    <h2>8. Kế hoạch phối hợp</h2>
+    <h2>10. Kế hoạch phối hợp</h2>
     <table>
       <thead><tr><th>Giai đoạn</th><th>Kết quả cần đạt</th></tr></thead>
       <tbody>

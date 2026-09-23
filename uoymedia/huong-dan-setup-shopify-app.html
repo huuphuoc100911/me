@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Hướng dẫn tạo và deploy Shopify App cho nhiều dự án</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  @media print {
+    html { background: #fff; }
+    body { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
+    .card { box-shadow: none; border: 1px solid #cde0d8; margin: 0 0 8mm; break-inside: avoid; }
+    .page { page-break-before: always; }
+    .cover { page-break-after: always; }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #eef2f0; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #17212b;
+    max-width: 900px;
+    margin: 36px auto 60px;
+    padding: 0 24px;
+  }
+
+  .cover {
+    background: linear-gradient(135deg, #0b6e4f 0%, #0d8f66 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 52px 48px 44px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 24px rgba(0,110,79,0.25);
+  }
+  .cover h1 { color: #fff; font-size: 28px; line-height: 1.25; margin-bottom: 10px; border: none; padding: 0; background: none; }
+  .cover .sub { font-size: 15px; color: rgba(255,255,255,0.82); margin-bottom: 28px; }
+  .cover .cover-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 16px 20px; margin-bottom: 28px; font-size: 14px; }
+  .cover .meta { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.8; }
+  .cover .meta code { background: rgba(255,255,255,0.2); color: #fff; padding: 1px 5px; border-radius: 3px; }
+  .cover .small { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 20px; }
+
+  .card { background: #fff; border-radius: 10px; border: 1px solid #dde8e4; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 28px 32px; margin-bottom: 20px; }
+
+  h2 { font-size: 17px; font-weight: 700; color: #0b6e4f; display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #cde8df; }
+  h2 .num { background: #0b6e4f; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  h3 { font-size: 14px; font-weight: 700; color: #164c3d; margin: 20px 0 8px; }
+
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 12px 20px; }
+  li { margin-bottom: 5px; }
+  .check { list-style: none; margin-left: 0; }
+  .check li { padding-left: 22px; position: relative; }
+  .check li::before { content: "☐"; color: #0b6e4f; font-size: 15px; position: absolute; left: 0; }
+
+  code { font-family: "Consolas", "Courier New", monospace; background: #eaf4ef; color: #0a5c40; padding: 1px 5px; border-radius: 4px; font-size: 13px; border: 1px solid #c4ddd4; }
+  pre { font-family: "Consolas", "Courier New", monospace; font-size: 12.5px; background: #0d1f18; color: #c9f0df; border-radius: 8px; padding: 16px 20px; margin: 12px 0 16px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; line-height: 1.55; }
+  pre code { background: none; border: none; color: inherit; padding: 0; font-size: inherit; }
+
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 16px; font-size: 13px; }
+  th, td { border: 1px solid #c8ddd6; padding: 9px 12px; vertical-align: top; }
+  th { background: #dceee7; color: #164c3d; font-weight: 700; text-align: left; }
+  tr:nth-child(even) td { background: #f5faf7; }
+
+  .note   { background: #eef7ff; border-left: 4px solid #2878b5; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; }
+  .warn   { background: #fff8e8; border-left: 4px solid #d48f0a; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; }
+  .danger { background: #fef0f0; border-left: 4px solid #c53b3b; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; }
+  .ok     { background: #eaf7ef; border-left: 4px solid #27844f; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; }
+
+  a { color: #0b6e4f; }
+  .small { font-size: 12px; color: #5a6b65; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>HƯỚNG DẪN TẠO VÀ DEPLOY<br>SHOPIFY APP CHO NHIỀU DỰ ÁN</h1>
+  <p class="sub">Shopify app · PostgreSQL (Neon) · GitHub · Render · Multi-store</p>
+  <div class="cover-box">
+    <b>Dành cho người mới hoàn toàn.</b><br>
+    Tài liệu đi từng bước: tạo tài khoản, lấy key, tạo database, cấu hình Render, cài app vào store, quản lý nhiều app từ một codebase và xử lý lỗi.
+  </div>
+  <div class="meta">
+    <b>Codebase:</b> <code>shopify-bulk-editor</code> &nbsp;·&nbsp; <b>Kiến trúc:</b> 1 repo → N app → N Render service → N Neon DB<br>
+    <b>Cập nhật:</b> 09/2026
+  </div>
+  <p class="small">Không ghi mật khẩu hoặc secret thật trong tài liệu. Lưu secret trong password manager và Render Environment.</p>
+</div>
+
+<!-- 1 -->
+<div class="card">
+  <h2><span class="num">1</span> Hiểu hệ thống trong 2 phút</h2>
+  <p>Mỗi dự án (store) chạy trên một Shopify app riêng, một Render service riêng và một Neon DB riêng — tất cả dùng <b>cùng một GitHub repo</b>. Không cần copy code.</p>
+  <table>
+    <tr><th>Thành phần</th><th>Dùng để làm gì</th><th>Nơi quản lý</th></tr>
+    <tr><td>Shopify app</td><td>Danh tính app, quyền truy cập, webhook, nơi merchant cài</td><td>Shopify Dev Dashboard / Partners</td></tr>
+    <tr><td>GitHub repo</td><td>Lưu source code — dùng chung cho tất cả dự án</td><td>Repository <code>shopify-bulk-editor</code></td></tr>
+    <tr><td>Render Web Service</td><td>Build Docker và chạy web app 24/7 — mỗi dự án 1 service</td><td>Render Dashboard</td></tr>
+    <tr><td>Neon PostgreSQL</td><td>Lưu dữ liệu lâu dài — mỗi dự án 1 Neon project</td><td>Neon Console</td></tr>
+    <tr><td><code>shopify.app.&lt;tên&gt;.toml</code></td><td>Config Shopify riêng cho từng app (client ID, URL, scopes)</td><td>Trong repo, commit vào Git</td></tr>
+  </table>
+  <div class="note"><b>Quy tắc:</b> App đã cài trên store không cần cài lại sau mỗi lần sửa code. Chỉ cần code mới được deploy thành công lên cùng URL Render.</div>
+</div>
+
+<!-- 2 -->
+<div class="card">
+  <h2><span class="num">2</span> Chuẩn bị tài khoản và phần mềm</h2>
+  <p>Tất cả đều có gói miễn phí:</p>
+  <ul class="check">
+    <li>Tài khoản GitHub có quyền đọc/push repository</li>
+    <li>Tài khoản Shopify Partners (<a href="https://partners.shopify.com" target="_blank" rel="noopener noreferrer">partners.shopify.com</a>) và ít nhất một development store để test</li>
+    <li>Tài khoản Render (<a href="https://render.com" target="_blank" rel="noopener noreferrer">render.com</a>)</li>
+    <li>Tài khoản Neon (<a href="https://neon.tech" target="_blank" rel="noopener noreferrer">neon.tech</a>)</li>
+    <li>Trên máy: Git, Node.js ≥ 22.12, pnpm và Shopify CLI</li>
+  </ul>
+  <p>Kiểm tra trong terminal:</p>
+  <pre>cd ~/Documents/Project/shopify-bulk-editor
+nvm use
+node -v     # phải in v22.x.x
+pnpm -v
+shopify version</pre>
+  <div class="warn"><b>Bảo mật:</b> Không gửi ảnh chứa Client secret, <code>DATABASE_URL</code>, <code>CRON_SECRET</code> hoặc access token lên channel công khai.</div>
+</div>
+
+<!-- 3 -->
+<div class="card page">
+  <h2><span class="num">3</span> Tạo Shopify app mới trong Partners</h2>
+  <p>Mỗi dự án / store cần một Shopify app riêng với Client ID riêng.</p>
+  <ol>
+    <li>Đăng nhập <a href="https://partners.shopify.com" target="_blank" rel="noopener noreferrer">partners.shopify.com</a> → <b>Apps</b> → <b>Create app</b>.</li>
+    <li>Chọn <b>Create app manually</b>, đặt tên ví dụ <code>uoy-ginger-bulk-edit</code>.</li>
+    <li>Mở app vừa tạo → <b>API credentials / Client credentials</b>.</li>
+    <li>Copy <b>Client ID</b> — đây là <code>SHOPIFY_API_KEY</code>.</li>
+    <li>Reveal/copy <b>Client secret</b> — đây là <code>SHOPIFY_API_SECRET</code>. Lưu vào password manager ngay.</li>
+  </ol>
+  <div class="danger"><b>Không copy Client secret vào GitHub.</b> Nếu từng lộ secret, phải rotate trong Shopify Dashboard rồi cập nhật Render.</div>
+
+  <h3>3.1 Lặp lại cho mỗi dự án mới</h3>
+  <p>Ví dụ với 2 store: tạo app <code>uoy-ginger-bulk-edit</code> và <code>uoy-flagwix-bulk-edit</code>. Mỗi app có Client ID riêng — ghi lại để điền vào toml ở bước 4.</p>
+</div>
+
+<!-- 4 -->
+<div class="card">
+  <h2><span class="num">4</span> Tạo file config toml cho từng app</h2>
+  <p>Trong repo có thể có nhiều file <code>shopify.app.&lt;tên&gt;.toml</code>, mỗi file ứng với một Shopify app. Không chỉnh sửa <code>shopify.app.toml</code> gốc nếu đang dùng.</p>
+
+  <h3>4.1 Tạo file mới cho từng dự án</h3>
+  <p>Ví dụ tạo <code>shopify.app.ginger.toml</code>:</p>
+  <pre>client_id = "CLIENT_ID_CỦA_APP_GINGER"
+name = "UOY Bulk Edit - Ginger"
+application_url = "https://uoy-ginger-bulk-edit.onrender.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/data_request"
+  compliance_topics = [ "customers/data_request" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/redact"
+  compliance_topics = [ "customers/redact" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/shop/redact"
+  compliance_topics = [ "shop/redact" ]
+
+[access_scopes]
+scopes = "write_products,write_inventory"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "https://uoy-ginger-bulk-edit.onrender.com/auth/callback" ]</pre>
+  <p>Làm tương tự <code>shopify.app.flagwix.toml</code>, thay <code>client_id</code>, <code>name</code>, <code>application_url</code> và <code>redirect_urls</code> bằng giá trị của app Flagwix.</p>
+
+  <h3>4.2 Deploy config lên Shopify Partners</h3>
+  <p>Sau khi điền đúng <code>client_id</code>, chạy lần lượt:</p>
+  <pre>cd ~/Documents/Project/shopify-bulk-editor
+nvm use
+
+shopify app deploy --config ginger
+shopify app deploy --config flagwix</pre>
+  <p>Lệnh này cập nhật App URL, redirect URL, scopes và webhook vào Shopify Partners — không cần vào dashboard bấm thủ công. Chạy lại lệnh mỗi khi thay đổi URL, scope hoặc webhook.</p>
+  <div class="warn"><b>Không nhầm file.</b> Kiểm tra CLI in ra đúng app name trước khi confirm. Dùng <code>--config</code> để tránh ghi đè app khác.</div>
+</div>
+
+<!-- 5 -->
+<div class="card">
+  <h2><span class="num">5</span> Tạo PostgreSQL trên Neon</h2>
+  <p>Mỗi dự án nên có một Neon project riêng để cách ly dữ liệu hoàn toàn.</p>
+  <ol>
+    <li>Đăng nhập <a href="https://neon.tech" target="_blank" rel="noopener noreferrer">neon.tech</a> → <b>New project</b>.</li>
+    <li>Đặt tên, ví dụ <code>uoy-ginger</code>; chọn region gần Render service.</li>
+    <li>Mở project → <b>Connect</b> → chọn database production, bật <b>Pooled connection</b>.</li>
+    <li>Copy toàn bộ connection string.</li>
+    <li>Lặp lại cho dự án Flagwix: project <code>uoy-flagwix</code>.</li>
+  </ol>
+  <p>Dạng connection string:</p>
+  <pre>postgresql://USER:PASSWORD@HOST-pooler.neon.tech/DATABASE?sslmode=require</pre>
+  <div class="warn"><b>Không tự sửa ký tự trong URL.</b> Khi dán vào Render, không thêm dấu nháy <code>"</code> hay <code>'</code> bao quanh.</div>
+
+  <h3>5.1 Schema được tạo tự động</h3>
+  <p>Dockerfile chạy <code>pnpm run docker-start</code> → gọi:</p>
+  <pre>prisma generate
+prisma migrate deploy
+react-router-serve ./build/server/index.js</pre>
+  <p>Migration trong <code>prisma/migrations</code> tự áp dụng mỗi khi container khởi động — không cần làm thêm.</p>
+</div>
+
+<!-- 6 -->
+<div class="card page">
+  <h2><span class="num">6</span> Biến môi trường — mỗi Render service một bộ riêng</h2>
+  <p><b>Không dùng chung một bộ env vars cho nhiều service.</b> Mỗi Render service phải có bộ riêng trong tab <b>Environment</b> của service đó.</p>
+  <table>
+    <tr><th>Key</th><th>Lấy giá trị ở đâu</th><th>Lưu ý</th></tr>
+    <tr><td><code>SHOPIFY_API_KEY</code></td><td>Shopify Partners → app → Client credentials → <b>Client ID</b></td><td>Khác nhau cho từng app/dự án.</td></tr>
+    <tr><td><code>SHOPIFY_API_SECRET</code></td><td>Shopify Partners → app → Client credentials → <b>Client secret</b></td><td>Bí mật; tuyệt đối không commit.</td></tr>
+    <tr><td><code>SHOPIFY_APP_URL</code></td><td>URL public của Render service, ví dụ <code>https://uoy-ginger-bulk-edit.onrender.com</code></td><td>Không có <code>/</code> cuối. Phải khớp toml.</td></tr>
+    <tr><td><code>DATABASE_URL</code></td><td>Neon → project → Connect → Pooled connection string</td><td>Bắt đầu <code>postgresql://</code>; khác nhau cho từng dự án.</td></tr>
+    <tr><td><code>SCOPES</code></td><td>Phải khớp <code>[access_scopes]</code> trong file toml</td><td><code>write_products,write_inventory</code></td></tr>
+    <tr><td><code>CRON_SECRET</code></td><td>Tự tạo bằng <code>openssl rand -hex 32</code></td><td>Tạo một chuỗi riêng cho từng service.</td></tr>
+  </table>
+  <pre>openssl rand -hex 32</pre>
+  <div class="note"><b>File <code>.env</code> chỉ dùng cho local dev.</b> Trên Render không cần và không nên có file .env — toàn bộ secret đặt trong Render Environment dashboard.</div>
+</div>
+
+<!-- 7 -->
+<div class="card">
+  <h2><span class="num">7</span> Đưa source code lên GitHub</h2>
+  <p>Cả 2 dự án dùng chung repo. Commit file toml của từng app — chúng không chứa secret:</p>
+  <pre>cd ~/Documents/Project/shopify-bulk-editor
+git add shopify.app.ginger.toml shopify.app.flagwix.toml
+git status
+git add &lt;các-file-code-cần-commit&gt;
+git commit -m "Add multi-app config"
+git push origin main</pre>
+  <div class="danger"><b>Không stage mù quáng.</b> Chắc chắn <code>.env</code> nằm trong <code>.gitignore</code>. Chạy <code>git status</code> — nếu thấy <code>.env</code> trong danh sách sắp commit thì dừng lại ngay.</div>
+</div>
+
+<!-- 8 -->
+<div class="card page">
+  <h2><span class="num">8</span> Tạo Render Web Service bằng Docker</h2>
+  <p>Làm các bước sau cho <b>từng dự án</b> (lặp lại cho Ginger, Flagwix, …):</p>
+  <ol>
+    <li>Đăng nhập <a href="https://render.com" target="_blank" rel="noopener noreferrer">render.com</a> → <b>New +</b> → <b>Web Service</b>.</li>
+    <li>Chọn <b>Git Provider</b>, kết nối GitHub và chọn repo <code>shopify-bulk-editor</code>.</li>
+    <li>Đặt tên service khớp với dự án, ví dụ <code>uoy-ginger-bulk-edit</code>.</li>
+    <li>Chọn đúng production branch (<code>main</code>).</li>
+    <li>Runtime chọn <b>Docker</b> — Render tự đọc <code>Dockerfile</code> ở root.</li>
+    <li>Chọn region gần Neon; chọn plan phù hợp.</li>
+    <li>Ở phần <b>Environment Variables</b>, thêm đủ 6 biến của <b>dự án này</b> (bộ riêng).</li>
+    <li>Bấm <b>Create Web Service</b>, theo dõi Logs đến khi trạng thái <b>Live</b>.</li>
+  </ol>
+  <div class="note"><b>Không cần nhập Build Command/Start Command thủ công.</b> Dockerfile đã build React Router và chạy <code>pnpm run docker-start</code>.</div>
+
+  <h3>8.1 Auto-Deploy</h3>
+  <p>Render service → <b>Settings</b> → <b>Build &amp; Deploy</b> → <b>Auto-Deploy</b>:</p>
+  <ul>
+    <li><b>On Commit</b> — push vào branch là Render deploy ngay (khuyến nghị khi chưa có CI).</li>
+    <li><b>After CI Checks Pass</b> — chỉ deploy khi CI thành công.</li>
+    <li><b>Off</b> — phải bấm Manual Deploy mỗi lần.</li>
+  </ul>
+  <div class="warn"><b>Khi có nhiều service từ cùng một repo</b>, mỗi push lên <code>main</code> sẽ trigger deploy cho <b>tất cả</b> service. Nếu chỉ muốn deploy một service, dùng Manual Deploy trên service đó.</div>
+</div>
+
+<!-- 9 -->
+<div class="card">
+  <h2><span class="num">9</span> Cài app vào development store</h2>
+  <ol>
+    <li>Vào <a href="https://partners.shopify.com" target="_blank" rel="noopener noreferrer">Shopify Partners</a> → chọn đúng app (Ginger hoặc Flagwix).</li>
+    <li>Chọn <b>Test your app / Test on development store</b>.</li>
+    <li>Chọn store tương ứng (ví dụ <code>gingerglow.myshopify.com</code>).</li>
+    <li>Bấm <b>Install</b>, xem kỹ các quyền rồi chấp thuận.</li>
+    <li>Mở Shopify Admin → Apps → tên app.</li>
+  </ol>
+  <div class="ok"><b>Thành công khi:</b> App mở trong Shopify Admin, không báo OAuth/redirect error; Render Logs có request; Neon xuất hiện bản ghi session sau lần cài đầu.</div>
+  <div class="note">Mỗi app chỉ cài vào đúng store tương ứng. App Ginger cài vào <code>gingerglow.myshopify.com</code>, app Flagwix cài vào <code>flagwix.myshopify.com</code>.</div>
+</div>
+
+<!-- 10 -->
+<div class="card page">
+  <h2><span class="num">10</span> Quy trình cập nhật app mỗi ngày</h2>
+
+  <h3>Trường hợp A — chỉ sửa giao diện hoặc logic backend</h3>
+  <pre>git status
+git add &lt;các-file-code-cần-commit&gt;
+git commit -m "Describe the change"
+git push origin main</pre>
+  <p>Chờ Render deploy thành <b>Live</b>, sau đó reload app. <b>Không cần cài lại app.</b> Tất cả service từ cùng repo sẽ deploy cùng lúc nếu Auto-Deploy đang bật.</p>
+
+  <h3>Trường hợp B — thay đổi database</h3>
+  <pre>pnpm prisma migrate dev --name ten_thay_doi
+git add prisma
+git commit -m "Add database migration"
+git push origin main</pre>
+  <p>Render startup tự chạy <code>prisma migrate deploy</code> trên từng DB. Backup dữ liệu trước migration có nguy cơ xoá/đổi kiểu cột.</p>
+
+  <h3>Trường hợp C — đổi scopes, webhook, URL của một app cụ thể</h3>
+  <pre># Sửa file toml của app cần thay đổi, rồi:
+shopify app deploy --config ginger
+
+git add shopify.app.ginger.toml
+git commit -m "Update Ginger app config"
+git push origin main</pre>
+  <p>Nếu thêm quyền, merchant có thể phải duyệt quyền mới khi mở app.</p>
+
+  <h3>Trường hợp D — thêm dự án mới (store mới)</h3>
+  <ol>
+    <li>Tạo Shopify app mới trong Partners (bước 3).</li>
+    <li>Tạo Neon project mới (bước 5).</li>
+    <li>Tạo file <code>shopify.app.&lt;tên&gt;.toml</code> (bước 4).</li>
+    <li>Tạo Render service mới, set env vars bộ riêng (bước 6, 8).</li>
+    <li>Chạy <code>shopify app deploy --config &lt;alias&gt;</code>.</li>
+    <li>Cài app vào store tương ứng (bước 9).</li>
+  </ol>
+</div>
+
+<!-- 11 -->
+<div class="card">
+  <h2><span class="num">11</span> Cấu hình chạy task theo lịch (Cron)</h2>
+  <p>Route <code>/api/cron</code> không tự chạy — cần scheduler gửi POST định kỳ:</p>
+  <pre>curl -X POST \
+  https://&lt;render-service-url&gt;/api/cron \
+  -H "x-cron-secret: &lt;CRON_SECRET_CỦA_SERVICE_ĐÓ&gt;"</pre>
+  <p>Tạo một scheduler riêng cho <b>từng</b> Render service. Có thể dùng <a href="https://cron-job.org" target="_blank" rel="noopener noreferrer">cron-job.org</a> (miễn phí), GitHub Actions scheduled workflow, hoặc scheduler riêng. Chu kỳ đề xuất: 5 phút.</p>
+  <div class="danger"><b>Không đặt <code>CRON_SECRET</code> trong repo/workflow public.</b> Mỗi service có <code>CRON_SECRET</code> riêng; dùng secret store của dịch vụ scheduler.</div>
+</div>
+
+<!-- 12 -->
+<div class="card page">
+  <h2><span class="num">12</span> Chạy dự án trên máy để phát triển</h2>
+  <p>Local cần tunnel HTTPS. Dùng hai terminal, chỉ định đúng config app đang dev:</p>
+
+  <h3>Terminal 1 — tunnel</h3>
+  <pre>cloudflared tunnel --url http://localhost:3458 --no-autoupdate</pre>
+  <p>Copy URL dạng <code>https://xxxxx.trycloudflare.com</code>.</p>
+
+  <h3>Terminal 2 — Shopify CLI (chỉ định app cần dev)</h3>
+  <pre>cd ~/Documents/Project/shopify-bulk-editor
+nvm use
+pnpm install
+pnpm shopify app dev --config local \
+  --tunnel-url https://xxxxx.trycloudflare.com:3458</pre>
+  <p>Thay <code>shopify.app.local.toml</code> bằng file config tương ứng nếu cần dev với app Ginger/Flagwix. Mỗi lần quick tunnel khởi động lại, URL đổi — chỉ dùng cho dev.</p>
+</div>
+
+<!-- 13 -->
+<div class="card">
+  <h2><span class="num">13</span> Xử lý lỗi thường gặp</h2>
+  <table>
+    <tr><th>Triệu chứng</th><th>Nguyên nhân</th><th>Cách xử lý</th></tr>
+    <tr><td>Installation link is invalid</td><td>URL sai hoặc app chưa deploy config</td><td>Chạy <code>shopify app deploy --config &lt;alias&gt;</code>; kiểm tra App URL trong Partners khớp Render.</td></tr>
+    <tr><td>Redirect URI mismatch / OAuth error</td><td><code>SHOPIFY_APP_URL</code> hoặc <code>redirect_urls</code> trong toml sai</td><td>Đồng nhất URL Render ở env và toml; chạy lại <code>shopify app deploy --config &lt;alias&gt;</code>.</td></tr>
+    <tr><td>HTTP 400 trên action / Preview</td><td><code>SHOPIFY_APP_URL</code> build-time khác runtime URL</td><td>Đảm bảo <code>SHOPIFY_APP_URL</code> trên Render đúng URL public; rebuild (không chỉ restart).</td></tr>
+    
+    <tr><td>Render deploy xong nhưng app cũ</td><td>Cache trình duyệt hoặc Auto-Deploy chưa bật</td><td>Hard reload (Ctrl+Shift+R); xác nhận Auto-Deploy; kiểm tra commit trong Render Deploys.</td></tr>
+    <tr><td>Prisma P1001/P1012</td><td><code>DATABASE_URL</code> sai service, có dấu nháy, DB ngủ</td><td>Copy lại connection string Neon đúng project; không thêm dấu nháy; giữ <code>sslmode=require</code>.</td></tr>
+    <tr><td>Render 502/503</td><td>App crash, thiếu env, migration lỗi</td><td>Xem Logs; kiểm tra đủ 6 env đúng service; kiểm tra migration pass.</td></tr>
+    <tr><td>Task đặt lịch không chạy</td><td>Scheduler chưa gọi đúng URL + secret của service đó</td><td>Mỗi service có URL và <code>CRON_SECRET</code> riêng; tạo scheduler riêng cho từng service.</td></tr>
+    <tr><td>Deploy nhầm app</td><td>Chạy <code>shopify app deploy</code> không có <code>--config</code></td><td>Luôn dùng <code>--config &lt;alias&gt;</code>. Tránh để <code>shopify.app.toml</code> mặc định trỏ sai app.</td></tr>
+  </table>
+</div>
+
+<!-- 14 -->
+<div class="card">
+  <h2><span class="num">14</span> Checklist trước khi bàn giao từng dự án</h2>
+  <ul class="check">
+    <li>GitHub repo không chứa <code>.env</code> hoặc secret.</li>
+    <li>File <code>shopify.app.&lt;tên&gt;.toml</code> của app này đã có trong repo với đúng <code>client_id</code> và URL.</li>
+    <li>Đã chạy <code>shopify app deploy --config &lt;alias&gt;</code>.</li>
+    <li>Render service đúng repo, đúng branch, đủ 6 env vars riêng của dự án này.</li>
+    <li>Deploy mới nhất có trạng thái <b>Live</b>.</li>
+    <li>URL Render mở được và khớp <code>SHOPIFY_APP_URL</code> trong env.</li>
+    <li>App mở được trong Shopify Admin của đúng store.</li>
+    <li>Neon DB đúng project có dữ liệu session/shop và migration đã hoàn tất.</li>
+    <li>Scheduler gọi <code>/api/cron</code> của service này thành công (nếu dùng scheduled tasks).</li>
+    <li>Đã ghi lại nơi lưu: Client ID/Secret, Neon connection string, CRON_SECRET của dự án này.</li>
+  </ul>
+</div>
+
+<!-- 15 -->
+<div class="card">
+  <h2><span class="num">15</span> Nguồn tham khảo chính thức</h2>
+  <ul>
+    <li><a href="https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration" target="_blank" rel="noopener noreferrer">Shopify — App configuration (toml)</a></li>
+    <li><a href="https://shopify.dev/docs/apps/launch/distribution/select-distribution-method" target="_blank" rel="noopener noreferrer">Shopify — Chọn distribution method</a></li>
+    <li><a href="https://shopify.dev/docs/apps/build/authentication-authorization/cli-app-authentication" target="_blank" rel="noopener noreferrer">Shopify — Authentication for CLI apps</a></li>
+    <li><a href="https://shopify.dev/docs/apps/build/authentication-authorization/manage-access-scopes" target="_blank" rel="noopener noreferrer">Shopify — Manage access scopes</a></li>
+    <li><a href="https://render.com/docs/web-services" target="_blank" rel="noopener noreferrer">Render — Web Services</a></li>
+    <li><a href="https://render.com/docs/deploys" target="_blank" rel="noopener noreferrer">Render — Deploys / Auto-Deploy</a></li>
+    <li><a href="https://render.com/docs/docker" target="_blank" rel="noopener noreferrer">Render — Docker</a></li>
+    <li><a href="https://neon.com/docs/connect/connection-pooling" target="_blank" rel="noopener noreferrer">Neon — Connection pooling</a></li>
+  </ul>
+  <p class="small" style="margin-top:12px">Tài liệu đối chiếu trực tiếp các file trong dự án: <code>DEPLOY.md</code>, <code>Dockerfile</code>, <code>package.json</code>, <code>prisma/schema.prisma</code>, <code>shopify.app.&lt;tên&gt;.toml</code>.</p>
+</div>
+
+</body>
+</html>
