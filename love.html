@@ -1530,9 +1530,12 @@ function shuffle(arr) {
 
 function reveal(item) { item.classList.remove('loading'); item.classList.add('loaded'); }
 
-// Luoi nam trong bo cuc `columns`; Safari iOS khong bao IntersectionObserver
-// cho phan tu trong multicol, nen dung loading="lazy" san co cua trinh duyet.
-// Phong xa: sau 4 giay ma o nao con "dang cho" thi cu hien ra, khong de trang.
+// KHONG dung loading="lazy" va cung khong dung IntersectionObserver o day.
+// Da do tren WebKit (Safari iOS): ca hai deu khong kich hoat cho anh duoc gan
+// src bang JS sau khi trang dung xong -> 19/44 anh khong bao gio tai, o anh
+// hien ra trang tron. Ban thu nho chi ~40 KB/anh (tong 1.8 MB) nen tai thang
+// la an toan nhat. Muon nhe hon thi giam THUMB_WIDTH trong tools/gallery.js.
+// Phong xa: sau 6 giay o nao con "dang cho" thi cu hien ra, khong de trang.
 function failsafeReveal() {
   document.querySelectorAll('.gallery-item.loading').forEach(reveal);
 }
@@ -1549,8 +1552,8 @@ function buildGallery(list) {
 
     const img = document.createElement('img');
     img.alt = 'Kỷ niệm ' + (i + 1);
-    img.loading = 'lazy';
     img.decoding = 'async';
+    img.fetchPriority = i < 6 ? 'high' : 'low';   // 6 o dau uu tien, con lai tai dan
     img.addEventListener('load',  () => reveal(item));
     img.addEventListener('error', () => { item.classList.remove('loading'); item.classList.add('failed'); });
     img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
@@ -1589,7 +1592,7 @@ function buildGallery(list) {
     });
     galleryEl.appendChild(item);
   });
-  setTimeout(failsafeReveal, 4000);
+  setTimeout(failsafeReveal, 6000);
 }
 
 fetch(MEDIA_DIR + 'images.json')
@@ -1817,7 +1820,10 @@ const revealObserver = new IntersectionObserver((entries) => {
       revealObserver.unobserve(entry.target);
     }
   });
-}, { threshold: 0.15 });
+}, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+// threshold PHAI la 0: khoi gallery cao hon man hinh dien thoai (5500px so voi
+// 664px), nen nguong theo % (vd 0.15 = 832px) khong bao gio dat duoc -> khoi
+// nam mai o opacity 0, nhin nhu trang trong. rootMargin lo cam giac hien dan.
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 </script>
