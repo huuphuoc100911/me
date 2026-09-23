@@ -1144,11 +1144,14 @@
 
     /* ── LICH KY NIEM ────────────────────────────────────── */
     .calendar-card {
+      width: 100%;
+      max-width: 700px;        /* bang cac khoi khac — .wrapper la flex can giua
+                                  nen thieu dong nay la the bi co vua noi dung */
       background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 20px 18px;
-      margin-top: 22px;
+      padding: 24px 28px;
+      backdrop-filter: blur(12px);
     }
     .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
     .cal-nav {
@@ -1169,7 +1172,8 @@
 
     .cal-cell {
       position: relative;
-      aspect-ratio: 1;
+      /* Man rong: o det hon cho luoi khoi qua cao; dien thoai giu o vuong */
+      aspect-ratio: 1.3;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       border-radius: 11px;
@@ -1210,11 +1214,12 @@
     .cal-detail .cd-empty { color: var(--mut); }
 
     @media (max-width: 520px) {
-      .calendar-card { padding: 16px 12px; border-radius: 16px; }
+      .calendar-card { padding: 18px 14px; border-radius: 16px; }
       .cal-title { font-size: 1rem; }
       .cal-d { font-size: 0.82rem; }
       .cal-l { font-size: 0.5rem; }
       .cal-grid, .cal-week { gap: 3px; }
+      .cal-cell { aspect-ratio: 1; }
       .cal-cell { border-radius: 9px; }
     }
 
