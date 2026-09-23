@@ -1062,6 +1062,79 @@
     .next-ms .nm-when { color: var(--rose); font-weight: 600; }
     @media (max-width: 520px) { .next-ms { font-size: 0.75rem; margin-top: 14px; padding-top: 12px; } }
 
+    /* ── THU GUI TUONG LAI ───────────────────────────────── */
+    .letters { width: 100%; max-width: 700px; display: none; }
+    .letters.has { display: block; }
+    .letter-grid { display: grid; gap: 12px; }
+    .ltr {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+    .ltr-icon { font-size: 1.9rem; line-height: 1; flex: none; }
+    .ltr-body { flex: 1; min-width: 0; }
+    .ltr-title { font-weight: 600; font-size: 0.98rem; }
+    .ltr-when { color: var(--mut); font-size: 0.76rem; margin-top: 3px; }
+    .ltr-tag { flex: none; font-size: 0.7rem; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+
+    .ltr.locked .ltr-icon { filter: grayscale(0.5); opacity: 0.75; }
+    .ltr.locked .ltr-tag { background: rgba(255,255,255,0.08); color: var(--mut); }
+    .ltr.open {
+      cursor: pointer;
+      border-color: rgba(245,200,66,0.45);
+      background: linear-gradient(135deg, rgba(245,200,66,0.12), var(--soft));
+    }
+    .ltr.open:hover { transform: translateY(-2px); border-color: var(--gold); }
+    .ltr.open .ltr-tag { background: rgba(245,200,66,0.2); color: var(--gold2); }
+    .ltr.open .ltr-icon { animation: annivBeat 2.4s ease-in-out infinite; }
+
+    .ltr-view {
+      position: fixed; inset: 0; z-index: 9997;
+      background: rgba(10,4,9,0.93);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 22px;
+    }
+    .ltr-view.show { display: flex; }
+    .ltr-paper {
+      max-width: 620px; width: 100%;
+      max-height: 84vh; overflow-y: auto;
+      padding: 34px 30px;
+      border-radius: 20px;
+      border: 1px solid rgba(245,200,66,0.35);
+      background: linear-gradient(160deg, #2d1525, #1a0a14);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.6);
+      animation: annivRise 0.7s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .ltr-paper h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: var(--gold2);
+      margin-bottom: 4px;
+    }
+    .ltr-paper .ltr-meta { color: var(--mut); font-size: 0.75rem; margin-bottom: 20px; }
+    .ltr-paper .ltr-text {
+      white-space: pre-wrap;
+      line-height: 1.85; font-size: 0.97rem;
+      color: rgba(255,255,255,0.92);
+    }
+    .ltr-paper .ltr-done {
+      margin-top: 24px; width: 100%;
+      padding: 12px; border-radius: 12px;
+      border: 1px solid var(--border); background: none;
+      color: var(--mut); font-family: inherit; font-size: 0.85rem; cursor: pointer;
+    }
+    .ltr-paper .ltr-done:hover { color: var(--white); border-color: var(--rose); }
+    @media (max-width: 520px) {
+      .ltr { padding: 13px 14px; gap: 11px; }
+      .ltr-icon { font-size: 1.6rem; }
+      .ltr-title { font-size: 0.9rem; }
+      .ltr-paper { padding: 26px 20px; }
+    }
+
     /* ── CHE DO KY NIEM (chi hien dung ngay co moc) ──────── */
     .anniv {
       position: fixed; inset: 0; z-index: 10001;
@@ -1430,6 +1503,12 @@
     <div class="letter-sign">— Hữu Phước gửi Thị Huyền 💗</div>
   </div>
 
+  <!-- THU GUI TUONG LAI -->
+  <div class="letters reveal" id="letters">
+    <div class="section-title">Thư gửi tương lai 💌</div>
+    <div class="letter-grid" id="letterGrid"></div>
+  </div>
+
   <!-- MILESTONES -->
   <div class="milestones reveal">
     <div class="section-title">Những cột mốc đáng nhớ ✨</div>
@@ -1489,6 +1568,16 @@
 
 </div>
 
+<!-- DOC THU -->
+<div class="ltr-view" id="ltrView">
+  <div class="ltr-paper">
+    <h3 id="ltrTitle"></h3>
+    <div class="ltr-meta" id="ltrMeta"></div>
+    <div class="ltr-text" id="ltrText"></div>
+    <button class="ltr-done" id="ltrDone">Gấp thư lại</button>
+  </div>
+</div>
+
 <!-- CHE DO KY NIEM -->
 <div class="anniv" id="anniv">
   <div class="anniv-inner">
@@ -1537,6 +1626,7 @@
 
 <script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
+<script src="js/letters.js"></script>
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const START       = Milestones.START;          // xem js/milestones.js
@@ -1698,8 +1788,8 @@ shownMilestones.forEach(m => {
   div.innerHTML = `
     <div class="ms-icon">${m.icon}</div>
     <div class="ms-info">
-      <div class="ms-name">${m.name}</div>
-      <div class="ms-date">${m.date}</div>
+      <div class="ms-name">${escHtml(m.name)}</div>
+      <div class="ms-date">${escHtml(m.date)}</div>
       ${progressHtml}
     </div>
     <div class="ms-badge" ${!reached ? `data-tooltip="${tooltip}"` : ''}>${reached ? '✓ Đã đến' : 'Sắp tới'}</div>
@@ -1819,7 +1909,7 @@ function showDay(key) {
   calDetailEl.innerHTML =
     `<div class="cd-date">${thu}, ${fmtVN(dt)} · âm lịch ${lu.d}/${lu.m}${lu.leap ? ' nhuận' : ''}</div>` +
     (evs.length
-      ? evs.map(e => `<div class="cd-row"><span>${e.icon}</span><span>${e.name}</span><span class="cd-when">${relDays(e.ts)}</span></div>`).join('')
+      ? evs.map(e => `<div class="cd-row"><span>${e.icon}</span><span>${escHtml(e.name)}</span><span class="cd-when">${relDays(e.ts)}</span></div>`).join('')
       : '<div class="cd-empty">Không có mốc nào trong ngày này 🌙</div>');
   renderCalendar();
 }
@@ -1864,6 +1954,13 @@ function ymdText(fromTs, toTs) {
   if (m) parts.push(`${m} tháng`);
   if (d || !parts.length) parts.push(`${d} ngày`);
   return parts.join(' ');
+}
+
+/** Thoat ky tu truoc khi chen vao innerHTML — ten moc va tieu de thu deu do
+ *  nguoi dung tu go nen phai thoat, keo dau < > lam vo the HTML */
+function escHtml(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -1916,7 +2013,7 @@ function tick(t) {
   // ── Moc ke tiep ───────────────────────────────────────────
   const next = milestones.find(m => m.ts > now);
   document.getElementById('nextMilestone').innerHTML = next
-    ? `Mốc kế tiếp: <b>${next.icon} ${next.name}</b> · ${next.date} — <span class="nm-when">${relDays(next.ts)}</span>`
+    ? `Mốc kế tiếp: <b>${next.icon} ${escHtml(next.name)}</b> · ${escHtml(next.date)} — <span class="nm-when">${relDays(next.ts)}</span>`
     : '';
 
   // ── Progress bar ──────────────────────────────────────────
@@ -2441,6 +2538,61 @@ window.addEventListener('load', () => {
   }, 1600);
 });
 
+
+// ── THU GUI TUONG LAI ────────────────────────────────────────────────────────
+// Noi dung nam trong data/letters.json duoi dang ma hoa; chi giai ma khi da
+// toi ngay mo VA nguoi dung bam vao. Them thu: npm run letter -- them ...
+const lettersEl = document.getElementById('letters');
+const letterGridEl = document.getElementById('letterGrid');
+const ltrViewEl = document.getElementById('ltrView');
+let letterList = [];
+
+function ltrOpen(l) {
+  document.getElementById('ltrTitle').textContent = l.title;
+  document.getElementById('ltrMeta').textContent = `Mở ngày ${fmtVN(new Date(l.openAt + 'T00:00:00'))}`;
+  document.getElementById('ltrText').textContent = Letters.decode(l.body, l.openAt);
+  ltrViewEl.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function ltrClose() {
+  ltrViewEl.classList.remove('show');
+  document.getElementById('ltrText').textContent = '';   // khong de lai noi dung trong trang
+  document.body.style.overflow = '';
+}
+document.getElementById('ltrDone').addEventListener('click', ltrClose);
+ltrViewEl.addEventListener('click', (e) => { if (e.target === ltrViewEl) ltrClose(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && ltrViewEl.classList.contains('show')) ltrClose();
+});
+
+function renderLetters(list) {
+  letterList = list;
+  if (!list.length) return;                    // chua co thu thi an han muc nay
+  lettersEl.classList.add('has');
+  letterGridEl.innerHTML = list.map((l, i) => {
+    const moRoi = Letters.isOpen(l.openAt);
+    const con = Letters.daysLeft(l.openAt);
+    const ngay = fmtVN(new Date(l.openAt + 'T00:00:00'));
+    return `<div class="ltr ${moRoi ? 'open' : 'locked'}" data-i="${i}">
+      <span class="ltr-icon">${moRoi ? l.icon : '🔒'}</span>
+      <div class="ltr-body">
+        <div class="ltr-title">${escHtml(l.title)}</div>
+        <div class="ltr-when">${moRoi ? `Mở ngày ${ngay}` : `Sẽ mở vào ${ngay}`}</div>
+      </div>
+      <span class="ltr-tag">${moRoi ? 'Đọc thư' : con === 0 ? 'Hôm nay' : `còn ${con} ngày`}</span>
+    </div>`;
+  }).join('');
+}
+
+letterGridEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.ltr.open');
+  if (card) ltrOpen(letterList[+card.dataset.i]);
+});
+
+fetch('data/letters.json')
+  .then(r => (r.ok ? r.json() : []))
+  .then(list => renderLetters(Array.isArray(list) ? list : []))
+  .catch((e) => { console.error('Khong doc duoc data/letters.json:', e); });
 
 // ── CHE DO KY NIEM ───────────────────────────────────────────────────────────
 // Trang tu bien hinh vao dung ngay co moc. Them ?xem-truoc vao dia chi de
