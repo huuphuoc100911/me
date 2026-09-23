@@ -2071,7 +2071,17 @@ const SS_PHOTO_MS = 6000;      // moi anh 6 giay
 const SS_VIDEO_MAX = 20000;    // video dai qua thi cat o 20 giay
 
 let ssIndex = 0, ssSlot = 0, ssTimer = null, ssRaf = null, ssPaused = false;
-let ssMusicWasOff = false, ssWakeLock = null;
+let ssMusicWasOff = false, ssWakeLock = null, ssDucked = false;
+
+/** Video co tieng cua no -> tam dung nhac nen; quay lai anh -> bat nhac lai */
+function ssDuckMusic(off) {
+  if (off) {
+    if (bgMusic && !bgMusic.paused) { bgMusic.pause(); ssDucked = true; }
+  } else if (ssDucked) {
+    ssDucked = false;
+    if (musicPlaying && bgMusic) bgMusic.play().catch(() => {});
+  }
+}
 
 function ssSetProgress(startAt, total) {
   cancelAnimationFrame(ssRaf);
@@ -2101,10 +2111,18 @@ function ssShow(i) {
   next.innerHTML = '';
   let dur = SS_PHOTO_MS;
 
+  // Video cu (neu co) phai im ngay, khong doi het 1 giay chuyen canh
+  const oldVid = cur.querySelector('video');
+  if (oldVid) { oldVid.pause(); oldVid.muted = true; }
+
   if (m.t === 'vid') {
     const v = document.createElement('video');
     v.src = MEDIA_DIR + m.f;
-    v.autoplay = true; v.playsInline = true; v.muted = true;   // nhac nen dang chay nen tat tieng video
+    v.autoplay = true; v.playsInline = true;
+    v.muted = false; v.volume = 1;          // nghe tieng that cua video
+    ssDuckMusic(true);                      // nhac nen nhuong cho
+    // Neu trinh duyet chan phat tieng thi quay ve tat tieng + bat lai nhac nen
+    v.play().catch(() => { v.muted = true; ssDuckMusic(false); v.play().catch(() => {}); });
     v.addEventListener('ended', () => { if (!ssPaused) ssShow(ssIndex + 1); });
     v.addEventListener('loadedmetadata', () => {
       dur = Math.min((v.duration || 8) * 1000, SS_VIDEO_MAX);
@@ -2114,6 +2132,7 @@ function ssShow(i) {
     });
     next.appendChild(v);
   } else {
+    ssDuckMusic(false);                     // sang anh thi nhac nen tro lai
     const img = document.createElement('img');
     img.src = MEDIA_DIR + m.f;                                  // anh goc cho net
     next.appendChild(img);
@@ -2152,7 +2171,12 @@ function ssClose() {
   document.body.style.overflow = '';
   clearTimeout(ssTimer);
   cancelAnimationFrame(ssRaf);
-  ssLayers.forEach(l => { l.innerHTML = ''; l.classList.remove('on'); });
+  ssLayers.forEach(l => {
+    const v = l.querySelector('video');
+    if (v) { v.pause(); v.muted = true; }
+    l.innerHTML = ''; l.classList.remove('on');
+  });
+  ssDuckMusic(false);
   if (ssMusicWasOff) stopMusic();      // tra lai trang thai nhac truoc khi mo
   ssWakeLock?.release?.().catch(() => {});
   ssWakeLock = null;
@@ -2166,8 +2190,10 @@ function ssTogglePause() {
     clearTimeout(ssTimer);
     cancelAnimationFrame(ssRaf);
     v?.pause();
+    if (!v) ssDuckMusic(true);           // dung o anh thi dung luon nhac
   } else {
-    v ? v.play().catch(() => {}) : ssShow(ssIndex + 1);
+    if (v) v.play().catch(() => {});
+    else { ssDuckMusic(false); ssShow(ssIndex + 1); }
   }
 }
 
