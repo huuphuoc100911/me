@@ -1442,9 +1442,10 @@
 <button class="back-to-top" id="backToTop" title="Lên đầu trang">↑</button>
 
 <script src="js/lunar.js"></script>
+<script src="js/milestones.js"></script>
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
-const START       = new Date('2025-10-18T00:00:00').getTime();
+const START       = Milestones.START;          // xem js/milestones.js
 const ANNIVERSARY = new Date('2026-10-18T00:00:00').getTime();
 
 // ── QUOTES ─────────────────────────────────────────────────────────────────
@@ -1458,66 +1459,11 @@ const quotes = [
   'Yêu em là điều dễ dàng nhất và hạnh phúc nhất anh từng làm.',
 ];
 
-// ── MILESTONES — tu sinh, khong bao gio het ─────────────────────────────────
-// Su kien ca nhan (yearly: lap lai hang nam)
-const PERSONAL = [
-  { icon: '💘', name: 'Ngày đầu yêu nhau',              d: '2025-10-18' },
-  { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',    d: '2025-10-23', yearly: true },
-  { icon: '🎂', name: 'Sinh nhật anh — Hữu Phước 🎉',   d: '2025-10-09', yearly: true },
-  { icon: '⛄', name: 'Giáng Sinh cùng nhau',           d: '2025-12-25', yearly: true },
-  { icon: '🎆', name: 'Năm mới bên nhau',                d: '2026-01-01', yearly: true },
-  { icon: '💝', name: 'Valentine',                        d: '2026-02-14', yearly: true },
-  { icon: '💇', name: 'Hiến tóc lần 2 cùng Thị Huyền',  d: '2026-05-03' },
-];
-
-const DAY = 86400000;
-const pad2 = (n) => String(n).padStart(2, '0');
-const fmtVN = (dt) => `${pad2(dt.getDate())}/${pad2(dt.getMonth() + 1)}/${dt.getFullYear()}`;
-const dayKey = (dt) => `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
-function addMonths(dt, n) {
-  const r = new Date(dt.getTime());
-  const d = r.getDate();
-  r.setMonth(r.getMonth() + n);
-  if (r.getDate() < d) r.setDate(0);   // 31/1 + 1 thang -> cuoi thang 2
-  return r;
-}
-
-function buildMilestones() {
-  const out = [];
-  const startDt = new Date(START);
-  const horizon = Date.now() + 3 * 365.25 * DAY;   // sinh truoc 3 nam
-  const add = (icon, name, dt) => out.push({ icon, name, date: fmtVN(dt), ts: dt.getTime(), key: dayKey(dt) });
-
-  PERSONAL.forEach(ev => {
-    const [y, m, d] = ev.d.split('-').map(Number);
-    if (!ev.yearly) { add(ev.icon, ev.name, new Date(y, m - 1, d)); return; }
-    for (let yy = y; ; yy++) {
-      const dt = new Date(yy, m - 1, d);
-      if (dt.getTime() > horizon) break;
-      if (dt.getTime() >= START) add(ev.icon, ev.name, dt);
-    }
-  });
-
-  for (let n = 100; ; n += 100) {                   // moc tram ngay
-    const dt = new Date(START + n * DAY);
-    if (dt.getTime() > horizon) break;
-    add(n % 1000 === 0 ? '💎' : n % 500 === 0 ? '🏆' : '🔥', `Tròn ${n} ngày bên nhau`, dt);
-  }
-
-  for (let n = 1; n <= 11; n++) {                   // tron thang, chi nam dau
-    add('🌷', `Tròn ${n} tháng bên nhau`, addMonths(startDt, n));
-  }
-
-  for (let n = 1; ; n++) {                          // tron nam
-    const dt = addMonths(startDt, n * 12);
-    if (dt.getTime() > horizon) break;
-    add(n === 1 ? '🌹' : '💞', `Kỷ niệm ${n} năm yêu nhau`, dt);
-  }
-
-  return out.sort((a, b) => a.ts - b.ts);
-}
-
-const milestones = buildMilestones();
+// ── MILESTONES ───────────────────────────────────────────────────────────────
+// Danh sach moc va su kien ca nhan nam trong js/milestones.js — dung chung voi
+// email nhac truoc trong api/notify.js, sua mot noi la ca hai cung doi.
+const { DAY, pad2, fmtVN, dayKey, addMonths } = Milestones;
+const milestones = Milestones.build();
 
 // ── STARS ───────────────────────────────────────────────────────────────────
 const canvas = document.getElementById('starCanvas');
