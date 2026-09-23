@@ -2754,8 +2754,12 @@ const ltrViewEl = document.getElementById('ltrView');
 let letterList = [];
 
 function ltrOpen(l) {
+  const ngay = fmtVN(new Date(l.openAt + 'T00:00:00'));
+  const con = Letters.daysLeft(l.openAt);
   document.getElementById('ltrTitle').textContent = l.title;
-  document.getElementById('ltrMeta').textContent = `Mở ngày ${fmtVN(new Date(l.openAt + 'T00:00:00'))}`;
+  document.getElementById('ltrMeta').textContent = Letters.isOpen(l.openAt)
+    ? `Mở ngày ${ngay}`
+    : `Thư của ngày ${ngay} — còn ${con} ngày nữa mới tới`;
   document.getElementById('ltrText').textContent = Letters.decode(l.body, l.openAt);
   ltrViewEl.classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -2790,8 +2794,10 @@ function renderLetters(list) {
   }).join('');
 }
 
+// Loi di rieng: bam vao thu CON KHOA cung mo duoc. Giao dien van hien o khoa
+// va so ngay con lai nhu cu — chi hai nguoi biet la bam vao thi doc duoc.
 letterGridEl.addEventListener('click', (e) => {
-  const card = e.target.closest('.ltr.open');
+  const card = e.target.closest('.ltr');
   if (card) ltrOpen(letterList[+card.dataset.i]);
 });
 
