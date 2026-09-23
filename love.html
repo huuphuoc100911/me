@@ -1050,6 +1050,83 @@
       .milestone .ms-progress-pct { font-size: 0.58rem; min-width: 28px; }
     }
 
+
+    /* ── LICH KY NIEM ────────────────────────────────────── */
+    .calendar-card {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 18px;
+      margin-top: 22px;
+    }
+    .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
+    .cal-nav {
+      width: 38px; height: 38px; flex: none;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: none; color: var(--white);
+      font-size: 1.3rem; line-height: 1; cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .cal-nav:hover { background: rgba(244,63,94,0.2); border-color: var(--rose); }
+    .cal-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; text-align: center; flex: 1; }
+    .cal-title small { display: block; font-family: 'Inter', sans-serif; font-size: 0.66rem; font-weight: 400; color: var(--mut); margin-top: 2px; letter-spacing: 0.04em; }
+
+    .cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal-week div { text-align: center; font-size: 0.68rem; color: var(--mut); padding: 4px 0 8px; letter-spacing: 0.06em; }
+    .cal-week div.sun { color: var(--rose); }
+
+    .cal-cell {
+      position: relative;
+      aspect-ratio: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-radius: 11px;
+      border: 1px solid transparent;
+    }
+    .cal-cell.out { opacity: 0.22; }
+    .cal-d { font-size: 0.92rem; font-weight: 500; line-height: 1.1; }
+    .cal-l { font-size: 0.56rem; color: var(--mut); margin-top: 1px; line-height: 1; }
+    .cal-cell.sun .cal-d { color: var(--pink); }
+    .cal-cell.today { background: rgba(244,63,94,0.22); border-color: var(--rose); }
+    .cal-cell.today .cal-d { font-weight: 700; }
+    .cal-cell.ev { background: rgba(245,200,66,0.12); border-color: rgba(245,200,66,0.4); cursor: pointer; }
+    .cal-cell.ev .cal-d { color: var(--gold2); font-weight: 600; }
+    .cal-cell.ev.today { background: rgba(244,63,94,0.28); border-color: var(--rose); }
+    .cal-cell.sel { border-color: var(--gold); background: rgba(245,200,66,0.25); }
+    .cal-ic { position: absolute; top: 0; right: 2px; font-size: 0.6rem; line-height: 1; }
+
+    .cal-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 10px; }
+    .cal-today-btn {
+      padding: 7px 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: none; color: var(--mut);
+      font-family: inherit; font-size: 0.75rem; cursor: pointer;
+    }
+    .cal-today-btn:hover { color: var(--white); border-color: var(--rose); }
+    .cal-legend { font-size: 0.68rem; color: var(--mut); }
+
+    .cal-detail {
+      margin-top: 12px; padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+    .cal-detail .cd-date { color: var(--gold2); font-size: 0.74rem; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .cal-detail .cd-row { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
+    .cal-detail .cd-when { color: var(--mut); font-size: 0.72rem; margin-left: auto; white-space: nowrap; }
+    .cal-detail .cd-empty { color: var(--mut); }
+
+    @media (max-width: 520px) {
+      .calendar-card { padding: 16px 12px; border-radius: 16px; }
+      .cal-title { font-size: 1rem; }
+      .cal-d { font-size: 0.82rem; }
+      .cal-l { font-size: 0.5rem; }
+      .cal-grid, .cal-week { gap: 3px; }
+      .cal-cell { border-radius: 9px; }
+    }
+
     /* ── RESPONSIVE — Very small ─────────────────────────── */
     @media (max-width: 360px) {
       .header h1 { font-size: 1.5rem; }
@@ -1189,6 +1266,25 @@
     <div class="milestone-list" id="milestoneList"></div>
   </div>
 
+  <!-- LICH KY NIEM -->
+  <div class="calendar-card reveal">
+    <div class="section-title">Lịch kỷ niệm 📅</div>
+    <div class="cal-head">
+      <button class="cal-nav" id="calPrev" aria-label="Tháng trước">‹</button>
+      <div class="cal-title" id="calTitle"></div>
+      <button class="cal-nav" id="calNext" aria-label="Tháng sau">›</button>
+    </div>
+    <div class="cal-week">
+      <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div class="sun">CN</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-foot">
+      <button class="cal-today-btn" id="calToday">Về hôm nay</button>
+      <span class="cal-legend">Số nhỏ là ngày âm lịch</span>
+    </div>
+    <div class="cal-detail" id="calDetail"></div>
+  </div>
+
   <div class="divider">
     <div class="divider-line"></div>
     <div class="divider-heart">📸</div>
@@ -1237,6 +1333,7 @@
 <!-- BACK TO TOP -->
 <button class="back-to-top" id="backToTop" title="Lên đầu trang">↑</button>
 
+<script src="js/lunar.js"></script>
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const START       = new Date('2025-10-18T00:00:00').getTime();
@@ -1253,25 +1350,66 @@ const quotes = [
   'Yêu em là điều dễ dàng nhất và hạnh phúc nhất anh từng làm.',
 ];
 
-// ── MILESTONES ──────────────────────────────────────────────────────────────
-const milestones = [
-  { icon: '💘', name: 'Ngày đầu yêu nhau',             date: '18/10/2025', ts: new Date('2025-10-18').getTime() },
-  { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',   date: '23/10/2025', ts: new Date('2025-10-23').getTime() },
-  { icon: '🌷', name: 'Tròn 1 tháng bên nhau',         date: '18/11/2025', ts: new Date('2025-11-18').getTime() },
-  { icon: '💯', name: 'Tròn 100 ngày yêu nhau',        date: '26/01/2026', ts: new Date('2026-01-26').getTime() },
-  { icon: '⛄', name: 'Giáng Sinh đầu tiên cùng nhau', date: '25/12/2025', ts: new Date('2025-12-25').getTime() },
-  { icon: '🎆', name: 'Năm mới 2026 bên nhau',          date: '01/01/2026', ts: new Date('2026-01-01').getTime() },
-  { icon: '💝', name: 'Valentine đầu tiên',              date: '14/02/2026', ts: new Date('2026-02-14').getTime() },
-  { icon: '🌸', name: 'Tròn 6 tháng hạnh phúc',         date: '18/04/2026', ts: new Date('2026-04-18').getTime() },
-  { icon: '💇', name: 'Hiến tóc lần 2 cùng Thị Huyền', date: '03/05/2026', ts: new Date('2026-05-03').getTime() },
-  { icon: '🔥', name: 'Tròn 200 ngày bên nhau',         date: '06/05/2026', ts: new Date('2026-05-06').getTime() },
-  { icon: '⭐', name: 'Tròn 300 ngày yêu thương',       date: '14/08/2026', ts: new Date('2026-08-14').getTime() },
-  { icon: '🎂', name: 'Sinh nhật anh — Hữu Phước 🎉',   date: '09/10/2026', ts: new Date('2026-10-09').getTime() },
-  { icon: '🌹', name: 'Kỷ niệm 1 năm tình yêu',         date: '18/10/2026', ts: new Date('2026-10-18').getTime() },
-  { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',    date: '23/10/2026', ts: new Date('2026-10-23').getTime() },
-  { icon: '🏆', name: 'Tròn 500 ngày bên nhau',          date: '02/03/2027', ts: new Date('2027-03-02').getTime() },
-  { icon: '💎', name: 'Tròn 1000 ngày yêu nhau!',       date: '14/07/2028', ts: new Date('2028-07-14').getTime() },
+// ── MILESTONES — tu sinh, khong bao gio het ─────────────────────────────────
+// Su kien ca nhan (yearly: lap lai hang nam)
+const PERSONAL = [
+  { icon: '💘', name: 'Ngày đầu yêu nhau',              d: '2025-10-18' },
+  { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',    d: '2025-10-23', yearly: true },
+  { icon: '🎂', name: 'Sinh nhật anh — Hữu Phước 🎉',   d: '2025-10-09', yearly: true },
+  { icon: '⛄', name: 'Giáng Sinh cùng nhau',           d: '2025-12-25', yearly: true },
+  { icon: '🎆', name: 'Năm mới bên nhau',                d: '2026-01-01', yearly: true },
+  { icon: '💝', name: 'Valentine',                        d: '2026-02-14', yearly: true },
+  { icon: '💇', name: 'Hiến tóc lần 2 cùng Thị Huyền',  d: '2026-05-03' },
 ];
+
+const DAY = 86400000;
+const pad2 = (n) => String(n).padStart(2, '0');
+const fmtVN = (dt) => `${pad2(dt.getDate())}/${pad2(dt.getMonth() + 1)}/${dt.getFullYear()}`;
+const dayKey = (dt) => `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+function addMonths(dt, n) {
+  const r = new Date(dt.getTime());
+  const d = r.getDate();
+  r.setMonth(r.getMonth() + n);
+  if (r.getDate() < d) r.setDate(0);   // 31/1 + 1 thang -> cuoi thang 2
+  return r;
+}
+
+function buildMilestones() {
+  const out = [];
+  const startDt = new Date(START);
+  const horizon = Date.now() + 3 * 365.25 * DAY;   // sinh truoc 3 nam
+  const add = (icon, name, dt) => out.push({ icon, name, date: fmtVN(dt), ts: dt.getTime(), key: dayKey(dt) });
+
+  PERSONAL.forEach(ev => {
+    const [y, m, d] = ev.d.split('-').map(Number);
+    if (!ev.yearly) { add(ev.icon, ev.name, new Date(y, m - 1, d)); return; }
+    for (let yy = y; ; yy++) {
+      const dt = new Date(yy, m - 1, d);
+      if (dt.getTime() > horizon) break;
+      if (dt.getTime() >= START) add(ev.icon, ev.name, dt);
+    }
+  });
+
+  for (let n = 100; ; n += 100) {                   // moc tram ngay
+    const dt = new Date(START + n * DAY);
+    if (dt.getTime() > horizon) break;
+    add(n % 1000 === 0 ? '💎' : n % 500 === 0 ? '🏆' : '🔥', `Tròn ${n} ngày bên nhau`, dt);
+  }
+
+  for (let n = 1; n <= 11; n++) {                   // tron thang, chi nam dau
+    add('🌷', `Tròn ${n} tháng bên nhau`, addMonths(startDt, n));
+  }
+
+  for (let n = 1; ; n++) {                          // tron nam
+    const dt = addMonths(startDt, n * 12);
+    if (dt.getTime() > horizon) break;
+    add(n === 1 ? '🌹' : '💞', `Kỷ niệm ${n} năm yêu nhau`, dt);
+  }
+
+  return out.sort((a, b) => a.ts - b.ts);
+}
+
+const milestones = buildMilestones();
 
 // ── STARS ───────────────────────────────────────────────────────────────────
 const canvas = document.getElementById('starCanvas');
@@ -1384,12 +1522,12 @@ setInterval(() => setQuote((qIndex + 1) % quotes.length), 5000);
 const mlList = document.getElementById('milestoneList');
 const now0   = Date.now();
 
-// Sort by date
-milestones.sort((a, b) => a.ts - b.ts);
+// Chi liet ke tu ngay dau den 1 nam toi — con lai xem o Lich ky niem
+const shownMilestones = milestones.filter(m => m.ts <= now0 + 400 * DAY);
 
 const upcomingEls = []; // track upcoming milestones for live update
 
-milestones.forEach(m => {
+shownMilestones.forEach(m => {
   const reached  = now0 >= m.ts;
   const daysLeft = reached ? 0 : Math.ceil((m.ts - now0) / 86400000);
   const tooltip  = `còn ${daysLeft} ngày nữa`;
@@ -1444,6 +1582,120 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('.milestone.show-tooltip').forEach(el => el.classList.remove('show-tooltip'));
   }
 });
+
+
+// ── LICH KY NIEM ─────────────────────────────────────────────────────────────
+const calGrid = document.getElementById('calGrid');
+const calTitleEl = document.getElementById('calTitle');
+const calDetailEl = document.getElementById('calDetail');
+
+// Gom moc theo tung ngay: 'YYYY-MM-DD' -> [moc, ...]
+const msByDay = milestones.reduce((map, m) => {
+  (map[m.key] = map[m.key] || []).push(m);
+  return map;
+}, {});
+
+const todayDt = new Date();
+const todayKey = dayKey(todayDt);
+let calY = todayDt.getFullYear();
+let calM = todayDt.getMonth();      // 0-11
+let selKey = null;
+
+/** Am lich cua 1 ngay -> { d, m, nhuan } */
+function lunarOf(dt) {
+  const [d, m, , leap] = Lunar.toLunar(dt.getDate(), dt.getMonth() + 1, dt.getFullYear());
+  return { d, m, leap };
+}
+
+/** "còn 12 ngày" / "3 ngày trước" / "hôm nay" */
+function relDays(ts) {
+  const a = new Date(ts); a.setHours(0, 0, 0, 0);
+  const b = new Date();   b.setHours(0, 0, 0, 0);
+  const n = Math.round((a - b) / DAY);
+  if (n === 0) return 'hôm nay';
+  if (n === 1) return 'ngày mai';
+  if (n === -1) return 'hôm qua';
+  return n > 0 ? `còn ${n} ngày` : `${-n} ngày trước`;
+}
+
+function renderCalendar() {
+  const first = new Date(calY, calM, 1);
+  const daysInMonth = new Date(calY, calM + 1, 0).getDate();
+  const lead = (first.getDay() + 6) % 7;          // tuan bat dau Thu 2
+  // Mot thang duong thuong vat qua 2 thang am -> ghi ca khoang cho khoi nham
+  const luA = lunarOf(first);
+  const luB = lunarOf(new Date(calY, calM, daysInMonth));
+  const thangAm = luA.m === luB.m
+    ? `tháng ${luA.m}${luA.leap ? ' nhuận' : ''}`
+    : `tháng ${luA.m}${luA.leap ? ' nhuận' : ''} – ${luB.m}${luB.leap ? ' nhuận' : ''}`;
+  const canChi = Lunar.getCanChi(Lunar.toLunar(daysInMonth, calM + 1, calY)[2]);
+
+  calTitleEl.innerHTML = `Tháng ${calM + 1}, ${calY}` +
+    `<small>Âm lịch: ${thangAm} · năm ${canChi}</small>`;
+
+  const cells = [];
+  for (let i = 0; i < 42; i++) {
+    const dt = new Date(calY, calM, i - lead + 1);
+    const out = i < lead || i - lead + 1 > daysInMonth;
+    const key = dayKey(dt);
+    const evs = msByDay[key];
+    const lu = lunarOf(dt);
+    const sun = dt.getDay() === 0;
+    const cls = ['cal-cell'];
+    if (out) cls.push('out');
+    if (sun) cls.push('sun');
+    if (key === todayKey) cls.push('today');
+    if (evs && !out) cls.push('ev');
+    if (key === selKey) cls.push('sel');
+    // Mung 1 am lich thi ghi kem thang cho de doi chieu
+    const luTxt = lu.d === 1 ? `1/${lu.m}` : lu.d;
+    cells.push(
+      `<div class="${cls.join(' ')}" data-key="${key}">` +
+        (evs && !out ? `<span class="cal-ic">${evs[0].icon}</span>` : '') +
+        `<span class="cal-d">${dt.getDate()}</span>` +
+        `<span class="cal-l">${luTxt}</span>` +
+      `</div>`
+    );
+  }
+  calGrid.innerHTML = cells.join('');
+}
+
+function showDay(key) {
+  selKey = key;
+  const [y, m, d] = key.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  const lu = lunarOf(dt);
+  const evs = msByDay[key] || [];
+  const thu = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'][dt.getDay()];
+
+  calDetailEl.innerHTML =
+    `<div class="cd-date">${thu}, ${fmtVN(dt)} · âm lịch ${lu.d}/${lu.m}${lu.leap ? ' nhuận' : ''}</div>` +
+    (evs.length
+      ? evs.map(e => `<div class="cd-row"><span>${e.icon}</span><span>${e.name}</span><span class="cd-when">${relDays(e.ts)}</span></div>`).join('')
+      : '<div class="cd-empty">Không có mốc nào trong ngày này 🌙</div>');
+  renderCalendar();
+}
+
+calGrid.addEventListener('click', (e) => {
+  const cell = e.target.closest('.cal-cell');
+  if (!cell || cell.classList.contains('out')) return;
+  showDay(cell.dataset.key);
+});
+document.getElementById('calPrev').addEventListener('click', () => {
+  if (--calM < 0) { calM = 11; calY--; }
+  renderCalendar();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  if (++calM > 11) { calM = 0; calY++; }
+  renderCalendar();
+});
+document.getElementById('calToday').addEventListener('click', () => {
+  calY = todayDt.getFullYear(); calM = todayDt.getMonth();
+  showDay(todayKey);
+});
+
+renderCalendar();
+showDay(todayKey);
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function pad(n, len) { return String(Math.floor(n)).padStart(len, '0'); }
