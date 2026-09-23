@@ -1063,7 +1063,12 @@
     @media (max-width: 520px) { .next-ms { font-size: 0.75rem; margin-top: 14px; padding-top: 12px; } }
 
     /* ── ANH CHIA SE TU SINH ─────────────────────────────── */
-    .card-maker { width: 100%; max-width: 700px; text-align: center; }
+    .card-maker {
+      width: 100%; max-width: 700px;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center;
+      margin-bottom: 26px;        /* tach han khoi luoi anh ben duoi */
+    }
     .card-make-btn {
       padding: 12px 26px; border-radius: 999px;
       border: 1px solid rgba(244,63,94,0.45);
@@ -1252,8 +1257,7 @@
 
     /* ── TRINH CHIEU ANH ─────────────────────────────────── */
     .slideshow-btn {
-      display: block;
-      margin: 0 auto 18px;
+      margin: 0;                  /* khoang cach do .card-maker lo bang gap */
       padding: 11px 24px;
       border-radius: 999px;
       border: 1px solid rgba(245,200,66,0.45);
@@ -1400,6 +1404,11 @@
     .cal-detail .cd-row { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
     .cal-detail .cd-when { color: var(--mut); font-size: 0.72rem; margin-left: auto; white-space: nowrap; }
     .cal-detail .cd-empty { color: var(--mut); }
+
+    @media (max-width: 400px) {
+      .card-maker { flex-direction: column; }
+      .card-maker button { width: 100%; }
+    }
 
     @media (max-width: 520px) {
       .calendar-card { padding: 18px 14px; border-radius: 16px; }
