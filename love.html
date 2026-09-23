@@ -1062,6 +1062,86 @@
     .next-ms .nm-when { color: var(--rose); font-weight: 600; }
     @media (max-width: 520px) { .next-ms { font-size: 0.75rem; margin-top: 14px; padding-top: 12px; } }
 
+    /* ── TRINH CHIEU ANH ─────────────────────────────────── */
+    .slideshow-btn {
+      display: block;
+      margin: 0 auto 18px;
+      padding: 11px 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(245,200,66,0.45);
+      background: rgba(245,200,66,0.12);
+      color: var(--gold2);
+      font-family: inherit; font-size: 0.86rem; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s ease, transform 0.2s ease;
+    }
+    .slideshow-btn:hover { background: rgba(245,200,66,0.25); transform: translateY(-1px); }
+
+    .slideshow {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: none;
+      align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .slideshow.active { display: flex; }
+    .ss-layer {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .ss-layer.on { opacity: 1; }
+    .ss-layer img, .ss-layer video {
+      max-width: 100%; max-height: 100%;
+      object-fit: contain;
+    }
+    /* Anh nhich nhe cho do tinh */
+    .ss-layer.on img { animation: kenburns 9s ease-out forwards; }
+    @keyframes kenburns {
+      from { transform: scale(1); }
+      to   { transform: scale(1.08); }
+    }
+    /* Nen mo phia sau cho khung anh doc khong bi hai vien den */
+    .ss-blur {
+      position: absolute; inset: -10%;
+      background-size: cover; background-position: center;
+      filter: blur(38px) brightness(0.35);
+      transition: opacity 1s ease;
+    }
+
+    .ss-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.12); z-index: 3; }
+    .ss-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--rose), var(--gold)); }
+    .ss-count {
+      position: absolute; top: 16px; left: 18px; z-index: 3;
+      font-size: 0.78rem; color: rgba(255,255,255,0.6);
+      font-variant-numeric: tabular-nums;
+    }
+    .ss-close {
+      position: absolute; top: 10px; right: 16px; z-index: 3;
+      background: none; border: none; color: rgba(255,255,255,0.7);
+      font-size: 2rem; cursor: pointer; line-height: 1;
+    }
+    .ss-controls {
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      z-index: 3; display: flex; gap: 10px; align-items: center;
+    }
+    .ss-btn {
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.1);
+      color: #fff; font-size: 1.05rem; cursor: pointer;
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ss-btn:hover { background: rgba(244,63,94,0.35); }
+    .ss-btn.big { width: 56px; height: 56px; font-size: 1.3rem; }
+    @media (max-width: 520px) {
+      .ss-controls { bottom: 18px; gap: 8px; }
+      .ss-btn { width: 42px; height: 42px; }
+      .ss-btn.big { width: 52px; height: 52px; }
+    }
+
     /* ── LICH KY NIEM ────────────────────────────────────── */
     .calendar-card {
       background: var(--soft);
@@ -1306,6 +1386,7 @@
   <!-- PHOTO GALLERY -->
   <div class="gallery reveal">
     <div class="section-title">Khoảnh khắc của chúng mình 📸</div>
+    <button class="slideshow-btn" id="ssStart">▶ Trình chiếu kèm nhạc</button>
     <div class="gallery-masonry" id="galleryMasonry"></div>
   </div>
 
@@ -1328,6 +1409,21 @@
     Made with <span class="heart">❤️</span> · Mãi mãi yêu em
   </div>
 
+</div>
+
+<!-- TRINH CHIEU ANH -->
+<div class="slideshow" id="slideshow">
+  <div class="ss-blur" id="ssBlur"></div>
+  <div class="ss-layer" id="ssA"></div>
+  <div class="ss-layer" id="ssB"></div>
+  <div class="ss-bar"><i id="ssBar"></i></div>
+  <div class="ss-count" id="ssCount"></div>
+  <button class="ss-close" id="ssClose" aria-label="Đóng">&times;</button>
+  <div class="ss-controls">
+    <button class="ss-btn" id="ssPrev" aria-label="Trước">‹</button>
+    <button class="ss-btn big" id="ssPlay" aria-label="Tạm dừng">⏸</button>
+    <button class="ss-btn" id="ssNext" aria-label="Sau">›</button>
+  </div>
 </div>
 
 <!-- THONG BAO NHO -->
@@ -2016,6 +2112,139 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft')  stepLightbox(-1);
   if (e.key === 'ArrowRight') stepLightbox(1);
 });
+
+// ── TRINH CHIEU ANH KEM NHAC ─────────────────────────────────────────────────
+const ssEl = document.getElementById('slideshow');
+const ssLayers = [document.getElementById('ssA'), document.getElementById('ssB')];
+const ssBlurEl = document.getElementById('ssBlur');
+const ssBarEl = document.getElementById('ssBar');
+const ssCountEl = document.getElementById('ssCount');
+const ssPlayEl = document.getElementById('ssPlay');
+
+const SS_PHOTO_MS = 6000;      // moi anh 6 giay
+const SS_VIDEO_MAX = 20000;    // video dai qua thi cat o 20 giay
+
+let ssIndex = 0, ssSlot = 0, ssTimer = null, ssRaf = null, ssPaused = false;
+let ssMusicWasOff = false, ssWakeLock = null;
+
+function ssSetProgress(startAt, total) {
+  cancelAnimationFrame(ssRaf);
+  const t0 = performance.now() - startAt;
+  const step = (t) => {
+    if (ssPaused) return;
+    const pct = Math.min(100, ((t - t0) / total) * 100);
+    ssBarEl.style.width = pct + '%';
+    if (pct < 100) ssRaf = requestAnimationFrame(step);
+  };
+  ssRaf = requestAnimationFrame(step);
+}
+
+function ssShow(i) {
+  if (!galleryImages.length) return;
+  ssIndex = (i + galleryImages.length) % galleryImages.length;
+  const m = galleryImages[ssIndex];
+  const next = ssLayers[ssSlot ^ 1];
+  const cur = ssLayers[ssSlot];
+
+  clearTimeout(ssTimer);
+  cancelAnimationFrame(ssRaf);
+  ssBarEl.style.width = '0%';
+  ssCountEl.textContent = `${ssIndex + 1} / ${galleryImages.length}`;
+  if (m.thumb) ssBlurEl.style.backgroundImage = `url("${MEDIA_DIR}thumbs/${encodeURIComponent(m.thumb)}")`;
+
+  next.innerHTML = '';
+  let dur = SS_PHOTO_MS;
+
+  if (m.t === 'vid') {
+    const v = document.createElement('video');
+    v.src = MEDIA_DIR + m.f;
+    v.autoplay = true; v.playsInline = true; v.muted = true;   // nhac nen dang chay nen tat tieng video
+    v.addEventListener('ended', () => { if (!ssPaused) ssShow(ssIndex + 1); });
+    v.addEventListener('loadedmetadata', () => {
+      dur = Math.min((v.duration || 8) * 1000, SS_VIDEO_MAX);
+      ssSetProgress(0, dur);
+      clearTimeout(ssTimer);
+      ssTimer = setTimeout(() => { if (!ssPaused) ssShow(ssIndex + 1); }, dur);
+    });
+    next.appendChild(v);
+  } else {
+    const img = document.createElement('img');
+    img.src = MEDIA_DIR + m.f;                                  // anh goc cho net
+    next.appendChild(img);
+  }
+
+  // Doi lop: lop moi hien len, lop cu mo di
+  next.classList.add('on');
+  cur.classList.remove('on');
+  setTimeout(() => { if (cur !== next) cur.innerHTML = ''; }, 1000);
+  ssSlot ^= 1;
+
+  if (m.t !== 'vid') {
+    ssSetProgress(0, dur);
+    ssTimer = setTimeout(() => { if (!ssPaused) ssShow(ssIndex + 1); }, dur);
+  }
+
+  // Tai san anh ke tiep cho muot
+  const nx = galleryImages[(ssIndex + 1) % galleryImages.length];
+  if (nx && nx.t !== 'vid') new Image().src = MEDIA_DIR + nx.f;
+}
+
+async function ssOpen(from = 0) {
+  if (!galleryImages.length) { toast('Chưa có ảnh để trình chiếu'); return; }
+  ssEl.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  ssPaused = false;
+  ssPlayEl.textContent = '⏸';
+  ssMusicWasOff = !musicPlaying;
+  if (ssMusicWasOff) playSong();
+  try { ssWakeLock = await navigator.wakeLock?.request('screen'); } catch {}   // giu man hinh khong tat
+  ssShow(from);
+}
+
+function ssClose() {
+  ssEl.classList.remove('active');
+  document.body.style.overflow = '';
+  clearTimeout(ssTimer);
+  cancelAnimationFrame(ssRaf);
+  ssLayers.forEach(l => { l.innerHTML = ''; l.classList.remove('on'); });
+  if (ssMusicWasOff) stopMusic();      // tra lai trang thai nhac truoc khi mo
+  ssWakeLock?.release?.().catch(() => {});
+  ssWakeLock = null;
+}
+
+function ssTogglePause() {
+  ssPaused = !ssPaused;
+  ssPlayEl.textContent = ssPaused ? '▶' : '⏸';
+  const v = ssEl.querySelector('.ss-layer.on video');
+  if (ssPaused) {
+    clearTimeout(ssTimer);
+    cancelAnimationFrame(ssRaf);
+    v?.pause();
+  } else {
+    v ? v.play().catch(() => {}) : ssShow(ssIndex + 1);
+  }
+}
+
+document.getElementById('ssStart').addEventListener('click', () => ssOpen(0));
+document.getElementById('ssClose').addEventListener('click', ssClose);
+document.getElementById('ssPrev').addEventListener('click', () => { ssPaused = false; ssPlayEl.textContent = '⏸'; ssShow(ssIndex - 1); });
+document.getElementById('ssNext').addEventListener('click', () => { ssPaused = false; ssPlayEl.textContent = '⏸'; ssShow(ssIndex + 1); });
+ssPlayEl.addEventListener('click', ssTogglePause);
+
+document.addEventListener('keydown', (e) => {
+  if (!ssEl.classList.contains('active')) return;
+  if (e.key === 'Escape') ssClose();
+  if (e.key === 'ArrowLeft') ssShow(ssIndex - 1);
+  if (e.key === 'ArrowRight') ssShow(ssIndex + 1);
+  if (e.key === ' ') { e.preventDefault(); ssTogglePause(); }
+});
+
+let ssTouchX = 0;
+ssEl.addEventListener('touchstart', (e) => { ssTouchX = e.changedTouches[0].clientX; }, { passive: true });
+ssEl.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - ssTouchX;
+  if (Math.abs(dx) > 55) ssShow(ssIndex + (dx < 0 ? 1 : -1));
+}, { passive: true });
 
 // ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
 const musicBtnEl = document.getElementById('musicBtn');
