@@ -2078,6 +2078,43 @@ const SS_VIDEO_MAX = 20000;    // video dai qua thi cat o 20 giay
 let ssIndex = 0, ssSlot = 0, ssTimer = null, ssRaf = null, ssPaused = false;
 let ssMusicWasOff = false, ssWakeLock = null, ssDucked = false;
 
+const SS_AHEAD = 3;            // nap truoc bao nhieu muc
+const SS_CACHE_MAX = 10;       // giu toi da bao nhieu muc trong bo nho
+const ssCache = new Map();     // ten file -> phan tu da tai san
+
+/**
+ * Nap truoc SS_AHEAD muc ke tiep de chuyen canh khong bi khung.
+ * Anh tai tron ven; video chi muc ngay ke tiep moi tai san (preload auto),
+ * cac muc sau do chi lay thong tin dau file cho do ton dung luong 4G.
+ */
+function ssPreload(from, count) {
+  for (let k = 1; k <= count; k++) {
+    const m = galleryImages[(from + k) % galleryImages.length];
+    if (!m || ssCache.has(m.f)) continue;
+    let el;
+    if (m.t === 'vid') {
+      el = document.createElement('video');
+      el.preload = k === 1 ? 'auto' : 'metadata';
+      el.muted = true; el.playsInline = true;
+      el.src = MEDIA_DIR + m.f;
+      el.load();
+    } else {
+      el = new Image();
+      el.decoding = 'async';
+      el.src = MEDIA_DIR + m.f;
+    }
+    ssCache.set(m.f, el);
+  }
+  while (ssCache.size > SS_CACHE_MAX) ssCache.delete(ssCache.keys().next().value);
+}
+
+/** Lay phan tu da nap truoc (neu co) de khoi tai lai tu dau */
+function ssTake(m, tag) {
+  const el = ssCache.get(m.f);
+  ssCache.delete(m.f);
+  return el && el.tagName === tag ? el : null;
+}
+
 /** Video co tieng cua no -> tam dung nhac nen; quay lai anh -> bat nhac lai */
 function ssDuckMusic(off) {
   if (off) {
@@ -2121,9 +2158,10 @@ function ssShow(i) {
   if (oldVid) { oldVid.pause(); oldVid.muted = true; }
 
   if (m.t === 'vid') {
-    const v = document.createElement('video');
-    v.src = MEDIA_DIR + m.f;
+    const v = ssTake(m, 'VIDEO') || document.createElement('video');
+    if (!v.src) v.src = MEDIA_DIR + m.f;       // neu la phan tu moi thi moi gan
     v.autoplay = true; v.playsInline = true;
+    v.currentTime = 0;
     v.muted = false; v.volume = 1;          // nghe tieng that cua video
     ssDuckMusic(true);                      // nhac nen nhuong cho
     // Neu trinh duyet chan phat tieng thi quay ve tat tieng + bat lai nhac nen
@@ -2138,8 +2176,9 @@ function ssShow(i) {
     next.appendChild(v);
   } else {
     ssDuckMusic(false);                     // sang anh thi nhac nen tro lai
-    const img = document.createElement('img');
-    img.src = MEDIA_DIR + m.f;                                  // anh goc cho net
+    const img = ssTake(m, 'IMG') || new Image();
+    img.decoding = 'async';
+    if (!img.src) img.src = MEDIA_DIR + m.f;   // anh goc cho net
     next.appendChild(img);
   }
 
@@ -2154,9 +2193,7 @@ function ssShow(i) {
     ssTimer = setTimeout(() => { if (!ssPaused) ssShow(ssIndex + 1); }, dur);
   }
 
-  // Tai san anh ke tiep cho muot
-  const nx = galleryImages[(ssIndex + 1) % galleryImages.length];
-  if (nx && nx.t !== 'vid') new Image().src = MEDIA_DIR + nx.f;
+  ssPreload(ssIndex, SS_AHEAD);   // nap san may muc ke tiep
 }
 
 async function ssOpen(from = 0) {
@@ -2168,6 +2205,7 @@ async function ssOpen(from = 0) {
   ssMusicWasOff = !musicPlaying;
   if (ssMusicWasOff) playSong();
   try { ssWakeLock = await navigator.wakeLock?.request('screen'); } catch {}   // giu man hinh khong tat
+  ssPreload(from - 1, SS_AHEAD + 1);   // nap san muc dau va may muc ke tiep
   ssShow(from);
 }
 
@@ -2182,6 +2220,8 @@ function ssClose() {
     l.innerHTML = ''; l.classList.remove('on');
   });
   ssDuckMusic(false);
+  ssCache.forEach((el) => { if (el.tagName === 'VIDEO') { el.pause(); el.removeAttribute('src'); el.load(); } });
+  ssCache.clear();
   if (ssMusicWasOff) stopMusic();      // tra lai trang thai nhac truoc khi mo
   ssWakeLock?.release?.().catch(() => {});
   ssWakeLock = null;
@@ -2248,7 +2288,9 @@ function playSong() {
   bgMusic = new Audio(getRandomSong());
   bgMusic.volume = 0.4;
   bgMusic.addEventListener('ended', () => playSong());
-  bgMusic.play();
+  // Bat loi: trinh duyet co the chan tu phat, hoac trinh chieu tam dung nhac
+  // ngay khi lenh phat con dang cho -> sinh AbortError neu khong bat
+  bgMusic.play().catch(() => {});
   musicPlaying = true;
   musicBtnEl.textContent = '🔊';
   musicBtnEl.classList.add('playing');
