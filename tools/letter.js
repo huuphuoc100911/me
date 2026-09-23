@@ -74,6 +74,32 @@ if (cmd === 'them') {
   console.log(`  ${l.icon} ${l.title} (mo ${l.openAt})\n`);
   console.log(Letters.decode(l.body, l.openAt));
 
+} else if (cmd === 'sua') {
+  const l = list.find((x) => x.id === rest[0]);
+  if (!l) { console.error('Khong tim thay thu co id do. Chay `npm run letter -- xem` de liet ke.'); process.exit(1); }
+  const a = parseArgs(rest.slice(1));
+  const chu = a.file ? fs.readFileSync(a.file, 'utf8').trim() : a.chu;
+
+  if (a.ngay) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(a.ngay)) { console.error('--ngay phai dang YYYY-MM-DD'); process.exit(1); }
+    // Doi ngay thi phai giai ma bang khoa cu roi ma hoa lai bang khoa moi
+    const cu = Letters.decode(l.body, l.openAt);
+    l.openAt = a.ngay;
+    l.body = Letters.encode(chu && chu !== true ? chu : cu, a.ngay);
+  } else if (chu && chu !== true) {
+    l.body = Letters.encode(chu, l.openAt);
+  }
+  if (a.tieude) l.title = a.tieude;
+  if (a.icon) l.icon = a.icon;
+  if (!a.ngay && !a.tieude && !a.icon && (!chu || chu === true)) {
+    console.error('Khong co gi de sua. Dung --chu / --file / --ngay / --tieude / --icon'); process.exit(1);
+  }
+
+  list.sort((x, y) => x.openAt.localeCompare(y.openAt));
+  save(list);
+  console.log(`✓ Da sua thu "${l.title}" (mo ${l.openAt})`);
+  console.log(`  Xem lai noi dung: npm run letter -- doc ${l.id}`);
+
 } else if (cmd === 'xoa') {
   const i = list.findIndex((x) => x.id === rest[0]);
   if (i < 0) { console.error('Khong tim thay thu co id do.'); process.exit(1); }
@@ -87,5 +113,7 @@ if (cmd === 'them') {
   npm run letter -- them --ngay 2026-10-18 --tieude "Gửi em" --file thu.txt --icon 🌹
   npm run letter -- xem
   npm run letter -- doc <id>
+  npm run letter -- sua <id> --chu "Nội dung mới..."
+  npm run letter -- sua <id> --file thu.txt --tieude "Tiêu đề mới"
   npm run letter -- xoa <id>`);
 }
