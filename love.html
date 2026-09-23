@@ -585,7 +585,6 @@
       overflow: hidden;
       border: 1px solid var(--border);
       background: var(--soft);
-      backdrop-filter: blur(8px);
       cursor: pointer;
       transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
       position: relative;
@@ -620,9 +619,9 @@
     .gallery-item.loading {
       min-height: 120px;
       background: linear-gradient(100deg,
-        rgba(255,255,255,0.04) 30%,
-        rgba(255,107,138,0.12) 50%,
-        rgba(255,255,255,0.04) 70%) var(--soft);
+        rgba(255,255,255,0.08) 30%,
+        rgba(255,107,138,0.28) 50%,
+        rgba(255,255,255,0.08) 70%) var(--soft);
       background-size: 240% 100%;
       animation: shimmer 1.6s ease-in-out infinite;
     }
@@ -1529,15 +1528,14 @@ function shuffle(arr) {
   return a;
 }
 
-// Chi tai anh khi sap cuon toi, va chi hien ra khi da tai xong.
-const mediaObserver = new IntersectionObserver((entries, obs) => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    const img = entry.target.querySelector('img');
-    if (img && !img.dataset.loaded) { img.dataset.loaded = '1'; img.src = img.dataset.src; }
-    obs.unobserve(entry.target);
-  });
-}, { rootMargin: '400px 0px' });   // tai truoc 400px de cuon toi la co san
+function reveal(item) { item.classList.remove('loading'); item.classList.add('loaded'); }
+
+// Luoi nam trong bo cuc `columns`; Safari iOS khong bao IntersectionObserver
+// cho phan tu trong multicol, nen dung loading="lazy" san co cua trinh duyet.
+// Phong xa: sau 4 giay ma o nao con "dang cho" thi cu hien ra, khong de trang.
+function failsafeReveal() {
+  document.querySelectorAll('.gallery-item.loading').forEach(reveal);
+}
 
 function buildGallery(list) {
   galleryImages = shuffle(list);
@@ -1550,11 +1548,13 @@ function buildGallery(list) {
     if (m.w && m.h) item.style.aspectRatio = `${m.w} / ${m.h}`;
 
     const img = document.createElement('img');
-    img.dataset.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
     img.alt = 'Kỷ niệm ' + (i + 1);
+    img.loading = 'lazy';
     img.decoding = 'async';
-    img.addEventListener('load',  () => { item.classList.remove('loading'); item.classList.add('loaded'); });
+    img.addEventListener('load',  () => reveal(item));
     img.addEventListener('error', () => { item.classList.remove('loading'); item.classList.add('failed'); });
+    img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+    if (img.complete && img.naturalWidth) reveal(item);   // anh da nam trong bo nho dem
     item.appendChild(img);
 
     if (m.t === 'vid') {
@@ -1588,8 +1588,8 @@ function buildGallery(list) {
       if (!item.classList.contains('failed')) openLightbox(i);
     });
     galleryEl.appendChild(item);
-    mediaObserver.observe(item);
   });
+  setTimeout(failsafeReveal, 4000);
 }
 
 fetch(MEDIA_DIR + 'images.json')
