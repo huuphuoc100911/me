@@ -1051,6 +1051,17 @@
     }
 
 
+    .next-ms {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--mut);
+    }
+    .next-ms b { color: var(--gold2); font-weight: 600; }
+    .next-ms .nm-when { color: var(--rose); font-weight: 600; }
+    @media (max-width: 520px) { .next-ms { font-size: 0.75rem; margin-top: 14px; padding-top: 12px; } }
+
     /* ── LICH KY NIEM ────────────────────────────────────── */
     .calendar-card {
       background: var(--soft);
@@ -1179,7 +1190,7 @@
       <div class="stat-icon">🌸</div>
       <div class="stat-number" id="daysElapsed">0</div>
       <div class="stat-label">Ngày đã bên nhau</div>
-      <div class="stat-sub">ngày hạnh phúc</div>
+      <div class="stat-sub" id="daysBreakdown">ngày hạnh phúc</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">💓</div>
@@ -1214,6 +1225,7 @@
       <div class="cb-dot">:</div>
       <div class="cb"><div class="cb-val" id="cdSecs">00</div><div class="cb-lbl">Giây</div></div>
     </div>
+    <div class="next-ms" id="nextMilestone"></div>
     <div id="anniversaryMsg" style="display:none; margin-top:24px; font-family:'Dancing Script',cursive; font-size:1.8rem; color:var(--gold2);">
       🎉 Chúc mừng kỷ niệm 1 năm yêu nhau! 🎉
     </div>
@@ -1697,6 +1709,27 @@ document.getElementById('calToday').addEventListener('click', () => {
 renderCalendar();
 showDay(todayKey);
 
+/** Khoang cach giua 2 moc theo lich that (khong quy uoc thang 30 ngay) */
+function ymdBetween(fromTs, toTs) {
+  const a = new Date(fromTs); a.setHours(0, 0, 0, 0);
+  const b = new Date(toTs);   b.setHours(0, 0, 0, 0);
+  // Cong don thang truoc roi dem ngay con lai — tru thang truc tiep se ra so am
+  // khi ngay goc lon hon so ngay cua thang dich (vd 31/01 -> 01/03).
+  let months = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  if (addMonths(a, months).getTime() > b.getTime()) months--;
+  const anchor = addMonths(a, months);
+  const d = Math.round((b.getTime() - anchor.getTime()) / DAY);
+  return { y: Math.floor(months / 12), m: months % 12, d };
+}
+function ymdText(fromTs, toTs) {
+  const { y, m, d } = ymdBetween(fromTs, toTs);
+  const parts = [];
+  if (y) parts.push(`${y} năm`);
+  if (m) parts.push(`${m} tháng`);
+  if (d || !parts.length) parts.push(`${d} ngày`);
+  return parts.join(' ');
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function pad(n, len) { return String(Math.floor(n)).padStart(len, '0'); }
 function pop(el, val) {
@@ -1721,6 +1754,7 @@ function tick(t) {
   const totalDays  = Math.floor(totalHours / 24);
 
   document.getElementById('daysElapsed').textContent    = totalDays.toLocaleString();
+  document.getElementById('daysBreakdown').textContent  = ymdText(START, now);
   // ~100,000 nhịp tim/ngày (trung bình)
   const heartbeats = Math.floor(totalDays * 100000 + (totalHours % 24) * 4167);
   document.getElementById('heartbeats').textContent     = heartbeats.toLocaleString();
@@ -1742,6 +1776,12 @@ function tick(t) {
     ['cdDays','cdHours','cdMins','cdSecs'].forEach(id => document.getElementById(id).textContent = '00');
     document.getElementById('anniversaryMsg').style.display = 'block';
   }
+
+  // ── Moc ke tiep ───────────────────────────────────────────
+  const next = milestones.find(m => m.ts > now);
+  document.getElementById('nextMilestone').innerHTML = next
+    ? `Mốc kế tiếp: <b>${next.icon} ${next.name}</b> · ${next.date} — <span class="nm-when">${relDays(next.ts)}</span>`
+    : '';
 
   // ── Progress bar ──────────────────────────────────────────
   const span = ANNIVERSARY - START;
