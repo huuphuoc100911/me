@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://love.personal.io.vn/365-vi-sao.html">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Mỗi ngày Thị Huyền và Hữu Phước bên nhau là một vì sao 💫">
-  <meta name="theme-color" content="#07030a">
+  <meta name="theme-color" content="#10070f">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,6 +39,10 @@
     }
 
     html, body { height: 100%; overflow: hidden; }
+    /* Mau nen DAC cho html: Safari iPhone lay mau nay to vung thanh trang thai
+       phia tren va vung duoi day sau thanh cong cu. Chi co gradient thi Safari
+       khong lay duoc mau -> tren bi mo xam, duoi lo mau trang. */
+    html { background-color: #10070f; }
     body {
       background: radial-gradient(ellipse at 50% 38%, #3a1226 0%, #1a0a14 45%, #07030a 100%);
       color: var(--white);
