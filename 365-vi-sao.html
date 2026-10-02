@@ -257,11 +257,16 @@
       transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
     }
     .day-card.show { opacity: 1; visibility: visible; transform: none; }
+    /* Khung theo dung ty le anh/video (--r = rong/cao, JS gan) — doc hay ngang deu
+       hien tron, khong cat. Qua hep/qua rong thi chen nen toi hai ben thay vi cat. */
     .dc-photo {
-      width: 104px; height: 104px; flex: none;
-      object-fit: cover; border-radius: 14px;
+      --r: 1;
+      height: 140px; width: auto; flex: none;
+      aspect-ratio: var(--r);
+      min-width: 80px; max-width: 46%;
+      object-fit: contain; border-radius: 14px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.35);
     }
     .dc-photo[hidden] { display: none; }
     .dc-body { flex: 1; min-width: 0; }
@@ -305,7 +310,12 @@
         transform: translateY(calc(-50% + 16px));
       }
       .day-card.show { transform: translateY(-50%); }
-      .dc-photo { width: 100%; height: auto; aspect-ratio: 4 / 3; }
+      .dc-photo {
+        --mh: min(52vh, 460px);          /* cao toi da — anh doc thi hep lai, anh ngang thi rong ra */
+        width: min(100%, calc(var(--mh) * var(--r))); height: auto;
+        min-width: 0; max-width: none;
+        align-self: center;
+      }
     }
 
     /* Dien thoai xoay ngang — man thap */
@@ -319,7 +329,7 @@
       .tk-ms { margin-top: 4px; }
       .intro-line { font-size: 1rem; }
       .start { margin-top: 10px; }
-      .day-card .dc-photo { max-height: 42vh; }
+      .day-card .dc-photo { --mh: 40vh; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -912,9 +922,15 @@
     return photos[(s.specialIdx * 7) % photos.length];      // moi moc mot tam khac nhau
   }
 
+  // Ty le khung: lay tu images.json truoc, tai xong thi lay kich thuoc that cho chac
+  const setRatio = (el, w, h) => { if (w && h) el.style.setProperty('--r', (w / h).toFixed(4)); };
+  dcPhoto.addEventListener('load', () => setRatio(dcPhoto, dcPhoto.naturalWidth, dcPhoto.naturalHeight));
+  dcVideo.addEventListener('loadedmetadata', () => setRatio(dcVideo, dcVideo.videoWidth, dcVideo.videoHeight));
+
   function showCardMedia(m) {
     const src = (f) => 'images/love/' + f;
     dcVideo.pause();
+    if (m) setRatio(m.t === 'vid' ? dcVideo : dcPhoto, m.w, m.h);
     if (m && m.t === 'vid') {                               // video: tat tieng, de nhac nen phat tiep
       dcPhoto.hidden = true; dcPhoto.removeAttribute('src');
       dcVideo.poster = m.thumb ? src('thumbs/' + m.thumb) : '';

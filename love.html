@@ -305,9 +305,57 @@
     .gift-txt b { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold2); }
     .gift-txt small { margin-top: 2px; font-size: 0.74rem; color: var(--mut); }
     .gift-go { font-size: 1.5rem; color: var(--gold2); }
+    .gifts[hidden] { display: none; }
+    .gifts.gifts-open .gift-btn { animation: giftIn 0.6s cubic-bezier(.2,.8,.2,1) both; }
+    .gifts.gifts-open .gift-btn:nth-child(2) { animation-delay: 0.1s; }
+    .gifts.gifts-open .gift-btn:nth-child(3) { animation-delay: 0.2s; }
+    .gifts.gifts-open .gift-btn:nth-child(4) { animation-delay: 0.3s; }
+    @keyframes giftIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+    /* Khoa 4 mon qua: nhap dung mat khau moi hien */
+    .gift-lock {
+      width: 100%; max-width: 460px;
+      margin-top: -16px;
+      padding: 20px 22px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(245,200,66,0.45);
+      background: linear-gradient(135deg, rgba(245,200,66,0.12), rgba(255,77,115,0.1));
+      box-shadow: 0 10px 34px rgba(245,200,66,0.12);
+      text-align: center;
+    }
+    .gift-lock[hidden] { display: none; }
+    .gl-ic { font-size: 1.8rem; line-height: 1; }
+    .gl-title { margin-top: 8px; font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--gold2); }
+    .gl-sub { margin-top: 2px; font-size: 0.78rem; color: var(--mut); }
+    .gl-row { margin-top: 14px; display: flex; gap: 8px; }
+    .gl-row input {
+      flex: 1; min-width: 0;
+      padding: 11px 14px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.3); color: var(--white);
+      font-family: inherit; font-size: 16px;      /* duoi 16px thi iPhone tu phong to trang */
+      outline: none;
+    }
+    .gl-row input:focus { border-color: var(--gold); }
+    .gl-row button {
+      padding: 11px 18px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      color: #2a0a17; font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+    }
+    .gl-msg { min-height: 1.3em; margin-top: 8px; font-size: 0.8rem; color: var(--pink); }
+    .gift-lock.shake { animation: glShake 0.45s ease; }
+    @keyframes glShake {
+      0%, 100% { transform: none; } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); } 80% { transform: translateX(3px); }
+    }
+    .gift-lock.opening { animation: glOpen 0.45s ease forwards; }
+    @keyframes glOpen { to { opacity: 0; transform: scale(0.96); } }
+
     @media (max-width: 520px) {
       .gifts { margin-top: -10px; }
       .gift-btn { width: 100%; padding: 12px 16px; }
+      .gift-lock { margin-top: -10px; padding: 18px 16px 12px; }
     }
 
     /* ── MAIN STATS GRID ─────────────────────────────────── */
@@ -1553,8 +1601,19 @@
     <div class="badge" id="annivBadge">Kỷ niệm 1 năm: <strong>18/10/2026</strong></div>
   </div>
 
-  <!-- QUA KY NIEM — moi trang dac biet la mot nut -->
-  <div class="gifts">
+  <!-- QUA KY NIEM — nhap dung mat khau moi hien 4 nut, moi trang dac biet la mot nut -->
+  <form class="gift-lock" id="giftLock" autocomplete="off">
+    <div class="gl-ic" id="giftLockIc">🔒</div>
+    <div class="gl-title">4 món quà đang chờ em</div>
+    <div class="gl-sub">Nhập mật khẩu để mở nhé 💕</div>
+    <div class="gl-row">
+      <input id="giftPass" type="password" placeholder="Mật khẩu" aria-label="Mật khẩu"
+             autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button type="submit">Mở khóa</button>
+    </div>
+    <div class="gl-msg" id="giftMsg" aria-live="polite"></div>
+  </form>
+  <div class="gifts" id="gifts" hidden>
     <a class="gift-btn" href="365-vi-sao.html">
       <span class="gift-ic">✦</span>
       <span class="gift-txt"><b>365 vì sao</b><small>Món quà kỷ niệm 1 năm</small></span>
@@ -1576,6 +1635,58 @@
       <span class="gift-go">›</span>
     </a>
   </div>
+  <script>
+  // Khoa 4 mon qua. Chi la khoa nhe tren trinh duyet: trong ma chi co ma bam cua
+  // mat khau (khong lo chu that), mo dung mot lan thi may nho, lan sau khoi go.
+  // Doi mat khau: mo trang nay, F12 > Console, go  giftHash('mat-khau-moi')
+  // roi dan ket qua vao GIFT_HASH. Go hoa/thuong, co dau hay dau cach deu duoc.
+  (() => {
+    const GIFT_HASH = 'cmqzm1mwhu';
+    const WRONG = ['Chưa đúng rồi 🥺 Thử lại nha', 'Sai nữa rồi nè 😝', 'Gần đúng rồi đó… chắc vậy 🙈'];
+    const norm = (v) => v.trim().toLowerCase().normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/\s+/g, '');
+    window.giftHash = (str, seed = 1810) => {          // cyrb53 — bam 53 bit, chay ca khi khong co https
+      let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+      const v = norm(str);
+      for (let i = 0; i < v.length; i++) {
+        const ch = v.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+    };
+
+    const lock = document.getElementById('giftLock'), gifts = document.getElementById('gifts');
+    const input = document.getElementById('giftPass'), msg = document.getElementById('giftMsg');
+    const show = (animate) => {
+      lock.hidden = true;
+      gifts.hidden = false;
+      if (animate) gifts.classList.add('gifts-open');
+    };
+    try { if (localStorage.getItem('gifts-key') === GIFT_HASH) show(false); } catch (e) {}
+
+    let wrong = 0;
+    lock.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (giftHash(input.value) === GIFT_HASH) {
+        try { localStorage.setItem('gifts-key', GIFT_HASH); } catch (err) {}
+        input.blur();
+        msg.textContent = '';
+        document.getElementById('giftLockIc').textContent = '🔓';
+        lock.classList.add('opening');
+        setTimeout(() => show(true), 450);
+        return;
+      }
+      msg.textContent = input.value.trim() ? WRONG[wrong++ % WRONG.length] : 'Em nhập mật khẩu trước đã nha 💕';
+      lock.classList.remove('shake');
+      void lock.offsetWidth;                            // chay lai hieu ung rung
+      lock.classList.add('shake');
+      input.select();
+    });
+  })();
+  </script>
 
   <!-- MAIN STATS -->
   <div class="stats-grid reveal">

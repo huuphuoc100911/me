@@ -208,7 +208,7 @@
     .chip { padding: 8px 14px; border-radius: 999px; font-weight: 600; font-size: 0.92rem; background: rgba(42,10,23,0.12); border: 1px solid rgba(42,10,23,0.25); }
 
     /* Anh polaroid: moc tram ngay co anh, cac lan hien mau */
-    .polas { margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; }
+    .polas { margin-top: 16px; display: flex; gap: 12px; align-items: center; }
     .pola {
       flex: 0 1 auto; min-width: 0;   /* 3 tam van nam tren mot hang, thieu cho thi tu nho lai */
       width: clamp(92px, calc(var(--u) * 27), 140px);
@@ -218,10 +218,10 @@
       rotate: var(--r, 0deg);
       text-align: center;
     }
-    .pola .pi {
+    .pola .pi {                     /* khung theo ty le anh (--r, gioi han 3:4..4:3), anh hien tron khong cat */
       position: relative;
-      aspect-ratio: 4 / 5; border-radius: 6px;
-      background: #e9dccf center / cover no-repeat;
+      aspect-ratio: var(--r, 0.8); border-radius: 6px;
+      background: #1d0d16 center / contain no-repeat;
     }
     .pola .pi.vid::after {
       content: '▶'; position: absolute; inset: 0;
@@ -617,9 +617,10 @@
     const byDay = {};
     media.forEach((m) => { if (m.d) (byDay[m.d] = byDay[m.d] || []).push(m); });
     const thumbOf = (m) => MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+    const ratioOf = (m) => (m.w && m.h ? Math.min(4 / 3, Math.max(3 / 4, m.w / m.h)).toFixed(3) : 0.8);
     const pola = (m, title, sub, r) => `
       <div class="pola a" style="--d:${r.d}s; --r:${r.deg}deg">
-        <div class="pi${m.t === 'vid' ? ' vid' : ''}" style="background-image:url('${encodeURI(thumbOf(m))}')"></div>
+        <div class="pi${m.t === 'vid' ? ' vid' : ''}" style="background-image:url('${encodeURI(thumbOf(m))}'); --r:${ratioOf(m)}"></div>
         <b>${title}</b><small>${sub}</small>
       </div>`;
 
