@@ -314,9 +314,46 @@
       border: 1px solid rgba(255,255,255,0.35);
       background: rgba(255,255,255,0.08);
       color: #fff; font-weight: 500;
+      position: relative; z-index: 2;
+      white-space: nowrap;
       transition: transform 0.3s cubic-bezier(.3,1.5,.5,1);
     }
     .after[hidden], .choices[hidden] { display: none; }
+
+    /* ── EM NHO KHONG? (cau hoi giua story) ────────────────── */
+    .quiz-q {
+      margin-top: 10px;
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: clamp(1.7rem, calc(var(--u) * 8.4), 2.5rem); line-height: 1.2;
+    }
+    .quiz-opts { margin-top: 24px; display: grid; gap: 10px; }
+    .quiz-opt {
+      padding: 15px 18px; border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.1);
+      color: #fff; font: 600 1.02rem 'Inter', sans-serif; text-align: left;
+      cursor: pointer;
+      transition: background 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+    }
+    .quiz-opt.right { background: linear-gradient(135deg, #22c55e, #15803d); border-color: transparent; }
+    .quiz-opt.wrong { background: rgba(255,77,115,0.35); border-color: rgba(255,77,115,0.7); animation: qShake 0.45s ease; }
+    .quiz-opts.done .quiz-opt:not(.right) { opacity: 0.45; }
+    @keyframes qShake { 20% { translate: -8px 0; } 40% { translate: 7px 0; } 60% { translate: -4px 0; } 80% { translate: 2px 0; } }
+    .quiz-fb {
+      margin-top: 14px; min-height: 1.5em;
+      font-family: 'Dancing Script', cursive; font-size: clamp(1.3rem, calc(var(--u) * 6), 1.7rem);
+      color: var(--gold2);
+    }
+
+    .toast {
+      position: fixed; left: 50%; bottom: calc(28px + var(--safe-b)); z-index: 20;
+      max-width: calc(100vw - 32px); padding: 10px 18px; border-radius: 999px;
+      background: rgba(26,10,20,0.94); border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2); font: 500 0.86rem 'Inter', sans-serif; text-align: center;
+      opacity: 0; visibility: hidden; transform: translate(-50%, 8px);
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+    }
+    .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
     /* Da tra loi: thu nho cau hoi cho loi dap co cho, dien thoai nho khong bi chat */
     .ask-slide.answered .kicker { display: none; }
     .ask-slide.answered .ask { font-size: clamp(1.3rem, calc(var(--u) * 6.4), 1.9rem); opacity: 0.75; }
@@ -375,6 +412,10 @@
 
     /* Dien thoai xoay ngang — man thap: chu nho lai */
     @media (max-height: 500px) {
+      .quiz-q { font-size: 1.35rem; }
+      .quiz-opts { margin-top: 12px; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .quiz-opt { padding: 10px 12px; font-size: 0.9rem; }
+      .quiz-fb { margin-top: 8px; }
       .slide { padding-top: calc(70px + var(--safe-t)); padding-bottom: 18px; }
       .punch { margin-top: 12px; }
       .list { gap: 6px; margin-top: 10px; grid-template-columns: 1fr 1fr; }
@@ -592,6 +633,7 @@
   const storyEl = $('story'), barsEl = $('bars'), backdropEl = $('backdrop');
   let slides = [];               // [{el, dur, barDur, bg, counters, onEnter}]
   let todayLetter = null;
+  let stats = null;              // so lieu cho anh tong ket (dien trong buildSlides)
 
   function shuffle(arr) {
     const a = arr.slice();
@@ -740,6 +782,26 @@
       });
     }
 
+    // ★ Em nho khong? — dap an tu tinh tu cac moc; muon doi cau hoi thi sua quizList
+    const quiz = quizList(all, donations);
+    quiz.forEach((qz, k) => {
+      const opts = shuffle([{ t: qz.a, ok: 1 }].concat(qz.wrong.map((t) => ({ t, ok: 0 }))));
+      defs.push({
+        dur: Infinity, barDur: 15000, cls: 'quiz',
+        bg: ['linear-gradient(160deg, #0f2a4a 0%, #3b1650 55%, #7a1f5c 100%)',
+             'linear-gradient(160deg, #3b1650 0%, #7a1f5c 55%, #b0144a 100%)',
+             'linear-gradient(160deg, #13333b 0%, #23395d 50%, #5b1d5e 100%)'][k % 3],
+        onEnter: () => resetQuiz(slides[cur]),
+        html: `
+          <div class="kicker a" style="--d:.2s">Em nhớ không? · ${k + 1}/${quiz.length}</div>
+          <h2 class="quiz-q a" style="--d:.5s">${esc(qz.q)}</h2>
+          <div class="quiz-opts a" style="--d:1s">${opts.map((o) =>
+            `<button class="quiz-opt" data-ok="${o.ok}">${esc(o.t)}</button>`).join('')}</div>
+          <p class="quiz-fb" aria-live="polite"></p>`,
+      });
+    });
+    stats = { hundreds: hundreds.length, media: media.length, donations: donations.length, photo: photo(PHOTOS.open) };
+
     defs.push({
       dur: 7500, bg: 'radial-gradient(circle at 50% 35%, #e11d48 0%, #7f1034 55%, #2d0614 100%)',
       html: `
@@ -785,6 +847,7 @@
           <p>Hẹn em ở kỷ niệm ${NEXT_YEAR} năm — ${fmtVN(addMonths(S0, NEXT_YEAR * 12))}.</p>
           <div class="after-btns">
             ${todayLetter ? '<button class="btn gold" id="readLetter">Đọc thư anh gửi 💌</button>' : ''}
+            <button class="btn gold" id="saveCard">📸 Lưu ảnh kỷ niệm</button>
             <button class="btn" id="again">↻ Xem lại</button>
             <a class="btn" href="love.html">‹ Trang tình yêu</a>
           </div>
@@ -809,6 +872,8 @@
       };
     });
     wireAsk();
+    slides.forEach((sl) => sl.el.querySelectorAll('.quiz-opt').forEach((b) =>
+      b.addEventListener('click', () => answerQuiz(sl, b))));
   }
 
   // ── CHUYEN MAN ───────────────────────────────────────────────
@@ -898,6 +963,186 @@
     if (cur >= 0) keepAwake();
   });
 
+  // ── EM NHO KHONG? ────────────────────────────────────────────
+  /** Cau hoi va dap an. Moi cau: q, a (dung), wrong (2 dap an nhieu). */
+  function quizList(all, donations) {
+    const out = [];
+    const wd = S0.getDay();
+    out.push({ q: 'Ngày đầu tiên của mình là thứ mấy?', a: WEEKDAYS[wd], wrong: [WEEKDAYS[(wd + 2) % 7], WEEKDAYS[(wd + 5) % 7]] });
+    const hm = donations[0];
+    if (hm) {
+      const d = new Date(hm.ts);
+      const swap = new Date(d.getFullYear(), d.getDate() - 1, d.getMonth() + 1);   // dao ngay <-> thang cho kho
+      const next = new Date(d.getFullYear(), d.getMonth() + 1, d.getDate());
+      out.push({ q: 'Lần đầu mình cùng nhau đi hiến máu là ngày nào?', a: fmtVN(d), wrong: [fmtVN(swap), fmtVN(next)].filter((t) => t !== fmtVN(d)) });
+    }
+    if (N >= 30) {
+      const f = (n) => `${n.toLocaleString('vi-VN')} ngày`;
+      out.push({ q: 'Tính đến hôm nay, mình đã bên nhau bao nhiêu ngày?', a: f(N), wrong: [f(N - 17), f(N + 23)] });
+    }
+    return out.filter((qz) => qz.wrong.length === 2);
+  }
+
+  const CHEERS = ['Đúng rồi! Em giỏi quá 💕', 'Chuẩn luôn! Anh biết em nhớ mà 🥰', 'Quá đỉnh! Thưởng em một cái ôm 🤗'];
+  function resetQuiz(sl) {
+    sl.dur = Infinity;
+    sl.tries = 0;
+    sl.el.querySelector('.quiz-opts').classList.remove('done');
+    sl.el.querySelectorAll('.quiz-opt').forEach((b) => b.classList.remove('right', 'wrong'));
+    sl.el.querySelector('.quiz-fb').textContent = '';
+  }
+  function answerQuiz(sl, btn) {
+    if (slides[cur] !== sl || sl.dur !== Infinity) return;
+    const fb = sl.el.querySelector('.quiz-fb');
+    const finishIn = (ms) => {
+      sl.el.querySelector('.quiz-opts').classList.add('done');
+      sl.dur = (paused ? pausedAt : performance.now()) - slideStart + ms;   // xong thi tu sang man ke
+    };
+    if (btn.dataset.ok === '1') {
+      btn.classList.add('right');
+      fb.textContent = CHEERS[cur % CHEERS.length];
+      if (!reduceMotion) burst(btn);
+      finishIn(2300);
+      return;
+    }
+    sl.tries = (sl.tries || 0) + 1;
+    btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong');
+    if (sl.tries < 2) { fb.textContent = 'Sai rồi nè 😝 Thử lại xem'; return; }
+    const right = sl.el.querySelector('.quiz-opt[data-ok="1"]');
+    right.classList.add('right');
+    fb.textContent = 'Không sao, anh nhớ giùm em hết rồi 😌';
+    finishIn(2800);
+  }
+
+  // ── ANH TONG KET (luu / chia se) ─────────────────────────────
+  // Anh doc 1080x1920 tom tat ca nam — dien thoai mo bang chia se (luu vao anh,
+  // dang story), may tinh thi tai ve. Ve san khi bam "Co" de luc bam nut chia se
+  // ngay (Safari chi cho chia se ngay trong lan cham).
+  let cardFile = null, cardJob = null;
+  let toastTimer = 0;
+  function toast(msg) {
+    const toastEl = $('toast');                  // nam sau script nen tim luc dung
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  }
+
+  function loadImg(src) {
+    return new Promise((res) => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = () => res(null);
+      im.src = src;
+    });
+  }
+
+  async function renderCard() {
+    if (document.fonts) await document.fonts.ready;
+    const Wc = 1080, Hc = 1920;
+    const c = document.createElement('canvas');
+    c.width = Wc; c.height = Hc;
+    const g = c.getContext('2d');
+    const bg = g.createLinearGradient(0, 0, Wc * 0.3, Hc);
+    bg.addColorStop(0, '#2a0f3d'); bg.addColorStop(0.5, '#8f1d4f'); bg.addColorStop(1, '#16070f');
+    g.fillStyle = bg; g.fillRect(0, 0, Wc, Hc);
+    for (let i = 0; i < 160; i++) {                      // bui sao
+      g.globalAlpha = 0.15 + Math.random() * 0.5;
+      g.fillStyle = '#fff';
+      g.beginPath(); g.arc(Math.random() * Wc, Math.random() * Hc, Math.random() * 2.2 + 0.4, 0, 6.283); g.fill();
+    }
+    g.globalAlpha = 1;
+    g.textAlign = 'center';
+
+    g.fillStyle = '#ffb3c6';
+    g.font = `700 64px 'Dancing Script', cursive`;
+    g.fillText('Nhìn lại', Wc / 2, 150);
+    g.fillStyle = '#fff';
+    g.font = `700 72px 'Playfair Display', serif`;
+    g.fillText(`${PERIOD} của chúng mình`, Wc / 2, 245);
+
+    // Anh: khung polaroid theo dung ty le anh (khong cat), nghieng nhe
+    const im = stats && stats.photo ? await loadImg(stats.photo) : null;
+    if (im) {
+      const r = Math.min(4 / 3, Math.max(3 / 4, im.width / im.height));
+      let pw = 700, ph = pw / r;
+      if (ph > 730) { ph = 730; pw = ph * r; }
+      g.save();
+      g.translate(Wc / 2, 320 + (ph + 110) / 2);
+      g.rotate(-0.03);
+      g.shadowColor = 'rgba(0,0,0,0.45)'; g.shadowBlur = 50; g.shadowOffsetY = 20;
+      g.fillStyle = '#fffaf3';
+      g.fillRect(-pw / 2 - 26, -(ph + 110) / 2, pw + 52, ph + 110);
+      g.shadowColor = 'transparent';
+      const sr = im.width / im.height;                   // cat vua khung (khung da gan dung ty le)
+      let sw = im.width, sh = im.height, sx = 0, sy = 0;
+      if (sr > r) { sw = im.height * r; sx = (im.width - sw) / 2; } else { sh = im.width / r; sy = (im.height - sh) / 2; }
+      g.drawImage(im, sx, sy, sw, sh, -pw / 2, -(ph + 110) / 2 + 26, pw, ph);
+      g.fillStyle = '#b0144a';
+      g.font = `700 46px 'Dancing Script', cursive`;
+      g.fillText('mình 💕', 0, (ph + 110) / 2 - 26);
+      g.restore();
+    }
+
+    const yN = 1410;
+    const gold = g.createLinearGradient(0, yN - 200, 0, yN);
+    gold.addColorStop(0, '#fde68a'); gold.addColorStop(1, '#f5a742');
+    g.fillStyle = gold;
+    g.font = `700 230px 'Playfair Display', serif`;
+    g.fillText(N.toLocaleString('vi-VN'), Wc / 2, yN);
+    g.fillStyle = 'rgba(255,255,255,0.85)';
+    g.font = `600 40px 'Inter', sans-serif`;
+    g.fillText('N G À Y   B Ê N   N H A U', Wc / 2, yN + 62);
+
+    const cells = [
+      [(N * 24).toLocaleString('vi-VN'), 'giờ'],
+      [String(stats ? stats.hundreds : 0), 'mốc trăm ngày'],
+      [String(stats ? stats.media : 0), 'khoảnh khắc'],
+    ];
+    cells.forEach(([v, l], k) => {
+      const x = Wc / 2 + (k - 1) * 320;
+      g.fillStyle = '#fde68a';
+      g.font = `700 64px 'Playfair Display', serif`;
+      g.fillText(v, x, yN + 172);
+      g.fillStyle = 'rgba(255,255,255,0.7)';
+      g.font = `500 30px 'Inter', sans-serif`;
+      g.fillText(l, x, yN + 214);
+    });
+
+    g.fillStyle = '#fff';
+    g.font = `600 50px 'Inter', sans-serif`;
+    g.fillText('Thị Huyền  ❤  Hữu Phước', Wc / 2, 1748);
+    g.fillStyle = 'rgba(255,255,255,0.6)';
+    g.font = `500 34px 'Inter', sans-serif`;
+    g.fillText(`${fmtVN(S0)} — ${fmtVN(TODAY)}`, Wc / 2, 1802);
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.font = `500 26px 'Inter', sans-serif`;
+    g.fillText('love.personal.io.vn', Wc / 2, 1874);
+
+    const blob = await new Promise((res) => c.toBlob(res, 'image/png'));
+    return new File([blob], `${PERIOD.toLowerCase().replace(/\s+/g, '-')}-cua-chung-minh.png`
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'), { type: 'image/png' });
+  }
+  function prepareCard() {
+    if (!cardJob) cardJob = renderCard().then((f) => (cardFile = f)).catch(() => null);
+    return cardJob;
+  }
+
+  async function saveCard() {
+    const file = cardFile || await prepareCard();
+    if (!file) { toast('Chưa tạo được ảnh, thử lại nha 🥺'); return; }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: `${PERIOD} của chúng mình` }); return; }
+      catch (e) { if (e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file);
+    a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast('Đã lưu ảnh về máy 💕');
+  }
+
   // ── CAU HOI CUOI ─────────────────────────────────────────────
   const NO_TEXTS = ['Không', 'Chắc chưa?', 'Nghĩ lại đi mà 🥺', 'Bấm nhầm hả?'];
   let noTries = 0;
@@ -912,7 +1157,7 @@
     $('after').closest('.slide').classList.remove('answered');
   }
 
-  /** Nut "Khong" chay tron; bi duoi 4 lan thi tu doi thanh "Co" */
+  /** Nut "Khong" chay tron; bi duoi (re chuot / bam) 4 lan thi tu doi thanh "Co" */
   function dodge(e) {
     if (noTries >= NO_TEXTS.length) return;
     e.preventDefault();
@@ -920,10 +1165,30 @@
     const no = $('noBtn');
     if (noTries >= NO_TEXTS.length) { no.textContent = 'Có 💕'; no.style.transform = ''; return; }
     no.textContent = NO_TEXTS[noTries];
+
+    // Nhay toi cho con trong trong khung story: xa con tro (khong nam lai duoi chuot
+    // nen bam hut) va khong de len nut "Co chu"
     const box = storyEl.getBoundingClientRect();
-    const dx = (Math.random() - 0.3) * box.width * 0.45;
-    const dy = (Math.random() - 0.5) * 150;
-    no.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random() - 0.5) * 16}deg)`;
+    const yes = $('yesBtn').getBoundingClientRect();
+    const w = no.offsetWidth, h = no.offsetHeight, M = 14;
+    const baseX = yes.right + 12 + w / 2, baseY = (yes.top + yes.bottom) / 2;   // cho goc canh nut "Co"
+    const px = e.clientX || baseX, py = e.clientY || baseY;
+    const minX = box.left + M + w / 2, maxX = box.right - M - w / 2;
+    const minY = Math.max(box.top + 80, baseY - 220) + h / 2, maxY = box.bottom - M - h / 2;
+    const far = Math.max(w, h) + 40;
+    let best = null, bestD = -1;
+    for (let k = 0; k < 40; k++) {
+      const x = minX + Math.random() * Math.max(0, maxX - minX);
+      const y = minY + Math.random() * Math.max(0, maxY - minY);
+      const hitsYes = x + w / 2 > yes.left - 10 && x - w / 2 < yes.right + 10 &&
+        y + h / 2 > yes.top - 10 && y - h / 2 < yes.bottom + 10;
+      if (hitsYes) continue;
+      const d = Math.hypot(x - px, y - py);
+      if (d > far) { best = [x, y]; break; }
+      if (d > bestD) { bestD = d; best = [x, y]; }
+    }
+    if (!best) best = [baseX, baseY];
+    no.style.transform = `translate(${best[0] - baseX}px, ${best[1] - baseY}px) rotate(${(Math.random() - 0.5) * 16}deg)`;
   }
 
   function sayYes() {
@@ -931,15 +1196,17 @@
     $('after').hidden = false;
     $('after').closest('.slide').classList.add('answered');
     if (!reduceMotion) burst($('after'));
+    prepareCard();                               // ve san anh tong ket de bam la chia se duoc ngay
   }
 
   function wireAsk() {
     const no = $('noBtn');
     no.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') dodge(e); });
-    no.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') dodge(e); });
-    no.addEventListener('click', () => { if (noTries >= NO_TEXTS.length) sayYes(); });
+    // Bam trung (cham tren dien thoai, hoac chuot bat kip) cung tinh mot lan duoi — khong bao gio bam ma im
+    no.addEventListener('click', (e) => { if (noTries >= NO_TEXTS.length) sayYes(); else dodge(e); });
     $('yesBtn').addEventListener('click', sayYes);
     $('again').addEventListener('click', () => go(0));
+    $('saveCard').addEventListener('click', saveCard);
     $('readLetter')?.addEventListener('click', openLetter);
   }
 
@@ -1010,5 +1277,6 @@
   requestAnimationFrame(tick);
 })();
 </script>
+<div class="toast" id="toast" aria-live="polite"></div>
 </body>
 </html>

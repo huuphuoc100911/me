@@ -146,7 +146,9 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.35);
       opacity: 0;
       cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      z-index: 1;
+      /* z-index ha xuong sau khi thu nho xong, o ben canh khong de len luc dang thu */
+      transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s 0.25s;
     }
     .mosaic.go .tile { opacity: 1; }
     .tile img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
@@ -158,7 +160,9 @@
       pointer-events: none;
     }
     @media (hover: hover) {
-      .mosaic.done .tile:hover { transform: scale(1.12); z-index: 3; box-shadow: 0 8px 26px rgba(0,0,0,0.55), 0 0 0 2px var(--gold2); }
+      .mosaic.done .tile:hover { transform: scale(1.12); z-index: 3; box-shadow: 0 8px 26px rgba(0,0,0,0.55), 0 0 0 2px var(--gold2); transition-delay: 0s; }
+      /* Chuot dang o tren tim thi tim dung dap: o anh khong troi khoi con tro nen het giat */
+      .mosaic.done:hover .mosaic-in { animation-play-state: paused; }
     }
 
     /* O cua so giua tim: so ngay chay tu 0 len */
@@ -314,6 +318,50 @@
       .vw-stage { padding-top: 54px; padding-bottom: 14px; }
     }
 
+    /* Tim dap theo nhip trong cua bai dang phat (JS dat transform + --glow) */
+    .mosaic.done.music-beat .mosaic-in { animation: none; }
+    .mosaic.done.music-beat::before { opacity: var(--glow, 1); transition: none; }
+
+    /* ── LAT ANH XEM MAT SAU (giu lau mot o) ──────────────── */
+    .tile, .tile img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+    .flip-veil {
+      position: fixed; inset: 0; z-index: 7;
+      background: rgba(5,2,6,0.6);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .flip-veil.show { opacity: 1; }
+    .flip {
+      position: fixed; z-index: 8; left: 0; top: 0;
+      width: var(--fw); height: var(--fh);
+      perspective: 1400px; cursor: pointer;
+      transform-origin: 0 0;
+    }
+    .flip-in { position: absolute; inset: 0; transform-style: preserve-3d; }
+    .flip-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: 12px; overflow: hidden;
+      background: #fffaf3;
+      box-shadow: 0 26px 70px rgba(0,0,0,0.6);
+    }
+    .flip-front { padding: 7% 7% 0; }
+    .flip-front img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; display: block; }
+    .flip-back {
+      transform: rotateY(180deg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      padding: 9% 9%;
+      color: #4a1d2c; text-align: center;
+      background:
+        repeating-linear-gradient(180deg, transparent 0 29px, rgba(176,20,74,0.08) 29px 30px),
+        #fffaf3;
+    }
+    .fb-no { font: 600 0.62rem/1 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #b08a93; }
+    .fb-date { font: 700 calc(var(--fw) * 0.12)/1.1 'Dancing Script', cursive; color: #b0144a; }
+    .fb-ms { font: 600 calc(var(--fw) * 0.05)/1.35 'Inter', sans-serif; color: #6b2a3c; }
+    .fb-line { margin-top: 4px; font: 600 calc(var(--fw) * 0.075)/1.3 'Dancing Script', cursive; }
+    .fb-sign { margin-top: 6px; align-self: flex-end; font: 700 calc(var(--fw) * 0.07)/1 'Dancing Script', cursive; color: #b0144a; }
+
     @media (prefers-reduced-motion: reduce) {
       .intro-line, .start, .intro-hint { animation: none; opacity: 1; }
       .mosaic.done .mosaic-in { animation: none; }
@@ -355,7 +403,7 @@
   <p class="fn-line">Ghép lại thành trái tim — mỗi ô là một lần tim anh lỡ nhịp vì em.</p>
   <div class="fn-names">Thị Huyền <span>❤</span> Hữu Phước</div>
   <div class="fn-dates" id="fnDates"></div>
-  <div class="fn-hint">Chạm vào một ô để xem lại khoảnh khắc ấy ✦</div>
+  <div class="fn-hint">Chạm một ô để xem lại · giữ lâu để lật mặt sau ✦</div>
 </section>
 
 <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Xem khoảnh khắc">
@@ -547,7 +595,11 @@
       img.decoding = 'async';
       img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
       el.appendChild(img);
-      el.addEventListener('click', () => { if (phase === 'done') openViewer(i % media.length); });
+      el.addEventListener('click', () => {
+        if (longPressed) { longPressed = false; return; }     // vua giu lau de lat -> khong mo xem
+        if (phase === 'done') openViewer(i % media.length);
+      });
+      holdToFlip(el, i);
       mosaicIn.appendChild(el);
       return { el, cell };
     });
@@ -767,6 +819,7 @@
   $('vwX').addEventListener('click', closeViewer);
   viewerEl.addEventListener('click', (e) => { if (e.target === viewerEl || e.target === vwStage) closeViewer(); });
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && flipOpen) { closeFlip(); return; }
     if (!viewerEl.classList.contains('show')) return;
     if (e.key === 'Escape') closeViewer();
     if (e.key === 'ArrowLeft') showMedia(vwIndex - 1);
@@ -781,6 +834,147 @@
     if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) showMedia(vwIndex + (dx < 0 ? 1 : -1));
     else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) closeViewer();     // vuot xuong de dong
   }, { passive: true });
+
+  // ── TIM DAP THEO NHAC ────────────────────────────────────────
+  // Nhip trong cua tung bai do san bang `npm run beats` (music/love/beats.json).
+  // Dang phat nhac thi tim nay len dung luc trong dap; tat nhac / dang xem video
+  // thi quay ve nhip "thinh-thinh" deu cua CSS.
+  let BEATS = {};
+  fetch('music/love/beats.json').then((r) => (r.ok ? r.json() : {})).then((d) => { BEATS = d || {}; }).catch(() => {});
+  const BEAT_DECAY = 0.16;        // giay — nay len roi xep xuong nhanh hay cham
+  const BEAT_LEAD = 0.03;         // bu do tre am thanh
+
+  function beatEnv() {
+    const list = BEATS[PLAYLIST[track].split('/').pop()];
+    if (!list || !list.length) return null;
+    const ct = audio.currentTime + BEAT_LEAD;
+    let lo = 0, hi = list.length - 1, k = -1;            // nhip gan nhat da qua
+    while (lo <= hi) { const mid = (lo + hi) >> 1; if (list[mid] <= ct) { k = mid; lo = mid + 1; } else hi = mid - 1; }
+    if (k < 0) return 0;
+    const dt = ct - list[k];
+    return dt > 0.8 ? 0 : Math.exp(-dt / BEAT_DECAY);
+  }
+  const canHover = matchMedia('(hover: hover)').matches;
+  let beatShown = 0;
+  function syncBeat() {
+    const live = phase === 'done' && !reduceMotion && musicOn && !ducked && !audio.paused;
+    const env = live ? beatEnv() : null;
+    if (env == null) {
+      if (mosaicEl.classList.contains('music-beat')) {
+        mosaicEl.classList.remove('music-beat');
+        mosaicIn.style.transform = '';
+      }
+    } else {
+      // Chuot tren tim: xep nhe ve yen thay vi nay theo nhac (o anh dung yen duoi con tro)
+      const still = canHover && mosaicEl.matches(':hover');
+      beatShown = still ? beatShown * 0.85 : env;
+      mosaicEl.classList.add('music-beat');
+      mosaicIn.style.transform = `scale(${(1 + 0.045 * beatShown).toFixed(4)})`;
+      mosaicEl.style.setProperty('--glow', (0.55 + 0.6 * beatShown).toFixed(3));
+    }
+    requestAnimationFrame(syncBeat);
+  }
+  requestAnimationFrame(syncBeat);
+
+  // ── LAT ANH XEM MAT SAU ──────────────────────────────────────
+  // Giu lau mot o: tam anh nhac len giua man hinh, lat 3D nhu polaroid that. Mat
+  // sau ghi ngay + ten moc (anh dat ten theo ngay) bang chu viet tay, them mot loi nho.
+  const HOLD_MS = 450;
+  const BACK_LINES = [
+    'Giữ lại cho anh nụ cười này nhé.',
+    'Lúc này, anh đang nghĩ: mình thật may mắn.',
+    'Một khoảnh khắc nhỏ, một kỷ niệm lớn.',
+    'Nếu được quay lại, anh vẫn chụp đúng tấm này.',
+    'Ảnh mờ cũng được, miễn là có em.',
+    'Ngày đó vui lắm, em nhớ không?',
+    'Anh cất tấm này ở ngăn đẹp nhất trong tim.',
+    'Mỗi lần nhìn lại, anh lại thương em thêm.',
+    'Khoảnh khắc này, anh muốn kéo dài mãi.',
+    'Đằng sau tấm ảnh là một ngày anh rất hạnh phúc.',
+    'Cảm ơn em vì đã cười như thế.',
+    'Mình của ngày ấy — và mình của mãi về sau.',
+  ];
+  let longPressed = false, flipOpen = null;
+
+  function holdToFlip(el, i) {
+    let timer = 0, x0 = 0, y0 = 0;
+    const cancel = () => clearTimeout(timer);
+    el.addEventListener('pointerdown', (e) => {
+      if (phase !== 'done' || flipOpen) return;
+      longPressed = false;
+      x0 = e.clientX; y0 = e.clientY;
+      clearTimeout(timer);
+      timer = setTimeout(() => { longPressed = true; openFlip(el, i); }, HOLD_MS);
+    });
+    el.addEventListener('pointermove', (e) => { if (Math.hypot(e.clientX - x0, e.clientY - y0) > 10) cancel(); });
+    el.addEventListener('pointerup', cancel);
+    el.addEventListener('pointercancel', cancel);
+    el.addEventListener('pointerleave', cancel);
+  }
+  mosaicEl.addEventListener('contextmenu', (e) => e.preventDefault());   // giu lau tren dien thoai khong bat menu anh
+
+  function backHtml(m, i) {
+    const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const k = i % media.length;
+    let date = 'Một ngày nào đó…', ms = '';
+    if (m.d) {
+      const [y, mo, d] = m.d.split('-');
+      date = `${d} · ${mo} · ${y}`;
+      ms = (msByDay[m.d] || []).map((e) => `${e.icon} ${e.name}`).join('<br>');
+    }
+    return `<div class="fb-no">Khoảnh khắc ${k + 1} / ${media.length}</div>
+      <div class="fb-date">${date}</div>
+      ${ms ? `<div class="fb-ms">${ms}</div>` : ''}
+      <div class="fb-line">${esc(BACK_LINES[[...m.f].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % BACK_LINES.length])}</div>
+      <div class="fb-sign">— anh ♥</div>`;
+  }
+
+  function openFlip(el, i) {
+    const m = media[i % media.length];
+    const r = el.getBoundingClientRect();
+    const fw = Math.round(Math.min(300, Math.min(W, H) * 0.7)), fh = Math.round(fw * 1.2);
+    const fx = (W - fw) / 2, fy = (H - fh) / 2;
+    navigator.vibrate?.(12);
+
+    const veil = document.createElement('div');
+    veil.className = 'flip-veil';
+    const card = document.createElement('div');
+    card.className = 'flip';
+    card.style.setProperty('--fw', `${fw}px`);
+    card.style.setProperty('--fh', `${fh}px`);
+    card.innerHTML = `<div class="flip-in">
+        <div class="flip-face flip-front"><img alt="" src="${MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f)}"></div>
+        <div class="flip-face flip-back">${backHtml(m, i)}</div>
+      </div>`;
+    document.body.append(veil, card);
+    requestAnimationFrame(() => veil.classList.add('show'));
+    el.style.visibility = 'hidden';
+
+    // Bay tu dung cho o anh ra giua (o anh khop voi phan anh cua polaroid), roi lat
+    const s0 = r.width / (fw * 0.86), pad = fw * 0.07 * s0;
+    const a1 = card.animate([
+      { transform: `translate(${r.left - pad}px, ${r.top - pad}px) scale(${s0})` },
+      { transform: `translate(${fx}px, ${fy}px) scale(1)` },
+    ], { duration: reduceMotion ? 1 : 600, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+    const a2 = card.firstElementChild.animate(
+      [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }],
+      { duration: reduceMotion ? 1 : 750, delay: reduceMotion ? 0 : 450, easing: 'cubic-bezier(.4,.1,.2,1)', fill: 'forwards' },
+    );
+    flipOpen = { el, veil, card, a1, a2 };
+    const close = () => closeFlip();
+    veil.addEventListener('click', close);
+    card.addEventListener('click', close);
+  }
+
+  function closeFlip() {
+    if (!flipOpen) return;
+    const { el, veil, card, a1, a2 } = flipOpen;
+    flipOpen = null;
+    veil.classList.remove('show');
+    a2.reverse();
+    setTimeout(() => a1.reverse(), reduceMotion ? 0 : 350);
+    setTimeout(() => { el.style.visibility = ''; veil.remove(); card.remove(); }, reduceMotion ? 50 : 1000);
+  }
 
   // ── BAT DAU ──────────────────────────────────────────────────
   const introEl = $('intro');

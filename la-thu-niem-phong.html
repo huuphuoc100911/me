@@ -260,6 +260,83 @@
     }
     .pp-btn:hover { background: rgba(138,42,67,0.14); }
 
+    .pp-btn.gold { border-color: rgba(168,20,47,0.5); background: linear-gradient(135deg, rgba(245,200,66,0.25), rgba(255,77,115,0.18)); }
+
+    /* ── P.S. MUC TANG HINH: ho tay len thi chu hien dan ── */
+    .ps {
+      position: relative;
+      margin-top: 18px; padding: 16px 18px; min-height: 92px;
+      border-radius: 8px;
+      background: #fbf0e1;
+      border: 1px dashed rgba(138,42,67,0.3);
+      opacity: 0; transition: opacity 0.9s ease;
+    }
+    .ps[hidden] { display: none; }
+    .ps.show { opacity: 1; }
+    .ps-text {
+      font-family: 'Dancing Script', cursive; font-weight: 600;
+      font-size: clamp(1.25rem, 4.8vw, 1.5rem); line-height: 1.5;
+      color: #8b4513;
+      text-shadow: 0 0 1px rgba(139,69,19,0.35);
+    }
+    .ps-cover {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      border-radius: 8px;
+      touch-action: none; cursor: crosshair;
+      transition: opacity 1.2s ease;
+    }
+    .ps.revealed .ps-cover { opacity: 0; pointer-events: none; }
+    .ps.revealed .ps-text { animation: psGlow 2s ease-out; }
+    @keyframes psGlow { from { text-shadow: 0 0 14px rgba(245,160,60,0.9); } to { text-shadow: 0 0 1px rgba(139,69,19,0.35); } }
+
+    /* ── THU TRA LOI ─────────────────────────────────────── */
+    .reply {
+      position: fixed; inset: 0; z-index: 9;
+      display: flex; align-items: center; justify-content: center;
+      padding: calc(16px + var(--safe-t)) 14px calc(16px + var(--safe-b));
+      background: rgba(7,3,10,0.72);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.45s ease, visibility 0.45s;
+    }
+    .reply.show { opacity: 1; visibility: visible; }
+    .reply-paper {
+      width: min(94vw, 560px); max-height: 100%;
+      display: flex; flex-direction: column;
+      padding: 24px clamp(18px, 5vw, 34px) 18px;
+      border-radius: 6px;
+      background: var(--paper); color: var(--ink);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      transform-origin: 50% 0;
+    }
+    .rp-to { font-family: 'Dancing Script', cursive; font-weight: 700; font-size: 1.9rem; color: var(--ink2); }
+    .rp-sub { font: 400 0.78rem 'Inter', sans-serif; color: #9a6b75; margin-top: 2px; }
+    .reply-paper textarea {
+      margin-top: 12px; width: 100%;
+      min-height: min(46vh, 340px); resize: none;
+      border: none; outline: none;
+      padding: 0 2px;
+      background: repeating-linear-gradient(180deg, transparent 0 calc(2.1rem - 1px), rgba(138,42,67,0.16) calc(2.1rem - 1px) 2.1rem);
+      color: var(--ink);
+      font-family: 'Dancing Script', cursive; font-weight: 500;
+      font-size: 1.45rem; line-height: 2.1rem;
+    }
+    .reply-paper textarea::placeholder { color: rgba(61,22,34,0.35); }
+    .rp-actions { margin-top: 14px; display: flex; justify-content: flex-end; gap: 10px; }
+    .rp-send { background: linear-gradient(135deg, #e11d48, #b0144a); color: #fff; border: none; }
+    .rp-send:hover { background: linear-gradient(135deg, #f43f5e, #be185d); }
+    .rp-msg { margin-top: 8px; min-height: 1.2em; font: 500 0.8rem 'Inter', sans-serif; color: #b0144a; text-align: right; }
+
+    .toast {
+      position: fixed; left: 50%; top: calc(70px + var(--safe-t)); z-index: 12;
+      max-width: calc(100vw - 32px); padding: 10px 18px; border-radius: 999px;
+      background: rgba(26,10,20,0.94); border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2); font: 500 0.86rem 'Inter', sans-serif; text-align: center;
+      opacity: 0; visibility: hidden; transform: translate(-50%, -8px);
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+    }
+    .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
     .reveal-all {
       position: fixed; z-index: 5;
       left: 50%; bottom: calc(12px + var(--safe-b));
@@ -339,9 +416,14 @@
   <div class="pp-date" id="ppDate"></div>
   <h1 class="pp-title" id="ppTitle"></h1>
   <div class="pp-body" id="ppBody"></div>
+  <div class="ps" id="ps" hidden>
+    <p class="ps-text" id="psText"></p>
+    <canvas class="ps-cover" id="psCover" aria-label="Hơ nhẹ tay lên đây để đọc dòng bí mật"></canvas>
+  </div>
   <div class="pp-end" id="ppEnd">
     <div class="stamp"><b id="stampN">0</b><span>ngày bên nhau</span></div>
     <div class="pp-actions">
+      <button class="pp-btn gold" id="replyBtn">✍️ Viết thư trả lời</button>
       <button class="pp-btn" id="rewrite">↻ Đọc lại</button>
       <a class="pp-btn" href="love.html">‹ Trang tình yêu</a>
     </div>
@@ -349,6 +431,20 @@
 </article>
 
 <button class="reveal-all" id="revealAll">Chạm để hiện hết ›</button>
+
+<div class="reply" id="reply" role="dialog" aria-modal="true" aria-labelledby="replyTitle">
+  <form class="reply-paper" id="replyForm" autocomplete="off">
+    <div class="rp-to" id="replyTitle">Gửi anh 💌</div>
+    <div class="rp-sub">Viết gì cũng được — thư sẽ bay thẳng tới anh.</div>
+    <textarea id="replyText" maxlength="4000" placeholder="Anh ơi…" aria-label="Thư trả lời"></textarea>
+    <div class="rp-actions">
+      <button type="button" class="pp-btn" id="replyLater">Để sau</button>
+      <button type="submit" class="pp-btn rp-send" id="replySend">Gửi thư 💌</button>
+    </div>
+    <div class="rp-msg" id="replyMsg" aria-live="polite"></div>
+  </form>
+</div>
+<div class="toast" id="toast" aria-live="polite"></div>
 
 <script src="js/milestones.js"></script>
 <script src="js/letters.js"></script>
@@ -441,7 +537,11 @@
     bodyEl.textContent = '';
     words = []; at = [];
     let t = 0;
-    text.split(/\n\s*\n/).forEach((para, pi) => {
+    // Doan cuoi bat dau bang "P.S." thanh muc tang hinh, khong viet ra cung thu
+    const paras = text.split(/\n\s*\n/);
+    const psAt = paras.findIndex((pa) => /^\s*p\.?\s*s\b/i.test(pa));
+    psText.textContent = psAt >= 0 ? paras.splice(psAt).join('\n\n').trim() : DEFAULT_PS;
+    paras.forEach((para, pi) => {
       const p = document.createElement('p');
       if (pi > 0) t += PARA_MS;
       para.split('\n').forEach((line, li) => {
@@ -489,6 +589,7 @@
     words.forEach((w) => w.classList.remove('in', 'now'));
     shown = 0; userScrolled = false;
     endEl.classList.remove('show');
+    hidePs();
     paperEl.scrollTop = 0;
     if (reduceMotion || !words.length) { showAll(); return; }
     writing = true;
@@ -506,12 +607,152 @@
   function finishWriting() {
     writing = false;
     revealBtn.classList.remove('show');
+    showPs();
     endEl.classList.add('show');
     if (!userScrolled) setTimeout(() => endEl.scrollIntoView({ behavior: 'smooth', block: 'end' }), 400);
   }
 
   revealBtn.addEventListener('click', showAll);
   $('rewrite').addEventListener('click', startWriting);
+
+  // ── P.S. MUC TANG HINH ───────────────────────────────────────
+  // ★ Doan nao trong thu bat dau bang "P.S." se viet bang muc tang hinh: em phai
+  //   ho (di) ngon tay len mieng giay thi chu moi hien, nhu muc chanh gap lua.
+  //   Thu khong co P.S. thi dung cau nay.
+  const DEFAULT_PS = 'P.S. Anh vẫn nhớ lần đầu em cười với anh. Từ hôm đó tới giờ, anh chưa từng hết thương em.';
+  const psEl = $('ps'), psText = $('psText'), psCover = $('psCover');
+  const pctx = psCover.getContext('2d');
+  const PS_BG = '#fbf0e1', BRUSH = 30;
+  let psDone = false, psMoves = 0;
+
+  function drawCover() {
+    const dpr = Math.min(2, devicePixelRatio || 1), w = psCover.clientWidth, h = psCover.clientHeight;
+    if (!w || !h) return;
+    psCover.width = Math.round(w * dpr); psCover.height = Math.round(h * dpr);
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pctx.globalCompositeOperation = 'source-over';
+    pctx.fillStyle = PS_BG;
+    pctx.fillRect(0, 0, w, h);
+    pctx.fillStyle = 'rgba(138,42,67,0.55)';
+    pctx.font = `italic 400 15px 'Playfair Display', serif`;
+    pctx.textAlign = 'center';
+    pctx.fillText('✦ Hơ nhẹ ngón tay lên đây… ✦', w / 2, h / 2 + 5);
+  }
+  function showPs() {
+    if (!letter) return;
+    psEl.hidden = false;
+    requestAnimationFrame(() => { psEl.classList.add('show'); if (!psDone) drawCover(); });
+  }
+  function hidePs() {
+    psEl.classList.remove('show', 'revealed');
+    psEl.hidden = true;
+    psDone = false; psMoves = 0;
+  }
+  /** Lau mot vet tron mem o diem (x, y) — phan duoi lo ra dan */
+  function rub(x, y) {
+    const g = pctx.createRadialGradient(x, y, 0, x, y, BRUSH);
+    g.addColorStop(0, 'rgba(0,0,0,0.55)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    pctx.globalCompositeOperation = 'destination-out';
+    pctx.fillStyle = g;
+    pctx.beginPath(); pctx.arc(x, y, BRUSH, 0, 6.283); pctx.fill();
+    if (++psMoves % 12 === 0 && cleared() > 0.5) revealPs();
+  }
+  /** Ty le da lau (lay mau thua cho nhanh) */
+  function cleared() {
+    const { width: w, height: h } = psCover;
+    const data = pctx.getImageData(0, 0, w, h).data;
+    let clear = 0, n = 0;
+    for (let y = 4; y < h; y += 12) for (let x = 4; x < w; x += 12) { n++; if (data[(y * w + x) * 4 + 3] < 90) clear++; }
+    return n ? clear / n : 0;
+  }
+  function revealPs() {
+    if (psDone) return;
+    psDone = true;
+    psEl.classList.add('revealed');
+    navigator.vibrate?.(20);
+  }
+  let rubbing = false;
+  psCover.addEventListener('pointerdown', (e) => { rubbing = true; psCover.setPointerCapture?.(e.pointerId); onRub(e); });
+  psCover.addEventListener('pointermove', (e) => { if (rubbing || e.pointerType === 'mouse') onRub(e); });
+  ['pointerup', 'pointercancel'].forEach((ev) => psCover.addEventListener(ev, () => { rubbing = false; }));
+  function onRub(e) {
+    if (psDone) return;
+    const r = psCover.getBoundingClientRect();
+    rub(e.clientX - r.left, e.clientY - r.top);
+  }
+  addEventListener('resize', () => { if (!psEl.hidden && !psDone) drawCover(); });
+
+  // ── THU TRA LOI ──────────────────────────────────────────────
+  // Em viet thu tra loi ngay tren trang -> gui ve mail anh qua /api/love-note.
+  // Dang viet thi luu nhap tren may; gui khong duoc thi thu van con, bam gui lai.
+  const replyEl = $('reply'), replyForm = $('replyForm'), replyText = $('replyText'), replyMsg = $('replyMsg');
+  const DRAFT_KEY = 'reply-draft';
+  const ls = {
+    get(k) { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
+    set(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch {} },
+  };
+  let toastTimer = 0;
+  function toast(msg) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  function openReply() {
+    replyText.value = ls.get(DRAFT_KEY);
+    replyMsg.textContent = '';
+    replyEl.classList.add('show');
+    setTimeout(() => replyText.focus(), 400);
+  }
+  function closeReply() {
+    replyEl.classList.remove('show');
+    replyText.blur();
+  }
+  replyText.addEventListener('input', () => ls.set(DRAFT_KEY, replyText.value));
+  $('replyBtn').addEventListener('click', openReply);
+  $('replyLater').addEventListener('click', closeReply);
+  replyEl.addEventListener('click', (e) => { if (e.target === replyEl) closeReply(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && replyEl.classList.contains('show')) closeReply(); });
+
+  let sending = false;
+  replyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = replyText.value.trim();
+    if (!text) { replyMsg.textContent = 'Em viết vài chữ cho anh đã nha 💕'; replyText.focus(); return; }
+    if (sending) return;
+    sending = true;
+    replyMsg.textContent = 'Đang gửi…';
+    let ok = false;
+    try {
+      const r = await fetch('api/love-note', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'reply', text }),
+      });
+      ok = r.ok;
+    } catch {}
+    sending = false;
+    if (!ok) { replyMsg.textContent = 'Chưa gửi được (mạng yếu?) — thư vẫn được giữ, em bấm gửi lại nha 🥺'; return; }
+
+    // Gap thu lai, dong dau, bay di
+    ls.set(DRAFT_KEY, '');
+    replyMsg.textContent = '';
+    const paperR = $('replyForm');
+    replyText.blur();
+    if (!reduceMotion) {
+      await paperR.animate([
+        { transform: 'none' },
+        { transform: 'perspective(900px) rotateX(70deg) scaleY(0.25)', offset: 0.55 },
+        { transform: 'perspective(900px) rotateX(70deg) scaleY(0.25) translateY(-160vh) rotate(-8deg)', opacity: 0.6 },
+      ], { duration: 1500, easing: 'cubic-bezier(.5,0,.3,1)' }).finished.catch(() => {});
+    }
+    closeReply();
+    replyText.value = '';
+    $('replyBtn').textContent = '✍️ Viết thêm cho anh';
+    toast('Thư đã bay tới anh rồi 💕');
+  });
 
   // ── NHAC ─────────────────────────────────────────────────────
   const musicEl = $('music');

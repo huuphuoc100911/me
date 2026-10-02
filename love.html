@@ -1721,7 +1721,7 @@
     <div class="countdown-title" id="cdTitle">Đếm ngược đến kỷ niệm 1 năm 💍</div>
     <div class="countdown-sub" id="cdSub">18 / 10 / 2026 &nbsp;—&nbsp; Một năm trọn vẹn yêu thương</div>
     <div class="countdown-blocks">
-      <div class="cb"><div class="cb-val" id="cdDays">000</div><div class="cb-lbl">Ngày</div></div>
+      <div class="cb"><div class="cb-val" id="cdDays">00</div><div class="cb-lbl">Ngày</div></div>
       <div class="cb-dot">:</div>
       <div class="cb"><div class="cb-val" id="cdHours">00</div><div class="cb-lbl">Giờ</div></div>
       <div class="cb-dot">:</div>
@@ -2339,7 +2339,7 @@ function tick(t) {
     const h  = Math.floor((diff % 86400000) / 3600000);
     const m  = Math.floor((diff % 3600000) / 60000);
     const s  = Math.floor((diff % 60000) / 1000);
-    pop(document.getElementById('cdDays'),  pad(d, 3));
+    pop(document.getElementById('cdDays'),  pad(d, 2));   // 15 -> "15", 7 -> "07", 350 -> "350"
     pop(document.getElementById('cdHours'), pad(h, 2));
     pop(document.getElementById('cdMins'),  pad(m, 2));
     pop(document.getElementById('cdSecs'),  pad(s, 2));

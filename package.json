@@ -5,6 +5,7 @@
   },
   "scripts": {
     "gallery": "node tools/gallery.js",
-    "letter": "node tools/letter.js"
+    "letter": "node tools/letter.js",
+    "beats": "node tools/beats.js"
   }
 }

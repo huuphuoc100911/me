@@ -160,7 +160,10 @@
     .finale > * { transform: translateY(12px); transition: transform 1.2s ease; }
     .finale.show { opacity: 1; }
     .finale.show > * { transform: none; }
-    .card-open .finale.show { opacity: 0.12; }
+    /* The ngay nam dung cho chu ket (may tinh) / che mot phan (dien thoai) -> an han
+       chu ket khi dang mo the, dong the thi hien lai */
+    .card-open .finale.show { opacity: 0; transition-duration: 0.25s; }
+    .card-open .finale.show .fn-letter { pointer-events: none; }
     .fn-eyebrow { font-family: 'Dancing Script', cursive; font-size: clamp(1.15rem, 4.6vw, 1.5rem); color: var(--pink); }
     .fn-num {
       font-family: 'Playfair Display', serif; font-weight: 700;
@@ -269,6 +272,7 @@
       background: rgba(0,0,0,0.35);
     }
     .dc-photo[hidden] { display: none; }
+    #dcVideo { cursor: pointer; }      /* cham de dung / phat lai */
     .dc-body { flex: 1; min-width: 0; }
     .dc-top { display: flex; align-items: center; gap: 8px; }
     .dc-icon { font-size: 1.3rem; line-height: 1; }
@@ -291,6 +295,61 @@
       cursor: pointer;
     }
     .dc-x:hover { color: var(--white); }
+
+    /* ── UOC NGUYEN SAO BANG ─────────────────────────────── */
+    .wish {
+      position: fixed; inset: 0; z-index: 8;
+      display: flex; align-items: center; justify-content: center;
+      padding: calc(16px + var(--safe-t)) 16px calc(16px + var(--safe-b));
+      background: rgba(7,3,10,0.7);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+    .wish.show { opacity: 1; visibility: visible; }
+    .wish-box {
+      width: 100%; max-width: 400px;
+      padding: 22px 20px 18px; border-radius: 22px;
+      border: 1px solid rgba(245,200,66,0.4);
+      background: rgba(26,10,20,0.95);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 60px rgba(245,200,66,0.12);
+      text-align: center;
+      transform: translateY(14px) scale(0.98);
+      transition: transform 0.4s ease;
+    }
+    .wish.show .wish-box { transform: none; }
+    .wish-box.shake { animation: wishShake 0.45s ease; }
+    @keyframes wishShake { 20% { translate: -8px 0; } 40% { translate: 7px 0; } 60% { translate: -4px 0; } 80% { translate: 2px 0; } }
+    .wish-ic { font-size: 2rem; line-height: 1; }
+    .wish-title { margin-top: 8px; font-family: 'Dancing Script', cursive; font-size: 1.75rem; color: var(--gold2); }
+    .wish-sub { margin-top: 4px; font-size: 0.8rem; line-height: 1.45; color: var(--mut); }
+    .wish-box textarea {
+      display: block; width: 100%; margin-top: 14px;
+      min-height: 96px; resize: none;
+      padding: 12px 14px; border-radius: 14px;
+      border: 1px solid var(--border); background: rgba(0,0,0,0.35);
+      color: var(--white); font-family: inherit; font-size: 16px; line-height: 1.5;   /* 16px: iPhone khong tu phong to */
+      outline: none;
+    }
+    .wish-box textarea:focus { border-color: var(--gold); }
+    .wish-btns { display: flex; gap: 10px; margin-top: 14px; }
+    .wish-btns button {
+      flex: 1; padding: 11px 12px; border-radius: 999px;
+      border: 1px solid var(--border); background: none; color: var(--mut);
+      font-family: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    }
+    .wish-btns .go { border: none; background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; }
+    .toast {
+      position: fixed; left: 50%; top: calc(74px + var(--safe-t)); z-index: 9;
+      max-width: calc(100vw - 32px);
+      padding: 10px 18px; border-radius: 18px;
+      background: rgba(26,10,20,0.94); border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2); font-size: 0.86rem; line-height: 1.45; text-align: center;
+      opacity: 0; visibility: hidden; transform: translate(-50%, -8px);
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
 
     /* ── MAN NGANG / MAY TINH: tim ben trai, chu ben phai ─ */
     /* Cung dieu kien voi mqWide trong JS */
@@ -388,7 +447,7 @@
 <div class="day-card" id="card" role="dialog" aria-live="polite">
   <button class="dc-x" id="cardX" aria-label="Đóng">×</button>
   <img class="dc-photo" id="dcPhoto" alt="Khoảnh khắc của chúng mình" hidden>
-  <video class="dc-photo" id="dcVideo" muted loop playsinline preload="none" hidden></video>
+  <video class="dc-photo" id="dcVideo" playsinline preload="none" hidden></video>
   <div class="dc-body">
     <div class="dc-top"><span class="dc-icon" id="dcIcon"></span><span class="dc-n" id="dcN"></span></div>
     <div class="dc-date" id="dcDate"></div>
@@ -396,6 +455,20 @@
     <p class="dc-line" id="dcLine" hidden></p>
   </div>
 </div>
+
+<div class="wish" id="wish" role="dialog" aria-modal="true" aria-labelledby="wishTitle">
+  <form class="wish-box" id="wishForm" autocomplete="off">
+    <div class="wish-ic">🌠</div>
+    <div class="wish-title" id="wishTitle">Ước một điều đi em…</div>
+    <div class="wish-sub">Điều ước sẽ bay tới người có thể biến nó thành sự thật 💫</div>
+    <textarea id="wishText" maxlength="300" placeholder="Em ước…" aria-label="Điều ước"></textarea>
+    <div class="wish-btns">
+      <button type="button" id="wishLater">Để sau</button>
+      <button type="submit" class="go">Gửi lên trời ✨</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" aria-live="polite"></div>
 
 <script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
@@ -425,6 +498,7 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mqWide = matchMedia('(min-aspect-ratio: 5/4)');   // cung dieu kien voi CSS
   const WEEKDAYS = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  // Cau cho ngay thuong — them/sua thoai mai, cang nhieu cau cang it trung.
   const DAY_LINES = [
     'Một ngày bình thường — nhưng có em nên chẳng bình thường chút nào.',
     'Thêm một ngày được nghe em kể chuyện.',
@@ -433,7 +507,158 @@
     'Hôm ấy có thể chẳng có gì đặc biệt, ngoài việc anh vẫn thương em.',
     'Ngày này cũng được tính là một ngày hạnh phúc.',
     'Có em, ngày nào cũng đáng để nhớ.',
+    'Anh không nhớ hôm đó trời mưa hay nắng, chỉ nhớ là có em.',
+    'Hạnh phúc đôi khi chỉ là một tin nhắn "em ăn cơm chưa?".',
+    'Ngày hôm nay, anh lại thương em nhiều hơn hôm qua một chút.',
+    'Có những ngày chẳng cần đi đâu, chỉ cần có nhau là đủ.',
+    'Cảm ơn em vì đã ở đây, cả trong những ngày bình thường nhất.',
+    'Em là lý do anh mong trời mau tối, để được chúc em ngủ ngon.',
+    'Mỗi sáng thức dậy, điều đầu tiên anh nghĩ đến là em.',
+    'Ngày này, trái tim anh lại đập thêm thật nhiều nhịp vì em.',
+    'Chẳng cần gì lớn lao, một nụ cười của em là đủ cho cả ngày.',
+    'Anh thích cách em làm những ngày bình thường trở nên dịu dàng.',
+    'Hôm nay em có mệt không? Anh ở đây mà.',
+    'Một ngày trôi qua, thêm một ngày anh biết mình may mắn.',
+    'Ở bên em, thời gian trôi nhanh đến lạ.',
+    'Có em rồi, anh chẳng còn sợ những ngày dài nữa.',
+    'Anh muốn cùng em đi qua thật nhiều ngày giống như hôm nay.',
+    'Em là thói quen dễ thương nhất của anh.',
+    'Bình yên là khi nghe giọng em cuối ngày.',
+    'Một ngày không có gì đặc biệt — vì điều đặc biệt nhất đã là em rồi.',
+    'Nếu được chọn lại, anh vẫn chọn đúng người này.',
+    'Anh không giỏi nói lời hay, nhưng anh giỏi thương em.',
+    'Mỗi ngày bên em là một trang nhật ký anh muốn giữ mãi.',
+    'Ngày hôm nay có em, nên ngày hôm nay đẹp.',
+    'Cảm ơn em vì những điều nhỏ xíu mà anh chẳng bao giờ quên.',
+    'Có lẽ hôm đó mình đã cười rất nhiều, như mọi ngày có nhau.',
+    'Em làm anh muốn trở thành người tốt hơn mỗi ngày.',
+    'Một ngày nữa trôi qua, lời hứa với em vẫn còn nguyên.',
+    'Chỉ cần em vui, ngày nào cũng là ngày đẹp trời.',
+    'Anh thương cả những lúc em giận dỗi vu vơ.',
+    'Có những điều không cần nói ra, như việc anh luôn nghĩ về em.',
+    'Ngày hôm nay, anh vẫn là người may mắn nhất vì có em.',
+    'Mình không cần hoàn hảo, chỉ cần mình có nhau.',
+    'Mỗi ngày qua đi, em lại thành một phần lớn hơn trong cuộc đời anh.',
+    'Ngày bận rộn đến mấy, anh vẫn dành một góc để nhớ em.',
+    'Em là điều dịu dàng nhất mà cuộc sống tặng anh.',
+    'Hôm nay mình đã cùng nhau viết thêm một dòng trong câu chuyện của mình.',
+    'Anh thích được là người em kể mọi chuyện, kể cả chuyện vụn vặt.',
+    'Cùng em, những việc nhỏ nhặt cũng thành kỷ niệm.',
+    'Ngày hôm ấy, chắc anh lại lén nhìn em cười.',
+    'Thương em là việc anh làm mỗi ngày mà chẳng bao giờ thấy chán.',
+    'Có em bên cạnh, mọi muộn phiền đều nhẹ tênh.',
+    'Em là nơi anh muốn trở về sau mỗi ngày dài.',
+    'Anh không hứa ngày nào cũng hoàn hảo, nhưng ngày nào cũng có anh.',
+    'Mỗi ngày một chút, mình đang lớn lên cùng nhau.',
+    'Một ngày bình yên, vì biết có người đang đợi tin nhắn của mình.',
+    'Ngày này năm sau, anh mong vẫn được ở cạnh em như thế.',
+    'Có những ngày chỉ cần nắm tay em là đủ ấm.',
+    'Em là câu trả lời cho những điều anh từng thắc mắc về hạnh phúc.',
+    'Hôm nay anh thương em — ngày mai cũng vậy.',
+    'Ngày nào có em cười, ngày đó anh thắng.',
+    'Thêm một ngày được làm người yêu của em, thật tuyệt.',
+    'Có những ngôi sao chẳng ai để ý, nhưng anh nhớ hết, vì ngày nào cũng có em.',
+    'Cảm ơn em đã kiên nhẫn với anh, cả những ngày anh vụng về.',
+    'Mình đã đi cùng nhau được thêm một bước nữa rồi.',
+    'Một ngày yên ả — đôi khi đó là món quà đẹp nhất.',
+    'Anh nhớ giọng em, kể cả khi vừa mới nói chuyện xong.',
+    'Ở đâu có em, ở đó là nhà.',
+    'Em không cần làm gì đặc biệt, chỉ cần là em thôi.',
+    'Từng ngày nhỏ bé cộng lại, thành một năm thật lớn.',
+    'Anh thích những ngày mình chẳng làm gì cả, chỉ ở bên nhau.',
+    'Có em, anh thấy mình được thương đúng cách.',
+    'Ngày này có thể có một chút giận, một chút thương — và thương nhiều hơn.',
+    'Dù hôm đó thế nào, cuối ngày mình vẫn chúc nhau ngủ ngon.',
+    'Anh muốn là người đầu tiên em tìm đến khi vui, và cả khi buồn.',
+    'Một ngày nữa, thêm một lý do để anh biết ơn.',
+    'Thương em không cần lý do, nhưng lý do thì nhiều vô kể.',
+    'Em là phần đẹp nhất trong những ngày của anh.',
+    'Mình cùng nhau đi chậm thôi, để ngày nào cũng được nhớ lâu.',
+    'Ngày hôm đó, chắc anh đã nghĩ về em nhiều hơn em tưởng.',
+    'Mỗi lần em cười, anh lại thấy mình đã làm đúng điều gì đó.',
+    'Anh không cần cả thế giới, chỉ cần một góc nhỏ có em.',
+    'Hôm nay trời có thể xám, nhưng lòng anh thì có nắng.',
+    'Ngày nào cũng có một điều để thương em thêm.',
+    'Anh muốn mãi được nghe em gọi "anh ơi".',
+    'Thương em không phải để chứng minh, mà vì anh muốn thế.',
+    'Thêm một ngày bên nhau — cảm ơn em vì đã ở lại.',
+    'Ngày này, anh lại thấy tương lai có hình dáng của em.',
+    'Mỗi ngôi sao là một ngày, và ngày nào cũng có tên em.',
+    'Chỉ là một ngày thôi, nhưng là ngày của chúng mình.',
+    'Anh thích những điều em làm mà em không biết là anh để ý.',
+    'Có em, những điều bình thường cũng hóa lấp lánh.',
+    'Ngày hôm nay, anh hứa sẽ thương em kỹ hơn.',
+    'Em khiến anh tin rằng tình yêu đẹp là có thật.',
+    'Một ngày nữa anh được làm điểm tựa của em, và em là điểm tựa của anh.',
+    'Hôm ấy có lẽ mình đã ăn gì đó thật ngon, hoặc chỉ ngồi cạnh nhau thật lâu.',
+    'Càng bên em lâu, anh càng chẳng muốn rời xa.',
+    'Cảm ơn em vì đã đến, và đã chọn ở lại mỗi ngày.',
+    'Ngày này anh chẳng nhớ rõ, nhưng chắc chắn anh đã rất hạnh phúc.',
+    'Tình yêu không nằm ở những ngày lớn, mà ở những ngày như hôm nay.',
+    'Ngày nào em cũng làm anh ngạc nhiên vì em dễ thương đến vậy.',
+    'Thêm một ngày, thêm một kỷ niệm, thêm một lần anh thương em.',
+    'Dù mai có thế nào, hôm nay mình đã có nhau.',
+    'Anh muốn già đi cùng em, bắt đầu từ những ngày bình thường thế này.',
+    'Một ngày nữa, trái tim anh vẫn chỉ có một chỗ — dành cho em.',
+    'Có em, anh học được cách kiên nhẫn và dịu dàng hơn.',
+    'Ngày hôm nay, anh vẫn thích em như lần đầu.',
+    'Mình không cần nói nhiều, chỉ cần hiểu nhau là đủ.',
+    'Mỗi ngày bên em, anh lại có thêm một điều để mong chờ.',
+    'Có chuyện gì vui, em vẫn là người anh muốn kể đầu tiên.',
+    'Hôm nay anh không giỏi lời hay, nên anh chỉ nói: thương em.',
+    'Những ngày nhẹ nhàng như này, anh muốn có thật nhiều với em.',
+    'Anh biết ơn từng ngày, vì ngày nào cũng có em trong đó.',
+    'Có thể em không nhớ ngày này, nhưng ngôi sao này nhớ giùm mình.',
+    'Chỉ là một ngôi sao nhỏ, nhưng thiếu nó thì trái tim này không trọn.',
+    'Ngày nào anh cũng muốn làm em cười ít nhất một lần.',
+    'Anh thương em của những ngày vui, và cả em của những ngày mệt.',
+    'Bên em, anh thấy mình được là chính mình.',
+    'Ngày hôm nay, anh lại lén cảm ơn ông trời vì cho mình gặp nhau.',
+    'Mình cứ thương nhau như thế này thôi, từng ngày một.',
+    'Em là bình minh của những ngày anh mệt mỏi.',
+    'Một ngày nữa có em — đủ để anh mỉm cười trước khi ngủ.',
+    'Mỗi ngày là một lời hứa nhỏ: anh vẫn ở đây.',
   ];
+  // Thinh thoang nhac den thu trong tuan (getDay(): 0 = Chu Nhat ... 6 = Thu Bay)
+  const WEEKDAY_LINES = {
+    1: [   // Thu Hai
+      'Thứ Hai đầu tuần — gửi em một chút năng lượng từ anh.',
+      'Đầu tuần bận rộn, nhưng anh vẫn để dành cho em một góc trong ngày.',
+      'Thứ Hai cũng dễ thương hơn khi biết cuối ngày được nói chuyện với em.',
+    ],
+    5: [   // Thu Sau
+      'Thứ Sáu rồi, cả tuần mệt chỉ cần một câu "anh ơi" của em là hết.',
+      'Cuối tuần sắp đến, anh chỉ mong được ở cạnh em.',
+      'Thứ Sáu — ngày anh đếm ngược tới cuối tuần có em.',
+    ],
+    6: [   // Thu Bay
+      'Thứ Bảy — ngày để mình thong thả thương nhau.',
+      'Cuối tuần, không cần đi đâu xa, có em là đủ vui.',
+      'Thứ Bảy hôm ấy mình làm gì nhỉ? Chỉ nhớ là rất vui vì có em.',
+    ],
+    0: [   // Chu Nhat
+      'Chủ Nhật — ngày để lười biếng cùng nhau.',
+      'Chủ Nhật bình yên, như cách em làm lòng anh dịu lại.',
+      'Một Chủ Nhật nữa có em, tuần mới chắc chắn sẽ ổn thôi.',
+    ],
+  };
+  // Xao co dinh mot lan (cung seed) -> ngay nao cung luon ra dung mot cau, ngay ke nhau khong trung
+  const LINE_ORDER = (() => {
+    let seed = 1810;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const idx = DAY_LINES.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    return idx;
+  })();
+  function dayLine(s) {
+    const wk = WEEKDAY_LINES[s.dt.getDay()];
+    // cung thu + chia het cho 3 -> lap lai moi 21 ngay, nen chia 21 de lan luot doi cau
+    if (wk && s.i % 3 === 0) return wk[Math.floor(s.i / 21) % wk.length];
+    return DAY_LINES[LINE_ORDER[s.i % DAY_LINES.length]];
+  }
   const $ = (id) => document.getElementById(id);
 
   // ── NGAY DANG XEM ──────────────────────────────────────────
@@ -571,7 +796,6 @@
   const heart = heartPoints(N + 1);
   const sky = skyPoints(N + 1, innerWidth / innerHeight);
   const stars = [];
-  let specialCount = 0;
   for (let i = 0; i <= N; i++) {
     const dt = new Date(S0.getFullYear(), S0.getMonth(), S0.getDate() + i);
     const key = dayKey(dt);
@@ -587,7 +811,6 @@
       sp: 0.6 + Math.random() * 1.6,
       swirl: (Math.random() - 0.5) * 0.5,
       delay: (i / Math.max(1, N)) * GATHER_STAGGER + Math.random() * 220,
-      specialIdx: kind === 'day' ? -1 : specialCount++,
       lightAt: 0, x: -999, y: -999,
     });
   }
@@ -660,8 +883,13 @@
     else { x0 = 14; x1 = W - 14; y0 = top; y1 = fin.top - 16; }
     K = Math.max(4, Math.min(22, ((x1 - x0) * 0.92) / HEART_W, ((y1 - y0) * 0.95) / HEART_H));
     CX = (x0 + x1) / 2; CY = (y0 + y1) / 2;
+    // Dien thoai doc: tim thuong thua cho theo chieu doc -> dua tim len tren, don
+    // khoang trong xuong duoi lam cho cho chom Thien Binh
+    const slack = (y1 - y0) - HEART_H * K;
+    if (!mqWide.matches && slack > 0) CY = y0 + (HEART_H * K) / 2 + Math.min(14, slack * 0.1);
     SZ = Math.min(1.6, Math.max(0.8, Math.sqrt(K / 11)));
     makeDust();
+    placeLibra(top, fin);
   }
 
   const heartX = (x, sc) => CX + x * K * sc;
@@ -721,6 +949,411 @@
     return b(0) + b(1) + 0.6 * b(0.18);
   }
 
+  // ── DUONG HANH TRINH ─────────────────────────────────────────
+  // Tim ghep xong, mot vet vang chay doc vien tim dung theo thu tu ngay (vien la
+  // nhung ngay dau), roi xoay vong hinh tim nho dan vao tam — tam tim la hom nay.
+  const PATH_DELAY = 1800;       // doi tim hien ro roi moi ve
+  const PATH_MS = 7000;          // ca duong ve trong bao lau
+  const COMET_EVERY = 10000;     // ve xong thi cu 10 giay co mot dom sang chay lai tu dau
+  const COMET_MS = 5000;
+  const RIM = N + 1 < 24 ? N : Math.min(180, Math.round((N + 1) * 0.42));   // cung cong thuc voi heartPoints
+  const SPIRAL_TURNS = 1.25, SPIRAL_STEPS = 120;
+  const pathRim = stars.slice(0, RIM);
+  const todayStar = stars[stars.length - 1];
+
+  /** Vong xoay: di tiep theo vien tim nhung thu nho dan ve tam (vien thu nho van la hinh tim) */
+  function spiral(rim, center) {
+    const out = [], n = rim.length;
+    if (n < 3) return [center];
+    for (let j = 1; j <= SPIRAL_STEPS; j++) {
+      const q = j / SPIRAL_STEPS;
+      const pos = (n - 1 + q * n * SPIRAL_TURNS) % n, k = Math.floor(pos), f = pos - k;
+      const a = rim[k], b = rim[(k + 1) % n];
+      const shrink = (1 - q) ** 1.15;
+      out.push([center[0] + (a[0] + (b[0] - a[0]) * f - center[0]) * shrink,
+                center[1] + (a[1] + (b[1] - a[1]) * f - center[1]) * shrink]);
+    }
+    return out;
+  }
+
+  function drawPath(t, sc) {
+    const el = reduceMotion ? 1e9 : t - tHeart - PATH_DELAY;
+    if (el < 0 || pathRim.length < 2) return;
+    const P = (s) => [heartX(s.hx, sc), heartY(s.hy, sc)];
+    const rim = pathRim.map(P);
+    const pts = rim.concat(spiral(rim, P(todayStar)));
+    const len = [0];
+    for (let k = 1; k < pts.length; k++) len.push(len[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+    const L = len[len.length - 1];
+    const at = (d) => {                          // diem cach dau duong mot doan d
+      let k = 1;
+      while (k < pts.length - 1 && len[k] < d) k++;
+      const f = clamp01((d - len[k - 1]) / (len[k] - len[k - 1] || 1));
+      return [pts[k - 1][0] + (pts[k][0] - pts[k - 1][0]) * f, pts[k - 1][1] + (pts[k][1] - pts[k - 1][1]) * f];
+    };
+    const drawn = Math.min(L, (el / PATH_MS) * L);
+
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(253,230,138,0.3)';
+    ctx.lineWidth = 1.2 * SZ; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let k = 1; k < pts.length && len[k - 1] < drawn; k++) {
+      const [x, y] = len[k] <= drawn ? pts[k] : at(drawn);
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    let head = null, ha = 1;
+    if (drawn < L) head = at(drawn);             // dau but dang ve
+    else if (!reduceMotion) {                    // dom sang chay lai doc duong
+      const ce = (el - PATH_MS) % COMET_EVERY;
+      if (ce < COMET_MS) { head = at(easeInOut(ce / COMET_MS) * L); ha = Math.sin((Math.PI * ce) / COMET_MS); }
+    }
+    if (head) {
+      const hs = 22 * SZ;
+      ctx.globalAlpha = ha;
+      ctx.drawImage(GLOW.gold, head[0] - hs / 2, head[1] - hs / 2, hs, hs);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  const FONT = getComputedStyle(document.body).fontFamily;
+
+  // ── CHOM SAO THIEN BINH ──────────────────────────────────────
+  // Hai sinh nhat deu thuoc cung Thien Binh: 7 ngay dac biet bay ra khoi tim, xep
+  // thanh chom Thien Binh o mot goc trong roi noi lai; noi xong doan cuoi thi ca
+  // chom sang len kem ten. Toa do lay theo bau troi that (xich kinh, xich vi),
+  // Bac o tren. Hai sao sang nhat (dau don can) la hai ngay sinh.
+  const LIBRA = [
+    { id: 'beta',    x: 1.18,  y: -9.62, big: true, pick: (m) => /Sinh nhật em/.test(m.name) },
+    { id: 'alpha',   x: 7.36,  y: -2.97, big: true, pick: (m) => /Sinh nhật anh/.test(m.name) },
+    { id: 'gamma',   x: -3.20, y: -4.21, pick: (m) => m.name === 'Ngày đầu yêu nhau' },
+    { id: 'theta',   x: -7.55, y: -2.27, pick: (m) => m.name === 'Valentine' },
+    { id: 'sigma',   x: 4.24,  y: 6.28,  pick: (m) => /Tết/.test(m.name) },
+    { id: 'upsilon', x: -3.55, y: 9.13,  pick: (m) => m.tag === 'hien-mau' && /Lần đầu/.test(m.name) },
+    { id: 'tau',     x: -3.95, y: 10.78, pick: (m) => m.tag === 'hien-mau' && /lần 2/.test(m.name) },
+  ];
+  // Noi theo thu tu nay: doan dau la hai sinh nhat, doan cuoi xong thi chom sao sang len
+  const LIBRA_EDGES = [['beta', 'alpha'], ['beta', 'gamma'], ['gamma', 'alpha'], ['alpha', 'sigma'],
+    ['gamma', 'upsilon'], ['upsilon', 'tau'], ['gamma', 'theta']];
+  const LIBRA_W = 7.36 + 7.55, LIBRA_H = 10.78 + 9.62, LIBRA_CX = (7.36 - 7.55) / 2, LIBRA_CY = (10.78 - 9.62) / 2;
+  const LIBRA_START = PATH_DELAY + PATH_MS * 0.6;   // bat dau khi duong vang dang xoay vao tam
+  const LIBRA_FLY = 1600, LIBRA_STAGGER = 220, LIBRA_EDGE = 450;
+  const LIBRA_DONE = LIBRA_START + LIBRA_FLY + LIBRA_STAGGER * (LIBRA.length - 1) + LIBRA_EDGE * LIBRA_EDGES.length;
+
+  // Moi sao gan voi mot ngay: lan gan nhat da qua, chua co thi lan sap toi
+  const allMs = Milestones.build();
+  const libra = { box: null, s: 0, ox: 0, oy: 0, lx: 0, ly: 0, label: 'side' };
+  const LIBRA_TITLE = '♎ Thiên Bình', LIBRA_SUB = 'Chòm sao của hai đứa mình';
+  const LIBRA_TITLE_FONT = `700 22px 'Dancing Script', cursive`;
+  LIBRA.forEach((d) => {
+    const evs = allMs.filter(d.pick);
+    d.ev = evs.filter((m) => m.ts <= TODAY.getTime()).pop() || evs[0] || null;
+    d.star = d.ev ? stars.find((st) => st.key === d.ev.key) || null : null;
+  });
+  const libraById = Object.fromEntries(LIBRA.map((d) => [d.id, d]));
+
+  /**
+   * Tim cho trong de dat chom sao + ten: chia man hinh thanh luoi o 8px, danh dau o
+   * bi chiem (trai tim noi rong mot chut, thanh tren, khoi chu), roi thu tu co lon
+   * xuong nho — dat duoc o dau thi lay cho gan goc uu tien nhat (may tinh: goc tren
+   * phai; dien thoai: ngay duoi tim). Bang cong don giup kiem tra moi khung rat nhanh.
+   */
+  function placeLibra(top, fin) {
+    const G = 8, cols = Math.ceil(W / G), rows = Math.ceil(H / G);
+    const sum = new Int32Array((cols + 1) * (rows + 1));
+    const M = 1.2;                                        // noi rong tim (don vi tim) — tim con dap to ra
+    const blocked = (px, py) => {
+      if (py < top + 6 || px < 20 || px > W - 20 || py > H - 16) return true;
+      if (px > fin.left - 12 && px < fin.right + 12 && py > fin.top - 12 && py < fin.bottom + 12) return true;
+      const hx = (px - CX) / K, hy = Y_MID - (py - CY) / K;
+      if (Math.abs(hx) > 17 + M || hy < Y_MIN - M || hy > Y_MAX + M) return false;
+      return inHeart(hx, hy) || inHeart(hx + M, hy) || inHeart(hx - M, hy) || inHeart(hx, hy + M) || inHeart(hx, hy - M);
+    };
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const v = blocked(c * G + G / 2, r * G + G / 2) ? 1 : 0;
+        sum[(r + 1) * (cols + 1) + c + 1] = v + sum[r * (cols + 1) + c + 1] + sum[(r + 1) * (cols + 1) + c] - sum[r * (cols + 1) + c];
+      }
+    }
+    const free = (c0, r0, c1, r1) =>                      // o [c0,c1) x [r0,r1) khong o nao bi chiem
+      sum[r1 * (cols + 1) + c1] - sum[r0 * (cols + 1) + c1] - sum[r1 * (cols + 1) + c0] + sum[r0 * (cols + 1) + c0] === 0;
+
+    // Do be rong that cua dong ten (font da tai xong thi layout() chay lai, do lai)
+    ctx.font = LIBRA_TITLE_FONT;
+    const tw = ctx.measureText(LIBRA_TITLE).width;
+    ctx.font = `400 11.5px ${FONT}`;
+    const LW = Math.ceil(Math.max(tw, ctx.measureText(LIBRA_SUB).width)) + 6, LH = 44;
+    const anchor = mqWide.matches
+      ? [(fin.left + W) / 2, (top + fin.top) / 2]           // giua khoang trong phia tren khoi chu
+      : [CX, CY + (HEART_H / 2) * K + 60];                  // ngay duoi tim
+    let pick = null;
+    for (let sc = 7; sc >= 2.4 && !pick; sc -= 0.3) {
+      for (const mode of ['side', 'below']) {
+        const fw = mode === 'side' ? LIBRA_W * sc + 24 + LW + 12 : Math.max(LIBRA_W * sc + 24, LW + 12);
+        const fh = LIBRA_H * sc + 24 + (mode === 'below' ? LH + 6 : 0);
+        const cw = Math.ceil(fw / G), ch = Math.ceil(fh / G);
+        for (let r = 0; r + ch <= rows; r++) {
+          for (let c = 0; c + cw <= cols; c++) {
+            if (!free(c, r, c + cw, r + ch)) continue;
+            const bx = c * G, by = r * G;
+            const d = Math.hypot(bx + fw / 2 - anchor[0], by + fh / 2 - anchor[1]);
+            if (!pick || d < pick.d) pick = { d, sc, mode, bx, by, fw, fh };
+          }
+        }
+      }
+    }
+    if (!pick) {                                          // khong con cho trong: thu nho o goc duoi trai
+      const sc = 2.4, fw = LIBRA_W * sc + 24 + LW + 12, fh = LIBRA_H * sc + 24;
+      pick = { sc, mode: 'side', bx: 8, by: H - fh - 8, fw, fh };
+    }
+    const sc = pick.sc, figCX = pick.mode === 'side' ? pick.bx + 12 + (LIBRA_W * sc) / 2 : pick.bx + pick.fw / 2;
+    const figCY = pick.by + 12 + (LIBRA_H * sc) / 2;
+    libra.s = sc;
+    libra.label = pick.mode;
+    libra.ox = figCX - LIBRA_CX * sc;                     // diem goc cua toa do chom sao
+    libra.oy = figCY - LIBRA_CY * sc;
+    libra.lx = pick.mode === 'side' ? figCX + (LIBRA_W * sc) / 2 + 12 : figCX;   // cho dong ten
+    libra.ly = pick.mode === 'side' ? figCY - 6 : pick.by + 12 + LIBRA_H * sc + 26;
+    libra.box = [pick.bx, pick.by, pick.bx + pick.fw, pick.by + pick.fh];
+  }
+  const libraPos = (d) => [libra.ox + d.x * libra.s, libra.oy + d.y * libra.s];
+
+  function drawLibra(t) {
+    if (phase !== 'heart' || !libra.box) return;
+    const el = reduceMotion ? 1e9 : t - tHeart - LIBRA_START;
+    if (el < 0) return;
+    const sc = 1 + 0.03 * (reduceMotion ? 0 : beat(t));
+    const origin = (d) => {                               // sao ngay do trong tim (chua toi thi tu tam tim)
+      const st = d.star || (d.ev && d.ev.ts < START ? stars[0] : todayStar);
+      return [heartX(st.hx, sc), heartY(st.hy, sc)];
+    };
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Duong noi — tung doan mot
+    const edgeStart = LIBRA_FLY + LIBRA_STAGGER * (LIBRA.length - 1);
+    const doneEl = el - (LIBRA_DONE - LIBRA_START);       // > 0: da noi xong het
+    ctx.lineWidth = 1.3; ctx.lineCap = 'round';
+    LIBRA_EDGES.forEach(([a, b], k) => {
+      const f = clamp01((el - edgeStart - k * LIBRA_EDGE) / LIBRA_EDGE);
+      if (f <= 0) return;
+      const [x0, y0] = libraPos(libraById[a]), [x1, y1] = libraPos(libraById[b]);
+      ctx.globalAlpha = doneEl > 0 ? 0.5 + 0.15 * Math.sin(t * 0.002) : 0.55;
+      ctx.strokeStyle = '#fde68a';
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f); ctx.stroke();
+    });
+
+    // Sao: bay tu tim ra roi dung yen nhap nhay
+    LIBRA.forEach((d, k) => {
+      const e = clamp01((el - k * LIBRA_STAGGER) / LIBRA_FLY);
+      if (e <= 0) return;
+      const q = easeInOut(e);
+      const [x0, y0] = origin(d), [x1, y1] = libraPos(d);
+      const x = x0 + (x1 - x0) * q, y = y0 + (y1 - y0) * q - Math.sin(Math.PI * q) * 40;
+      const flash = doneEl > 0 ? Math.max(0, 1 - doneEl / 900) : 0;   // loe sang khi vua noi xong
+      const tw = 0.8 + 0.2 * Math.sin(t * 0.003 + k * 1.7);
+      const gs = (d.big ? 26 : 17) * tw * (1 + flash * 0.8), fs = (d.big ? 40 : 26) * tw * (1 + flash);
+      ctx.globalAlpha = d.ev && d.ev.ts > TODAY.getTime() ? 0.45 : 1;   // ngay chua toi: mo hon
+      ctx.drawImage(d.big ? GLOW.gold : GLOW.white, x - gs / 2, y - gs / 2, gs, gs);
+      ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.0004 + k);
+      ctx.drawImage(FLARE.gold, -fs / 2, -fs / 2, fs, fs);
+      ctx.restore();
+      d.px = x; d.py = y;
+    });
+
+    // Noi xong: vong sang lan ra + ten chom sao
+    if (doneEl > 0) {
+      const cx = libra.ox + LIBRA_CX * libra.s, cy = libra.oy + LIBRA_CY * libra.s;
+      if (doneEl < 1400) {
+        const p = doneEl / 1400;
+        ctx.globalAlpha = (1 - p) * 0.8;
+        ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, LIBRA_H * libra.s * (0.35 + p * 0.5), 0, 6.283); ctx.stroke();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      const a = clamp01(doneEl / 900);
+      const tx = libra.lx, ty = libra.ly;
+      ctx.textAlign = libra.label === 'side' ? 'left' : 'center';
+      ctx.globalAlpha = a;
+      ctx.fillStyle = '#fde68a';
+      ctx.font = LIBRA_TITLE_FONT;
+      ctx.fillText(LIBRA_TITLE, tx, ty);
+      ctx.globalAlpha = a * 0.75;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `400 11.5px ${FONT}`;
+      ctx.fillText(LIBRA_SUB, tx, ty + 18);
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  /** Sao Thien Binh gan diem cham (chi khi chom sao da hien) */
+  function nearestLibra(x, y, maxD) {
+    if (phase !== 'heart' || lastT - tHeart < LIBRA_DONE) return null;
+    let best = null, bd = maxD * maxD;
+    for (const d of LIBRA) {
+      if (d.px == null) continue;
+      const dd = (d.px - x) ** 2 + (d.py - y) ** 2;
+      if (dd < bd) { bd = dd; best = d; }
+    }
+    return best;
+  }
+  function showLibraStar(d) {
+    if (d.star) { openCard(d.star); return; }
+    closeCard();
+    if (!d.ev) return;
+    const n = Math.round((d.ev.ts - TODAY.getTime()) / DAY);
+    toast(`${d.ev.icon} ${d.ev.name} — ${d.ev.date}\n` + (n > 0 ? `còn ${n} ngày nữa ✨` : `trước ngày yêu nhau ${Math.round((START - d.ev.ts) / DAY)} ngày`), 4000);
+  }
+
+  // ── SAO BANG UOC NGUYEN ──────────────────────────────────────
+  // Tim ghep xong, thinh thoang co mot ngoi sao bang vang bay cham qua. Cham kip
+  // thi duoc uoc: dieu uoc thanh mot ngoi sao moi o lai tren troi (nho tren may
+  // nay) va duoc gui ve mail anh qua /api/love-note. Mat mang thi de danh gui sau.
+  const WISH_FIRST_MS = 15000;           // tim hien xong bao lau thi co sao bang dau tien (sau chom Thien Binh)
+  const WISH_GAP = [20000, 34000];       // cac lan sau cach nhau ngau nhien trong khoang nay
+  const WISH_LIFE = 4600;                // bay cham de con kip cham
+  const RISE_MS = 1900;                  // dieu uoc bay len troi
+  const WISH_KEY = 'wish-stars', WISH_PENDING = 'wish-pending';
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  let wishStars = store.get(WISH_KEY);   // [{u, v, at, text}] — sao cua nhung dieu uoc da gui
+  let wishStar = null, nextWish = Infinity, wishOpen = false, rising = null, lastT = 0;
+  const sparks = [];
+
+  function spawnWish(t) {
+    const fromRight = Math.random() < 0.5;          // bay xeo xuong, tu ben phai hoac ben trai
+    const ang = Math.PI * (fromRight ? 0.8 + Math.random() * 0.06 : 0.14 + Math.random() * 0.06);
+    wishStar = {
+      x: W * (fromRight ? 0.72 + Math.random() * 0.22 : 0.06 + Math.random() * 0.22),
+      y: H * (0.07 + Math.random() * 0.16),
+      ang, sp: (Math.hypot(W, H) * 0.5) / WISH_LIFE, born: t,
+    };
+  }
+  function wishHead(t) {
+    const age = t - wishStar.born;
+    return [wishStar.x + Math.cos(wishStar.ang) * wishStar.sp * age, wishStar.y + Math.sin(wishStar.ang) * wishStar.sp * age];
+  }
+  /** Cham trung dau sao bang hoac duoi cua no */
+  function hitWish(x, y) {
+    if (!wishStar) return false;
+    const [hx, hy] = wishHead(lastT);
+    const cx = Math.cos(wishStar.ang), cy = Math.sin(wishStar.ang), L = 170 * SZ;
+    const dx = x - hx, dy = y - hy;
+    const along = -(dx * cx + dy * cy);                 // khoang cach lui ve phia duoi
+    const across = Math.abs(dx * cy - dy * cx);
+    return Math.hypot(dx, dy) < 56 || (along > 0 && along < L && across < 30);
+  }
+  function nearestWishStar(x, y, maxD) {
+    let best = null, bd = maxD * maxD;
+    for (const w of wishStars) {
+      const d = (w.u * W - x) ** 2 + (w.v * H - y) ** 2;
+      if (d < bd) { bd = d; best = w; }
+    }
+    return best ? { w: best, d: Math.sqrt(bd) } : null;
+  }
+
+  /** Cho trong tren troi cho ngoi sao uoc moi: ngoai trai tim, thanh tren va khoi chu */
+  function freeSkySpot() {
+    const top = $('bar').getBoundingClientRect().bottom + 16;
+    const fin = finaleEl.getBoundingClientRect();
+    const hx0 = CX - 17 * K, hx1 = CX + 17 * K, hy0 = CY - (HEART_H / 2 + 1) * K, hy1 = CY + (HEART_H / 2 + 1) * K;
+    let best = null, bestD = -1;
+    for (let k = 0; k < 80; k++) {
+      const x = 16 + Math.random() * (W - 32), y = top + Math.random() * (H - top - 16);
+      if (x > hx0 && x < hx1 && y > hy0 && y < hy1) continue;
+      if (x > fin.left - 10 && x < fin.right + 10 && y > fin.top - 10 && y < fin.bottom + 10) continue;
+      if (libra.box && x > libra.box[0] && x < libra.box[2] && y > libra.box[1] && y < libra.box[3]) continue;
+      let d = Infinity;
+      for (const w of wishStars) d = Math.min(d, (w.u * W - x) ** 2 + (w.v * H - y) ** 2);
+      if (d > bestD) { bestD = d; best = [x, y]; }
+    }
+    return best || [W * (0.1 + Math.random() * 0.8), top + 10];
+  }
+
+  function drawWish(t) {
+    if (phase !== 'heart') return;
+    if (!wishStar && !wishOpen && !rising && t > nextWish && !letterEl.classList.contains('show')) spawnWish(t);
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Nhung ngoi sao uoc da gui — nhap nhay vang, to hon sao ngay mot chut
+    for (const w of wishStars) {
+      const x = w.u * W, y = w.v * H, ph = (w.u * 37 + w.v * 91) % 6.283;
+      const tw = 0.75 + 0.25 * Math.sin(t * 0.0025 + ph);
+      const gs = 16 * SZ * tw, fs = 26 * SZ * tw;
+      ctx.globalAlpha = 0.95;
+      ctx.drawImage(GLOW.gold, x - gs / 2, y - gs / 2, gs, gs);
+      ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.0004 + ph);
+      ctx.drawImage(FLARE.gold, -fs / 2, -fs / 2, fs, fs);
+      ctx.restore();
+    }
+
+    // Sao bang dang bay
+    if (wishStar) {
+      const age = t - wishStar.born;
+      if (age > WISH_LIFE) {
+        wishStar = null;
+        nextWish = t + WISH_GAP[0] + Math.random() * (WISH_GAP[1] - WISH_GAP[0]);
+      } else {
+        const [hx, hy] = wishHead(t);
+        const cx = Math.cos(wishStar.ang), cy = Math.sin(wishStar.ang), L = 170 * SZ;
+        const a = Math.min(1, age / 400, (WISH_LIFE - age) / 600);
+        const lg = ctx.createLinearGradient(hx - cx * L, hy - cy * L, hx, hy);
+        lg.addColorStop(0, 'rgba(245,200,66,0)');
+        lg.addColorStop(1, 'rgba(253,230,138,0.95)');
+        ctx.globalAlpha = a;
+        ctx.strokeStyle = lg; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(hx - cx * L, hy - cy * L); ctx.lineTo(hx, hy); ctx.stroke();
+        const hs = 34 * SZ, fs = 46 * SZ;
+        ctx.drawImage(GLOW.gold, hx - hs / 2, hy - hs / 2, hs, hs);
+        ctx.save(); ctx.translate(hx, hy); ctx.rotate(t * 0.002);
+        ctx.drawImage(FLARE.gold, -fs / 2, -fs / 2, fs, fs);
+        ctx.restore();
+        if (Math.random() < 0.7) {
+          sparks.push({ x: hx - cx * 10 + (Math.random() - 0.5) * 8, y: hy - cy * 10 + (Math.random() - 0.5) * 8,
+            vx: (Math.random() - 0.5) * 0.03, vy: 0.015 + Math.random() * 0.03, born: t });
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = a * 0.92;
+        ctx.fillStyle = '#fde68a';
+        ctx.font = `600 13px ${FONT}`;
+        ctx.textAlign = 'center';
+        ctx.fillText('Chạm để ước ✨', hx, hy + 32);
+        ctx.globalCompositeOperation = 'lighter';
+      }
+    }
+
+    // Bui vang roi tu sao bang
+    ctx.fillStyle = '#fde68a';
+    for (let k = sparks.length - 1; k >= 0; k--) {
+      const p = sparks[k], age = t - p.born;
+      if (age > 800) { sparks.splice(k, 1); continue; }
+      ctx.globalAlpha = 1 - age / 800;
+      ctx.beginPath(); ctx.arc(p.x + p.vx * age, p.y + p.vy * age, 1.3, 0, 6.283); ctx.fill();
+    }
+
+    // Dieu uoc vua gui dang bay len cho cua no
+    if (rising) {
+      const e = clamp01((t - rising.born) / RISE_MS), q = easeInOut(e);
+      const [x0, y0] = rising.from, x1 = rising.w.u * W, y1 = rising.w.v * H;
+      const x = x0 + (x1 - x0) * q + Math.sin(Math.PI * q) * 60, y = y0 + (y1 - y0) * q;
+      const hs = (40 - 22 * q) * SZ;
+      ctx.globalAlpha = 1;
+      ctx.drawImage(GLOW.gold, x - hs / 2, y - hs / 2, hs, hs);
+      if (Math.random() < 0.8) sparks.push({ x, y, vx: (Math.random() - 0.5) * 0.04, vy: 0.02 + Math.random() * 0.02, born: t });
+      if (e >= 1) {
+        wishStars.push(rising.w);
+        store.set(WISH_KEY, wishStars);
+        rising = null;
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
   // ── TRANG THAI ───────────────────────────────────────────────
   let phase = 'intro';            // intro -> light -> gather -> heart
   let tLight = 0, tGather = 0, tHeart = 0;
@@ -742,6 +1375,7 @@
       ctx.fillStyle = grd;
       ctx.fillRect(gx - R, gy - R, 2 * R, 2 * R);
     }
+    if (phase === 'heart') drawPath(t, sc);
 
     for (const s of stars) {
       let x, y, a = 1, z = 1;
@@ -823,6 +1457,7 @@
 
   function startLight(t) {
     phase = 'light'; tLight = t; tickIdx = -1;
+    wishStar = null; nextWish = Infinity;
     tkDate.textContent = tkDay.textContent = tkMs.textContent = '';
     tickerEl.classList.add('show');
     finaleEl.classList.remove('show');
@@ -835,6 +1470,7 @@
   }
   function goHeart(t) {
     phase = 'heart'; tHeart = t;
+    nextWish = t + WISH_FIRST_MS;
     tickerEl.classList.remove('show');
     finaleEl.classList.add('show');
     skipEl.hidden = true; replayEl.hidden = false;
@@ -851,6 +1487,9 @@
     drawDust(t);
     drawShoots(t);
     if (phase !== 'intro') drawStars(t);
+    drawLibra(t);
+    drawWish(t);
+    lastT = t;
     requestAnimationFrame(frame);
   }
 
@@ -860,29 +1499,43 @@
   const audio = new Audio(PLAYLIST[0]);
   audio.preload = 'auto';
   let musicOn = false;
+  let ducked = false;            // dang phat tieng video trong the -> tam dung nhac nen
 
   // Doi bai tren CUNG mot phan tu audio: iPhone chi cho phat tiep khong can
   // cham neu van la phan tu da duoc mo khoa bang lan cham "bat dau"
   audio.addEventListener('ended', () => {
     track = (track + 1) % PLAYLIST.length;
     audio.src = PLAYLIST[track];
-    if (musicOn) audio.play().catch(() => {});
+    if (musicOn && !ducked) audio.play().catch(() => {});
   });
+
+  /** Phat nhac va len tieng tu tu (khoi giat minh) */
+  function fadeIn(ms, onFail) {
+    audio.volume = 0;
+    audio.play().catch(onFail || (() => {}));
+    const t0 = performance.now();
+    const fade = (t) => {
+      const p = clamp01((t - t0) / ms);
+      audio.volume = 0.55 * p;
+      if (p < 1 && musicOn && !ducked) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  }
 
   function setMusic(on) {
     musicOn = on;
     musicEl.textContent = on ? '🔊' : '🎵';
     musicEl.classList.toggle('on', on);
     if (!on) { audio.pause(); return; }
-    audio.volume = 0;
-    audio.play().catch(() => setMusic(false));
-    const t0 = performance.now();
-    const fade = (t) => {                      // len tieng tu tu trong 2.5 giay
-      const p = clamp01((t - t0) / 2500);
-      audio.volume = 0.55 * p;
-      if (p < 1 && musicOn) requestAnimationFrame(fade);
-    };
-    requestAnimationFrame(fade);
+    if (!ducked) fadeIn(2500, () => setMusic(false));   // dang nghe video thi doi video xong moi phat
+  }
+
+  /** Video trong the dang phat tieng -> dung nhac nen; xong thi nhac len lai */
+  function duck(on) {
+    if (on === ducked) return;
+    ducked = on;
+    if (on) audio.pause();
+    else if (musicOn && !document.hidden) fadeIn(1200);
   }
   musicEl.addEventListener('click', () => setMusic(!musicOn));
 
@@ -896,19 +1549,30 @@
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { if (musicOn) audio.pause(); return; }
-    if (musicOn) audio.play().catch(() => {});
+    if (document.hidden) {
+      if (musicOn) audio.pause();
+      if (!dcVideo.paused) { dcVideo.pause(); ducked = false; }   // quay lai thi nhac nen chay tiep
+      return;
+    }
+    if (musicOn && !ducked) audio.play().catch(() => {});
     if (phase !== 'intro') keepAwake();
   });
 
   // ── THE NGAY ─────────────────────────────────────────────────
   const cardEl = $('card'), dcPhoto = $('dcPhoto'), dcVideo = $('dcVideo'), dcMs = $('dcMs'), dcLine = $('dcLine');
-  let photos = [], mediaByDay = {};
+  let pool = [], mediaByDay = {};
   fetch('images/love/images.json')
     .then((r) => (r.ok ? r.json() : []))
     .then((list) => {
       list.forEach((m) => { if (m.d) (mediaByDay[m.d] = mediaByDay[m.d] || []).push(m); });
-      photos = list.filter((m) => m.t === 'img' && !m.d);   // anh co ngay chi hien o dung moc cua no
+      // Ngay khong co anh rieng: lay anh/video chua gan ngay (anh co ngay chi hien o
+      // dung moc cua no). Tron mot lan moi lan mo trang -> ngay lien nhau khong trung,
+      // bam lai cung mot sao van ra dung tam cu.
+      pool = list.filter((m) => !m.d);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
     })
     .catch(() => {});
 
@@ -918,8 +1582,7 @@
 
   function mediaFor(s) {
     if (mediaByDay[s.key]) return mediaByDay[s.key][0];
-    if (!photos.length) return null;
-    return photos[(s.specialIdx * 7) % photos.length];      // moi moc mot tam khac nhau
+    return pool.length ? pool[s.i % pool.length] : null;
   }
 
   // Ty le khung: lay tu images.json truoc, tai xong thi lay kich thuoc that cho chac
@@ -931,18 +1594,35 @@
     const src = (f) => 'images/love/' + f;
     dcVideo.pause();
     if (m) setRatio(m.t === 'vid' ? dcVideo : dcPhoto, m.w, m.h);
-    if (m && m.t === 'vid') {                               // video: tat tieng, de nhac nen phat tiep
+    if (m && m.t === 'vid') {                               // video: phat ca tieng, nhac nen tam dung
       dcPhoto.hidden = true; dcPhoto.removeAttribute('src');
       dcVideo.poster = m.thumb ? src('thumbs/' + m.thumb) : '';
       dcVideo.src = src(m.f);
       dcVideo.hidden = false;
-      dcVideo.play().catch(() => {});
+      playCardVideo();
       return;
     }
+    duck(false);
     dcVideo.hidden = true; dcVideo.removeAttribute('src');
     if (m) { dcPhoto.src = src(m.thumb ? 'thumbs/' + m.thumb : m.f); dcPhoto.hidden = false; }
     else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
   }
+
+  function playCardVideo() {
+    dcVideo.muted = false;
+    duck(true);
+    dcVideo.play().catch(() => {                            // trinh duyet chan phat co tieng -> phat cam
+      duck(false);
+      dcVideo.muted = true;
+      dcVideo.play().catch(() => {});
+    });
+  }
+  dcVideo.addEventListener('ended', () => duck(false));
+  // Cham vao video: dang phat thi dung, dang dung/het thi phat lai (co tieng)
+  dcVideo.addEventListener('click', () => {
+    if (dcVideo.paused || dcVideo.ended) playCardVideo();
+    else { dcVideo.pause(); duck(false); }
+  });
 
   function openCard(s) {
     selected = s;
@@ -954,15 +1634,16 @@
     dcLine.textContent = s.kind === 'today' ? 'Hôm nay — và mãi mãi về sau. 💕'
       : s.i === 0 && BEFORE.length ? BEFORE.map((m) =>
         `Trước cả ngày ấy ${Math.round((START - m.ts) / DAY)} ngày (${m.date}): ${m.icon} ${m.name}`).join('\n')
-      : s.ms ? '' : DAY_LINES[s.i % DAY_LINES.length];
+      : s.ms ? '' : dayLine(s);
     dcLine.hidden = !dcLine.textContent;
-    showCardMedia(s.kind !== 'day' ? mediaFor(s) : null);
+    showCardMedia(mediaFor(s));
     cardEl.classList.add('show');
     document.body.classList.add('card-open');
   }
   function closeCard() {
     selected = null;
     dcVideo.pause();
+    duck(false);
     cardEl.classList.remove('show');
     document.body.classList.remove('card-open');
   }
@@ -979,13 +1660,24 @@
 
   cv.addEventListener('click', (e) => {
     if (phase !== 'heart') return;
+    if (hitWish(e.clientX, e.clientY)) { openWish(); return; }
+    const lb = nearestLibra(e.clientX, e.clientY, 22);
+    if (lb) { showLibraStar(lb); return; }
     const s = nearest(e.clientX, e.clientY, 28);
+    const w = nearestWishStar(e.clientX, e.clientY, 24);
+    if (w && (!s || w.d < Math.hypot(s.x - e.clientX, s.y - e.clientY))) {
+      closeCard();
+      const d = new Date(w.w.at);
+      toast(`🌠 Điều ước ngày ${fmtVN(d)}${w.w.text ? ':\n' + w.w.text : ''}`, 5000);
+      return;
+    }
     if (s) openCard(s); else closeCard();
   });
   cv.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || phase !== 'heart') return;
     hovered = nearest(e.clientX, e.clientY, 16);
-    cv.style.cursor = hovered ? 'pointer' : 'default';
+    const onWish = hitWish(e.clientX, e.clientY) || nearestWishStar(e.clientX, e.clientY, 16) || nearestLibra(e.clientX, e.clientY, 16);
+    cv.style.cursor = hovered || onWish ? 'pointer' : 'default';
   });
   $('cardX').addEventListener('click', closeCard);
 
@@ -1029,7 +1721,72 @@
   letterEl.addEventListener('click', (e) => { if (e.target === letterEl) closeLetter(); });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (letterEl.classList.contains('show')) closeLetter(); else closeCard();
+    if (wishOpen) closeWish(8000);
+    else if (letterEl.classList.contains('show')) closeLetter(); else closeCard();
+  });
+
+  // ── HOP UOC ──────────────────────────────────────────────────
+  const wishEl = $('wish'), wishForm = $('wishForm'), wishText = $('wishText'), toastEl = $('toast');
+  let toastTimer = 0;
+  function toast(msg, ms = 2600) {
+    toastEl.textContent = msg;
+    toastEl.style.whiteSpace = 'pre-line';
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms);
+  }
+
+  function openWish() {
+    wishStar = null;
+    wishOpen = true;
+    closeCard();
+    wishText.value = '';
+    wishEl.classList.add('show');
+    setTimeout(() => wishText.focus(), 350);
+  }
+  function closeWish(gapMs) {
+    wishOpen = false;
+    wishEl.classList.remove('show');
+    wishText.blur();
+    nextWish = performance.now() + gapMs;
+  }
+
+  /** Gui dieu uoc ve mail anh; khong gui duoc thi cat lai, lan sau mo trang gui tiep */
+  async function sendWish(text) {
+    try {
+      const r = await fetch('api/love-note', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'wish', text }),
+      });
+      if (!r.ok) throw new Error(r.status);
+      return true;
+    } catch {
+      store.set(WISH_PENDING, store.get(WISH_PENDING).concat([text]));
+      return false;
+    }
+  }
+  (async () => {                                   // gui not dieu uoc lan truoc chua gui duoc
+    const pending = store.get(WISH_PENDING);
+    if (!pending.length) return;
+    store.set(WISH_PENDING, []);
+    for (const text of pending) await sendWish(text);
+  })();
+
+  $('wishLater').addEventListener('click', () => closeWish(8000));
+  wishEl.addEventListener('click', (e) => { if (e.target === wishEl) closeWish(8000); });
+  wishForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = wishText.value.trim();
+    if (!text) {
+      wishText.placeholder = 'Em viết điều ước đã nha 💕';
+      wishForm.classList.remove('shake'); void wishForm.offsetWidth; wishForm.classList.add('shake');
+      return;
+    }
+    closeWish(WISH_GAP[0] + Math.random() * (WISH_GAP[1] - WISH_GAP[0]));
+    const [x, y] = freeSkySpot();
+    rising = { from: [W / 2, H - 40], born: performance.now(), w: { u: x / W, v: y / H, at: Date.now(), text } };
+    toast('Điều ước đã bay lên trời rồi 💫');
+    sendWish(text);
   });
 
   // ── BAT DAU ──────────────────────────────────────────────────
