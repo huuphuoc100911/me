@@ -5,6 +5,16 @@
       "schedule": "15 10 * * *"
     }
   ],
+  "headers": [
+    {
+      "source": "/images/love/thumbs/:file*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=2592000" }]
+    },
+    {
+      "source": "/images/love/md/:file*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=2592000" }]
+    }
+  ],
   "rewrites": [
     {
       "source": "/",

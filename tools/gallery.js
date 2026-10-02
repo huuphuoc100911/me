@@ -20,10 +20,16 @@ const Lunar = require('../js/lunar.js');
 const ROOT = path.join(__dirname, '..');
 const DIR = path.join(ROOT, 'images', 'love');
 const THUMBS = path.join(DIR, 'thumbs');
+const MD = path.join(DIR, 'md');
 const MANIFEST = path.join(DIR, 'images.json');
 
 const THUMB_WIDTH = 700;     // du net cho luoi 3 cot tren man hinh retina
 const THUMB_QUALITY = 72;
+// Ban vua de xem toan man hinh tren dien thoai: anh goc 1-2 MB tai lau, ban nay
+// ~150-300 KB ma van net. Anh goc da nho san thi khong can.
+const MD_EDGE = 1600;
+const MD_QUALITY = 80;
+const MD_MIN_BYTES = 350 * 1024;
 const FORCE = process.argv.includes('--force');
 
 const isVideo = (f) => /\.(mp4|webm|mov)$/i.test(f);
@@ -79,7 +85,17 @@ async function imageEntry(file, ffmpeg) {
     await sharp(src).rotate().resize({ width: THUMB_WIDTH, withoutEnlargement: true })
       .webp({ quality: THUMB_QUALITY }).toFile(thumb);
   }
-  return { f: file, t: 'img', w: meta.width, h: meta.height, thumb: path.basename(thumb) };
+  const entry = { f: file, t: 'img', w: meta.width, h: meta.height, thumb: path.basename(thumb) };
+
+  const md = path.join(MD, path.basename(thumb));
+  if (fs.statSync(src).size > MD_MIN_BYTES || Math.max(meta.width, meta.height) > MD_EDGE) {
+    if (FORCE || !fs.existsSync(md)) {
+      await sharp(src).rotate().resize({ width: MD_EDGE, height: MD_EDGE, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: MD_QUALITY }).toFile(md);
+    }
+    entry.md = path.basename(md);
+  }
+  return entry;
 }
 
 async function videoEntry(file, ffmpeg) {
@@ -108,6 +124,7 @@ async function videoEntry(file, ffmpeg) {
 
 async function main() {
   fs.mkdirSync(THUMBS, { recursive: true });
+  fs.mkdirSync(MD, { recursive: true });
   const ffmpeg = findFfmpeg();
   if (!ffmpeg) console.warn('! Khong tim thay ffmpeg — video se khong co anh dai dien');
 
@@ -131,6 +148,8 @@ async function main() {
   const keep = new Set(entries.map((e) => e.thumb).filter(Boolean));
   const stale = fs.readdirSync(THUMBS).filter((f) => f.endsWith('.webp') && !keep.has(f));
   stale.forEach((f) => fs.rmSync(path.join(THUMBS, f)));
+  const keepMd = new Set(entries.map((e) => e.md).filter(Boolean));
+  fs.readdirSync(MD).filter((f) => f.endsWith('.webp') && !keepMd.has(f)).forEach((f) => fs.rmSync(path.join(MD, f)));
 
   const sizeOf = (d, list) => list.reduce((s, f) => s + fs.statSync(path.join(d, f)).size, 0);
   const origMB = sizeOf(DIR, files) / 1048576;
@@ -139,6 +158,12 @@ async function main() {
 
   console.log(`\n\n  ${entries.length} muc (${imgs} anh, ${entries.length - imgs} video) — tao moi ${made} ban thu nho`);
   console.log(`  Goc ${origMB.toFixed(0)} MB  ->  luoi hien thi ${thumbMB.toFixed(1)} MB  (nhe hon ${(origMB / thumbMB).toFixed(0)} lan)`);
+  const mdList = entries.filter((e) => e.md);
+  if (mdList.length) {
+    const before = sizeOf(DIR, mdList.map((e) => e.f)) / 1048576;
+    const after = sizeOf(MD, mdList.map((e) => e.md)) / 1048576;
+    console.log(`  Ban xem toan man hinh: ${mdList.length} anh ${before.toFixed(1)} MB -> ${after.toFixed(1)} MB`);
+  }
   if (stale.length) console.log(`  Xoa ${stale.length} ban thu nho khong con file goc`);
   const dated = entries.filter((e) => e.d);
   if (dated.length) console.log(`  Co ngay: ${dated.map((e) => `${e.f} -> ${e.d}`).join(', ')}`);

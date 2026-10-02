@@ -654,7 +654,7 @@
     const photo = (f) => {
       const pool = undated.length ? undated : imgs;
       const m = imgs.find((x) => x.f === f) || pool[Math.floor(Math.random() * pool.length)];
-      return m ? MEDIA_DIR + m.f : '';
+      return m ? MEDIA_DIR + (m.md ? 'md/' + m.md : m.f) : '';   // ban vua: anh goc 1-2 MB lam slide cham hien
     };
     const byDay = {};
     media.forEach((m) => { if (m.d) (byDay[m.d] = byDay[m.d] || []).push(m); });

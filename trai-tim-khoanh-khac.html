@@ -244,8 +244,14 @@
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
       padding: calc(64px + var(--safe-t)) 12px calc(64px + var(--safe-b));
+      container-type: size;
     }
+    /* Khung co san dung ty le (--r tu images.json) nen ban nho hien ngay lam nen
+       trong luc tai ban lon — khong con o den cho tai xong */
     .vw-stage img, .vw-stage video {
+      --r: 1;
+      width: min(100cqw, 100cqh * var(--r)); height: auto;
+      aspect-ratio: var(--r); object-fit: contain;
       max-width: 100%; max-height: 100%;
       border-radius: 14px;
       box-shadow: 0 20px 70px rgba(0,0,0,0.6);
@@ -788,6 +794,7 @@
     vwStage.textContent = '';
     if (m.t === 'vid') {
       const v = document.createElement('video');
+      if (m.w && m.h) v.style.setProperty('--r', (m.w / m.h).toFixed(4));
       v.src = MEDIA_DIR + m.f;
       v.controls = true; v.playsInline = true; v.autoplay = true;
       if (m.thumb) v.poster = MEDIA_DIR + 'thumbs/' + m.thumb;
@@ -797,11 +804,22 @@
     } else {
       const img = document.createElement('img');
       img.alt = 'Khoảnh khắc của chúng mình';
-      if (m.thumb) img.style.backgroundImage = `url("${MEDIA_DIR}thumbs/${m.thumb}")`;   // hien tam ban nho trong luc tai anh goc
-      img.src = MEDIA_DIR + m.f;
+      if (m.w && m.h) img.style.setProperty('--r', (m.w / m.h).toFixed(4));
+      // Ban nho (da tai san o luoi tim) hien ngay lam nen, ban vua (md) net hon thi de len khi tai xong
+      if (m.thumb) img.style.backgroundImage = `url("${MEDIA_DIR}thumbs/${m.thumb}")`;
+      img.onerror = () => { if (m.md && !img.src.endsWith(m.f)) img.src = MEDIA_DIR + m.f; };
+      img.src = MEDIA_DIR + (m.md ? 'md/' + m.md : m.f);
       vwStage.appendChild(img);
       duck(false);
     }
+    preloadAround(vwIndex);
+  }
+  // Tai truoc anh ke ben -> vuot qua lai la thay ngay
+  function preloadAround(i) {
+    [1, -1].forEach((k) => {
+      const m = media[(i + k + media.length) % media.length];
+      if (m.t === 'img') new Image().src = MEDIA_DIR + (m.md ? 'md/' + m.md : m.f);
+    });
   }
   function openViewer(i) {
     showMedia(i);
@@ -955,10 +973,12 @@
     const a1 = card.animate([
       { transform: `translate(${r.left - pad}px, ${r.top - pad}px) scale(${s0})` },
       { transform: `translate(${fx}px, ${fy}px) scale(1)` },
-    ], { duration: reduceMotion ? 1 : 600, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+    // fill 'both': luc dong, chay nguoc ve dau van giu khung dau (dung cho o anh) —
+    // 'forwards' thi het hoat anh la polaroid nhay ve goc man hinh mot khung hinh
+    ], { duration: reduceMotion ? 1 : 600, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' });
     const a2 = card.firstElementChild.animate(
       [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }],
-      { duration: reduceMotion ? 1 : 750, delay: reduceMotion ? 0 : 450, easing: 'cubic-bezier(.4,.1,.2,1)', fill: 'forwards' },
+      { duration: reduceMotion ? 1 : 750, delay: reduceMotion ? 0 : 450, easing: 'cubic-bezier(.4,.1,.2,1)', fill: 'both' },
     );
     flipOpen = { el, veil, card, a1, a2 };
     const close = () => closeFlip();
@@ -972,8 +992,14 @@
     flipOpen = null;
     veil.classList.remove('show');
     a2.reverse();
-    setTimeout(() => a1.reverse(), reduceMotion ? 0 : 350);
-    setTimeout(() => { el.style.visibility = ''; veil.remove(); card.remove(); }, reduceMotion ? 50 : 1000);
+    // Don dep dung luc polaroid ve toi o anh (khong doan bang hen gio)
+    const done = () => { el.style.visibility = ''; veil.remove(); card.remove(); };
+    setTimeout(() => {
+      // Chay nguoc duong cong "nhanh roi cham" thanh "cham roi nhanh" -> lao vao o anh roi bien mat
+      // dot ngot. Doi sang cham ca hai dau de ha canh em vao dung o.
+      if (a1.playState === 'finished') a1.effect.updateTiming({ easing: 'cubic-bezier(.45,0,.25,1)' });
+      a1.reverse(); a1.onfinish = done;
+    }, reduceMotion ? 0 : 350);
   }
 
   // ── BAT DAU ──────────────────────────────────────────────────

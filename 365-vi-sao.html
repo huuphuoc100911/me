@@ -272,6 +272,13 @@
       background: rgba(0,0,0,0.35);
     }
     .dc-photo[hidden] { display: none; }
+    /* Dang tai: anh sang chay ngang thay cho o den */
+    .dc-photo.loading {
+      background: linear-gradient(100deg, rgba(255,255,255,0.04) 30%, rgba(255,214,228,0.16) 50%, rgba(255,255,255,0.04) 70%) 0 0 / 300% 100%,
+        rgba(0,0,0,0.35);
+      animation: dcLoad 1.1s linear infinite;
+    }
+    @keyframes dcLoad { from { background-position: 100% 0, 0 0; } to { background-position: 0 0, 0 0; } }
     #dcVideo { cursor: pointer; }      /* cham de dung / phat lai */
     .dc-body { flex: 1; min-width: 0; }
     .dc-top { display: flex; align-items: center; gap: 8px; }
@@ -1573,8 +1580,24 @@
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
+      warmThumbs([...list.filter((m) => m.d), ...pool]);
     })
     .catch(() => {});
+
+  // Tai san anh nho (~40 KB/tam) trong luc tim dang ghep -> cham sao la hien ngay,
+  // khong phai doi tai luc mo the. Anh co ngay (sao Thien Binh, moc) tai truoc.
+  function warmThumbs(list) {
+    const queue = list.filter((m) => m.thumb).map((m) => 'images/love/thumbs/' + m.thumb);
+    const next = () => {
+      const url = queue.shift();
+      if (!url) return;
+      const img = new Image();
+      img.fetchPriority = 'low';
+      img.onload = img.onerror = next;
+      img.src = url;
+    };
+    for (let k = 0; k < 3; k++) next();
+  }
 
   // Su kien truoc ngay yeu nhau (lan dau di hien mau...) khong co ngoi sao rieng
   // vi tim bat dau tu ngay dau tien — ke lai trong the cua ngay dau.
@@ -1587,16 +1610,30 @@
 
   // Ty le khung: lay tu images.json truoc, tai xong thi lay kich thuoc that cho chac
   const setRatio = (el, w, h) => { if (w && h) el.style.setProperty('--r', (w / h).toFixed(4)); };
-  dcPhoto.addEventListener('load', () => setRatio(dcPhoto, dcPhoto.naturalWidth, dcPhoto.naturalHeight));
+  dcPhoto.addEventListener('load', () => {
+    dcPhoto.classList.remove('loading');
+    setRatio(dcPhoto, dcPhoto.naturalWidth, dcPhoto.naturalHeight);
+  });
+  dcPhoto.addEventListener('error', () => dcPhoto.classList.remove('loading'));
   dcVideo.addEventListener('loadedmetadata', () => setRatio(dcVideo, dcVideo.videoWidth, dcVideo.videoHeight));
+  dcVideo.addEventListener('loadeddata', () => dcVideo.classList.remove('loading'));
 
+  let posterToken = 0;
   function showCardMedia(m) {
     const src = (f) => 'images/love/' + f;
     dcVideo.pause();
     if (m) setRatio(m.t === 'vid' ? dcVideo : dcPhoto, m.w, m.h);
     if (m && m.t === 'vid') {                               // video: phat ca tieng, nhac nen tam dung
       dcPhoto.hidden = true; dcPhoto.removeAttribute('src');
-      dcVideo.poster = m.thumb ? src('thumbs/' + m.thumb) : '';
+      const poster = m.thumb ? src('thumbs/' + m.thumb) : '';
+      dcVideo.classList.add('loading');
+      const token = ++posterToken;
+      if (poster) {                                         // anh dai dien len la het "dang tai"
+        const p = new Image();
+        p.onload = () => { if (token === posterToken) dcVideo.classList.remove('loading'); };
+        p.src = poster;
+      }
+      dcVideo.poster = poster;
       dcVideo.src = src(m.f);
       dcVideo.hidden = false;
       playCardVideo();
@@ -1604,8 +1641,14 @@
     }
     duck(false);
     dcVideo.hidden = true; dcVideo.removeAttribute('src');
-    if (m) { dcPhoto.src = src(m.thumb ? 'thumbs/' + m.thumb : m.f); dcPhoto.hidden = false; }
-    else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
+    if (m) {
+      // Bo anh cu truoc de khong thoang thay anh cua ngay truoc trong luc tai anh moi
+      dcPhoto.removeAttribute('src');
+      dcPhoto.classList.add('loading');
+      dcPhoto.src = src(m.thumb ? 'thumbs/' + m.thumb : m.f);
+      dcPhoto.hidden = false;
+      if (dcPhoto.complete && dcPhoto.naturalWidth) dcPhoto.classList.remove('loading');
+    } else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
   }
 
   function playCardVideo() {
