@@ -892,6 +892,41 @@
     }
     .milestone.reached .ms-badge { background: rgba(245,200,66,0.2); color: var(--gold2); border-color: rgba(245,200,66,0.3); }
 
+    /* Anh dat ten theo ngay (03-08-25.jpg, 100 day.jpg...) tu hien o moc, o lich va khi mo anh */
+    .ms-thumb {
+      position: relative; flex-shrink: 0;
+      width: 48px; height: 48px; padding: 0;
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(245,200,66,0.45);
+      background: rgba(0,0,0,0.3);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      cursor: zoom-in;
+      transition: transform 0.2s ease;
+    }
+    .ms-thumb:hover { transform: scale(1.06); }
+    .ms-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ms-thumb .ms-play {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-size: 0.7rem; color: #fff;
+      background: rgba(0,0,0,0.28);
+    }
+    .lb-caption {                   /* dat o tren: phia duoi da co nut nhac + len dau trang */
+      position: absolute;
+      top: 70px; left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100vw - 32px);
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2);
+      font-size: 0.82rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+    }
+
     /* Tooltip số ngày còn lại */
     .milestone:not(.reached) .ms-badge::after {
       content: attr(data-tooltip);
@@ -1091,6 +1126,7 @@
       .milestone .ms-date { font-size: 0.68rem; }
       .milestone .ms-badge { font-size: 0.6rem; padding: 2px 8px; }
       .milestone .ms-progress-pct { font-size: 0.58rem; min-width: 28px; }
+      .ms-thumb { width: 40px; height: 40px; border-radius: 8px; }
     }
 
 
@@ -1447,6 +1483,14 @@
     .cal-detail .cd-row { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
     .cal-detail .cd-when { color: var(--mut); font-size: 0.72rem; margin-left: auto; white-space: nowrap; }
     .cal-detail .cd-empty { color: var(--mut); }
+    .cal-detail .cd-media { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .cal-detail .cd-media .ms-thumb { width: 64px; height: 64px; }
+    .cal-cell.has-photo::after {
+      content: ''; position: absolute; top: 4px; left: 4px;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--rose);
+      box-shadow: 0 0 6px var(--rose);
+    }
 
     @media (max-width: 400px) {
       .card-maker { flex-direction: column; }
@@ -1675,6 +1719,7 @@
       <button class="lb-tool" id="lbShare" title="Chia sẻ tấm này">🔗 <span class="lb-tool-text">Chia sẻ</span></button>
       <a class="lb-tool" id="lbDownload" download title="Tải về máy">⬇ <span class="lb-tool-text">Tải về</span></a>
     </div>
+    <div class="lb-caption" id="lbCaption" hidden></div>
     <div class="lb-counter" id="lbCounter"></div>
     <button class="lightbox-nav lightbox-prev" id="lbPrev">&#8249;</button>
     <img id="lbImg" src="" alt="">
@@ -1908,6 +1953,7 @@ shownMilestones.forEach(m => {
 
   const div = document.createElement('div');
   div.className = 'milestone' + (reached ? ' reached' : '');
+  div.dataset.key = m.key;
 
   const progressHtml = !reached ? `
     <div class="ms-progress">
@@ -1967,6 +2013,8 @@ const msByDay = milestones.reduce((map, m) => {
 
 const todayDt = new Date();
 const todayKey = dayKey(todayDt);
+// 'YYYY-MM-DD' -> [anh/video]: lay tu truong `d` ma tools/gallery.js doc tu ten file
+let mediaByDay = {};
 let calY = todayDt.getFullYear();
 let calM = todayDt.getMonth();      // 0-11
 let selKey = null;
@@ -2017,6 +2065,7 @@ function renderCalendar() {
     if (key === todayKey) cls.push('today');
     if (evs && !out) cls.push('ev');
     if (key === selKey) cls.push('sel');
+    if (mediaByDay[key] && !out) cls.push('has-photo');
     // Mung 1 am lich thi ghi kem thang cho de doi chieu
     const luTxt = lu.d === 1 ? `1/${lu.m}` : lu.d;
     cells.push(
@@ -2043,6 +2092,13 @@ function showDay(key) {
     (evs.length
       ? evs.map(e => `<div class="cd-row"><span>${e.icon}</span><span>${escHtml(e.name)}</span><span class="cd-when">${relDays(e.ts)}</span></div>`).join('')
       : '<div class="cd-empty">Không có mốc nào trong ngày này 🌙</div>');
+  const media = mediaByDay[key];
+  if (media) {
+    const box = document.createElement('div');
+    box.className = 'cd-media';
+    media.forEach(m => box.appendChild(mediaThumb(m)));
+    calDetailEl.appendChild(box);
+  }
   renderCalendar();
 }
 
@@ -2292,10 +2348,50 @@ function buildGallery(list) {
 
 fetch(MEDIA_DIR + 'images.json')
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(list => { buildGallery(list); openFromHash(); })
+  .then(list => { buildGallery(list); attachDatedMedia(list); openFromHash(); })
   .catch(() => {
     galleryEl.innerHTML = '<p style="opacity:.6;text-align:center;padding:30px 0">Chưa tải được thư viện ảnh 🥀</p>';
   });
+
+// ── ANH THEO NGAY ────────────────────────────────────────────────────────────
+// Dat ten file theo ngay (03-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi
+// chay `npm run gallery` -> anh tu hien canh moc cung ngay, trong lich ky niem
+// va ghi ngay + ten moc khi mo to. Quy tac dat ten xem tools/gallery.js.
+function mediaThumb(m) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'ms-thumb';
+  b.title = 'Xem ' + (m.t === 'vid' ? 'video' : 'ảnh');
+  const img = document.createElement('img');
+  img.alt = '';
+  img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+  b.appendChild(img);
+  if (m.t === 'vid') b.insertAdjacentHTML('beforeend', '<span class="ms-play">▶</span>');
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();                       // khong bat tooltip cua o moc
+    const i = galleryImages.findIndex(x => x.f === m.f);
+    if (i >= 0) openLightbox(i);
+  });
+  return b;
+}
+
+function attachDatedMedia(list) {
+  mediaByDay = {};
+  list.filter(m => m.d).forEach(m => (mediaByDay[m.d] = mediaByDay[m.d] || []).push(m));
+  document.querySelectorAll('.milestone[data-key]').forEach(div => {
+    const media = mediaByDay[div.dataset.key];
+    if (media) div.insertBefore(mediaThumb(media[0]), div.querySelector('.ms-badge'));
+  });
+  if (selKey) showDay(selKey); else renderCalendar();
+}
+
+/** "🩸 Lần đầu cùng nhau đi hiến máu · 03/08/2025" — anh khong co ngay thi an */
+function mediaCaption(m) {
+  if (!m.d) return '';
+  const [y, mo, d] = m.d.split('-').map(Number);
+  const evs = (msByDay[m.d] || []).map(e => `${e.icon} ${e.name}`);
+  return [...evs, (evs.length ? '' : '📅 ') + fmtVN(new Date(y, mo - 1, d))].join(' · ');
+}
 
 // Lightbox — luon mo file GOC (chat luong day du)
 const lightboxEl  = document.getElementById('lightbox');
@@ -2338,6 +2434,7 @@ function stepLightbox(delta) {
 
 // ── CHIA SE / TAI VE TUNG TAM ────────────────────────────────────────────────
 const lbCounterEl  = document.getElementById('lbCounter');
+const lbCaptionEl  = document.getElementById('lbCaption');
 const lbDownloadEl = document.getElementById('lbDownload');
 const toastEl      = document.getElementById('toast');
 let toastTimer = null;
@@ -2380,6 +2477,8 @@ showLightboxMedia = function (m) {
   lbDownloadEl.href = MEDIA_DIR + m.f;
   lbDownloadEl.setAttribute('download', m.f);
   lbCounterEl.textContent = `${currentLbIndex + 1} / ${galleryImages.length}`;
+  lbCaptionEl.textContent = mediaCaption(m);
+  lbCaptionEl.hidden = !lbCaptionEl.textContent;
   history.replaceState(null, '', '#anh=' + encodeURIComponent(m.f));
 };
 

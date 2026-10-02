@@ -249,6 +249,17 @@
       animation: vwIn 0.35s ease;
     }
     @keyframes vwIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+    .vw-cap {                       /* anh dat ten theo ngay: ghi ngay + ten moc */
+      position: absolute; bottom: calc(18px + var(--safe-b)); left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100% - 32px);
+      padding: 7px 16px; border-radius: 999px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2, #fde68a); font-size: 0.82rem; text-align: center;
+      pointer-events: none;
+    }
+    .vw-cap[hidden] { display: none; }
     .vw-count {
       position: absolute; top: calc(22px + var(--safe-t)); left: 50%;
       transform: translateX(-50%);
@@ -350,11 +361,13 @@
 <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Xem khoảnh khắc">
   <div class="vw-count" id="vwCount"></div>
   <div class="vw-stage" id="vwStage"></div>
+  <div class="vw-cap" id="vwCap" hidden></div>
   <button class="vw-nav prev" id="vwPrev" aria-label="Tấm trước">‹</button>
   <button class="vw-nav next" id="vwNext" aria-label="Tấm sau">›</button>
   <button class="vw-x" id="vwX" aria-label="Đóng">×</button>
 </div>
 
+<script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
 <script>
 (() => {
@@ -703,10 +716,22 @@
   const viewerEl = $('viewer'), vwStage = $('vwStage');
   let vwIndex = 0;
 
+  // Anh dat ten theo ngay (03-08-25.jpg, 100 day.jpg...) -> "🩸 Ten moc · 03/08/2025"
+  const msByDay = {};
+  Milestones.build().forEach((m) => (msByDay[m.key] = msByDay[m.key] || []).push(m));
+  function captionOf(m) {
+    if (!m.d) return '';
+    const [y, mo, d] = m.d.split('-').map(Number);
+    const evs = (msByDay[m.d] || []).map((e) => `${e.icon} ${e.name}`);
+    return [...evs, (evs.length ? '' : '📅 ') + fmtVN(new Date(y, mo - 1, d))].join(' · ');
+  }
+
   function showMedia(i) {
     vwIndex = (i + media.length) % media.length;
     const m = media[vwIndex];
     $('vwCount').textContent = `${vwIndex + 1} / ${media.length}`;
+    $('vwCap').textContent = captionOf(m);
+    $('vwCap').hidden = !$('vwCap').textContent;
     vwStage.querySelector('video')?.pause();
     vwStage.textContent = '';
     if (m.t === 'vid') {

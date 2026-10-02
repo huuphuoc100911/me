@@ -197,8 +197,43 @@
     .li b { display: block; font-size: 0.95rem; font-weight: 600; }
     .li small { font-size: 0.78rem; opacity: 0.72; }
 
+    .li .ic.th {                    /* moc co anh theo ngay thi hien anh thay icon */
+      width: 42px; height: 42px; border-radius: 12px;
+      background: center / cover no-repeat;
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
     .chips { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { padding: 8px 14px; border-radius: 999px; font-weight: 600; font-size: 0.92rem; background: rgba(42,10,23,0.12); border: 1px solid rgba(42,10,23,0.25); }
+
+    /* Anh polaroid: moc tram ngay co anh, cac lan hien mau */
+    .polas { margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; }
+    .pola {
+      flex: 0 1 auto; min-width: 0;   /* 3 tam van nam tren mot hang, thieu cho thi tu nho lai */
+      width: clamp(92px, calc(var(--u) * 27), 140px);
+      padding: 6px 6px 8px; border-radius: 10px;
+      background: #fffaf3; color: #2a0a17;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+      rotate: var(--r, 0deg);
+      text-align: center;
+    }
+    .pola .pi {
+      position: relative;
+      aspect-ratio: 4 / 5; border-radius: 6px;
+      background: #e9dccf center / cover no-repeat;
+    }
+    .pola .pi.vid::after {
+      content: '▶'; position: absolute; inset: 0;
+      display: grid; place-items: center;
+      color: #fff; font-size: 0.9rem; text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    }
+    .pola b { display: block; margin-top: 6px; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
+    .pola small { display: block; font-size: 0.7rem; opacity: 0.7; font-variant-numeric: lining-nums tabular-nums; }
+    .polas.two .pola { width: clamp(118px, calc(var(--u) * 38), 190px); }
+    .blood { color: #fff; }
+    .blood .big { display: flex; align-items: baseline; gap: 10px; }
+    .blood .big small { font-size: 0.42em; font-weight: 600; }
 
     /* Ba hang anh troi ngang lam nen */
     .marquee {
@@ -344,6 +379,12 @@
       .punch { margin-top: 12px; }
       .list { gap: 6px; margin-top: 10px; grid-template-columns: 1fr 1fr; }
       .li { padding: 8px 10px; }
+      .li .ic.th { width: 32px; height: 32px; border-radius: 9px; }
+      /* anh dua sang ben phai, chu ben trai — xep chong thi tran man */
+      .slide .polas { position: absolute; right: 28px; top: 50%; translate: 0 -50%; margin: 0; gap: 10px; }
+      .pola, .polas.two .pola { width: 112px; padding: 5px 5px 6px; }
+      .pola b { margin-top: 4px; font-size: 0.74rem; }
+      .pola small { font-size: 0.64rem; }
       .disc { width: 120px; margin: 10px 0; }
     }
 
@@ -451,6 +492,7 @@
   </div>
 </div>
 
+<script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
 <script src="js/letters.js"></script>
 <script>
@@ -461,6 +503,7 @@
   const MEDIA_DIR = 'images/love/';
   // ★ Anh nen cho cac man — doi ten file trong images/love/ tuy y.
   //   Ten nao khong con trong thu vien thi tu lay tam mot tam khac.
+  //   Anh dat ten theo ngay (03-08-25.jpg, 100 day.jpg...) thi tu hien o dung moc.
   const PHOTOS = {
     open:  'love-6.jpg',                                   // man mo dau
     first: '2aOboR0f3nAI3WoyIAfjA7pk7Q8TEen6Sqo5qLse.jpg', // "moi chuyen bat dau vao..."
@@ -565,19 +608,32 @@
   function buildSlides(media, letters) {
     const imgs = media.filter((m) => m.t === 'img');
     const vids = media.length - imgs.length;
+    const undated = imgs.filter((m) => !m.d);                 // anh co ngay de danh cho dung moc
     const photo = (f) => {
-      const m = imgs.find((x) => x.f === f) || imgs[Math.floor(Math.random() * imgs.length)];
+      const pool = undated.length ? undated : imgs;
+      const m = imgs.find((x) => x.f === f) || pool[Math.floor(Math.random() * pool.length)];
       return m ? MEDIA_DIR + m.f : '';
     };
+    const byDay = {};
+    media.forEach((m) => { if (m.d) (byDay[m.d] = byDay[m.d] || []).push(m); });
+    const thumbOf = (m) => MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+    const pola = (m, title, sub, r) => `
+      <div class="pola a" style="--d:${r.d}s; --r:${r.deg}deg">
+        <div class="pi${m.t === 'vid' ? ' vid' : ''}" style="background-image:url('${encodeURI(thumbOf(m))}')"></div>
+        <b>${title}</b><small>${sub}</small>
+      </div>`;
+
     const all = Milestones.build().filter((m) => m.ts <= TODAY.getTime());
     const seen = new Set();
     const firsts = [];
     all.forEach((m) => {
-      if (m.type !== 'personal' || m.ts <= START || seen.has(m.name)) return;
+      // su kien co tag (hien mau...) co man rieng
+      if (m.type !== 'personal' || m.tag || m.ts <= START || seen.has(m.name)) return;
       seen.add(m.name);
       firsts.push(m);
     });
     const hundreds = all.filter((m) => m.type === 'days');
+    const donations = all.filter((m) => m.tag === 'hien-mau');
     todayLetter = letters.find((l) => l.openAt === dayKey(TODAY)) || null;
 
     const defs = [];
@@ -610,6 +666,26 @@
         <div class="tag a" style="--d:1.9s">💘 Ngày đầu yêu nhau</div>`,
     });
 
+    if (donations.length) {
+      const n = donations.length;
+      const before = Math.round((START - donations[0].ts) / DAY);   // lan dau truoc ca ngay yeu nhau?
+      const withPhoto = donations.filter((m) => byDay[m.key]);
+      defs.push({
+        dur: 8500, cls: 'blood',
+        bg: 'radial-gradient(circle at 50% 30%, #c8143c 0%, #7f1034 50%, #2d0614 100%)',
+        html: `
+          <div class="kicker a" style="--d:.2s">${before > 0 ? `Trước cả ngày yêu nhau ${before} ngày…` : 'Có một việc tử tế mình làm cùng nhau'}</div>
+          ${withPhoto.length ? `<div class="polas${withPhoto.length <= 2 ? ' two' : ''}">${withPhoto.slice(0, 3).map((m, k) =>
+            pola(byDay[m.key][0], `Lần ${donations.indexOf(m) + 1}`, dots(new Date(m.ts)), { d: (0.6 + k * 0.45).toFixed(2), deg: k % 2 ? 3 : -4 })).join('')}
+          </div>` : ''}
+          <div class="big a" style="--d:${(0.9 + withPhoto.length * 0.45).toFixed(2)}s">${cnt(n, 900 + withPhoto.length * 450)}<small>lần</small></div>
+          <div class="unit a" style="--d:${(1.2 + withPhoto.length * 0.45).toFixed(2)}s">cùng nhau đi hiến máu 🩸</div>
+          <p class="punch a" style="--d:${(2.6 + withPhoto.length * 0.45).toFixed(2)}s">${before > 0 && n > 1
+            ? 'Lần đầu, mình còn chưa là của nhau.<br>Lần sau, đã nắm tay nhau cùng đi.'
+            : 'Cùng nhau cho đi một chút — để ai đó có thêm thật nhiều ngày nữa.'}</p>`,
+      });
+    }
+
     if (firsts.length) {
       defs.push({
         dur: Math.min(10000, 3000 + firsts.length * 1100),
@@ -618,7 +694,7 @@
           <div class="kicker a" style="--d:.2s">Những lần đầu tiên bên nhau</div>
           <div class="list">${firsts.map((m, k) => `
             <div class="li a" style="--d:${(0.7 + k * 0.55).toFixed(2)}s">
-              <span class="ic">${m.icon}</span>
+              ${byDay[m.key] ? `<span class="ic th" style="background-image:url('${encodeURI(thumbOf(byDay[m.key][0]))}')"></span>` : `<span class="ic">${m.icon}</span>`}
               <span><b>${esc(m.name.replace(/\s*🎉\s*$/, ''))}</b><small>${fmtVN(new Date(m.ts))} · ngày thứ ${Math.round((m.ts - START) / DAY)}</small></span>
             </div>`).join('')}
           </div>`,
@@ -632,9 +708,15 @@
           <div class="kicker a" style="--d:.2s">Chúng mình đã cùng đi qua</div>
           <div class="huge a" style="--d:.5s">${cnt(hundreds.length, 500)}</div>
           <div class="unit a" style="--d:.9s">cột mốc trăm ngày</div>
-          <div class="chips">${hundreds.map((m, k) =>
-            `<span class="chip a" style="--d:${(1.5 + k * 0.3).toFixed(2)}s">${m.icon} ${Math.round((m.ts - START) / DAY)} ngày</span>`).join('')}
-          </div>
+          ${(() => {
+            const pics = hundreds.filter((m) => byDay[m.key]).slice(0, 3);
+            const rest = hundreds.filter((m) => !pics.includes(m));
+            const label = (m) => `${m.icon} ${Math.round((m.ts - START) / DAY)} ngày`;
+            return (pics.length ? `<div class="polas">${pics.map((m, k) =>
+              pola(byDay[m.key][0], label(m), dots(new Date(m.ts)), { d: (1.5 + k * 0.3).toFixed(2), deg: [-4, 2, -2][k] })).join('')}</div>` : '')
+              + (rest.length ? `<div class="chips">${rest.map((m, k) =>
+              `<span class="chip a" style="--d:${(1.5 + (pics.length + k) * 0.3).toFixed(2)}s">${label(m)}</span>`).join('')}</div>` : '');
+          })()}
           ${MONTHS ? `<p class="punch a" style="--d:${(2.4 + hundreds.length * 0.3).toFixed(2)}s">và ${MONTHS} lần tròn tháng 🌷</p>` : ''}`,
       });
     }

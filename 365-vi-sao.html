@@ -276,6 +276,7 @@
       font-size: 0.88rem; line-height: 1.5;
       color: rgba(255,255,255,0.85);
     }
+    .dc-line { white-space: pre-line; }
     .dc-ms[hidden], .dc-line[hidden] { display: none; }
     .dc-x {
       position: absolute; top: 6px; right: 6px;
@@ -377,6 +378,7 @@
 <div class="day-card" id="card" role="dialog" aria-live="polite">
   <button class="dc-x" id="cardX" aria-label="Đóng">×</button>
   <img class="dc-photo" id="dcPhoto" alt="Khoảnh khắc của chúng mình" hidden>
+  <video class="dc-photo" id="dcVideo" muted loop playsinline preload="none" hidden></video>
   <div class="dc-body">
     <div class="dc-top"><span class="dc-icon" id="dcIcon"></span><span class="dc-n" id="dcN"></span></div>
     <div class="dc-date" id="dcDate"></div>
@@ -385,6 +387,7 @@
   </div>
 </div>
 
+<script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
 <script src="js/letters.js"></script>
 <script>
@@ -392,12 +395,9 @@
   'use strict';
   const { START, DAY, fmtVN, dayKey } = Milestones;
 
-  // ★ Gan anh that cho tung moc: 'YYYY-MM-DD': 'ten file trong images/love/'.
-  //   Anh trong thu vien khong con ngay chup nen khong tu ghep duoc — moc nao
-  //   khong khai bao o day se tu lay mot tam trong thu vien.
-  const MILESTONE_PHOTOS = {
-    // '2025-10-18': 'love-1.jpg',
-  };
+  // ★ Anh/video cho tung moc: dat ten file trong images/love/ theo ngay
+  //   (03-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi chay `npm run gallery`
+  //   -> moc cung ngay tu lay dung tam do. Moc chua co thi lay mot tam trong thu vien.
   // Bai dau phat ngay khi bat dau; het bai thi sang bai ke, het danh sach thi quay lai bai dau
   const PLAYLIST = [
     'music/love/giai-cuu-the-gioi.mp3',
@@ -892,18 +892,40 @@
   });
 
   // ── THE NGAY ─────────────────────────────────────────────────
-  const cardEl = $('card'), dcPhoto = $('dcPhoto'), dcMs = $('dcMs'), dcLine = $('dcLine');
-  let photos = [];
+  const cardEl = $('card'), dcPhoto = $('dcPhoto'), dcVideo = $('dcVideo'), dcMs = $('dcMs'), dcLine = $('dcLine');
+  let photos = [], mediaByDay = {};
   fetch('images/love/images.json')
     .then((r) => (r.ok ? r.json() : []))
-    .then((list) => { photos = list.filter((m) => m.t === 'img'); })
+    .then((list) => {
+      list.forEach((m) => { if (m.d) (mediaByDay[m.d] = mediaByDay[m.d] || []).push(m); });
+      photos = list.filter((m) => m.t === 'img' && !m.d);   // anh co ngay chi hien o dung moc cua no
+    })
     .catch(() => {});
 
-  function photoFor(s) {
-    if (MILESTONE_PHOTOS[s.key]) return 'images/love/' + MILESTONE_PHOTOS[s.key];
+  // Su kien truoc ngay yeu nhau (lan dau di hien mau...) khong co ngoi sao rieng
+  // vi tim bat dau tu ngay dau tien — ke lai trong the cua ngay dau.
+  const BEFORE = Milestones.build().filter((m) => m.ts < START);
+
+  function mediaFor(s) {
+    if (mediaByDay[s.key]) return mediaByDay[s.key][0];
     if (!photos.length) return null;
-    const m = photos[(s.specialIdx * 7) % photos.length];   // moi moc mot tam khac nhau
-    return 'images/love/' + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+    return photos[(s.specialIdx * 7) % photos.length];      // moi moc mot tam khac nhau
+  }
+
+  function showCardMedia(m) {
+    const src = (f) => 'images/love/' + f;
+    dcVideo.pause();
+    if (m && m.t === 'vid') {                               // video: tat tieng, de nhac nen phat tiep
+      dcPhoto.hidden = true; dcPhoto.removeAttribute('src');
+      dcVideo.poster = m.thumb ? src('thumbs/' + m.thumb) : '';
+      dcVideo.src = src(m.f);
+      dcVideo.hidden = false;
+      dcVideo.play().catch(() => {});
+      return;
+    }
+    dcVideo.hidden = true; dcVideo.removeAttribute('src');
+    if (m) { dcPhoto.src = src(m.thumb ? 'thumbs/' + m.thumb : m.f); dcPhoto.hidden = false; }
+    else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
   }
 
   function openCard(s) {
@@ -914,16 +936,17 @@
     dcMs.textContent = s.ms ? s.ms.map((m) => m.name).join('\n') : '';
     dcMs.hidden = !s.ms;
     dcLine.textContent = s.kind === 'today' ? 'Hôm nay — và mãi mãi về sau. 💕'
+      : s.i === 0 && BEFORE.length ? BEFORE.map((m) =>
+        `Trước cả ngày ấy ${Math.round((START - m.ts) / DAY)} ngày (${m.date}): ${m.icon} ${m.name}`).join('\n')
       : s.ms ? '' : DAY_LINES[s.i % DAY_LINES.length];
     dcLine.hidden = !dcLine.textContent;
-    const src = s.kind !== 'day' ? photoFor(s) : null;
-    if (src) { dcPhoto.src = src; dcPhoto.hidden = false; }
-    else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
+    showCardMedia(s.kind !== 'day' ? mediaFor(s) : null);
     cardEl.classList.add('show');
     document.body.classList.add('card-open');
   }
   function closeCard() {
     selected = null;
+    dcVideo.pause();
     cardEl.classList.remove('show');
     document.body.classList.remove('card-open');
   }

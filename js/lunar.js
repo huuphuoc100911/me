@@ -19,6 +19,22 @@
     return jd;
   }
   
+  function jdToDate(jd) {
+    let b, c;
+    if (jd > 2299160) {
+      const a = jd + 32044;
+      b = Math.floor((4 * a + 3) / 146097);
+      c = a - Math.floor((b * 146097) / 4);
+    } else {
+      b = 0;
+      c = jd + 32082;
+    }
+    const d = Math.floor((4 * c + 3) / 1461);
+    const e = c - Math.floor((1461 * d) / 4);
+    const m = Math.floor((5 * e + 2) / 153);
+    return [e - Math.floor((153 * m + 2) / 5) + 1, m + 3 - 12 * Math.floor(m / 10), b * 100 + d - 4800 + Math.floor(m / 10)];
+  }
+
   function NewMoon(k) {
     const T = k / 1236.85;
     const T2 = T * T;
@@ -118,6 +134,29 @@
     return [lunarDay, lunarMonth, lunarYear, lunarLeap];
   }
   
+  /** Am -> duong. Thang nhuan khong co trong nam do thi tra ve [0, 0, 0]. */
+  function convertLunar2Solar(lunarDay, lunarMonth, lunarYear, lunarLeap, timeZone) {
+    let a11, b11;
+    if (lunarMonth < 11) {
+      a11 = getLunarMonth11(lunarYear - 1, timeZone);
+      b11 = getLunarMonth11(lunarYear, timeZone);
+    } else {
+      a11 = getLunarMonth11(lunarYear, timeZone);
+      b11 = getLunarMonth11(lunarYear + 1, timeZone);
+    }
+    const k = Math.floor(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+    let off = lunarMonth - 11;
+    if (off < 0) off += 12;
+    if (b11 - a11 > 365) {
+      const leapOff = getLeapMonthOffset(a11, timeZone);
+      let leapMonth = leapOff - 2;
+      if (leapMonth < 0) leapMonth += 12;
+      if (lunarLeap && lunarMonth !== leapMonth) return [0, 0, 0];
+      if (lunarLeap || off >= leapOff) off += 1;
+    }
+    return jdToDate(getNewMoonDay(k + off, timeZone) + lunarDay - 1);
+  }
+
   const CAN = ['Canh','Tân','Nhâm','Quý','Giáp','Ất','Bính','Đinh','Mậu','Kỷ'];
   const CHI = ['Thân','Dậu','Tuất','Hợi','Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi'];
   const WEEKDAYS = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
@@ -132,5 +171,8 @@
   /** [ngay, thang, nam, thangNhuan] theo am lich */
   function toLunar(dd, mm, yy) { return convertSolar2Lunar(dd, mm, yy, TZ); }
 
-  return { convertSolar2Lunar, toLunar, getCanChi, CAN, CHI, WEEKDAYS, TZ };
+  /** [ngay, thang, nam] duong lich cua mot ngay am lich — vd toSolar(1, 1, 2026) la mung 1 Tet */
+  function toSolar(dd, mm, yy, leap) { return convertLunar2Solar(dd, mm, yy, leap ? 1 : 0, TZ); }
+
+  return { convertSolar2Lunar, convertLunar2Solar, toLunar, toSolar, getCanChi, CAN, CHI, WEEKDAYS, TZ };
 }));

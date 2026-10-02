@@ -4,9 +4,9 @@
  * api/notify.js (require). Sua o day la ca hai noi cung doi.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.Milestones = factory();
-}(typeof self !== 'undefined' ? self : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./lunar.js'));
+  else root.Milestones = factory(root.Lunar);   // trang nao co Tet thi nap js/lunar.js truoc file nay
+}(typeof self !== 'undefined' ? self : this, function (Lunar) {
 
   const DAY = 86400000;
 
@@ -14,14 +14,22 @@
   const START_Y = 2025, START_M = 10, START_D = 18;
   const START = new Date(START_Y, START_M - 1, START_D).getTime();
 
-  /** Su kien ca nhan. yearly: lap lai hang nam. */
+  /**
+   * Su kien ca nhan. yearly: lap lai hang nam. lunar: 'thang-ngay' am lich, lap
+   * lai hang nam theo am lich (khong nap duoc Lunar thi chi con dung ngay `d`).
+   * tag: nhom su kien de trang nao can thi gom lai (vd hien-mau).
+   * Su kien truoc ngay yeu nhau van hien, chi su kien lap lai moi bat dau tu START.
+   */
   const PERSONAL = [
+    { icon: '🩸', name: 'Lần đầu cùng nhau đi hiến máu', d: '2025-08-03', tag: 'hien-mau' },
     { icon: '💘', name: 'Ngày đầu yêu nhau',              d: '2025-10-18' },
     { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',    d: '2025-10-23', yearly: true },
     { icon: '🎂', name: 'Sinh nhật anh — Hữu Phước 🎉',   d: '2025-10-09', yearly: true },
     { icon: '⛄', name: 'Giáng Sinh cùng nhau',           d: '2025-12-25', yearly: true },
     { icon: '🎆', name: 'Năm mới bên nhau',                d: '2026-01-01', yearly: true },
     { icon: '💝', name: 'Valentine',                        d: '2026-02-14', yearly: true },
+    { icon: '🧧', name: 'Tết Nguyên Đán bên nhau',          d: '2026-02-17', lunar: '01-01' },
+    { icon: '🩸', name: 'Cùng nhau đi hiến máu lần 2',      d: '2026-09-06', tag: 'hien-mau' },
   ];
 
   const pad2 = (n) => String(n).padStart(2, '0');
@@ -50,16 +58,24 @@
     const startDt = new Date(startTs);
     const horizon = Date.now() + yearsAhead * 365.25 * DAY;
     const out = [];
-    const add = (type, icon, name, dt) =>
-      out.push({ type, icon, name, date: fmtVN(dt), ts: dt.getTime(), key: dayKey(dt) });
+    const add = (type, icon, name, dt, tag) => {
+      const m = { type, icon, name, date: fmtVN(dt), ts: dt.getTime(), key: dayKey(dt) };
+      if (tag) m.tag = tag;
+      out.push(m);
+    };
 
     PERSONAL.forEach((ev) => {
       const [y, m, d] = ev.d.split('-').map(Number);
-      if (!ev.yearly) { add('personal', ev.icon, ev.name, new Date(y, m - 1, d)); return; }
+      const lunar = ev.lunar && Lunar && Lunar.toSolar ? ev.lunar.split('-').map(Number) : null;
+      if (!ev.yearly && !lunar) { add('personal', ev.icon, ev.name, new Date(y, m - 1, d), ev.tag); return; }
       for (let yy = y; ; yy++) {
-        const dt = new Date(yy, m - 1, d);
+        let dt = new Date(yy, m - 1, d);
+        if (lunar) {
+          const [sd, sm, sy] = Lunar.toSolar(lunar[1], lunar[0], yy);
+          dt = new Date(sy, sm - 1, sd);
+        }
         if (dt.getTime() > horizon) break;
-        if (dt.getTime() >= startTs) add('personal', ev.icon, ev.name, dt);
+        if (dt.getTime() >= startTs) add('personal', ev.icon, ev.name, dt, ev.tag);
       }
     });
 
