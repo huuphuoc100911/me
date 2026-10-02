@@ -56,8 +56,8 @@
     #sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 
     /* ── THANH TREN ─────────────────────────────────────── */
-    .bar {
-      position: fixed; z-index: 5;
+    .bar {                          /* tren man mo dau (6): nut ve trang tinh yeu bam duoc ngay tu dau */
+      position: fixed; z-index: 7;
       top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
       display: flex; justify-content: space-between; align-items: center;
       pointer-events: none;
@@ -259,7 +259,9 @@
       opacity: 0; visibility: hidden; transform: translateY(16px);
       transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
     }
-    .day-card.show { opacity: 1; visibility: visible; transform: none; }
+    /* Hien ngay (visibility 0s): video trong the phai "nhin thay duoc" luc goi play(),
+       Safari iPhone khong cho phat video dang an */
+    .day-card.show { opacity: 1; visibility: visible; transform: none; transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s; }
     /* Khung theo dung ty le anh/video (--r = rong/cao, JS gan) — doc hay ngang deu
        hien tron, khong cat. Qua hep/qua rong thi chen nen toi hai ben thay vi cat. */
     .dc-photo {
@@ -279,7 +281,32 @@
       animation: dcLoad 1.1s linear infinite;
     }
     @keyframes dcLoad { from { background-position: 100% 0, 0 0; } to { background-position: 0 0, 0 0; } }
-    #dcVideo { cursor: pointer; }      /* cham de dung / phat lai */
+    /* Video: khung .dc-photo boc ngoai, them nut phat / vong tai / dau tat tieng */
+    .dc-vid { position: relative; overflow: hidden; cursor: pointer; }   /* cham de phat / dung / bat tieng */
+    .dc-vid video { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .dc-play, .dc-spin, .dc-mute {
+      position: absolute; pointer-events: none;
+      opacity: 0; transition: opacity 0.2s ease;
+    }
+    .dc-play {
+      left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px;
+      display: flex; align-items: center; justify-content: center; padding-left: 3px;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,0.55);
+      background: rgba(0,0,0,0.5); color: #fff; font-size: 17px;
+    }
+    .dc-spin {
+      left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px;
+      border-radius: 50%; border: 3px solid rgba(255,255,255,0.25); border-top-color: #fff;
+      animation: dcSpin 0.8s linear infinite;
+    }
+    @keyframes dcSpin { to { transform: rotate(360deg); } }
+    .dc-mute {
+      right: 6px; bottom: 6px; padding: 4px 6px; border-radius: 999px;
+      background: rgba(0,0,0,0.55); font-size: 13px; line-height: 1; white-space: nowrap;
+    }
+    .dc-vid.paused .dc-play { opacity: 1; }
+    .dc-vid.waiting:not(.paused) .dc-spin { opacity: 1; }
+    .dc-vid.muted .dc-mute { opacity: 1; }
     .dc-body { flex: 1; min-width: 0; }
     .dc-top { display: flex; align-items: center; gap: 8px; }
     .dc-icon { font-size: 1.3rem; line-height: 1; }
@@ -454,7 +481,12 @@
 <div class="day-card" id="card" role="dialog" aria-live="polite">
   <button class="dc-x" id="cardX" aria-label="Đóng">×</button>
   <img class="dc-photo" id="dcPhoto" alt="Khoảnh khắc của chúng mình" hidden>
-  <video class="dc-photo" id="dcVideo" playsinline preload="none" hidden></video>
+  <div class="dc-photo dc-vid" id="dcVid" hidden>
+    <video id="dcVideo" playsinline preload="none"></video>
+    <span class="dc-play" aria-hidden="true">▶</span>
+    <span class="dc-spin" aria-hidden="true"></span>
+    <span class="dc-mute" aria-hidden="true">🔇</span>
+  </div>
   <div class="dc-body">
     <div class="dc-top"><span class="dc-icon" id="dcIcon"></span><span class="dc-n" id="dcN"></span></div>
     <div class="dc-date" id="dcDate"></div>
@@ -1566,7 +1598,7 @@
   });
 
   // ── THE NGAY ─────────────────────────────────────────────────
-  const cardEl = $('card'), dcPhoto = $('dcPhoto'), dcVideo = $('dcVideo'), dcMs = $('dcMs'), dcLine = $('dcLine');
+  const cardEl = $('card'), dcPhoto = $('dcPhoto'), dcVid = $('dcVid'), dcVideo = $('dcVideo'), dcMs = $('dcMs'), dcLine = $('dcLine');
   let pool = [], mediaByDay = {};
   fetch('images/love/images.json')
     .then((r) => (r.ok ? r.json() : []))
@@ -1615,32 +1647,41 @@
     setRatio(dcPhoto, dcPhoto.naturalWidth, dcPhoto.naturalHeight);
   });
   dcPhoto.addEventListener('error', () => dcPhoto.classList.remove('loading'));
-  dcVideo.addEventListener('loadedmetadata', () => setRatio(dcVideo, dcVideo.videoWidth, dcVideo.videoHeight));
-  dcVideo.addEventListener('loadeddata', () => dcVideo.classList.remove('loading'));
+  dcVideo.addEventListener('loadedmetadata', () => setRatio(dcVid, dcVideo.videoWidth, dcVideo.videoHeight));
+  dcVideo.addEventListener('loadeddata', () => dcVid.classList.remove('loading'));
+  // Trang thai video -> nut ▶ (dang dung), vong tai (dang cho du lieu), 🔇 (dang phat cam)
+  const vidState = () => {
+    dcVid.classList.toggle('paused', dcVideo.paused);
+    dcVid.classList.toggle('muted', !dcVideo.paused && dcVideo.muted);
+  };
+  ['play', 'pause', 'ended', 'volumechange'].forEach((ev) => dcVideo.addEventListener(ev, vidState));
+  dcVideo.addEventListener('waiting', () => dcVid.classList.add('waiting'));
+  ['playing', 'pause', 'canplay'].forEach((ev) => dcVideo.addEventListener(ev, () => dcVid.classList.remove('waiting')));
 
   let posterToken = 0;
   function showCardMedia(m) {
     const src = (f) => 'images/love/' + f;
     dcVideo.pause();
-    if (m) setRatio(m.t === 'vid' ? dcVideo : dcPhoto, m.w, m.h);
+    if (m) setRatio(m.t === 'vid' ? dcVid : dcPhoto, m.w, m.h);
     if (m && m.t === 'vid') {                               // video: phat ca tieng, nhac nen tam dung
       dcPhoto.hidden = true; dcPhoto.removeAttribute('src');
       const poster = m.thumb ? src('thumbs/' + m.thumb) : '';
-      dcVideo.classList.add('loading');
+      dcVid.classList.add('loading', 'waiting');
+      dcVid.classList.remove('paused', 'muted');
       const token = ++posterToken;
       if (poster) {                                         // anh dai dien len la het "dang tai"
         const p = new Image();
-        p.onload = () => { if (token === posterToken) dcVideo.classList.remove('loading'); };
+        p.onload = () => { if (token === posterToken) dcVid.classList.remove('loading'); };
         p.src = poster;
       }
       dcVideo.poster = poster;
       dcVideo.src = src(m.f);
-      dcVideo.hidden = false;
+      dcVid.hidden = false;
       playCardVideo();
       return;
     }
     duck(false);
-    dcVideo.hidden = true; dcVideo.removeAttribute('src');
+    dcVid.hidden = true; dcVideo.removeAttribute('src');
     if (m) {
       // Bo anh cu truoc de khong thoang thay anh cua ngay truoc trong luc tai anh moi
       dcPhoto.removeAttribute('src');
@@ -1651,19 +1692,33 @@
     } else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
   }
 
+  let playToken = 0;
   function playCardVideo() {
+    const t = ++playToken;
     dcVideo.muted = false;
     duck(true);
-    dcVideo.play().catch(() => {                            // trinh duyet chan phat co tieng -> phat cam
-      duck(false);
-      dcVideo.muted = true;
-      dcVideo.play().catch(() => {});
-    });
+    dcVideo.play()
+      .catch((err) => {
+        if (t !== playToken) return;                        // da sang the khac
+        // Chi khi trinh duyet chan phat co tieng moi lui ve phat cam. Loi khac (bi ngat
+        // vi doi video / bam dung) ma bat lai nhac nen thi tren iPhone nhac se cat ngang video.
+        if (err && err.name !== 'NotAllowedError') throw err;
+        duck(false);
+        dcVideo.muted = true;
+        return dcVideo.play();
+      })
+      .catch(() => {                                        // khong phat duoc -> hien nut ▶ de cham
+        if (t !== playToken) return;
+        dcVid.classList.remove('waiting');
+        vidState();
+        if (dcVideo.paused) duck(false);
+      });
   }
   dcVideo.addEventListener('ended', () => duck(false));
-  // Cham vao video: dang phat thi dung, dang dung/het thi phat lai (co tieng)
-  dcVideo.addEventListener('click', () => {
+  // Cham vao video: dang dung/het thi phat (co tieng), dang phat cam thi bat tieng, dang phat thi dung
+  dcVid.addEventListener('click', () => {
     if (dcVideo.paused || dcVideo.ended) playCardVideo();
+    else if (dcVideo.muted) { dcVideo.muted = false; duck(true); }
     else { dcVideo.pause(); duck(false); }
   });
 
@@ -1679,9 +1734,9 @@
         `Trước cả ngày ấy ${Math.round((START - m.ts) / DAY)} ngày (${m.date}): ${m.icon} ${m.name}`).join('\n')
       : s.ms ? '' : dayLine(s);
     dcLine.hidden = !dcLine.textContent;
-    showCardMedia(mediaFor(s));
-    cardEl.classList.add('show');
+    cardEl.classList.add('show');                           // hien the truoc roi moi phat video
     document.body.classList.add('card-open');
+    showCardMedia(mediaFor(s));
   }
   function closeCard() {
     selected = null;

@@ -439,6 +439,13 @@
       transition: opacity 0.9s ease, visibility 0.9s ease;
     }
     .intro.hide { opacity: 0; visibility: hidden; }
+    /* Nut x cua story nam duoi man mo dau -> man mo dau co nut ve rieng */
+    .intro-back {
+      position: absolute; top: calc(12px + var(--safe-t)); left: 12px;
+      padding: 9px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06);
+      color: #fff; font: 500 0.86rem 'Inter', sans-serif; text-decoration: none;
+    }
     .intro-eyebrow { font-family: 'Dancing Script', cursive; font-size: 1.6rem; color: var(--pink); opacity: 0; animation: up 1.2s ease forwards; }
     .intro-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: clamp(2.2rem, 10vmin, 3.4rem); line-height: 1.1; opacity: 0; animation: up 1.2s 0.5s ease forwards; }
     .intro-line { max-width: 30ch; font-family: 'Playfair Display', serif; font-style: italic; color: rgba(255,255,255,0.85); opacity: 0; animation: up 1.2s 1.1s ease forwards; }
@@ -516,6 +523,7 @@
 <button class="nav next" id="navNext" aria-label="Màn sau">›</button>
 
 <section class="intro" id="intro">
+  <a class="intro-back" href="love.html">‹ Trang tình yêu</a>
   <div class="intro-eyebrow">Nhìn lại</div>
   <div class="intro-title" id="introTitle"></div>
   <p class="intro-line">Kể lại hành trình của chúng mình — bằng những con số, và những khoảnh khắc.</p>
@@ -1257,8 +1265,8 @@
   // ── BAT DAU ──────────────────────────────────────────────────
   const introEl = $('intro');
   let ready = false, pendingStart = false;
-  introEl.addEventListener('click', () => {
-    if (introEl.classList.contains('hide')) return;
+  introEl.addEventListener('click', (e) => {
+    if (introEl.classList.contains('hide') || e.target.closest('a')) return;   // bam nut ve thi khong bat dau story
     introEl.classList.add('hide');
     setMusic(true);                            // nhac phai bat tu mot lan cham that
     keepAwake();
