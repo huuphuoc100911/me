@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Love">
 
   <!-- Meta OG — hiển thị đẹp khi share link trên Facebook, Zalo, Messenger -->
-  <meta property="og:title" content="Thị Huyền ❤️ Hữu Phước — Kỷ niệm 1 năm yêu nhau">
-  <meta property="og:description" content="18/10/2025 — 18/10/2026 · Một năm yêu thương, ngàn năm hạnh phúc 💕">
+  <meta property="og:title" content="Thị Huyền ❤️ Hữu Phước — Tình yêu của chúng mình">
+  <meta property="og:description" content="Bên nhau từ 18/10/2025 · Mỗi ngày yêu thương, ngàn năm hạnh phúc 💕">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
   <meta property="og:url" content="https://love.personal.io.vn/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="description" content="Trang kỷ niệm 1 năm yêu nhau của Thị Huyền và Hữu Phước 💕">
+  <meta name="description" content="Trang kỷ niệm tình yêu của Thị Huyền và Hữu Phước 💕">
   <meta name="theme-color" content="#1a0a14">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap');
@@ -37,6 +37,7 @@
       --white:   #fff;
       --soft:    rgba(255,255,255,0.08);
       --border:  rgba(255,255,255,0.15);
+      --mut:     rgba(255,255,255,0.55);
     }
 
     html { scroll-behavior: smooth; }
@@ -267,6 +268,48 @@
       letter-spacing: 1px;
     }
     .badge strong { color: var(--gold2); }
+
+    /* ── QUA KY NIEM (nut sang trang dac biet) ─────────────── */
+    .gifts {
+      width: 100%; max-width: 700px;
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center;
+      margin-top: -16px;          /* bam sat huy hieu ngay phia tren */
+    }
+    .gift-btn {
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; gap: 14px;
+      min-width: min(100%, 320px);
+      padding: 14px 22px 14px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(245,200,66,0.45);
+      background: linear-gradient(135deg, rgba(245,200,66,0.14), rgba(255,77,115,0.12));
+      box-shadow: 0 10px 34px rgba(245,200,66,0.12);
+      color: var(--white); text-decoration: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .gift-btn::after {            /* vet sang luot qua */
+      content: '';
+      position: absolute; top: 0; bottom: 0; left: -60%; width: 40%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.16), transparent);
+      animation: giftSweep 3.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes giftSweep { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+    .gift-btn:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 14px 40px rgba(245,200,66,0.22); }
+    .gift-ic {
+      font-size: 1.6rem; color: var(--gold2);
+      text-shadow: 0 0 14px rgba(245,200,66,0.7);
+      animation: annivBeat 2.4s ease-in-out infinite;
+    }
+    .gift-txt { flex: 1; display: flex; flex-direction: column; text-align: left; }
+    .gift-txt b { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold2); }
+    .gift-txt small { margin-top: 2px; font-size: 0.74rem; color: var(--mut); }
+    .gift-go { font-size: 1.5rem; color: var(--gold2); }
+    @media (max-width: 520px) {
+      .gifts { margin-top: -10px; }
+      .gift-btn { width: 100%; padding: 12px 16px; }
+    }
 
     /* ── MAIN STATS GRID ─────────────────────────────────── */
     .stats-grid {
@@ -623,10 +666,11 @@
         rgba(255,107,138,0.28) 50%,
         rgba(255,255,255,0.08) 70%) var(--soft);
       background-size: 240% 100%;
-      animation: shimmer 1.6s ease-in-out infinite;
+      animation: skeletonShimmer 1.6s ease-in-out infinite;
     }
     .gallery-item.loading .play-icon { opacity: 0; }
-    @keyframes shimmer {
+    /* Ten rieng — trung ten "shimmer" se de len hieu ung cua thanh tien do */
+    @keyframes skeletonShimmer {
       from { background-position: 180% 0; }
       to   { background-position: -80% 0; }
     }
@@ -1463,7 +1507,16 @@
   <!-- DATE BADGES -->
   <div class="date-badge">
     <div class="badge">Bắt đầu: <strong>18/10/2025</strong></div>
-    <div class="badge">Kỷ niệm 1 năm: <strong>18/10/2026</strong></div>
+    <div class="badge" id="annivBadge">Kỷ niệm 1 năm: <strong>18/10/2026</strong></div>
+  </div>
+
+  <!-- QUA KY NIEM — moi trang dac biet la mot nut -->
+  <div class="gifts">
+    <a class="gift-btn" href="365-vi-sao.html">
+      <span class="gift-ic">✦</span>
+      <span class="gift-txt"><b>365 vì sao</b><small>Món quà kỷ niệm 1 năm</small></span>
+      <span class="gift-go">›</span>
+    </a>
   </div>
 
   <!-- MAIN STATS -->
@@ -1496,8 +1549,8 @@
 
   <!-- COUNTDOWN -->
   <div class="countdown-card reveal">
-    <div class="countdown-title">Đếm ngược đến kỷ niệm 1 năm 💍</div>
-    <div class="countdown-sub">18 / 10 / 2026 &nbsp;—&nbsp; Một năm trọn vẹn yêu thương</div>
+    <div class="countdown-title" id="cdTitle">Đếm ngược đến kỷ niệm 1 năm 💍</div>
+    <div class="countdown-sub" id="cdSub">18 / 10 / 2026 &nbsp;—&nbsp; Một năm trọn vẹn yêu thương</div>
     <div class="countdown-blocks">
       <div class="cb"><div class="cb-val" id="cdDays">000</div><div class="cb-lbl">Ngày</div></div>
       <div class="cb-dot">:</div>
@@ -1516,16 +1569,16 @@
   <!-- PROGRESS BAR -->
   <div class="progress-card reveal">
     <div class="progress-head">
-      <span>18/10/2025</span>
+      <span id="pgFrom">18/10/2025</span>
       <strong id="pctText">0%</strong>
-      <span>18/10/2026</span>
+      <span id="pgTo">18/10/2026</span>
     </div>
     <div class="progress-track">
       <div class="progress-fill" id="progressFill" style="width:0%"></div>
     </div>
     <div class="progress-labels">
-      <span>Ngày đầu yêu nhau 💫</span>
-      <span>Tròn 1 năm 🌹</span>
+      <span id="pgFromLbl">Ngày đầu yêu nhau 💫</span>
+      <span id="pgToLbl">Tròn 1 năm 🌹</span>
     </div>
   </div>
 
@@ -1695,7 +1748,7 @@
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const START       = Milestones.START;          // xem js/milestones.js
-const ANNIVERSARY = new Date('2026-10-18T00:00:00').getTime();
+// Moc tron nam de dem nguoc khong ghi cung o day — xem annivTarget() ben duoi
 
 // ── QUOTES ─────────────────────────────────────────────────────────────────
 const quotes = [
@@ -2028,6 +2081,43 @@ function escHtml(v) {
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// ── KY NIEM TRON NAM ──────────────────────────────────────────────────────────
+// Dem nguoc + thanh tien do tu chuyen sang nam ke tiep. Dung ngay ky niem thi
+// giu nguyen ca ngay de con chuc mung, sang hom sau moi dem toi moc nam sau.
+const yearMark = (n) => (n === 0 ? START : addMonths(new Date(START), n * 12).getTime());
+const yearIcon = (n) => (n === 1 ? '🌹' : '💞');     // cung icon voi js/milestones.js
+
+function annivTarget(now) {
+  const today = new Date(now); today.setHours(0, 0, 0, 0);
+  let n = 1;
+  while (yearMark(n) < today.getTime()) n++;
+  return { n, ts: yearMark(n), prevTs: yearMark(n - 1) };
+}
+
+let annivState = '';
+/** Doi chu tren trang theo moc dang dem — chi chay khi moc doi, khong moi khung hinh */
+function renderAnnivText(a, isDay) {
+  const state = a.n + (isDay ? '!' : '');
+  if (state === annivState) return;
+  annivState = state;
+
+  const ngay = fmtVN(new Date(a.ts));
+  const tron = a.n === 1 ? 'Một năm' : `${a.n} năm`;
+  document.getElementById('annivBadge').innerHTML = `Kỷ niệm ${a.n} năm: <strong>${ngay}</strong>`;
+  document.getElementById('cdTitle').textContent = `Đếm ngược đến kỷ niệm ${a.n} năm 💍`;
+  document.getElementById('cdSub').textContent = `${ngay.split('/').join(' / ')}  —  ${tron} trọn vẹn yêu thương`;
+
+  const msg = document.getElementById('anniversaryMsg');
+  msg.textContent = `🎉 Chúc mừng kỷ niệm ${a.n} năm yêu nhau! 🎉`;
+  msg.style.display = isDay ? 'block' : 'none';
+
+  document.getElementById('pgFrom').textContent = fmtVN(new Date(a.prevTs));
+  document.getElementById('pgTo').textContent = ngay;
+  document.getElementById('pgFromLbl').textContent =
+    a.n === 1 ? 'Ngày đầu yêu nhau 💫' : `Tròn ${a.n - 1} năm ${yearIcon(a.n - 1)}`;
+  document.getElementById('pgToLbl').textContent = `Tròn ${a.n} năm ${yearIcon(a.n)}`;
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function pad(n, len) { return String(Math.floor(n)).padStart(len, '0'); }
 function pop(el, val) {
@@ -2059,8 +2149,10 @@ function tick(t) {
   document.getElementById('hoursElapsed').textContent   = Math.floor(totalHours).toLocaleString();
   document.getElementById('minutesElapsed').textContent = Math.floor(totalMins).toLocaleString();
 
-  // ── Countdown to ANNIVERSARY ─────────────────────────────
-  const diff = ANNIVERSARY - now;
+  // ── Countdown to moc tron nam ke tiep ────────────────────
+  const anniv = annivTarget(now);
+  const diff = anniv.ts - now;
+  renderAnnivText(anniv, diff <= 0);
   if (diff > 0) {
     const d  = Math.floor(diff / 86400000);
     const h  = Math.floor((diff % 86400000) / 3600000);
@@ -2072,7 +2164,6 @@ function tick(t) {
     pop(document.getElementById('cdSecs'),  pad(s, 2));
   } else {
     ['cdDays','cdHours','cdMins','cdSecs'].forEach(id => document.getElementById(id).textContent = '00');
-    document.getElementById('anniversaryMsg').style.display = 'block';
   }
 
   // ── Moc ke tiep ───────────────────────────────────────────
@@ -2082,8 +2173,8 @@ function tick(t) {
     : '';
 
   // ── Progress bar ──────────────────────────────────────────
-  const span = ANNIVERSARY - START;
-  const pct  = Math.min(100, Math.max(0, ((now - START) / span) * 100));
+  const span = anniv.ts - anniv.prevTs;
+  const pct  = Math.min(100, Math.max(0, ((now - anniv.prevTs) / span) * 100));
   document.getElementById('progressFill').style.width = pct.toFixed(3) + '%';
   document.getElementById('pctText').textContent = pct.toFixed(1) + '%';
 
@@ -2794,11 +2885,14 @@ function renderLetters(list) {
   }).join('');
 }
 
-// Loi di rieng: bam vao thu CON KHOA cung mo duoc. Giao dien van hien o khoa
-// va so ngay con lai nhu cu — chi hai nguoi biet la bam vao thi doc duoc.
+// Loi di rieng: chi THU DAU TIEN bam vao luc con khoa van mo duoc. Giao dien van
+// hien o khoa va so ngay con lai nhu cu — chi hai nguoi biet la bam vao thi doc
+// duoc. Cac thu con khoa phia sau chua viet xong nen phai doi dung ngay moi mo.
 letterGridEl.addEventListener('click', (e) => {
   const card = e.target.closest('.ltr');
-  if (card) ltrOpen(letterList[+card.dataset.i]);
+  if (!card) return;
+  const i = +card.dataset.i;
+  if (i === 0 || Letters.isOpen(letterList[i].openAt)) ltrOpen(letterList[i]);
 });
 
 fetch('data/letters.json')

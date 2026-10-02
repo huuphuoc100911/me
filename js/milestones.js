@@ -22,7 +22,6 @@
     { icon: '⛄', name: 'Giáng Sinh cùng nhau',           d: '2025-12-25', yearly: true },
     { icon: '🎆', name: 'Năm mới bên nhau',                d: '2026-01-01', yearly: true },
     { icon: '💝', name: 'Valentine',                        d: '2026-02-14', yearly: true },
-    { icon: '💇', name: 'Hiến tóc lần 2 cùng Thị Huyền',  d: '2026-05-03' },
   ];
 
   const pad2 = (n) => String(n).padStart(2, '0');
@@ -41,6 +40,8 @@
   /**
    * Sinh toan bo moc: su kien ca nhan + moc 100 ngay + tron thang (nam dau)
    * + tron nam. Sinh truoc `yearsAhead` nam ke tu hom nay nen khong bao gio het.
+   * Moi moc co `type` ('personal' | 'days' | 'month' | 'year') de trang nao can
+   * loc bot (vd 365-vi-sao.html) thi loc theo loai, khong phai do theo ten.
    */
   function build(opts) {
     const o = opts || {};
@@ -49,33 +50,33 @@
     const startDt = new Date(startTs);
     const horizon = Date.now() + yearsAhead * 365.25 * DAY;
     const out = [];
-    const add = (icon, name, dt) =>
-      out.push({ icon, name, date: fmtVN(dt), ts: dt.getTime(), key: dayKey(dt) });
+    const add = (type, icon, name, dt) =>
+      out.push({ type, icon, name, date: fmtVN(dt), ts: dt.getTime(), key: dayKey(dt) });
 
     PERSONAL.forEach((ev) => {
       const [y, m, d] = ev.d.split('-').map(Number);
-      if (!ev.yearly) { add(ev.icon, ev.name, new Date(y, m - 1, d)); return; }
+      if (!ev.yearly) { add('personal', ev.icon, ev.name, new Date(y, m - 1, d)); return; }
       for (let yy = y; ; yy++) {
         const dt = new Date(yy, m - 1, d);
         if (dt.getTime() > horizon) break;
-        if (dt.getTime() >= startTs) add(ev.icon, ev.name, dt);
+        if (dt.getTime() >= startTs) add('personal', ev.icon, ev.name, dt);
       }
     });
 
     for (let n = 100; ; n += 100) {                 // moc tram ngay
       const dt = new Date(startTs + n * DAY);
       if (dt.getTime() > horizon) break;
-      add(n % 1000 === 0 ? '💎' : n % 500 === 0 ? '🏆' : '🔥', `Tròn ${n} ngày bên nhau`, dt);
+      add('days', n % 1000 === 0 ? '💎' : n % 500 === 0 ? '🏆' : '🔥', `Tròn ${n} ngày bên nhau`, dt);
     }
 
     for (let n = 1; n <= 11; n++) {                 // tron thang, chi nam dau
-      add('🌷', `Tròn ${n} tháng bên nhau`, addMonths(startDt, n));
+      add('month', '🌷', `Tròn ${n} tháng bên nhau`, addMonths(startDt, n));
     }
 
     for (let n = 1; ; n++) {                        // tron nam
       const dt = addMonths(startDt, n * 12);
       if (dt.getTime() > horizon) break;
-      add(n === 1 ? '🌹' : '💞', `Kỷ niệm ${n} năm yêu nhau`, dt);
+      add('year', n === 1 ? '🌹' : '💞', `Kỷ niệm ${n} năm yêu nhau`, dt);
     }
 
     return out.sort((a, b) => a.ts - b.ts);
