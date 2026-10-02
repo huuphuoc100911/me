@@ -272,14 +272,13 @@
     /* ── QUA KY NIEM (nut sang trang dac biet) ─────────────── */
     .gifts {
       width: 100%; max-width: 700px;
-      display: flex; flex-wrap: wrap; gap: 12px;
-      justify-content: center;
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));   /* may tinh 2 cot deu, dien thoai 1 cot */
       margin-top: -16px;          /* bam sat huy hieu ngay phia tren */
     }
     .gift-btn {
       position: relative; overflow: hidden;
       display: flex; align-items: center; gap: 14px;
-      min-width: min(100%, 320px);
       padding: 14px 22px 14px 18px;
       border-radius: 18px;
       border: 1px solid rgba(245,200,66,0.45);
@@ -1520,6 +1519,16 @@
     <a class="gift-btn" href="trai-tim-khoanh-khac.html">
       <span class="gift-ic">♥</span>
       <span class="gift-txt"><b>Trái tim khoảnh khắc</b><small>Ghép từ những khoảnh khắc của chúng mình</small></span>
+      <span class="gift-go">›</span>
+    </a>
+    <a class="gift-btn" href="mot-nam-nhin-lai.html">
+      <span class="gift-ic">▶&#xFE0E;</span>
+      <span class="gift-txt"><b>Một năm nhìn lại</b><small>Hành trình kể bằng những con số</small></span>
+      <span class="gift-go">›</span>
+    </a>
+    <a class="gift-btn" href="la-thu-niem-phong.html">
+      <span class="gift-ic">✉&#xFE0E;</span>
+      <span class="gift-txt"><b>Lá thư niêm phong</b><small>Chạm vào con dấu để mở thư</small></span>
       <span class="gift-go">›</span>
     </a>
   </div>
