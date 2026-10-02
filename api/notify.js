@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const Lunar = require('../js/lunar.js');
 const Milestones = require('../js/milestones.js');
+const loveNote = require('./_love-note.js');
 
 const { convertSolar2Lunar, getCanChi, WEEKDAYS } = Lunar;
 
@@ -11,6 +12,9 @@ const REMIND_DAYS = 3;   // nhac truoc bao nhieu ngay
 // ══════════════════════════════════════════════════════════
 
 module.exports = async function handler(req, res) {
+  // POST = loi uoc / thu tra loi tu trang tinh yeu (xem _love-note.js); GET = cron nhac moc
+  if (req.method === 'POST') return loveNote(req, res);
+
   // Verify cron secret (optional but recommended)
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     // Allow if no CRON_SECRET is set (for testing)

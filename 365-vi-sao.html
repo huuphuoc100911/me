@@ -1210,7 +1210,7 @@
   // ── SAO BANG UOC NGUYEN ──────────────────────────────────────
   // Tim ghep xong, thinh thoang co mot ngoi sao bang vang bay cham qua. Cham kip
   // thi duoc uoc: dieu uoc thanh mot ngoi sao moi o lai tren troi (nho tren may
-  // nay) va duoc gui ve mail anh qua /api/love-note. Mat mang thi de danh gui sau.
+  // nay) va duoc gui ve mail anh qua /api/notify. Mat mang thi de danh gui sau.
   const WISH_FIRST_MS = 15000;           // tim hien xong bao lau thi co sao bang dau tien (sau chom Thien Binh)
   const WISH_GAP = [20000, 34000];       // cac lan sau cach nhau ngau nhien trong khoang nay
   const WISH_LIFE = 4600;                // bay cham de con kip cham
@@ -1754,7 +1754,7 @@
   /** Gui dieu uoc ve mail anh; khong gui duoc thi cat lai, lan sau mo trang gui tiep */
   async function sendWish(text) {
     try {
-      const r = await fetch('api/love-note', {
+      const r = await fetch('api/notify', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'wish', text }),
       });

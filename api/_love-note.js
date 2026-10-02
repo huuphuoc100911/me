@@ -3,7 +3,10 @@
  * roi gui ve mail anh. Dung chung bien moi truong voi api/notify.js:
  * GMAIL_USER, GMAIL_APP_PASSWORD, GMAIL_TO.
  *
- *   POST /api/love-note   { kind: 'wish' | 'reply', text: '...' }
+ *   POST /api/notify   { kind: 'wish' | 'reply', text: '...' }
+ *
+ * Dau "_" de Vercel khong tinh file nay la mot function rieng (goi Hobby toi da
+ * 12 function) — api/notify.js nhan POST roi chuyen sang day.
  */
 const nodemailer = require('nodemailer');
 

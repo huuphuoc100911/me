@@ -684,7 +684,7 @@
   addEventListener('resize', () => { if (!psEl.hidden && !psDone) drawCover(); });
 
   // ── THU TRA LOI ──────────────────────────────────────────────
-  // Em viet thu tra loi ngay tren trang -> gui ve mail anh qua /api/love-note.
+  // Em viet thu tra loi ngay tren trang -> gui ve mail anh qua /api/notify.
   // Dang viet thi luu nhap tren may; gui khong duoc thi thu van con, bam gui lai.
   const replyEl = $('reply'), replyForm = $('replyForm'), replyText = $('replyText'), replyMsg = $('replyMsg');
   const DRAFT_KEY = 'reply-draft';
@@ -727,7 +727,7 @@
     replyMsg.textContent = 'Đang gửi…';
     let ok = false;
     try {
-      const r = await fetch('api/love-note', {
+      const r = await fetch('api/notify', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'reply', text }),
       });
