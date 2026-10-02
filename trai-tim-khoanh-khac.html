@@ -330,10 +330,11 @@
 
     /* ── LAT ANH XEM MAT SAU (giu lau mot o) ──────────────── */
     .tile, .tile img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+    /* Khong dung backdrop-filter: tim phia sau van dap -> iPhone phai lam mo lai ca man
+       hinh moi khung hinh, polaroid bay ra bi khung. Nen toi tron la du. */
     .flip-veil {
       position: fixed; inset: 0; z-index: 7;
-      background: rgba(5,2,6,0.6);
-      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      background: rgba(5,2,6,0.74);
       opacity: 0; transition: opacity 0.4s ease;
     }
     .flip-veil.show { opacity: 1; }
@@ -342,7 +343,10 @@
       width: var(--fw); height: var(--fh);
       perspective: 1400px; cursor: pointer;
       transform-origin: 0 0;
+      will-change: transform;
     }
+    /* Dang lat anh: tim dung dap -> o anh nam yen dung cho polaroid se ha canh lai */
+    .mosaic.still .mosaic-in { animation-play-state: paused; }
     .flip-in { position: absolute; inset: 0; transform-style: preserve-3d; }
     .flip-face {
       position: absolute; inset: 0;
@@ -883,6 +887,8 @@
         mosaicIn.style.transform = '';
       }
     } else {
+      // Dang lat anh (ca luc bay ve): giu nguyen nhip -> o anh dung yen cho polaroid ha canh
+      if (mosaicEl.classList.contains('still')) { requestAnimationFrame(syncBeat); return; }
       // Chuot tren tim: xep nhe ve yen thay vi nay theo nhac (o anh dung yen duoi con tro)
       const still = canHover && mosaicEl.matches(':hover');
       beatShown = still ? beatShown * 0.85 : env;
@@ -965,6 +971,7 @@
         <div class="flip-face flip-back">${backHtml(m, i)}</div>
       </div>`;
     document.body.append(veil, card);
+    mosaicEl.classList.add('still');
     requestAnimationFrame(() => veil.classList.add('show'));
     el.style.visibility = 'hidden';
 
@@ -993,7 +1000,7 @@
     veil.classList.remove('show');
     a2.reverse();
     // Don dep dung luc polaroid ve toi o anh (khong doan bang hen gio)
-    const done = () => { el.style.visibility = ''; veil.remove(); card.remove(); };
+    const done = () => { el.style.visibility = ''; veil.remove(); card.remove(); mosaicEl.classList.remove('still'); };
     setTimeout(() => {
       // Chay nguoc duong cong "nhanh roi cham" thanh "cham roi nhanh" -> lao vao o anh roi bien mat
       // dot ngot. Doi sang cham ca hai dau de ha canh em vao dung o.

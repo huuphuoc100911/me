@@ -274,6 +274,16 @@
       background: rgba(0,0,0,0.35);
     }
     .dc-photo[hidden] { display: none; }
+    /* Dien thoai doc: JS dat dung rong/cao cho anh/video lap day khoang trong tu day tim
+       xuong day man hinh. Anh ngang/vuong: xep chong (anh tren, chu duoi); anh doc: anh
+       ben trai, chu ben phai. */
+    .day-card.sized .dc-photo { min-width: 0; max-width: none; flex: none; }
+    .day-card.stack { flex-direction: column; align-items: stretch; gap: 10px; padding-right: 14px; }
+    .day-card.stack .dc-photo { align-self: center; }
+    .day-card.stack .dc-x {          /* nut dong nam de len goc anh -> co nen toi cho de thay */
+      top: 8px; right: 8px; z-index: 1;
+      background: rgba(0,0,0,0.5); border-radius: 50%; color: #fff;
+    }
     /* Dang tai: anh sang chay ngang thay cho o den */
     .dc-photo.loading {
       background: linear-gradient(100deg, rgba(255,255,255,0.04) 30%, rgba(255,214,228,0.16) 50%, rgba(255,255,255,0.04) 70%) 0 0 / 300% 100%,
@@ -908,6 +918,8 @@
   };
   const FLARE = { gold: makeFlare('253,230,138'), rose: makeFlare('255,179,198') };
 
+  const LIBRA_ROOM = 110;          // chieu cao chua duoi tim cho chom Thien Binh (dien thoai doc)
+
   /** Chia man hinh: phan con lai sau thanh tren va khoi chu ket la cho cua trai tim */
   function layout() {
     W = innerWidth; H = innerHeight;
@@ -921,6 +933,11 @@
     if (mqWide.matches) { x0 = 16; x1 = fin.left - 28; y0 = top; y1 = H - 16; }
     else { x0 = 14; x1 = W - 14; y0 = top; y1 = fin.top - 16; }
     K = Math.max(4, Math.min(22, ((x1 - x0) * 0.92) / HEART_W, ((y1 - y0) * 0.95) / HEART_H));
+    // Dien thoai doc ma man thap (Safari con thanh cong cu, may co tai tho): tim chiem
+    // het chieu cao thi chom Thien Binh het cho, bi day xuong de len chu ket -> thu tim lai
+    if (!mqWide.matches && (y1 - y0) - HEART_H * K < LIBRA_ROOM) {
+      K = Math.max(4, K * 0.75, Math.min(K, (y1 - y0 - LIBRA_ROOM) / HEART_H));   // thu toi da 25%
+    }
     CX = (x0 + x1) / 2; CY = (y0 + y1) / 2;
     // Dien thoai doc: tim thuong thua cho theo chieu doc -> dua tim len tren, don
     // khoang trong xuong duoi lam cho cho chom Thien Binh
@@ -929,6 +946,7 @@
     SZ = Math.min(1.6, Math.max(0.8, Math.sqrt(K / 11)));
     makeDust();
     placeLibra(top, fin);
+    if (selected) sizeCardMedia();
   }
 
   const heartX = (x, sc) => CX + x * K * sc;
@@ -1128,7 +1146,7 @@
       ? [(fin.left + W) / 2, (top + fin.top) / 2]           // giua khoang trong phia tren khoi chu
       : [CX, CY + (HEART_H / 2) * K + 60];                  // ngay duoi tim
     let pick = null;
-    for (let sc = 7; sc >= 2.4 && !pick; sc -= 0.3) {
+    for (let sc = 7; sc >= 1.8 && !pick; sc -= 0.3) {          // man thap: nho toi 1.8 van hon bi day de len chu
       for (const mode of ['side', 'below']) {
         const fw = mode === 'side' ? LIBRA_W * sc + 24 + LW + 12 : Math.max(LIBRA_W * sc + 24, LW + 12);
         const fh = LIBRA_H * sc + 24 + (mode === 'below' ? LH + 6 : 0);
@@ -1645,9 +1663,13 @@
   dcPhoto.addEventListener('load', () => {
     dcPhoto.classList.remove('loading');
     setRatio(dcPhoto, dcPhoto.naturalWidth, dcPhoto.naturalHeight);
+    if (selected) sizeCardMedia();
   });
   dcPhoto.addEventListener('error', () => dcPhoto.classList.remove('loading'));
-  dcVideo.addEventListener('loadedmetadata', () => setRatio(dcVid, dcVideo.videoWidth, dcVideo.videoHeight));
+  dcVideo.addEventListener('loadedmetadata', () => {
+    setRatio(dcVid, dcVideo.videoWidth, dcVideo.videoHeight);
+    if (selected) sizeCardMedia();
+  });
   dcVideo.addEventListener('loadeddata', () => dcVid.classList.remove('loading'));
   // Trang thai video -> nut ▶ (dang dung), vong tai (dang cho du lieu), 🔇 (dang phat cam)
   const vidState = () => {
@@ -1657,6 +1679,35 @@
   ['play', 'pause', 'ended', 'volumechange'].forEach((ev) => dcVideo.addEventListener(ev, vidState));
   dcVideo.addEventListener('waiting', () => dcVid.classList.add('waiting'));
   ['playing', 'pause', 'canplay'].forEach((ev) => dcVideo.addEventListener(ev, () => dcVid.classList.remove('waiting')));
+
+  /** Dien thoai doc: phong anh/video cua the cho vua khoang trong tu day tim toi day man hinh */
+  function sizeCardMedia() {
+    const el = !dcVid.hidden ? dcVid : !dcPhoto.hidden ? dcPhoto : null;
+    cardEl.classList.remove('stack', 'sized');
+    [dcPhoto, dcVid].forEach((e) => { e.style.width = ''; e.style.height = ''; });
+    if (!el || mqWide.matches) return;
+    const r = parseFloat(el.style.getPropertyValue('--r')) || 1;
+    cardEl.classList.add('sized');
+    // Thu ca hai cach xep, lay cach cho anh to hon:
+    //   chong — anh tren (rong het the), chu duoi;  canh — anh trai (<= 58% the), chu phai
+    const fit = (stack) => {
+      cardEl.classList.toggle('stack', stack);
+      const cs = getComputedStyle(cardEl);
+      const innerW = cardEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const bottom = H - parseFloat(cs.bottom);          // the bam day man hinh, cao dan len tren
+      const top = CY + (HEART_H / 2) * K * 1.03 + 12;   // khong de len trai tim
+      const chrome = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + 2;
+      const maxW = stack ? innerW : innerW * 0.58;
+      const room = stack ? bottom - top - chrome - 10 - cardEl.querySelector('.dc-body').offsetHeight : bottom - top - chrome;
+      const h = Math.floor(Math.max(140, Math.min(room, maxW / r, H * 0.5)));
+      return { stack, h, w: Math.floor(Math.min(h * r, maxW)) };
+    };
+    const a = fit(true), b = fit(false);
+    const best = a.w * a.h >= b.w * b.h ? a : b;
+    cardEl.classList.toggle('stack', best.stack);
+    el.style.height = `${best.h}px`;
+    el.style.width = `${best.w}px`;
+  }
 
   let posterToken = 0;
   function showCardMedia(m) {
@@ -1677,6 +1728,7 @@
       dcVideo.poster = poster;
       dcVideo.src = src(m.f);
       dcVid.hidden = false;
+      sizeCardMedia();
       playCardVideo();
       return;
     }
@@ -1690,6 +1742,7 @@
       dcPhoto.hidden = false;
       if (dcPhoto.complete && dcPhoto.naturalWidth) dcPhoto.classList.remove('loading');
     } else { dcPhoto.hidden = true; dcPhoto.removeAttribute('src'); }
+    sizeCardMedia();
   }
 
   let playToken = 0;
