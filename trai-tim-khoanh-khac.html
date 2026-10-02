@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Trái tim khoảnh khắc ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Trái tim khoảnh khắc — Thị Huyền ❤️ Hữu Phước">
+  <meta property="og:description" content="Những khoảnh khắc của chúng mình, ghép lại thành một trái tim 💗">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/trai-tim-khoanh-khac.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Những khoảnh khắc của Thị Huyền và Hữu Phước, ghép lại thành một trái tim 💗">
+  <meta name="theme-color" content="#10070f">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:   #ff6b8a;
+      --rose2:  #ff4d73;
+      --pink:   #ffb3c6;
+      --gold:   #f5c842;
+      --gold2:  #fde68a;
+      --white:  #fff;
+      --mut:    rgba(255,255,255,0.55);
+      --border: rgba(255,255,255,0.15);
+      --glass:  rgba(26,10,20,0.55);
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    /* Mau nen DAC cho html: Safari iPhone lay mau nay to vung thanh trang thai
+       phia tren va vung duoi day sau thanh cong cu. Chi co gradient thi Safari
+       khong lay duoc mau -> tren bi mo xam, duoi lo mau trang. */
+    html { background-color: #10070f; }
+    body {
+      background: radial-gradient(ellipse at 50% 38%, #3a1226 0%, #1a0a14 45%, #07030a 100%);
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      user-select: none; -webkit-user-select: none;
+    }
+
+    #sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 5;
+      top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none;
+    }
+    .bar > * { pointer-events: auto; }
+    .bar-r { display: flex; gap: 8px; }
+    .pill {
+      height: 40px; min-width: 40px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.85);
+      font: 500 0.82rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 40px; padding: 0; font-size: 1rem; }
+    .pill.on { border-color: rgba(255,107,138,0.5); }
+    .pill[hidden] { display: none; }
+
+    /* ── MAN MO DAU ─────────────────────────────────────── */
+    .intro {
+      position: fixed; inset: 0; z-index: 6;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 24px; text-align: center;
+      background: radial-gradient(ellipse at 50% 45%, rgba(58,18,38,0.5), rgba(7,3,10,0.88));
+      cursor: pointer;
+      transition: opacity 1.2s ease, visibility 1.2s ease;
+    }
+    .intro.hide { opacity: 0; visibility: hidden; }
+    .intro-line {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: clamp(1.05rem, 4.4vw, 1.5rem);
+      color: rgba(255,255,255,0.88);
+      max-width: 30ch; line-height: 1.5;
+      opacity: 0; animation: rise 1.4s ease forwards;
+    }
+    .intro-line + .intro-line { animation-delay: 1.1s; }
+    .start {
+      margin-top: 24px; padding: 15px 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(245,200,66,0.55);
+      background: linear-gradient(135deg, rgba(245,200,66,0.22), rgba(255,77,115,0.22));
+      color: var(--gold2);
+      font: 600 1rem 'Inter', sans-serif; letter-spacing: 0.04em;
+      cursor: pointer;
+      opacity: 0;
+      animation: rise 1.2s 2.2s ease forwards, ping 2.4s 3.4s ease-out infinite;
+    }
+    .intro-hint { font-size: 0.75rem; color: var(--mut); opacity: 0; animation: rise 1.2s 2.6s ease forwards; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes ping {
+      0%   { box-shadow: 0 0 0 0 rgba(245,200,66,0.45); }
+      100% { box-shadow: 0 0 0 18px rgba(245,200,66,0); }
+    }
+
+    /* ── TRAI TIM GHEP ANH ──────────────────────────────── */
+    /* Vi tri va co o do JS tinh (chia cho cung khoi chu ket); --cell la canh mot o */
+    .mosaic { position: fixed; z-index: 2; }
+    .mosaic::before {               /* quang hong sau tim, sang len khi ghep xong */
+      content: '';
+      position: absolute; inset: -18%;
+      background: radial-gradient(closest-side, rgba(255,77,115,0.32), rgba(255,77,115,0) 70%);
+      opacity: 0; transition: opacity 1.6s ease;
+      pointer-events: none;
+    }
+    .mosaic.done::before { opacity: 1; }
+    .mosaic-in { position: absolute; inset: 0; transform-origin: 50% 45%; }
+    .mosaic.done .mosaic-in { animation: beat 1.6s ease-in-out infinite; }
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      14%      { transform: scale(1.035); }
+      28%      { transform: scale(1); }
+      42%      { transform: scale(1.022); }
+      70%      { transform: scale(1); }
+    }
+
+    .tile {
+      position: absolute;
+      border-radius: calc(var(--cell) * 0.12);
+      overflow: hidden;
+      background: rgba(255,179,198,0.12);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      opacity: 0;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .mosaic.go .tile { opacity: 1; }
+    .tile img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .tile.vid::after {              /* dau video nho o goc */
+      content: '▶';
+      position: absolute; right: 6%; bottom: 4%;
+      font-size: max(8px, calc(var(--cell) * 0.2));
+      color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    @media (hover: hover) {
+      .mosaic.done .tile:hover { transform: scale(1.12); z-index: 3; box-shadow: 0 8px 26px rgba(0,0,0,0.55), 0 0 0 2px var(--gold2); }
+    }
+
+    /* O cua so giua tim: so ngay chay tu 0 len */
+    .hole {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: calc(var(--cell) * 0.16);
+      background: radial-gradient(ellipse at 50% 40%, rgba(58,18,38,0.7), rgba(13,6,16,0.85));
+      box-shadow: inset 0 0 0 1px rgba(245,200,66,0.3);
+      text-align: center;
+      opacity: 0; transition: opacity 0.8s ease;
+    }
+    .mosaic.go .hole { opacity: 1; }
+    .hole-num {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: calc(var(--cell) * 1.05); line-height: 1;
+      font-variant-numeric: tabular-nums;
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 50%, var(--rose) 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hole-lbl {
+      margin-top: calc(var(--cell) * 0.08);
+      font-size: max(8px, calc(var(--cell) * 0.2));
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--mut);
+    }
+
+    /* Tim nho bung ra khi ghep xong */
+    .burst {
+      position: fixed; z-index: 3;
+      font-size: 18px; line-height: 1;
+      pointer-events: none;
+    }
+
+    /* ── CHU KET ────────────────────────────────────────── */
+    /* Khong dat transform len .finale: JS do vi tri khoi nay de chia cho trai tim */
+    .finale {
+      position: fixed; z-index: 3;
+      left: 16px; right: 16px; bottom: calc(22px + var(--safe-b));
+      text-align: center;
+      opacity: 0; transition: opacity 1.2s ease;
+      pointer-events: none;
+    }
+    .finale > * { transform: translateY(12px); transition: transform 1.2s ease; }
+    .finale.show { opacity: 1; }
+    .finale.show > * { transform: none; }
+    .fn-eyebrow { font-family: 'Dancing Script', cursive; font-size: clamp(1.15rem, 4.6vw, 1.5rem); color: var(--pink); }
+    .fn-title {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: clamp(1.9rem, 8.5vw, 3.2rem); line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 45%, var(--rose) 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .fn-line {
+      margin: 10px auto 0; max-width: 34ch;
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: clamp(0.92rem, 3.6vw, 1.1rem); line-height: 1.5;
+      color: rgba(255,255,255,0.88);
+    }
+    .fn-names { margin-top: 10px; font-size: 0.9rem; letter-spacing: 0.04em; }
+    .fn-names span { color: var(--rose2); }
+    .fn-dates { margin-top: 3px; font-size: 0.72rem; color: var(--mut); font-variant-numeric: tabular-nums; }
+    .fn-hint { margin-top: 12px; font-size: 0.74rem; color: var(--gold2); animation: blink 2.6s ease-in-out infinite; }
+    @keyframes blink { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+    /* ── XEM ANH / VIDEO ────────────────────────────────── */
+    .viewer {
+      position: fixed; inset: 0; z-index: 8;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5,2,6,0.94);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s;
+    }
+    .viewer.show { opacity: 1; visibility: visible; }
+    .vw-stage {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      padding: calc(64px + var(--safe-t)) 12px calc(64px + var(--safe-b));
+    }
+    .vw-stage img, .vw-stage video {
+      max-width: 100%; max-height: 100%;
+      border-radius: 14px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.6);
+      background-size: cover; background-position: center;
+      animation: vwIn 0.35s ease;
+    }
+    @keyframes vwIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+    .vw-count {
+      position: absolute; top: calc(22px + var(--safe-t)); left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem; color: var(--mut); font-variant-numeric: tabular-nums;
+    }
+    .vw-x {
+      position: absolute; top: calc(10px + var(--safe-t)); right: 14px;
+      width: 44px; height: 44px;
+      border: none; background: none;
+      color: rgba(255,255,255,0.8); font-size: 2rem; line-height: 1;
+      cursor: pointer;
+    }
+    .vw-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: #fff; font-size: 1.5rem; line-height: 1;
+      cursor: pointer;
+    }
+    .vw-nav:hover { background: rgba(255,77,115,0.3); }
+    .vw-nav.prev { left: 14px; }
+    .vw-nav.next { right: 14px; }
+
+    /* ── MAN NGANG / MAY TINH: tim ben trai, chu ben phai ─ */
+    /* Cung dieu kien voi mqWide trong JS */
+    @media (min-aspect-ratio: 5/4) {
+      .finale {
+        left: auto; right: max(5vw, 20px); bottom: auto; top: 50%;
+        width: min(40vw, 420px);
+        transform: translateY(-50%);
+        text-align: left;
+      }
+      .fn-line { margin-left: 0; }
+    }
+
+    /* Dien thoai: nut chuyen anh nho lai, xuong duoi */
+    @media (max-width: 600px) and (max-aspect-ratio: 5/4) {
+      .vw-nav { top: auto; bottom: calc(14px + var(--safe-b)); transform: none; width: 44px; height: 44px; }
+      .vw-nav.prev { left: calc(50% - 56px); }
+      .vw-nav.next { right: calc(50% - 56px); }
+    }
+
+    /* Dien thoai xoay ngang — man thap */
+    @media (max-height: 500px) {
+      .fn-title { font-size: 1.8rem; }
+      .fn-line { margin-top: 6px; font-size: 0.82rem; }
+      .fn-names { margin-top: 6px; }
+      .fn-hint { margin-top: 6px; }
+      .intro-line { font-size: 1rem; }
+      .start { margin-top: 10px; }
+      .vw-stage { padding-top: 54px; padding-bottom: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .intro-line, .start, .intro-hint { animation: none; opacity: 1; }
+      .mosaic.done .mosaic-in { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<header class="bar" id="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <div class="bar-r">
+    <button class="pill" id="skip" hidden>Bỏ qua ›</button>
+    <button class="pill icon" id="replay" aria-label="Xem lại từ đầu" title="Xem lại" hidden>↻</button>
+    <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+  </div>
+</header>
+
+<section class="intro" id="intro">
+  <p class="intro-line">Mỗi tấm ảnh là một lần anh muốn giữ khoảnh khắc ấy lại mãi…</p>
+  <p class="intro-line">hôm nay, anh gom tất cả về một chỗ.</p>
+  <button class="start" id="start">Chạm để bắt đầu ✦</button>
+  <p class="intro-hint">🎧 Mở âm thanh lên để trọn vẹn nhé</p>
+</section>
+
+<div class="mosaic" id="mosaic">
+  <div class="mosaic-in" id="mosaicIn">
+    <div class="hole" id="hole">
+      <div class="hole-num" id="holeNum">0</div>
+      <div class="hole-lbl">ngày bên nhau</div>
+    </div>
+  </div>
+</div>
+
+<section class="finale" id="finale">
+  <div class="fn-eyebrow" id="fnEyebrow"></div>
+  <div class="fn-title" id="fnTitle"></div>
+  <p class="fn-line">Ghép lại thành trái tim — mỗi ô là một lần tim anh lỡ nhịp vì em.</p>
+  <div class="fn-names">Thị Huyền <span>❤</span> Hữu Phước</div>
+  <div class="fn-dates" id="fnDates"></div>
+  <div class="fn-hint">Chạm vào một ô để xem lại khoảnh khắc ấy ✦</div>
+</section>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Xem khoảnh khắc">
+  <div class="vw-count" id="vwCount"></div>
+  <div class="vw-stage" id="vwStage"></div>
+  <button class="vw-nav prev" id="vwPrev" aria-label="Tấm trước">‹</button>
+  <button class="vw-nav next" id="vwNext" aria-label="Tấm sau">›</button>
+  <button class="vw-x" id="vwX" aria-label="Đóng">×</button>
+</div>
+
+<script src="js/milestones.js"></script>
+<script>
+(() => {
+  'use strict';
+  const { START, DAY, fmtVN } = Milestones;
+
+  const MEDIA_DIR = 'images/love/';
+  // Bai dau phat ngay khi bat dau; het bai thi sang bai ke, het danh sach thi quay lai bai dau
+  const PLAYLIST = [
+    'music/love/you-are-my-crush.mp3',
+    'music/love/giai-cuu-the-gioi.mp3',
+    'music/love/yeu-em-hon-moi-ngay.mp3',
+  ];
+
+  const FLY_MS = 1200;           // moi o bay ve cho
+  const STAGGER_MS = 65;         // o sau xuat phat tre hon o truoc
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mqWide = matchMedia('(min-aspect-ratio: 5/4)');   // cung dieu kien voi CSS
+  const $ = (id) => document.getElementById(id);
+  // Moc thoi gian cua khung hinh dau co the som hon luc goi mot chut -> phai chan duoi
+  const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+  // ── NGAY DANG XEM ──────────────────────────────────────────
+  // Them ?ngay=2026-10-18 vao dia chi de xem truoc dung ngay ky niem.
+  const TODAY = (() => {
+    const m = (new URLSearchParams(location.search).get('ngay') || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const d = m ? new Date(+m[1], m[2] - 1, +m[3]) : new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })();
+  const S0 = new Date(START);
+  const N = Math.max(0, Math.round((TODAY - S0) / DAY));       // so ngay ben nhau
+  const YEARS = TODAY.getFullYear() - S0.getFullYear();
+  const IS_ANNIV = N > 0 && TODAY.getMonth() === S0.getMonth() && TODAY.getDate() === S0.getDate();
+
+  $('fnEyebrow').textContent = IS_ANNIV ? `Chúc mừng kỷ niệm ${YEARS} năm 🎉` : 'Tính đến hôm nay';
+  $('fnDates').textContent = `${fmtVN(S0)} — ${fmtVN(TODAY)}`;
+
+  // ── LUOI HINH TRAI TIM ───────────────────────────────────────
+  const CURVE = [];
+  for (let j = 0; j < 720; j++) {
+    const t = (j / 720) * Math.PI * 2;
+    CURVE.push([
+      16 * Math.sin(t) ** 3,
+      13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t),
+    ]);
+  }
+  const Y_MIN = Math.min(...CURVE.map((p) => p[1]));
+  const Y_MAX = Math.max(...CURVE.map((p) => p[1]));
+
+  function inHeart(x, y) {
+    let inside = false;
+    for (let a = 0, b = CURVE.length - 1; a < CURVE.length; b = a++) {
+      const [xa, ya] = CURVE[a], [xb, yb] = CURVE[b];
+      if ((ya > y) !== (yb > y) && x < ((xb - xa) * (y - ya)) / (yb - ya) + xa) inside = !inside;
+    }
+    return inside;
+  }
+  const CENTER_Y = (() => {
+    let A = 0, cy = 0;
+    for (let a = 0, b = CURVE.length - 1; a < CURVE.length; b = a++) {
+      const [x0, y0] = CURVE[b], [x1, y1] = CURVE[a];
+      const c = x0 * y1 - x1 * y0;
+      A += c; cy += (y0 + y1) * c;
+    }
+    return cy / (3 * A);
+  })();
+
+  /**
+   * Chia hinh tim thanh luoi o vuong `cols` cot. Mot o duoc tinh neu hon nua
+   * dien tich nam trong tim (lay mau 3x3) — vien tim muot hon so voi chi xet
+   * tam o. Giua tim chua mot lo 2 hang x 4 o (3 neu so cot le) cho con so.
+   */
+  function buildGrid(cols) {
+    const cs = 32 / cols, top = Y_MAX + cs * 0.15;
+    const rows = Math.ceil((Y_MAX - Y_MIN) / cs) + 1;
+    let cells = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = -16 + (c + 0.5) * cs, y = top - (r + 0.5) * cs;
+        let k = 0;
+        for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) if (inHeart(x + (i * cs) / 3, y + (j * cs) / 3)) k++;
+        if (k >= 5) cells.push({ r, c });
+      }
+    }
+    const r0 = Math.floor((top - CENTER_Y) / cs - 0.5);   // 2 hang sat trong tam nhat
+    const hw = cols % 2 ? 3 : 4, c0 = (cols - hw) / 2;
+    const hole = { r: r0, c: c0, w: hw, h: 2 };
+    const inHole = (q) => q.r >= r0 && q.r < r0 + 2 && q.c >= c0 && q.c < c0 + hw;
+
+    const minR = Math.min(...cells.map((q) => q.r));
+    const maxR = Math.max(...cells.map((q) => q.r));
+    hole.r -= minR;
+    cells = cells.filter((q) => !inHole(q)).map((q) => ({ r: q.r - minR, c: q.c }));
+    return { cols, rows: maxR - minR + 1, cells, hole };
+  }
+
+  /** Luoi nho nhat du cho n tam anh */
+  function heartGrid(n) {
+    for (let cols = 6; cols < 40; cols++) {
+      const g = buildGrid(cols);
+      if (g.cells.length >= n) return g;
+    }
+    return buildGrid(40);
+  }
+
+  // ── CANVAS NEN: bui sao + sao bang ───────────────────────────
+  const cv = $('sky');
+  const ctx = cv.getContext('2d');
+  let W = 0, H = 0;
+  let dust = [];
+  function makeDust() {
+    const n = Math.round(Math.min(220, (W * H) / 6500));
+    dust = Array.from({ length: n }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 0.9 + 0.2, a: Math.random() * 0.4 + 0.1,
+      ph: Math.random() * 6.283, sp: Math.random() * 0.8 + 0.2,
+    }));
+  }
+  const shoots = [];
+  let nextShoot = 2500;
+  function frame(t) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#fff';
+    for (const d of dust) {
+      ctx.globalAlpha = d.a * (0.6 + 0.4 * Math.sin(t * 0.001 * d.sp + d.ph));
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.283); ctx.fill();
+    }
+    if (!reduceMotion) {
+      if (t > nextShoot) {
+        nextShoot = t + 3500 + Math.random() * 6000;
+        shoots.push({ x: W * (0.35 + Math.random() * 0.65), y: H * Math.random() * 0.35, ang: Math.PI * (0.76 + Math.random() * 0.12), sp: 0.9 + Math.random() * 0.6, born: t });
+      }
+      for (let k = shoots.length - 1; k >= 0; k--) {
+        const s = shoots[k], age = t - s.born;
+        if (age > 900) { shoots.splice(k, 1); continue; }
+        const cx = Math.cos(s.ang), cy = Math.sin(s.ang);
+        const hx = s.x + cx * s.sp * age, hy = s.y + cy * s.sp * age;
+        const lg = ctx.createLinearGradient(hx - cx * 110, hy - cy * 110, hx, hy);
+        lg.addColorStop(0, 'rgba(255,255,255,0)');
+        lg.addColorStop(1, 'rgba(255,240,245,0.9)');
+        ctx.globalAlpha = Math.sin((Math.PI * age) / 900);
+        ctx.strokeStyle = lg; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(hx - cx * 110, hy - cy * 110); ctx.lineTo(hx, hy); ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+
+  // ── DUNG TRAI TIM ────────────────────────────────────────────
+  const mosaicEl = $('mosaic'), mosaicIn = $('mosaicIn'), holeEl = $('hole'), holeNum = $('holeNum');
+  const finaleEl = $('finale');
+  let media = [];                // danh sach anh/video (khong trung) — da xao tron
+  let grid = null;
+  let tiles = [];                // [{el, m}] — moi o mot tam; luoi du o thi lap lai vai tam
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildTiles(list) {
+    media = shuffle(list);
+    grid = heartGrid(media.length);
+    $('fnTitle').textContent = `${media.length} khoảnh khắc`;
+    tiles = grid.cells.map((cell, i) => {
+      const m = media[i % media.length];
+      const el = document.createElement('div');
+      el.className = 'tile' + (m.t === 'vid' ? ' vid' : '');
+      const img = document.createElement('img');
+      img.alt = '';
+      img.decoding = 'async';
+      img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+      el.appendChild(img);
+      el.addEventListener('click', () => { if (phase === 'done') openViewer(i % media.length); });
+      mosaicIn.appendChild(el);
+      return { el, cell };
+    });
+    layout();
+  }
+
+  /** Chia man hinh: phan con lai sau thanh tren va khoi chu ket la cho cua trai tim */
+  function layout() {
+    W = innerWidth; H = innerHeight;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    makeDust();
+    if (!grid) return;
+
+    const top = $('bar').getBoundingClientRect().bottom + 12;
+    const fin = finaleEl.getBoundingClientRect();
+    let x0, x1, y0, y1;
+    if (mqWide.matches) { x0 = 16; x1 = fin.left - 28; y0 = top; y1 = H - 16; }
+    else { x0 = 14; x1 = W - 14; y0 = top; y1 = fin.top - 16; }
+    const cell = Math.max(14, Math.min(84, ((x1 - x0) * 0.94) / grid.cols, ((y1 - y0) * 0.94) / grid.rows));
+    const gap = Math.max(2, cell * 0.07);
+    const w = grid.cols * cell, h = grid.rows * cell;
+    Object.assign(mosaicEl.style, {
+      left: `${(x0 + x1) / 2 - w / 2}px`, top: `${(y0 + y1) / 2 - h / 2}px`,
+      width: `${w}px`, height: `${h}px`,
+    });
+    mosaicEl.style.setProperty('--cell', `${cell}px`);
+    const place = (el, c, r, cw, ch) => Object.assign(el.style, {
+      left: `${c * cell + gap / 2}px`, top: `${r * cell + gap / 2}px`,
+      width: `${cw * cell - gap}px`, height: `${ch * cell - gap}px`,
+    });
+    tiles.forEach(({ el, cell: q }) => place(el, q.c, q.r, 1, 1));
+    place(holeEl, grid.hole.c, grid.hole.r, grid.hole.w, grid.hole.h);
+  }
+
+  // ── CHUYEN CANH ──────────────────────────────────────────────
+  const skipEl = $('skip'), replayEl = $('replay');
+  let phase = 'intro';           // intro -> fly -> done
+  let anims = [], countRaf = 0, pendingStart = false;
+
+  function fly() {
+    if (!tiles.length) { pendingStart = true; return; }
+    phase = 'fly';
+    anims.forEach((a) => a.cancel());
+    mosaicEl.classList.remove('done');
+    mosaicEl.classList.add('go');
+    finaleEl.classList.remove('show');
+    skipEl.hidden = false; replayEl.hidden = true;
+
+    if (reduceMotion) { finish(); return; }
+    const reach = Math.max(W, H) * 0.75;
+    const order = shuffle(tiles.map((_, i) => i));       // bay ve theo thu tu ngau nhien
+    anims = order.map((idx, k) => {
+      const ang = Math.random() * Math.PI * 2;
+      const from = `translate(${Math.cos(ang) * reach}px, ${Math.sin(ang) * reach}px) ` +
+        `rotate(${(Math.random() - 0.5) * 240}deg) scale(1.6)`;
+      const a = tiles[idx].el.animate(
+        [{ transform: from, opacity: 0 }, { opacity: 1, offset: 0.2 }, { transform: 'none', opacity: 1 }],
+        { duration: FLY_MS, delay: 250 + k * STAGGER_MS, easing: 'cubic-bezier(.18,.89,.32,1.15)', fill: 'both' },
+      );
+      a.onfinish = () => a.cancel();     // tra lai cho CSS de :hover phong to duoc
+      return a;
+    });
+
+    // So ngay chay tu 0 len, ve dich cung luc o cuoi cung ha canh
+    const total = 250 + order.length * STAGGER_MS + FLY_MS;
+    const t0 = performance.now();
+    cancelAnimationFrame(countRaf);
+    const step = (t) => {
+      const p = clamp01((t - t0) / total);
+      holeNum.textContent = Math.round(N * (1 - (1 - p) ** 3)).toLocaleString('vi-VN');
+      if (p < 1) countRaf = requestAnimationFrame(step);
+      else finish();
+    };
+    countRaf = requestAnimationFrame(step);
+  }
+
+  function finish() {
+    if (phase === 'done') return;
+    phase = 'done';
+    cancelAnimationFrame(countRaf);
+    anims.forEach((a) => a.finish());
+    anims = [];
+    holeNum.textContent = N.toLocaleString('vi-VN');
+    mosaicEl.classList.add('go', 'done');
+    finaleEl.classList.add('show');
+    skipEl.hidden = true; replayEl.hidden = false;
+    if (!reduceMotion) burst();
+  }
+
+  /** Mot chum tim nho bung ra tu giua khi ghep xong */
+  function burst() {
+    const r = holeEl.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const glyphs = ['💗', '💖', '✨', '💕', '❤️'];
+    for (let i = 0; i < 22; i++) {
+      const s = document.createElement('span');
+      s.className = 'burst';
+      s.textContent = glyphs[i % glyphs.length];
+      s.style.left = `${cx - 9}px`; s.style.top = `${cy - 9}px`;
+      document.body.appendChild(s);
+      const ang = (i / 22) * Math.PI * 2 + Math.random() * 0.3;
+      const dist = 110 + Math.random() * 150;
+      s.animate([
+        { transform: 'translate(0,0) scale(0.4)', opacity: 0 },
+        { opacity: 1, offset: 0.15 },
+        { transform: `translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist - 40}px) scale(${0.8 + Math.random() * 0.7})`, opacity: 0 },
+      ], { duration: 1600 + Math.random() * 600, easing: 'cubic-bezier(.15,.7,.3,1)' }).onfinish = () => s.remove();
+    }
+  }
+
+  // ── NHAC ─────────────────────────────────────────────────────
+  const musicEl = $('music');
+  let track = 0;
+  const audio = new Audio(PLAYLIST[0]);
+  audio.preload = 'auto';
+  let musicOn = false, ducked = false;
+
+  // Doi bai tren CUNG mot phan tu audio: iPhone chi cho phat tiep khong can
+  // cham neu van la phan tu da duoc mo khoa bang lan cham "bat dau"
+  audio.addEventListener('ended', () => {
+    track = (track + 1) % PLAYLIST.length;
+    audio.src = PLAYLIST[track];
+    if (musicOn && !ducked) audio.play().catch(() => {});
+  });
+
+  function setMusic(on) {
+    musicOn = on;
+    musicEl.textContent = on ? '🔊' : '🎵';
+    musicEl.classList.toggle('on', on);
+    if (!on) { audio.pause(); return; }
+    if (ducked) return;
+    audio.volume = 0;
+    audio.play().catch(() => setMusic(false));
+    const t0 = performance.now();
+    const fade = (t) => {                      // len tieng tu tu trong 2.5 giay
+      const p = clamp01((t - t0) / 2500);
+      audio.volume = 0.55 * p;
+      if (p < 1 && musicOn) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  }
+  musicEl.addEventListener('click', () => setMusic(!musicOn));
+
+  /** Video co tieng cua no -> nhac nen tam nghi; xem anh hoac dong -> nhac lai */
+  function duck(on) {
+    ducked = on;
+    if (on) audio.pause();
+    else if (musicOn) audio.play().catch(() => {});
+  }
+
+  // ── GIU MAN HINH SANG ────────────────────────────────────────
+  let wakeLock = null;
+  async function keepAwake() {
+    if (document.hidden || (wakeLock && !wakeLock.released)) return;
+    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {}
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (musicOn) audio.pause(); return; }
+    if (musicOn && !ducked) audio.play().catch(() => {});
+    if (phase !== 'intro') keepAwake();
+  });
+
+  // ── XEM ANH / VIDEO ──────────────────────────────────────────
+  const viewerEl = $('viewer'), vwStage = $('vwStage');
+  let vwIndex = 0;
+
+  function showMedia(i) {
+    vwIndex = (i + media.length) % media.length;
+    const m = media[vwIndex];
+    $('vwCount').textContent = `${vwIndex + 1} / ${media.length}`;
+    vwStage.querySelector('video')?.pause();
+    vwStage.textContent = '';
+    if (m.t === 'vid') {
+      const v = document.createElement('video');
+      v.src = MEDIA_DIR + m.f;
+      v.controls = true; v.playsInline = true; v.autoplay = true;
+      if (m.thumb) v.poster = MEDIA_DIR + 'thumbs/' + m.thumb;
+      vwStage.appendChild(v);
+      duck(true);
+      v.play().catch(() => {});
+    } else {
+      const img = document.createElement('img');
+      img.alt = 'Khoảnh khắc của chúng mình';
+      if (m.thumb) img.style.backgroundImage = `url("${MEDIA_DIR}thumbs/${m.thumb}")`;   // hien tam ban nho trong luc tai anh goc
+      img.src = MEDIA_DIR + m.f;
+      vwStage.appendChild(img);
+      duck(false);
+    }
+  }
+  function openViewer(i) {
+    showMedia(i);
+    viewerEl.classList.add('show');
+  }
+  function closeViewer() {
+    viewerEl.classList.remove('show');
+    vwStage.querySelector('video')?.pause();
+    vwStage.textContent = '';
+    duck(false);
+  }
+
+  $('vwPrev').addEventListener('click', (e) => { e.stopPropagation(); showMedia(vwIndex - 1); });
+  $('vwNext').addEventListener('click', (e) => { e.stopPropagation(); showMedia(vwIndex + 1); });
+  $('vwX').addEventListener('click', closeViewer);
+  viewerEl.addEventListener('click', (e) => { if (e.target === viewerEl || e.target === vwStage) closeViewer(); });
+  document.addEventListener('keydown', (e) => {
+    if (!viewerEl.classList.contains('show')) return;
+    if (e.key === 'Escape') closeViewer();
+    if (e.key === 'ArrowLeft') showMedia(vwIndex - 1);
+    if (e.key === 'ArrowRight') showMedia(vwIndex + 1);
+  });
+  let touchX = 0, touchY = 0;
+  viewerEl.addEventListener('touchstart', (e) => {
+    touchX = e.changedTouches[0].clientX; touchY = e.changedTouches[0].clientY;
+  }, { passive: true });
+  viewerEl.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) showMedia(vwIndex + (dx < 0 ? 1 : -1));
+    else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) closeViewer();     // vuot xuong de dong
+  }, { passive: true });
+
+  // ── BAT DAU ──────────────────────────────────────────────────
+  const introEl = $('intro');
+  introEl.addEventListener('click', () => {
+    if (phase !== 'intro') return;
+    introEl.classList.add('hide');
+    setMusic(true);                            // nhac phai bat tu mot lan cham that
+    keepAwake();
+    fly();
+  });
+  skipEl.addEventListener('click', finish);
+  replayEl.addEventListener('click', fly);
+
+  // Tai danh sach anh ngay tu dau — ban nho tai san trong luc con o man mo dau
+  fetch(MEDIA_DIR + 'images.json')
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((list) => {
+      buildTiles(list);
+      if (pendingStart) { pendingStart = false; fly(); }
+    })
+    .catch(() => {
+      $('fnTitle').textContent = 'Chưa tải được ảnh 🥀';
+      finaleEl.classList.add('show');
+    });
+
+  let resizeRaf = 0;
+  addEventListener('resize', () => {
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(layout);
+  });
+  layout();
+  if (document.fonts) document.fonts.ready.then(layout);   // font ve xong thi khoi chu ket doi chieu cao
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
