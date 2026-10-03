@@ -129,14 +129,6 @@
     }
     .mosaic.done::before { opacity: 1; }
     .mosaic-in { position: absolute; inset: 0; transform-origin: 50% 45%; }
-    .mosaic.done .mosaic-in { animation: beat 1.6s ease-in-out infinite; }
-    @keyframes beat {
-      0%, 100% { transform: scale(1); }
-      14%      { transform: scale(1.035); }
-      28%      { transform: scale(1); }
-      42%      { transform: scale(1.022); }
-      70%      { transform: scale(1); }
-    }
 
     .tile {
       position: absolute;
@@ -161,8 +153,6 @@
     }
     @media (hover: hover) {
       .mosaic.done .tile:hover { transform: scale(1.12); z-index: 3; box-shadow: 0 8px 26px rgba(0,0,0,0.55), 0 0 0 2px var(--gold2); transition-delay: 0s; }
-      /* Chuot dang o tren tim thi tim dung dap: o anh khong troi khoi con tro nen het giat */
-      .mosaic.done:hover .mosaic-in { animation-play-state: paused; }
     }
 
     /* O cua so giua tim: so ngay chay tu 0 len */
@@ -324,9 +314,6 @@
       .vw-stage { padding-top: 54px; padding-bottom: 14px; }
     }
 
-    /* Tim dap theo nhip trong cua bai dang phat (JS dat transform + --glow) */
-    .mosaic.done.music-beat .mosaic-in { animation: none; }
-    .mosaic.done.music-beat::before { opacity: var(--glow, 1); transition: none; }
 
     /* ── LAT ANH XEM MAT SAU (giu lau mot o) ──────────────── */
     .tile, .tile img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
@@ -345,8 +332,6 @@
       transform-origin: 0 0;
       will-change: transform;
     }
-    /* Dang lat anh: tim dung dap -> o anh nam yen dung cho polaroid se ha canh lai */
-    .mosaic.still .mosaic-in { animation-play-state: paused; }
     .flip-in { position: absolute; inset: 0; transform-style: preserve-3d; }
     .flip-face {
       position: absolute; inset: 0;
@@ -374,7 +359,6 @@
 
     @media (prefers-reduced-motion: reduce) {
       .intro-line, .start, .intro-hint { animation: none; opacity: 1; }
-      .mosaic.done .mosaic-in { animation: none; }
     }
   </style>
 </head>
@@ -857,49 +841,6 @@
     else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) closeViewer();     // vuot xuong de dong
   }, { passive: true });
 
-  // ── TIM DAP THEO NHAC ────────────────────────────────────────
-  // Nhip trong cua tung bai do san bang `npm run beats` (music/love/beats.json).
-  // Dang phat nhac thi tim nay len dung luc trong dap; tat nhac / dang xem video
-  // thi quay ve nhip "thinh-thinh" deu cua CSS.
-  let BEATS = {};
-  fetch('music/love/beats.json').then((r) => (r.ok ? r.json() : {})).then((d) => { BEATS = d || {}; }).catch(() => {});
-  const BEAT_DECAY = 0.16;        // giay — nay len roi xep xuong nhanh hay cham
-  const BEAT_LEAD = 0.03;         // bu do tre am thanh
-
-  function beatEnv() {
-    const list = BEATS[PLAYLIST[track].split('/').pop()];
-    if (!list || !list.length) return null;
-    const ct = audio.currentTime + BEAT_LEAD;
-    let lo = 0, hi = list.length - 1, k = -1;            // nhip gan nhat da qua
-    while (lo <= hi) { const mid = (lo + hi) >> 1; if (list[mid] <= ct) { k = mid; lo = mid + 1; } else hi = mid - 1; }
-    if (k < 0) return 0;
-    const dt = ct - list[k];
-    return dt > 0.8 ? 0 : Math.exp(-dt / BEAT_DECAY);
-  }
-  const canHover = matchMedia('(hover: hover)').matches;
-  let beatShown = 0;
-  function syncBeat() {
-    const live = phase === 'done' && !reduceMotion && musicOn && !ducked && !audio.paused;
-    const env = live ? beatEnv() : null;
-    if (env == null) {
-      if (mosaicEl.classList.contains('music-beat')) {
-        mosaicEl.classList.remove('music-beat');
-        mosaicIn.style.transform = '';
-      }
-    } else {
-      // Dang lat anh (ca luc bay ve): giu nguyen nhip -> o anh dung yen cho polaroid ha canh
-      if (mosaicEl.classList.contains('still')) { requestAnimationFrame(syncBeat); return; }
-      // Chuot tren tim: xep nhe ve yen thay vi nay theo nhac (o anh dung yen duoi con tro)
-      const still = canHover && mosaicEl.matches(':hover');
-      beatShown = still ? beatShown * 0.85 : env;
-      mosaicEl.classList.add('music-beat');
-      mosaicIn.style.transform = `scale(${(1 + 0.045 * beatShown).toFixed(4)})`;
-      mosaicEl.style.setProperty('--glow', (0.55 + 0.6 * beatShown).toFixed(3));
-    }
-    requestAnimationFrame(syncBeat);
-  }
-  requestAnimationFrame(syncBeat);
-
   // ── LAT ANH XEM MAT SAU ──────────────────────────────────────
   // Giu lau mot o: tam anh nhac len giua man hinh, lat 3D nhu polaroid that. Mat
   // sau ghi ngay + ten moc (anh dat ten theo ngay) bang chu viet tay, them mot loi nho.
@@ -971,7 +912,6 @@
         <div class="flip-face flip-back">${backHtml(m, i)}</div>
       </div>`;
     document.body.append(veil, card);
-    mosaicEl.classList.add('still');
     requestAnimationFrame(() => veil.classList.add('show'));
     el.style.visibility = 'hidden';
 
@@ -1000,7 +940,7 @@
     veil.classList.remove('show');
     a2.reverse();
     // Don dep dung luc polaroid ve toi o anh (khong doan bang hen gio)
-    const done = () => { el.style.visibility = ''; veil.remove(); card.remove(); mosaicEl.classList.remove('still'); };
+    const done = () => { el.style.visibility = ''; veil.remove(); card.remove(); };
     setTimeout(() => {
       // Chay nguoc duong cong "nhanh roi cham" thanh "cham roi nhanh" -> lao vao o anh roi bien mat
       // dot ngot. Doi sang cham ca hai dau de ha canh em vao dung o.
