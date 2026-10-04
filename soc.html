@@ -62,6 +62,23 @@
       opacity: 0;
       visibility: hidden;
     }
+    /* Trinh duyet chan tu phat nhac -> man tai thanh nut "Cham de vao" (cham la co nhac) */
+    .loading-enter, .loading-hint { display: none; }
+    .loading-screen.gate { cursor: pointer; }
+    .loading-screen.gate .loading-bar { display: none; }
+    .loading-screen.gate .loading-enter {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 30px; border-radius: 999px;
+      border: 1px solid rgba(251,191,36,0.55);
+      background: linear-gradient(135deg, rgba(56,189,248,0.3), rgba(251,191,36,0.2));
+      color: #fff; font: 600 1rem 'Inter', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(56,189,248,0.3);
+      animation: gateIn 0.6s ease both, gatePulse 2.2s 0.6s ease-in-out infinite;
+    }
+    .loading-screen.gate .loading-hint { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+    @keyframes gateIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes gatePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .loading-photo {
       width: 120px;
       height: 120px;
@@ -977,6 +994,8 @@
   <img class="loading-photo" src="images/soc/soc.png" alt="Bé Sóc">
   <div class="loading-text">Chào mừng bé Sóc...</div>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  <button class="loading-enter" type="button">Chạm để vào 🧸</button>
+  <div class="loading-hint">🎧 Mở âm thanh lên nhé</div>
 </div>
 
 <canvas id="starCanvas"></canvas>
@@ -1416,9 +1435,19 @@ function animLoop() {
 animLoop();
 
 // ── LOADING ──────────────────────────────────────────────────────────────────
+// Tai xong: nhac da tu phat duoc (hoac da tu tat) thi an man tai nhu cu. Trinh duyet
+// chan tu phat (iPhone, mo thang link) -> man tai thanh nut "Cham de vao": cham la
+// vao trang va nhac bat luon (lan cham nay trinh duyet coi la cho phep phat tieng).
+const loadingEl = document.getElementById('loadingScreen');
+function enterSite() {
+  if (!musicPlaying && !musicOffByUser()) playSong();
+  loadingEl.classList.add('hide');
+}
 window.addEventListener('load', () => {
   setTimeout(() => {
-    document.getElementById('loadingScreen').classList.add('hide');
+    if (musicPlaying || musicOffByUser()) { loadingEl.classList.add('hide'); return; }
+    loadingEl.classList.add('gate');
+    loadingEl.addEventListener('click', enterSite, { once: true });
   }, 1800);
 });
 
@@ -1553,6 +1582,7 @@ bgMusic.volume = 0.4;
 let musicPlaying = false;
 let lastSongIndex = -1;
 let promptInterval = null;
+let playToken = 0;
 
 function getRandomSong() {
   let idx;
@@ -1574,10 +1604,12 @@ function setMusicUi(on) {
 
 /** Phat mot bai ngau nhien -> Promise<true> neu phat duoc */
 function playSong() {
+  const t = ++playToken;
   bgMusic.src = getRandomSong();
   musicPlaying = true;
   setMusicUi(true);
-  return bgMusic.play().then(() => true, (err) => {
+  return bgMusic.play().then(() => t === playToken, (err) => {
+    if (t !== playToken) return false;                 // da co lan phat moi hon
     // Bi chan vi chua cham vao trang -> tra nut ve 🎵, cho lan cham dau
     if (err && err.name === 'NotAllowedError') { musicPlaying = false; setMusicUi(false); }
     return false;
@@ -1597,7 +1629,7 @@ function setMusicOffByUser(off) {
 }
 
 // Cho lan cham / bam phim dau tien (trinh duyet coi la nguoi dung cho phep phat tieng)
-const UNLOCK_EVENTS = ['pointerdown', 'touchend', 'click', 'keydown'];
+const UNLOCK_EVENTS = ['touchend', 'click', 'keydown'];   // pointerdown: iPhone chua tinh la cho phep phat
 function onFirstGesture(e) {
   if (e.target instanceof Element && e.target.closest('#musicBtn, #musicPrompt')) return;   // 2 nut nay tu xu ly
   disarmAutoMusic();
