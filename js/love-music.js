@@ -13,6 +13,8 @@
     'music/love/yeu-em-hon-moi-ngay.mp3',
     'music/love/you-are-my-crush.mp3',
     'music/love/giai-cuu-the-gioi.mp3',
+    'music/love/den-khi-nao.mp3',
+    'music/love/vay-cuoi.mp3',
   ];
 
   /** Ban sao cua SONGS da tron ngau nhien (Fisher-Yates) */
