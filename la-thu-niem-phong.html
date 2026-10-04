@@ -779,6 +779,10 @@
     requestAnimationFrame(fade);
   }
   musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // Bam the qua tren trang love (cung web) -> Chrome cho phat tieng ngay: hat luon tu
+  // luc vao trang, khong doi cham "bat dau". Bi chan (iPhone, mo thang link) thi nhac
+  // bat o lan cham dau nhu cu.
+  setMusic(true);
 
   // ── GIU MAN HINH SANG ────────────────────────────────────────
   let wakeLock = null;
@@ -818,7 +822,7 @@
   function openLetter() {
     if (opened) return;
     opened = true;
-    setMusic(true);                            // nhac phai bat tu mot lan cham that
+    if (!musicOn || audio.paused) setMusic(true);   // dang hat san (vao tu trang love) thi khong bat lai tu dau
     keepAwake();
     stageEl.classList.add('opened');
     if (reduceMotion) {

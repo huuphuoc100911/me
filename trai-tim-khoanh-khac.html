@@ -735,6 +735,10 @@
     requestAnimationFrame(fade);
   }
   musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // Bam the qua tren trang love (cung web) -> Chrome cho phat tieng ngay: hat luon tu
+  // luc vao trang, khong doi cham "bat dau". Bi chan (iPhone, mo thang link) thi nhac
+  // bat o lan cham dau nhu cu.
+  setMusic(true);
 
   /** Video co tieng cua no -> nhac nen tam nghi; xem anh hoac dong -> nhac lai */
   function duck(on) {
@@ -951,7 +955,7 @@
   introEl.addEventListener('click', () => {
     if (phase !== 'intro') return;
     introEl.classList.add('hide');
-    setMusic(true);                            // nhac phai bat tu mot lan cham that
+    if (!musicOn || audio.paused) setMusic(true);   // dang hat san (vao tu trang love) thi khong bat lai tu dau
     keepAwake();
     fly();
   });

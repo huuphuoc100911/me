@@ -1592,6 +1592,10 @@
     else if (musicOn && !document.hidden) fadeIn(1200);
   }
   musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // Bam the qua tren trang love (cung web) -> Chrome cho phat tieng ngay: hat luon tu
+  // luc vao trang, khong doi cham "bat dau". Bi chan (iPhone, mo thang link) thi nhac
+  // bat o lan cham dau nhu cu.
+  setMusic(true);
 
   // ── GIU MAN HINH SANG ────────────────────────────────────────
   // Dien thoai tu khoa sau ~30 giay khong cham, ma phan thap sao dai hon the.
@@ -1942,7 +1946,7 @@
   function begin() {
     if (phase !== 'intro') return;
     introEl.classList.add('hide');
-    setMusic(true);                            // nhac phai bat tu mot lan cham that
+    if (!musicOn || audio.paused) setMusic(true);   // dang hat san (vao tu trang love) thi khong bat lai tu dau
     keepAwake();
     const t = performance.now();
     if (reduceMotion) goHeart(t); else startLight(t);
