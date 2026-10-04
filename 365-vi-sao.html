@@ -522,6 +522,7 @@
 <script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
 <script src="js/letters.js"></script>
+<script src="js/love-music.js"></script>
 <script>
 (() => {
   'use strict';
@@ -531,11 +532,7 @@
   //   (03-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi chay `npm run gallery`
   //   -> moc cung ngay tu lay dung tam do. Moc chua co thi lay mot tam trong thu vien.
   // Bai dau phat ngay khi bat dau; het bai thi sang bai ke, het danh sach thi quay lai bai dau
-  const PLAYLIST = [
-    'music/love/giai-cuu-the-gioi.mp3',
-    'music/love/yeu-em-hon-moi-ngay.mp3',
-    'music/love/you-are-my-crush.mp3',
-  ];
+  const PLAYLIST = LoveMusic.shuffled();       // moi lan mo trang mot thu tu ngau nhien (js/love-music.js)
 
   const DAY_MS = 22;             // ngay thuong luot qua nhanh...
   const DAYS_MAX_MS = 8000;      // ...nhung ca doan ngay thuong khong qua 8 giay, du sau nay nhieu nam

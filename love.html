@@ -1915,6 +1915,7 @@
 <script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
 <script src="js/letters.js"></script>
+<script src="js/love-music.js"></script>
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const START       = Milestones.START;          // xem js/milestones.js
@@ -2835,10 +2836,7 @@ let bgMusic = null;
 let musicPlaying = false;
 let lastSongIndex = -1;
 
-const MUSIC_LIST = [
-  'music/love/yeu-em-hon-moi-ngay.mp3',
-  'music/love/you-are-my-crush.mp3',
-];
+const MUSIC_LIST = LoveMusic.SONGS;             // danh sach chung o js/love-music.js
 
 function getRandomSong() {
   let idx;

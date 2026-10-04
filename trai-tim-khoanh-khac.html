@@ -411,6 +411,7 @@
 
 <script src="js/lunar.js"></script>
 <script src="js/milestones.js"></script>
+<script src="js/love-music.js"></script>
 <script>
 (() => {
   'use strict';
@@ -418,11 +419,7 @@
 
   const MEDIA_DIR = 'images/love/';
   // Bai dau phat ngay khi bat dau; het bai thi sang bai ke, het danh sach thi quay lai bai dau
-  const PLAYLIST = [
-    'music/love/you-are-my-crush.mp3',
-    'music/love/giai-cuu-the-gioi.mp3',
-    'music/love/yeu-em-hon-moi-ngay.mp3',
-  ];
+  const PLAYLIST = LoveMusic.shuffled();       // moi lan mo trang mot thu tu ngau nhien (js/love-music.js)
 
   const FLY_MS = 1200;           // moi o bay ve cho
   const STAGGER_MS = 65;         // o sau xuat phat tre hon o truoc
