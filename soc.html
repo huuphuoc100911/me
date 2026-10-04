@@ -1533,14 +1533,26 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ── MUSIC PLAYER ─────────────────────────────────────────────────────────────
+// Vao trang la tu phat mot bai ngau nhien trong music/soc. Trinh duyet chan phat
+// co tieng khi chua cham vao trang (iPhone luon chan) -> lan cham / bam phim dau
+// tien o bat ky dau se bat nhac. Da tu tat bang nut 🔊 thi khong tu bat lai nua
+// cho toi khi dong tab. Them / xoa bai trong music/soc thi chay `npm run music`.
 const musicBtnEl = document.getElementById('musicBtn');
-let bgMusic = null;
+const musicPromptEl = document.getElementById('musicPrompt');
+const MUSIC_LIST = [
+  'music/soc/baby-shark.mp3',
+  'music/soc/ca-nha-thuong-nhau.mp3',
+  'music/soc/chu-tac-ke-hoa.mp3',
+];
+const MUSIC_OFF_KEY = 'soc-music-off';
+// Mot phan tu audio dung suot: iPhone chi cho phat tiep bai sau (khong can cham)
+// neu van la phan tu da duoc mo khoa boi lan cham dau
+const bgMusic = new Audio();
+bgMusic.preload = 'auto';
+bgMusic.volume = 0.4;
 let musicPlaying = false;
 let lastSongIndex = -1;
-
-const MUSIC_LIST = [
-  'music/soc/ca-nha-thuong-nhau.mp3',
-];
+let promptInterval = null;
 
 function getRandomSong() {
   let idx;
@@ -1551,35 +1563,65 @@ function getRandomSong() {
   return MUSIC_LIST[idx];
 }
 
-function playSong() {
-  if (bgMusic) { bgMusic.pause(); bgMusic = null; }
-  bgMusic = new Audio(getRandomSong());
-  bgMusic.volume = 0.4;
-  bgMusic.addEventListener('ended', () => playSong());
-  bgMusic.play();
-  musicPlaying = true;
-  musicBtnEl.textContent = '🔊';
-  musicBtnEl.classList.add('playing');
+function setMusicUi(on) {
+  musicBtnEl.textContent = on ? '🔊' : '🎵';
+  musicBtnEl.classList.toggle('playing', on);
+  if (on) {
+    musicPromptEl.style.display = 'none';
+    if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
+  }
 }
 
+/** Phat mot bai ngau nhien -> Promise<true> neu phat duoc */
+function playSong() {
+  bgMusic.src = getRandomSong();
+  musicPlaying = true;
+  setMusicUi(true);
+  return bgMusic.play().then(() => true, (err) => {
+    // Bi chan vi chua cham vao trang -> tra nut ve 🎵, cho lan cham dau
+    if (err && err.name === 'NotAllowedError') { musicPlaying = false; setMusicUi(false); }
+    return false;
+  });
+}
+bgMusic.addEventListener('ended', () => { if (musicPlaying) playSong(); });
+
 function stopMusic() {
-  if (bgMusic) bgMusic.pause();
+  bgMusic.pause();
   musicPlaying = false;
-  musicBtnEl.textContent = '🎵';
-  musicBtnEl.classList.remove('playing');
+  setMusicUi(false);
+}
+
+const musicOffByUser = () => { try { return sessionStorage.getItem(MUSIC_OFF_KEY) === '1'; } catch { return false; } };
+function setMusicOffByUser(off) {
+  try { off ? sessionStorage.setItem(MUSIC_OFF_KEY, '1') : sessionStorage.removeItem(MUSIC_OFF_KEY); } catch {}
+}
+
+// Cho lan cham / bam phim dau tien (trinh duyet coi la nguoi dung cho phep phat tieng)
+const UNLOCK_EVENTS = ['pointerdown', 'touchend', 'click', 'keydown'];
+function onFirstGesture(e) {
+  if (e.target instanceof Element && e.target.closest('#musicBtn, #musicPrompt')) return;   // 2 nut nay tu xu ly
+  disarmAutoMusic();
+  if (musicPlaying || musicOffByUser()) return;
+  playSong().then((ok) => { if (!ok && !musicOffByUser()) armAutoMusic(); });   // vuot cuon chua tinh -> cho lan sau
+}
+function armAutoMusic() { UNLOCK_EVENTS.forEach((ev) => document.addEventListener(ev, onFirstGesture, { capture: true, passive: true })); }
+function disarmAutoMusic() { UNLOCK_EVENTS.forEach((ev) => document.removeEventListener(ev, onFirstGesture, { capture: true })); }
+
+if (!musicOffByUser()) {
+  playSong().then((ok) => { if (!ok && !musicOffByUser()) armAutoMusic(); });
 }
 
 musicBtnEl.addEventListener('click', () => {
-  musicPlaying ? stopMusic() : playSong();
+  disarmAutoMusic();
+  if (musicPlaying) { stopMusic(); setMusicOffByUser(true); }
+  else { setMusicOffByUser(false); playSong(); }
   musicPromptEl.style.display = 'none';
   if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
 });
 
-const musicPromptEl = document.getElementById('musicPrompt');
-let promptInterval = null;
-
+// Prompt nhac — chi hien khi nhac chua phat duoc: sau 2s, show 5s roi an, lap lai moi 1 phut
 function showPromptBriefly() {
-  if (musicPlaying) return;
+  if (musicPlaying || musicOffByUser()) return;
   musicPromptEl.style.display = 'flex';
   setTimeout(() => {
     musicPromptEl.style.display = 'none';
@@ -1588,10 +1630,12 @@ function showPromptBriefly() {
 
 setTimeout(() => {
   showPromptBriefly();
-  promptInterval = setInterval(showPromptBriefly, 60000);
+  if (!musicPlaying) promptInterval = setInterval(showPromptBriefly, 60000);
 }, 2000);
 
 musicPromptEl.addEventListener('click', () => {
+  disarmAutoMusic();
+  setMusicOffByUser(false);
   if (!musicPlaying) playSong();
   musicPromptEl.style.display = 'none';
   if (promptInterval) { clearInterval(promptInterval); promptInterval = null; }
