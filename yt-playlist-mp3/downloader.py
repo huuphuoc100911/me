@@ -1,4 +1,6 @@
 """Tai playlist YouTube -> MP3 320k -> ZIP. Chay nen trong thread, theo doi qua Job."""
+from __future__ import annotations
+
 import os
 import re
 import shutil
@@ -42,11 +44,19 @@ def ffmpeg_dir() -> str | None:
 
 
 def normalize_url(url: str) -> str:
-    """watch?v=..&list=.. -> playlist?list=..  (de yt-dlp lay ca playlist thay vi 1 video)."""
+    """watch?v=..&list=.. -> playlist?list=..  (de yt-dlp lay ca playlist thay vi 1 video).
+
+    Rieng list=RD... la "danh sach phat tu dong" (mix) YouTube tu sinh khi bam mot bai:
+    nguoi dan link chi muon dung bai do, khong phai ca tram bai goi y -> giu 1 video.
+    """
     url = url.strip()
     p = urlparse(url)
     if p.netloc.endswith(("youtube.com", "youtu.be")):
-        lst = parse_qs(p.query).get("list", [None])[0]
+        q = parse_qs(p.query)
+        lst = q.get("list", [None])[0]
+        vid = q.get("v", [None])[0]
+        if lst and lst.startswith("RD") and vid:
+            return f"https://www.youtube.com/watch?v={vid}"
         if lst:
             return f"https://www.youtube.com/playlist?list={lst}"
     return url
@@ -146,6 +156,10 @@ def _base_opts() -> dict:
         "ignoreerrors": True,
         "retries": 3,
         "fragment_retries": 3,
+        # YouTube bat giai ma bang JavaScript: dung node (may da co) hoac deno neu cai.
+        "js_runtimes": {"deno": {}, "node": {}},
+        # Client android_vr khong can PO token / JS -> thu truoc, hong thi ve client mac dinh
+        "extractor_args": {"youtube": {"player_client": ["android_vr", "default"]}},
     }
     if COOKIES.exists():
         opts["cookiefile"] = str(COOKIES)
