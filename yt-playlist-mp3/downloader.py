@@ -182,7 +182,13 @@ def _resolve(job: Job):
     job.title = info.get("title") or "playlist"
     for i, e in enumerate(entries, 1):
         vid = e.get("id") or ""
-        url = e.get("url") or e.get("webpage_url") or (f"https://www.youtube.com/watch?v={vid}" if vid else "")
+        if e.get("_type") == "url":             # muc phang trong playlist: "url" la link trang video
+            url = e.get("url") or ""
+        else:
+            # Link 1 video le: e la thong tin day du, "url" o day la link luong googlevideo
+            # (videoplayback?expire=...) -> tai lai bang no se loi. Dung link trang video.
+            url = e.get("webpage_url") or e.get("original_url") or ""
+        url = url or (f"https://www.youtube.com/watch?v={vid}" if vid else "")
         job.tracks.append(Track(index=i, id=vid, title=e.get("title") or vid or f"track {i}", url=url))
 
 
