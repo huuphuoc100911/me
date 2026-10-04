@@ -95,23 +95,6 @@
       border-radius: 100px;
       animation: loadingFill 1.5s ease forwards;
     }
-    /* Trinh duyet chan tu phat nhac -> man tai thanh nut "Cham de vao" (cham la co nhac) */
-    .loading-enter, .loading-hint { display: none; }
-    .loading-screen.gate { cursor: pointer; }
-    .loading-screen.gate .loading-bar { display: none; }
-    .loading-screen.gate .loading-enter {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 13px 30px; border-radius: 999px;
-      border: 1px solid rgba(245,200,66,0.55);
-      background: linear-gradient(135deg, rgba(255,77,115,0.35), rgba(245,200,66,0.2));
-      color: #fff; font: 600 1rem 'Inter', sans-serif;
-      cursor: pointer;
-      box-shadow: 0 10px 30px rgba(255,77,115,0.35);
-      animation: gateIn 0.6s ease both, gatePulse 2.2s 0.6s ease-in-out infinite;
-    }
-    .loading-screen.gate .loading-hint { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
-    @keyframes gateIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-    @keyframes gatePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     @keyframes loadingFill {
       0%   { width: 0%; }
       60%  { width: 80%; }
@@ -1591,8 +1574,6 @@
   <div class="loading-heart">💕</div>
   <div class="loading-text">Đang tải tình yêu...</div>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
-  <button class="loading-enter" type="button">Chạm để vào 💕</button>
-  <div class="loading-hint">🎧 Mở âm thanh lên nhé</div>
 </div>
 
 <canvas id="starCanvas"></canvas>
@@ -2971,20 +2952,9 @@ btnTop.addEventListener('click', () => {
 });
 
 // ── LOADING SCREEN ──────────────────────────────────────────────────────────
-// Tai xong: nhac da tu phat duoc (hoac da tu tat) thi an man tai nhu cu. Trinh duyet
-// chan tu phat (iPhone, mo thang link) -> man tai thanh nut "Cham de vao": cham la
-// vao trang va nhac bat luon (lan cham nay trinh duyet coi la cho phep phat tieng).
-const loadingEl = document.getElementById('loadingScreen');
-function enterSite() {
-  if (!musicPlaying && !musicOffByUser()) playSong();
-  loadingEl.classList.add('hide');
-}
 window.addEventListener('load', () => {
   setTimeout(() => {
-    if (musicPlaying || musicOffByUser()) { loadingEl.classList.add('hide'); return; }
-    loadingEl.querySelector('.loading-text').textContent = 'Tình yêu đã sẵn sàng…';
-    loadingEl.classList.add('gate');
-    loadingEl.addEventListener('click', enterSite, { once: true });
+    document.getElementById('loadingScreen').classList.add('hide');
   }, 1600);
 });
 
