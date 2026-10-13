@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Rạp phim của chúng mình ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Rạp phim của chúng mình — Một năm của Thị Huyền & Hữu Phước 🎬">
+  <meta property="og:description" content="Một suất chiếu đặc biệt, chỉ dành cho em 🎬">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/rap-phim.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Bộ phim một năm của Thị Huyền và Hữu Phước 🎬">
+  <meta name="theme-color" content="#050204">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,400&family=Inter:wght@400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:   #ff6b8a;
+      --pink:   #ffb3c6;
+      --gold:   #f5c842;
+      --gold2:  #fde68a;
+      --white:  #fff;
+      --mut:    rgba(255,255,255,0.55);
+      --border: rgba(255,255,255,0.15);
+      --glass:  rgba(20,6,12,0.55);
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    html { background-color: #050204; }
+    body {
+      background: #050204;
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      user-select: none; -webkit-user-select: none;
+    }
+    button { font-family: inherit; }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 20;
+      top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .bar > * { pointer-events: auto; }
+    .playing .bar { opacity: 0; pointer-events: none; }
+    .playing .bar > * { pointer-events: none; }
+    .playing.hud-on .bar { opacity: 1; }
+    .playing.hud-on .bar > * { pointer-events: auto; }
+    .pill {
+      height: 40px; min-width: 40px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.85);
+      font: 500 0.82rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 40px; padding: 0; font-size: 1rem; }
+
+    /* ── RAP: man chieu + rem ───────────────────────────── */
+    .theater {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, #3a0d1c 0%, #0c0307 62%, #050204 100%);
+    }
+    .screen { position: absolute; inset: 0; background: #000; overflow: hidden; }
+
+    .curtain {
+      position: absolute; top: 0; bottom: 0; width: 51%; z-index: 9;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.55) 100%),
+        repeating-linear-gradient(90deg, #4e0818 0, #7d1229 2.6%, #a8193a 4.6%, #7d1229 6.6%, #4e0818 9.4%);
+      box-shadow: 0 0 60px rgba(0,0,0,0.8);
+      transition: transform 2.8s cubic-bezier(.65,.02,.25,1);
+    }
+    .curtain.l { left: 0; }
+    .curtain.r { right: 0; }
+    .valance {                    /* diem rem phia tren, vien vang */
+      position: absolute; left: 0; right: 0; top: 0; height: calc(64px + var(--safe-t)); z-index: 10;
+      background: repeating-linear-gradient(90deg, #5a0a1d 0, #8e1430 18px, #5a0a1d 36px);
+      border-bottom: 3px solid #c99a2e;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.7);
+      transition: transform 1.6s ease 1.2s;
+    }
+    .theater.open .curtain.l { transform: translateX(-102%); }
+    .theater.open .curtain.r { transform: translateX(102%); }
+    .theater.open .valance { transform: translateY(-110%); }
+    .spot {                       /* den roi len rem truoc gio chieu */
+      position: absolute; inset: 0; z-index: 11; pointer-events: none;
+      background: radial-gradient(ellipse 60% 45% at 50% 55%, rgba(255,214,150,0.16), rgba(0,0,0,0) 70%);
+      transition: opacity 1.4s ease;
+    }
+    .theater.open .spot { opacity: 0; }
+
+    /* ── CAC CANH PHIM ──────────────────────────────────── */
+    .layer { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s ease; }
+    .layer.show { opacity: 1; }
+    .layer .bg {
+      position: absolute; inset: -60px;
+      background-size: cover; background-position: center;
+      filter: blur(30px) brightness(0.42) saturate(1.2);
+    }
+    .layer .fg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: contain; display: block;
+    }
+    .layer img.fg { animation: var(--kb, kbA) var(--kb-dur, 5s) ease-out both; }
+    @keyframes kbA { from { transform: scale(1.02); } to { transform: scale(1.14) translate(-1.8%, -1.2%); } }
+    @keyframes kbB { from { transform: scale(1.14) translate(1.6%, 1%); } to { transform: scale(1.02); } }
+    @keyframes kbC { from { transform: scale(1.03) translate(-1.5%, 0); } to { transform: scale(1.13) translate(1.5%, -1%); } }
+    @keyframes kbD { from { transform: scale(1.12) translate(0, -1.5%); } to { transform: scale(1.02) translate(0, 1%); } }
+    .paused .layer img.fg, .paused .card > * { animation-play-state: paused; }
+    .cap {
+      position: absolute; left: 50%; bottom: calc(10vh + var(--safe-b));
+      transform: translateX(-50%);
+      padding: 6px 15px; border-radius: 999px;
+      background: rgba(0,0,0,0.5); border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2); font-size: 0.82rem; white-space: nowrap;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      animation: capIn 1s 0.5s both;
+    }
+    @keyframes capIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+    /* Man chu: ten hang phim, ten phim, ten chuong */
+    .card {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px;
+      background: radial-gradient(ellipse at 50% 45%, #2a0b17 0%, #090205 72%);
+    }
+    .card > * { animation: rise 1.1s cubic-bezier(.2,.8,.2,1) both; }
+    .card > :nth-child(2) { animation-delay: 0.25s; }
+    .card > :nth-child(3) { animation-delay: 0.5s; }
+    .card > :nth-child(4) { animation-delay: 0.75s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+    .card .k { font: 500 0.76rem/1.4 'Inter', sans-serif; letter-spacing: 0.38em; text-transform: uppercase; color: rgba(253,230,138,0.78); }
+    .card .ic { margin-top: 16px; font-size: 3.1rem; line-height: 1; }
+    .card .t {
+      margin-top: 14px; max-width: 16em;
+      font-family: 'Playfair Display', serif; font-weight: 800;
+      font-size: clamp(1.7rem, 6.6vw, 3rem); line-height: 1.15;
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 45%, var(--rose) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .card .d { margin-top: 12px; font-family: 'Dancing Script', cursive; font-size: clamp(1.25rem, 4.6vw, 1.7rem); color: var(--pink); }
+    .card.big .t { font-size: clamp(2.2rem, 9vw, 4.2rem); }
+    .card .line { margin-top: 10px; font-family: 'Playfair Display', serif; font-style: italic; font-size: clamp(1.3rem, 5vw, 2rem); color: #fff; }
+    .card .stats { margin-top: 22px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 30px; }
+    @media (min-width: 640px) { .card .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .card .stats div { display: flex; flex-direction: column; align-items: center; }
+    .card .stats b { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 7vw, 2.6rem); color: var(--gold2); }
+    .card .stats span { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut); }
+
+    /* Hat film + vien toi: cho giong phim chieu rap */
+    .grain {
+      position: absolute; inset: -50%; z-index: 3; pointer-events: none; opacity: 0.08;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      animation: grain 0.8s steps(5) infinite;
+    }
+    @keyframes grain {
+      0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); }
+      60% { transform: translate(-2%, -1%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); }
+    }
+    .vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6) 100%); }
+
+    /* ── THANH DIEU KHIEN (cham man hinh moi hien) ──────── */
+    .hud {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 8;
+      padding: 30px 16px calc(14px + var(--safe-b));
+      display: flex; align-items: center; gap: 10px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.75));
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .hud-on .hud { opacity: 1; pointer-events: auto; }
+    .hud button {
+      width: 42px; height: 42px; flex: none; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--glass); color: #fff;
+      font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+    }
+    .hud button.main { width: 48px; height: 48px; background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; border: none; }
+    .prog { flex: 1; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.18); overflow: hidden; }
+    .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--rose)); }
+    .time { flex: none; font-size: 0.74rem; color: var(--mut); font-variant-numeric: tabular-nums; }
+    .paused-mark {
+      position: absolute; inset: 0; z-index: 7; display: none; place-items: center; pointer-events: none;
+      font-size: 3.2rem; color: rgba(255,255,255,0.8); text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .paused .paused-mark { display: grid; }
+
+    /* ── DANH DE CUOI PHIM ──────────────────────────────── */
+    .credits { position: absolute; inset: 0; z-index: 4; overflow: hidden; background: #000; opacity: 0; transition: opacity 1.2s ease; }
+    .credits[hidden] { display: none; }
+    .credits.show { opacity: 1; }
+    .roll { position: absolute; left: 0; right: 0; top: 0; padding: 0 22px; text-align: center; will-change: transform; }
+    .roll .cr-title { font-family: 'Playfair Display', serif; font-weight: 800; font-size: clamp(1.8rem, 7vw, 2.8rem); color: var(--gold2); }
+    .roll .cr-sec { margin-top: 46px; }
+    .roll .cr-role { font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase; color: rgba(253,230,138,0.7); }
+    .roll .cr-name { margin-top: 8px; font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 4.6vw, 1.5rem); color: #fff; }
+    .roll .cr-pics { margin: 48px auto 0; display: flex; justify-content: center; gap: 10px; }
+    .roll .cr-pics img {
+      width: min(26vw, 120px); aspect-ratio: 3 / 4; object-fit: cover;
+      border: 5px solid #fff; border-bottom-width: 16px; border-radius: 3px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.6);
+    }
+    .roll .cr-pics img:nth-child(1) { transform: rotate(-5deg); }
+    .roll .cr-pics img:nth-child(2) { transform: rotate(3deg) translateY(-6px); }
+    .roll .cr-pics img:nth-child(3) { transform: rotate(-2deg); }
+    .roll .cr-seq { margin-top: 70px; }
+    .roll .cr-seq .k { font-size: 0.74rem; letter-spacing: 0.38em; text-transform: uppercase; color: var(--rose); }
+    .roll .cr-seq .t { margin-top: 10px; font-family: 'Playfair Display', serif; font-weight: 800; font-size: clamp(1.9rem, 7.5vw, 3rem); background: linear-gradient(135deg, #fff, var(--gold2) 50%, var(--rose)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .roll .cr-seq .d { margin-top: 8px; font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: var(--pink); }
+    .end {
+      position: absolute; inset: 0; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 24px; text-align: center;
+      opacity: 0; pointer-events: none; transition: opacity 1s ease;
+    }
+    .end.show { opacity: 1; pointer-events: auto; }
+    .end .end-t { font-family: 'Playfair Display', serif; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); background: linear-gradient(135deg, #fff, var(--gold2) 50%, var(--rose)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .end .end-d { font-family: 'Dancing Script', cursive; font-size: 1.45rem; color: var(--pink); margin-bottom: 12px; }
+    .btn {
+      min-width: 220px; padding: 13px 22px; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(245,200,66,0.5);
+      background: linear-gradient(135deg, rgba(245,200,66,0.18), rgba(255,77,115,0.16));
+      color: var(--gold2); font: 600 0.95rem/1 'Inter', sans-serif; text-decoration: none;
+    }
+    .btn.solid { background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; border: none; }
+
+    /* ── VE XEM PHIM ────────────────────────────────────── */
+    .ticket-wrap {
+      position: fixed; inset: 0; z-index: 15;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+      padding: calc(70px + var(--safe-t)) 18px calc(24px + var(--safe-b));
+      transition: opacity 0.8s ease;
+    }
+    .ticket-wrap.gone { opacity: 0; pointer-events: none; }
+    .marquee {
+      font-family: 'Dancing Script', cursive; font-size: clamp(1.5rem, 6vw, 2rem); color: var(--gold2);
+      text-shadow: 0 0 14px rgba(245,200,66,0.6);
+    }
+    .ticket {
+      position: relative; width: min(92vw, 440px); display: flex;
+      filter: drop-shadow(0 22px 40px rgba(0,0,0,0.7));
+      animation: tkIn 1s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes tkIn { from { opacity: 0; transform: translateY(30px) rotate(-3deg); } to { opacity: 1; transform: rotate(-1.5deg); } }
+    .t-main {
+      flex: 1; min-width: 0; position: relative;
+      padding: 18px 18px 16px;
+      border-radius: 14px 0 0 14px;
+      background:
+        radial-gradient(circle at 100% 0, transparent 12px, #fff4e2 12.5px) top right / 51% 51% no-repeat,
+        radial-gradient(circle at 100% 100%, transparent 12px, #fff4e2 12.5px) bottom right / 51% 51% no-repeat,
+        linear-gradient(#fff4e2, #fff4e2) left / 50% 100% no-repeat;
+      color: #3d1622;
+      transition: transform 1s cubic-bezier(.6,0,.3,1), opacity 1s ease;
+    }
+    .t-kick { font-size: 0.64rem; font-weight: 600; letter-spacing: 0.12em; color: #b0144a; white-space: nowrap; }
+    .t-title { margin-top: 6px; font-family: 'Playfair Display', serif; font-weight: 800; font-size: clamp(1.25rem, 5.4vw, 1.6rem); line-height: 1.15; color: #3d1622; }
+    .t-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+    .t-grid span { display: block; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: #9a6a74; }
+    .t-grid b { display: block; margin-top: 2px; font-size: 0.86rem; color: #3d1622; }
+    .t-names { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(61,22,34,0.3); font-family: 'Dancing Script', cursive; font-size: 1.25rem; color: #b0144a; }
+    .t-stub {
+      width: 30%; flex: none; position: relative; cursor: pointer;
+      border-radius: 0 14px 14px 0;
+      border-left: 2px dashed rgba(61,22,34,0.45);
+      background:
+        radial-gradient(circle at 0 0, transparent 12px, #f5c842 12.5px) top left / 51% 51% no-repeat,
+        radial-gradient(circle at 0 100%, transparent 12px, #f5c842 12.5px) bottom left / 51% 51% no-repeat,
+        linear-gradient(#f5c842, #e3a92d) right / 50% 100% no-repeat;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      color: #3d1622; text-align: center; padding: 12px 6px;
+      transition: transform 1s cubic-bezier(.5,0,.3,1), opacity 1s ease;
+      transform-origin: 0 100%;
+    }
+    .t-stub .s-k { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.2em; }
+    .t-stub .s-big { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.5rem; line-height: 1; }
+    .t-stub .barcode {
+      width: 70%; height: 34px;
+      background: repeating-linear-gradient(90deg, #3d1622 0 2px, transparent 2px 4px, #3d1622 4px 5px, transparent 5px 8px, #3d1622 8px 11px, transparent 11px 13px);
+    }
+    .t-stub .s-go { font-size: 0.7rem; font-weight: 600; }
+    .ticket.torn .t-stub { transform: translate(40px, 90px) rotate(28deg); opacity: 0; }
+    .ticket.torn .t-main { transform: translateY(-40px) scale(0.96); opacity: 0; transition-delay: 0.35s; }
+    .tear-hint { font-size: 0.86rem; color: rgba(255,255,255,0.75); animation: hint 1.8s ease-in-out infinite; text-align: center; }
+    @keyframes hint { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    .toast {
+      position: fixed; left: 50%; bottom: calc(30px + var(--safe-b)); z-index: 30;
+      transform: translateX(-50%) translateY(14px); opacity: 0; pointer-events: none;
+      padding: 11px 20px; border-radius: 999px; background: rgba(255,107,138,0.95); color: #fff;
+      font-size: 0.86rem; font-weight: 500; transition: opacity 0.3s, transform 0.3s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .grain, .layer img.fg, .ticket, .tear-hint { animation: none; }
+      .curtain, .valance { transition-duration: 0.6s; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+</header>
+
+<main class="theater" id="theater">
+  <div class="screen" id="screen">
+    <div class="layer" id="L0"></div>
+    <div class="layer" id="L1"></div>
+    <div class="credits" id="credits" hidden>
+      <div class="roll" id="roll"></div>
+      <div class="end" id="end">
+        <div class="end-t">Hết phần 1</div>
+        <div class="end-d">Cảm ơn em đã xem cùng anh 💕</div>
+        <button class="btn solid" id="again" type="button">↺ Xem lại từ đầu</button>
+        <a class="btn" href="love.html">‹ Về trang tình yêu</a>
+      </div>
+    </div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+    <div class="paused-mark" aria-hidden="true">⏸</div>
+    <div class="hud" id="hud">
+      <button id="prev" type="button" aria-label="Cảnh trước">⏮</button>
+      <button class="main" id="play" type="button" aria-label="Tạm dừng">⏸</button>
+      <button id="next" type="button" aria-label="Cảnh sau">⏭</button>
+      <div class="prog"><i id="progFill"></i></div>
+      <div class="time" id="time">0:00</div>
+    </div>
+  </div>
+  <div class="curtain l"></div>
+  <div class="curtain r"></div>
+  <div class="valance"></div>
+  <div class="spot"></div>
+</main>
+
+<div class="ticket-wrap" id="ticketWrap">
+  <div class="marquee">✦ Rạp phim của chúng mình ✦</div>
+  <div class="ticket" id="ticket" role="button" tabindex="0" aria-label="Xé vé để vào rạp">
+    <div class="t-main">
+      <div class="t-kick">🎬 VÉ XEM PHIM · SUẤT ĐẶC BIỆT</div>
+      <div class="t-title" id="tTitle"></div>
+      <div class="t-grid">
+        <div><span>Suất chiếu</span><b id="tWhen"></b></div>
+        <div><span>Phòng chiếu</span><b id="tRoom"></b></div>
+        <div><span>Ghế</span><b id="tSeat"></b></div>
+        <div><span>Giá vé</span><b id="tPrice"></b></div>
+      </div>
+      <div class="t-names">Thị Huyền ❤️ Hữu Phước</div>
+    </div>
+    <div class="t-stub">
+      <div class="s-k">VÀO CỬA</div>
+      <div class="s-big">2</div>
+      <div class="s-k">NGƯỜI</div>
+      <div class="barcode"></div>
+      <div class="s-go">Xé vé ›</div>
+    </div>
+  </div>
+  <div class="tear-hint" id="tearHint">Chạm vào vé để xé và vào rạp 🎟️</div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script src="js/lunar.js"></script>
+<script src="js/milestones.js"></script>
+<script src="js/love-music.js"></script>
+<script>
+(() => {
+  'use strict';
+  const { START, DAY, fmtVN } = Milestones;
+  const MEDIA = 'images/love/';
+  const PLAYLIST = LoveMusic.shuffled();       // moi lan mo trang mot thu tu ngau nhien (js/love-music.js)
+
+  // ★ Chu tren ve, man mo dau va danh de cuoi phim — sua thoai mai
+  const FILM = {
+    title: 'Một Năm Của Chúng Mình',
+    studio: 'Huyền & Phước Pictures',
+    tagline: 'Một bộ phim về hai người — và 365 ngày',
+    room: 'Trái tim anh',
+    seat: 'A1 · A2',
+    price: 'Một cái ôm 🤗',
+    ending: ['Một năm đã qua', 'và anh vẫn chọn em, mỗi ngày'],
+    credits: [
+      ['Diễn viên chính', ['Thị Huyền', 'Hữu Phước']],
+      ['Đạo diễn', ['Hữu Phước']],
+      ['Biên kịch', ['Những ngày bình thường của hai đứa']],
+      ['Quay phim', ['Điện thoại của hai đứa']],
+      ['Bối cảnh', ['Khắp những nơi có em']],
+      ['Nhạc phim', ['Những bài hát hai đứa hay nghe']],
+      ['Cảm ơn đặc biệt', ['Em — vì đã đồng ý ngày 18/10/2025']],
+    ],
+    sequel: { k: 'Phần 2', t: 'Năm thứ hai', d: 'Khởi chiếu 18/10/2027' },
+  };
+  // Video / anh khong dat ten theo ngay nhung thuoc ve mot moc: ten file -> ngay cua moc
+  const ATTACH = { 'primary.mp4': '2026-10-09' };
+
+  const PHOTO_MS = 3400;         // moi tam anh
+  const CLIP_MS = 5200;          // moi doan video (khong tieng — nhac phim chay suot)
+  const CARD_MS = 3300;          // man ten chuong
+  const FADE_MS = 900;
+  const CREDIT_PX_S = 46;        // toc do cuon danh de (px/giay)
+
+  const $ = (id) => document.getElementById(id);
+  const theater = $('theater'), screen = $('screen');
+  const layers = [$('L0'), $('L1')];
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const fmtTime = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ── VE ───────────────────────────────────────────────────────
+  const now = new Date();
+  $('tTitle').textContent = FILM.title;
+  $('tWhen').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} · ${fmtVN(now)}`;
+  $('tRoom').textContent = FILM.room;
+  $('tSeat').textContent = FILM.seat;
+  $('tPrice').textContent = FILM.price;
+
+  // ── KICH BAN PHIM ────────────────────────────────────────────
+  // Chuong = cac moc lon (bo moc thang) tu dau toi Ky niem 1 nam. Anh/video dat ten
+  // theo ngay hien ngay sau chuong cung ngay; con lai rai deu vao khoang giua cac
+  // chuong — khoang nao dai ngay hon thi nhieu canh hon.
+  let scenes = [], totalMs = 0, photos = [];
+
+  function buildScenes(list) {
+    const all = Milestones.build();
+    const finale = all.find((m) => m.type === 'year') || all[all.length - 1];
+    const chapters = all.filter((m) => m.type !== 'month' && m.ts <= finale.ts);
+    const keyTs = (k) => { const [y, mo, d] = k.split('-').map(Number); return new Date(y, mo - 1, d).getTime(); };
+
+    const dated = list.filter((m) => m.d || ATTACH[m.f]).map((m) => ({ m, key: m.d || ATTACH[m.f] }));
+    dated.sort((a, b) => keyTs(a.key) - keyTs(b.key) || (a.m.f < b.m.f ? -1 : 1));
+    const undated = list.filter((m) => !m.d && !ATTACH[m.f]);
+    const byName = (a, b) => (a.f < b.f ? -1 : 1);
+    const imgs = undated.filter((m) => m.t === 'img').sort(byName);
+    const vids = undated.filter((m) => m.t === 'vid').sort(byName);
+    const mixed = [];                                   // xen ke anh / video cho deu nhip
+    for (let i = 0, j = 0; i < imgs.length || j < vids.length;) {
+      if (j >= vids.length || (i < imgs.length && i / imgs.length <= j / vids.length)) mixed.push(imgs[i++]);
+      else mixed.push(vids[j++]);
+    }
+
+    // Chia canh cho cac khoang (tu ngay yeu nhau toi truoc chuong cuoi), ty le theo so ngay
+    const gaps = [];
+    for (let i = 0; i < chapters.length - 1; i++) if (chapters[i].ts >= START) gaps.push({ i, w: chapters[i + 1].ts - chapters[i].ts });
+    const wsum = gaps.reduce((s, g) => s + g.w, 0) || 1;
+    gaps.forEach((g) => { g.exact = mixed.length * g.w / wsum; g.n = Math.floor(g.exact); });
+    let left = mixed.length - gaps.reduce((s, g) => s + g.n, 0);
+    [...gaps].sort((a, b) => (b.exact - b.n) - (a.exact - a.n)).forEach((g) => { if (left > 0) { g.n++; left--; } });
+    const fill = {};
+    let cursor = 0;
+    gaps.forEach((g) => { fill[g.i] = mixed.slice(cursor, cursor + g.n); cursor += g.n; });
+
+    const out = [];
+    const kb = ['kbA', 'kbB', 'kbC', 'kbD'];
+    const media = (m, cap) => out.push(m.t === 'vid'
+      ? { type: 'vid', m, cap, ms: CLIP_MS }
+      : { type: 'img', m, cap, ms: PHOTO_MS, kb: kb[out.length % kb.length] });
+
+    out.push({ type: 'card', html: `<div class="k">${esc(FILM.studio)}</div><div class="d">trân trọng giới thiệu</div>`, ms: 3200 });
+    out.push({ type: 'card', big: true, html: `<div class="k">Một bộ phim</div><div class="t">${esc(FILM.title)}</div><div class="d">${esc(FILM.tagline)}</div>`, ms: 4600 });
+
+    let chapterNo = 0, di = 0;
+    chapters.forEach((c, i) => {
+      const isFinale = i === chapters.length - 1;
+      const label = c.ts < START ? 'Mở đầu' : isFinale ? 'Chương cuối' : `Chương ${++chapterNo}`;
+      out.push({ type: 'card', html: `<div class="k">${label}</div><div class="ic">${c.icon}</div><div class="t">${esc(c.name.replace(/\s*[🎉💕]+\s*$/, ''))}</div><div class="d">${c.date}</div>`, ms: CARD_MS });
+      // anh/video dung ngay chuong nay + anh co ngay roi vao truoc chuong sau
+      const nextTs = isFinale ? Infinity : chapters[i + 1].ts;
+      while (di < dated.length && keyTs(dated[di].key) < nextTs) {
+        const { m, key } = dated[di++];
+        media(m, (key === c.key ? `${c.icon} ` : '📅 ') + fmtVN(new Date(keyTs(key))));
+      }
+      (fill[i] || []).forEach((m) => media(m, ''));
+    });
+
+    const days = Math.round((finale.ts - START) / DAY);
+    const nImg = list.filter((m) => m.t === 'img').length, nVid = list.length - nImg;
+    out.push({ type: 'card', html: `<div class="k">Tổng kết</div><div class="stats">
+      <div><b>${days}</b><span>ngày bên nhau</span></div>
+      <div><b>${nImg}</b><span>tấm ảnh</span></div>
+      <div><b>${nVid}</b><span>thước phim</span></div>
+      <div><b>1</b><span>chúng mình</span></div></div>`, ms: 5200 });
+    out.push({ type: 'card', html: FILM.ending.map((l, k) => `<div class="${k ? 'line' : 't'}">${esc(l)}</div>`).join(''), ms: 5600 });
+    out.push({ type: 'credits' });
+
+    scenes = out;
+    totalMs = out.reduce((s, x) => s + (x.ms || 0), 0);
+    photos = list.filter((m) => m.t === 'img' && m.thumb).map((m) => MEDIA + 'thumbs/' + m.thumb);
+  }
+
+  // ── TRINH CHIEU ──────────────────────────────────────────────
+  let idx = -1, front = 0, playing = false, timer = 0, sceneStart = 0, remaining = 0;
+  const cache = new Map();
+
+  function makeNode(s) {
+    const node = document.createElement('div');
+    if (s.type === 'card') {
+      node.className = 'card' + (s.big ? ' big' : '');
+      node.innerHTML = s.html;
+      return node;
+    }
+    node.className = 'shot';
+    const m = s.m;
+    const bg = document.createElement('div');
+    bg.className = 'bg';
+    if (m.thumb) bg.style.backgroundImage = `url("${MEDIA}thumbs/${encodeURI(m.thumb)}")`;
+    node.appendChild(bg);
+    if (s.type === 'img') {
+      const img = new Image();
+      img.className = 'fg';
+      img.decoding = 'async';
+      img.alt = '';
+      img.style.setProperty('--kb', s.kb);
+      img.style.setProperty('--kb-dur', `${s.ms + FADE_MS}ms`);
+      img.src = MEDIA + (m.md ? 'md/' + m.md : m.f);
+      node.appendChild(img);
+    } else {
+      const v = document.createElement('video');
+      v.className = 'fg';
+      v.muted = true; v.defaultMuted = true; v.playsInline = true;
+      v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+      v.preload = 'auto';
+      if (m.thumb) v.poster = MEDIA + 'thumbs/' + m.thumb;
+      v.src = MEDIA + m.f;
+      node.appendChild(v);
+    }
+    if (s.cap) {
+      const cap = document.createElement('div');
+      cap.className = 'cap';
+      cap.textContent = s.cap;
+      node.appendChild(cap);
+    }
+    return node;
+  }
+  function prepare(i) {
+    const s = scenes[i];
+    if (!s || s.type === 'credits' || cache.has(i)) return;
+    cache.set(i, makeNode(s));
+  }
+  const elapsedBefore = (i) => scenes.slice(0, Math.max(0, i)).reduce((s, x) => s + (x.ms || 0), 0);
+
+  function startClip(v, i) {
+    const go = () => {
+      if (idx !== i) return;
+      try { v.currentTime = Math.min(1, (v.duration || 10) * 0.08); } catch (e) {}
+      if (playing) v.play().catch(() => {});
+    };
+    if (v.readyState >= 1) go(); else v.addEventListener('loadedmetadata', go, { once: true });
+    v.addEventListener('error', () => { if (idx === i && playing) show(i + 1); }, { once: true });   // video loi -> sang canh sau
+  }
+
+  function show(i) {
+    clearTimeout(timer);
+    if (i < 0) i = 0;
+    if (i >= scenes.length) return;
+    idx = i;
+    const s = scenes[i];
+    if (s.type === 'credits') { startCredits(); return; }
+    prepare(i);
+    const node = cache.get(i);
+    cache.delete(i);
+    const back = layers[1 - front], old = layers[front];
+    back.replaceChildren(node);
+    const v = node.querySelector('video');
+    if (v) startClip(v, i);
+    back.classList.add('show');
+    old.classList.remove('show');
+    setTimeout(() => {
+      if (old.classList.contains('show')) return;
+      old.querySelectorAll('video').forEach((x) => { x.pause(); x.removeAttribute('src'); x.load(); });
+      old.replaceChildren();
+    }, FADE_MS + 60);
+    front = 1 - front;
+    // tai truoc canh sau (va anh cua canh sau nua) cho khoi khung trong
+    for (const [k] of cache) if (k < i || k > i + 2) cache.delete(k);
+    prepare(i + 1);
+    const s2 = scenes[i + 2];
+    if (s2 && s2.type === 'img') prepare(i + 2);
+    remaining = s.ms;
+    if (playing) schedule();
+  }
+  function schedule() {
+    sceneStart = performance.now();
+    clearTimeout(timer);
+    timer = setTimeout(() => show(idx + 1), remaining);
+  }
+  const currentVideo = () => layers[front].querySelector('video');
+
+  function pause() {
+    if (!playing) return;
+    playing = false;
+    clearTimeout(timer);
+    remaining = Math.max(300, remaining - (performance.now() - sceneStart));
+    const v = currentVideo(); if (v) v.pause();
+    screen.classList.add('paused');
+    $('play').textContent = '▶'; $('play').setAttribute('aria-label', 'Phát tiếp');
+    if (musicOn) audio.pause();
+    showHud(true);
+  }
+  function resume() {
+    if (playing || idx < 0 || scenes[idx].type === 'credits') return;
+    playing = true;
+    const v = currentVideo(); if (v) v.play().catch(() => {});
+    screen.classList.remove('paused');
+    $('play').textContent = '⏸'; $('play').setAttribute('aria-label', 'Tạm dừng');
+    if (musicOn) audio.play().catch(() => {});
+    schedule();
+    showHud();
+  }
+
+  // ── THANH DIEU KHIEN ─────────────────────────────────────────
+  let hudTimer = 0;
+  function showHud(stay) {
+    document.body.classList.add('hud-on');
+    clearTimeout(hudTimer);
+    if (!stay) hudTimer = setTimeout(() => { if (playing) document.body.classList.remove('hud-on'); }, 2800);
+  }
+  const inCredits = () => idx >= 0 && scenes[idx] && scenes[idx].type === 'credits';
+  screen.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('playing') || inCredits() || e.target.closest('.hud, .end')) return;
+    if (!document.body.classList.contains('hud-on')) { showHud(!playing); return; }
+    playing ? pause() : resume();
+  });
+  $('play').addEventListener('click', () => (playing ? pause() : resume()));
+  $('next').addEventListener('click', () => { show(idx + 1); showHud(!playing); });
+  $('prev').addEventListener('click', () => { show(idx - 1); showHud(!playing); });
+  (function tick() {
+    if (idx >= 0 && scenes[idx] && scenes[idx].type !== 'credits') {
+      const inScene = playing ? performance.now() - sceneStart : (scenes[idx].ms - remaining);
+      const done = elapsedBefore(idx) + Math.min(scenes[idx].ms, Math.max(0, inScene));
+      $('progFill').style.width = `${(clamp01(done / totalMs) * 100).toFixed(2)}%`;
+      $('time').textContent = `${fmtTime(done)} / ${fmtTime(totalMs)}`;
+    }
+    requestAnimationFrame(tick);
+  })();
+  document.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('playing') || inCredits()) return;
+    if (e.key === ' ') { e.preventDefault(); playing ? pause() : resume(); }
+    else if (e.key === 'ArrowRight') show(idx + 1);
+    else if (e.key === 'ArrowLeft') show(idx - 1);
+  });
+
+  // ── DANH DE ──────────────────────────────────────────────────
+  let rollAnim = null;
+  function startCredits() {
+    playing = false;
+    clearTimeout(timer);
+    document.body.classList.remove('hud-on');
+    layers.forEach((l) => { l.classList.remove('show'); l.querySelectorAll('video').forEach((x) => x.pause()); });
+    const pick = () => photos.length ? photos.splice(Math.floor(Math.random() * photos.length), 1)[0] : null;
+    const pics = () => {
+      const p = [pick(), pick(), pick()].filter(Boolean);
+      return p.length ? `<div class="cr-pics">${p.map((u) => `<img src="${encodeURI(u)}" alt="">`).join('')}</div>` : '';
+    };
+    const roll = $('roll');
+    roll.innerHTML = `<div class="cr-title">${esc(FILM.title)}</div>` +
+      FILM.credits.map(([role, names], k) =>
+        `<div class="cr-sec"><div class="cr-role">${esc(role)}</div>${names.map((n) => `<div class="cr-name">${esc(n)}</div>`).join('')}</div>` +
+        (k % 2 === 1 ? pics() : '')).join('') +
+      `<div class="cr-seq"><div class="k">${esc(FILM.sequel.k)}</div><div class="t">${esc(FILM.sequel.t)}</div><div class="d">${esc(FILM.sequel.d)}</div></div>`;
+    const credits = $('credits');
+    credits.hidden = false;
+    requestAnimationFrame(() => credits.classList.add('show'));
+    const H = roll.offsetHeight, V = screen.clientHeight;
+    const dur = reduceMotion ? 1 : ((H + V) / CREDIT_PX_S) * 1000;
+    if (rollAnim) rollAnim.cancel();
+    rollAnim = roll.animate([{ transform: `translateY(${V}px)` }, { transform: `translateY(${-H}px)` }], { duration: dur, easing: 'linear', fill: 'forwards' });
+    rollAnim.onfinish = () => { $('end').classList.add('show'); document.body.classList.remove('playing'); };
+    $('progFill').style.width = '100%';
+  }
+  $('again').addEventListener('click', () => {
+    if (rollAnim) rollAnim.cancel();
+    $('end').classList.remove('show');
+    $('credits').classList.remove('show');
+    setTimeout(() => { $('credits').hidden = true; }, 1200);
+    photos = [];
+    startFilm();
+  });
+
+  function startFilm() {
+    document.body.classList.add('playing');
+    playing = true;
+    screen.classList.remove('paused');
+    $('play').textContent = '⏸';
+    if (!photos.length && lastList) { buildScenes(lastList); cache.clear(); }
+    show(0);
+  }
+
+  // ── NHAC ─────────────────────────────────────────────────────
+  const musicEl = $('music');
+  let track = 0, musicOn = false;
+  const audio = new Audio(PLAYLIST[0]);
+  audio.preload = 'auto';
+  // Doi bai tren CUNG mot phan tu audio: iPhone chi cho phat tiep khong can cham
+  audio.addEventListener('ended', () => {
+    track = (track + 1) % PLAYLIST.length;
+    audio.src = PLAYLIST[track];
+    if (musicOn) audio.play().catch(() => {});
+  });
+  function setMusic(on) {
+    musicOn = on;
+    musicEl.textContent = on ? '🔊' : '🎵';
+    if (!on) { audio.pause(); return; }
+    audio.volume = 0;
+    audio.play().catch(() => setMusic(false));
+    const t0 = performance.now();
+    const fade = (t) => {
+      const p = clamp01((t - t0) / 3000);
+      audio.volume = 0.55 * p;
+      if (p < 1 && musicOn) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  }
+  musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // Bam the qua tren trang love (cung web) -> Chrome cho phat tieng ngay; bi chan
+  // (iPhone, mo thang link) thi nhac bat luc xe ve
+  setMusic(true);
+
+  // ── GIU MAN HINH SANG + TAM DUNG KHI RA KHOI TRANG ─────────
+  let wakeLock = null;
+  async function keepAwake() {
+    if (document.hidden || (wakeLock && !wakeLock.released)) return;
+    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (playing) pause(); else if (musicOn) audio.pause(); return; }
+    if (document.body.classList.contains('playing')) keepAwake();
+    else if (musicOn) audio.play().catch(() => {});
+  });
+
+  // ── XE VE -> KEO REM -> CHIEU ────────────────────────────────
+  let lastList = null, torn = false;
+  fetch(MEDIA + 'images.json')
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((list) => { lastList = list; buildScenes(list); prepare(0); prepare(1); prepare(2); })
+    .catch(() => toast('Chưa tải được phim 🥀 Em tải lại trang thử nha'));
+
+  function tear() {
+    if (torn) return;
+    if (!lastList) { toast('Phim đang tải, đợi xíu nha 🎬'); return; }
+    torn = true;
+    if (!musicOn || audio.paused) setMusic(true);
+    keepAwake();
+    const de = document.documentElement;
+    if (de.requestFullscreen && !/iPhone|iPod/.test(navigator.userAgent)) de.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    $('ticket').classList.add('torn');
+    $('tearHint').style.visibility = 'hidden';
+    setTimeout(() => $('ticketWrap').classList.add('gone'), 900);
+    setTimeout(() => theater.classList.add('open'), reduceMotion ? 300 : 1300);
+    setTimeout(startFilm, reduceMotion ? 600 : 2600);
+  }
+  // de thu nhanh tren may: filmDebug.show(so canh)
+  window.filmDebug = { get scenes() { return scenes; }, get idx() { return idx; }, show: (i) => show(i) };
+  $('ticket').addEventListener('click', tear);
+  $('ticket').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tear(); } });
+})();
+</script>
+</body>
+</html>

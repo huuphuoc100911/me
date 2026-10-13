@@ -1,9 +1,9 @@
 /**
- * Nhan loi uoc sao bang (365-vi-sao.html) va thu tra loi (la-thu-niem-phong.html)
- * roi gui ve mail anh. Dung chung bien moi truong voi api/notify.js:
+ * Nhan loi uoc sao bang (365-vi-sao.html), thu tra loi (la-thu-niem-phong.html) va
+ * phieu em muon dung (phieu-yeu-thuong.html) roi gui ve mail anh. Dung chung bien moi truong voi api/notify.js:
  * GMAIL_USER, GMAIL_APP_PASSWORD, GMAIL_TO.
  *
- *   POST /api/notify   { kind: 'wish' | 'reply', text: '...' }
+ *   POST /api/notify   { kind: 'wish' | 'reply' | 'coupon', text: '...' }
  *
  * Dau "_" de Vercel khong tinh file nay la mot function rieng (goi Hobby toi da
  * 12 function) — api/notify.js nhan POST roi chuyen sang day.
@@ -13,6 +13,7 @@ const nodemailer = require('nodemailer');
 const KINDS = {
   wish:  { icon: '🌠', subject: 'Em vừa ước một điều trên sao băng', title: 'Điều ước của em' },
   reply: { icon: '💌', subject: 'Em viết thư trả lời anh', title: 'Thư em gửi anh' },
+  coupon: { icon: '🎟️', subject: 'Em vừa dùng một phiếu yêu thương', title: 'Phiếu em muốn dùng' },
 };
 const MAX_LEN = 4000;
 

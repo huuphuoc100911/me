@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Phiếu yêu thương ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Phiếu yêu thương — Gửi Thị Huyền 🎟️">
+  <meta property="og:description" content="Cào ra quà thật — em dùng lúc nào anh cũng chiều 💝">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-8.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/phieu-yeu-thuong.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Những phiếu yêu thương Hữu Phước tặng Thị Huyền 🎟️">
+  <meta name="theme-color" content="#10070f">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,400&family=Inter:wght@400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:   #ff6b8a;
+      --rose2:  #ff4d73;
+      --pink:   #ffb3c6;
+      --gold:   #f5c842;
+      --gold2:  #fde68a;
+      --white:  #fff;
+      --mut:    rgba(255,255,255,0.6);
+      --border: rgba(255,255,255,0.15);
+      --glass:  rgba(26,10,20,0.55);
+      --ink:    #3d1622;
+      --paper:  #fff6e8;
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    html { background-color: #10070f; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 20%, #3a1226 0%, #1a0a14 50%, #07030a 100%) fixed;
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none; -webkit-user-select: none;
+    }
+    button, textarea { font-family: inherit; }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 20;
+      top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none;
+    }
+    .bar > * { pointer-events: auto; }
+    .pill {
+      height: 40px; min-width: 40px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.85);
+      font: 500 0.82rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 40px; padding: 0; font-size: 1rem; }
+
+    /* ── DAU TRANG ──────────────────────────────────────── */
+    .wrap { max-width: 860px; margin: 0 auto; padding: calc(78px + var(--safe-t)) 16px calc(48px + var(--safe-b)); }
+    .hero { text-align: center; }
+    .eyebrow { font-family: 'Dancing Script', cursive; font-size: 1.3rem; color: var(--pink); }
+    h1 {
+      margin-top: 4px;
+      font-family: 'Playfair Display', serif; font-weight: 800; font-size: clamp(2.1rem, 9vw, 3.2rem); line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 45%, var(--rose) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .sub { margin: 12px auto 0; max-width: 30em; font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.75); }
+    .stat {
+      display: inline-flex; gap: 8px; margin-top: 16px; padding: 7px 16px; border-radius: 999px;
+      border: 1px solid rgba(245,200,66,0.35); background: rgba(245,200,66,0.08);
+      font-size: 0.8rem; color: var(--gold2);
+    }
+
+    /* ── XAP PHIEU ──────────────────────────────────────── */
+    .grid { margin-top: 26px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    @media (min-width: 640px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+    @media (min-width: 860px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+    /* Phieu: giay kem, hai ben khoet tron nhu ve that */
+    .cp {
+      position: relative; aspect-ratio: 3 / 4; border: none; cursor: pointer;
+      border-radius: 14px; overflow: hidden; color: var(--ink); text-align: center;
+      background: var(--paper);
+      -webkit-mask: radial-gradient(circle 11px at 0 62%, transparent 98%, #000) left / 51% 100% no-repeat,
+                    radial-gradient(circle 11px at 100% 62%, transparent 98%, #000) right / 51% 100% no-repeat;
+              mask: radial-gradient(circle 11px at 0 62%, transparent 98%, #000) left / 51% 100% no-repeat,
+                    radial-gradient(circle 11px at 100% 62%, transparent 98%, #000) right / 51% 100% no-repeat;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.45);
+      transition: transform 0.25s ease;
+      animation: cpIn 0.7s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .cp:hover { transform: translateY(-3px) rotate(-1deg); }
+    @keyframes cpIn { from { opacity: 0; transform: translateY(18px) scale(0.96); } }
+    .cp-in {
+      position: absolute; inset: 0; padding: 14px 10px 12px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .cp-no { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.2em; color: #b0144a; }
+    .cp-ic { margin-top: 10px; font-size: 2.4rem; line-height: 1; }
+    .cp-title { margin-top: 10px; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.02rem; line-height: 1.2; }
+    .cp-cut { margin-top: auto; width: 100%; border-top: 2px dashed rgba(61,22,34,0.25); padding-top: 8px; font-size: 0.66rem; color: #9a6a74; }
+    /* Lop nhu vang: con chua cao */
+    .cp.sealed .cp-in { visibility: hidden; }
+    .cp.sealed {
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,0.55) 0 2px, transparent 3px) 0 0 / 22px 22px,
+        linear-gradient(135deg, #f8dd7a 0%, #d9a53a 35%, #fbe7a1 55%, #c98f2a 100%);
+    }
+    .cp.sealed::after {
+      content: attr(data-no) '\A✨ Cào để xem';
+      white-space: pre; position: absolute; inset: 0;
+      display: grid; place-items: center; text-align: center;
+      font: 600 0.82rem/1.7 'Inter', sans-serif; color: rgba(70,40,5,0.75);
+    }
+    .cp.used::before {             /* con dau dong o khoang trong phia duoi, khong de len chu */
+      content: 'ĐÃ DÙNG ❤️'; position: absolute; z-index: 2; left: 50%; top: 72%;
+      transform: translate(-50%, -50%) rotate(-10deg);
+      padding: 5px 9px; border: 3px solid rgba(214,30,72,0.85); border-radius: 8px;
+      color: rgba(214,30,72,0.9); font: 800 0.74rem/1 'Inter', sans-serif; letter-spacing: 0.06em;
+      white-space: nowrap; background: rgba(255,246,232,0.7);
+    }
+    .big .cp.used::before { top: 70%; font-size: 1.05rem; padding: 7px 14px; }
+    .cp.used .cp-in { opacity: 0.55; }
+
+    /* ── KHUNG CAO (mo to tung phieu) ───────────────────── */
+    .modal {
+      position: fixed; inset: 0; z-index: 30;
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: calc(60px + var(--safe-t)) 18px calc(20px + var(--safe-b));
+      background: rgba(8,3,6,0.88);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      overflow-y: auto;
+    }
+    .modal.show { display: flex; }
+    .close {
+      position: fixed; top: calc(12px + var(--safe-t)); right: 14px; z-index: 31;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--glass); color: #fff; font-size: 1.4rem; cursor: pointer;
+    }
+    .big {
+      position: relative; width: min(78vw, 300px); aspect-ratio: 3 / 4; flex: none;
+      animation: bigIn 0.5s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes bigIn { from { opacity: 0; transform: scale(0.9) rotate(-3deg); } }
+    .big .cp { position: absolute; inset: 0; width: 100%; height: auto; cursor: default; animation: none; }
+    .big .cp:hover { transform: none; }
+    .big .cp-in { padding: 22px 16px 16px; }
+    .big .cp-no { font-size: 0.72rem; }
+    .big .cp-ic { margin-top: 16px; font-size: 3.6rem; }
+    .big .cp-title { font-size: 1.45rem; }
+    .big .cp-note { margin-top: 10px; font-size: 0.9rem; line-height: 1.5; color: #5a2a36; }
+    .big .cp-cut { font-size: 0.72rem; }
+    .foil {
+      position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3;
+      -webkit-mask: radial-gradient(circle 11px at 0 62%, transparent 98%, #000) left / 51% 100% no-repeat,
+                    radial-gradient(circle 11px at 100% 62%, transparent 98%, #000) right / 51% 100% no-repeat;
+              mask: radial-gradient(circle 11px at 0 62%, transparent 98%, #000) left / 51% 100% no-repeat,
+                    radial-gradient(circle 11px at 100% 62%, transparent 98%, #000) right / 51% 100% no-repeat;
+      border-radius: 14px; touch-action: none; cursor: grab;
+      transition: opacity 0.8s ease;
+    }
+    .foil.done { opacity: 0; pointer-events: none; }
+    .hint { font-size: 0.86rem; color: rgba(255,255,255,0.75); text-align: center; min-height: 1.3em; }
+    .actions { width: min(86vw, 340px); display: flex; flex-direction: column; gap: 10px; }
+    .actions[hidden] { display: none; }
+    .actions textarea {
+      width: 100%; min-height: 64px; resize: none; padding: 10px 12px; border-radius: 12px;
+      border: 1px solid var(--border); background: rgba(0,0,0,0.35); color: #fff;
+      font-size: 16px; line-height: 1.4; outline: none; user-select: text; -webkit-user-select: text;
+    }
+    .actions textarea:focus { border-color: var(--gold); }
+    .btn {
+      padding: 13px 18px; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(245,200,66,0.5); background: rgba(245,200,66,0.1);
+      color: var(--gold2); font: 600 0.95rem/1 'Inter', sans-serif;
+    }
+    .btn.solid { border: none; background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; }
+    .btn.armed { background: linear-gradient(135deg, var(--rose), var(--rose2)); color: #fff; }
+    .btn:disabled { opacity: 0.6; cursor: progress; }
+    .msg { min-height: 1.2em; text-align: center; font-size: 0.82rem; color: var(--pink); }
+    .used-note { text-align: center; font-size: 0.88rem; color: var(--pink); }
+
+    .burst { position: fixed; z-index: 40; pointer-events: none; font-size: 1.4rem; }
+    .toast {
+      position: fixed; left: 50%; bottom: calc(26px + var(--safe-b)); z-index: 50;
+      transform: translateX(-50%) translateY(14px); opacity: 0; pointer-events: none;
+      padding: 11px 20px; border-radius: 999px; background: rgba(255,107,138,0.95); color: #fff;
+      font-size: 0.86rem; font-weight: 500; transition: opacity 0.3s, transform 0.3s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (prefers-reduced-motion: reduce) { .cp, .big { animation: none; } }
+  </style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="eyebrow">✦ Quà kỷ niệm 1 năm ✦</div>
+    <h1>Phiếu Yêu Thương</h1>
+    <p class="sub">Mỗi tấm là một lời hứa thật của anh. Em cào ra xem, khi nào muốn dùng thì bấm <b>"Dùng phiếu"</b> — anh nhận được ngay 💌</p>
+    <div class="stat" id="stat"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Phiếu yêu thương">
+  <button class="close" id="close" aria-label="Đóng">×</button>
+  <div class="big" id="big"></div>
+  <div class="hint" id="hint"></div>
+  <div class="actions" id="actions" hidden>
+    <textarea id="note" maxlength="300" placeholder="Nhắn thêm cho anh (không bắt buộc) — vd: tối nay nha 😝"></textarea>
+    <button class="btn solid" id="useBtn" type="button">Dùng phiếu này 💌</button>
+    <button class="btn" id="laterBtn" type="button">Để dành đã</button>
+    <div class="msg" id="msg" aria-live="polite"></div>
+  </div>
+  <div class="used-note" id="usedNote" hidden></div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script src="js/love-music.js"></script>
+<script>
+(() => {
+  'use strict';
+  const PLAYLIST = LoveMusic.shuffled();       // moi lan mo trang mot thu tu ngau nhien (js/love-music.js)
+
+  // ★ Danh sach phieu — sua / them / bot thoai mai. `id` dung de may nho phieu nao
+  //   da cao / da dung: dat moi phieu mot id rieng, sua chu thi giu nguyen id.
+  const COUPONS = [
+    { id: 'tra-sua',   icon: '🧋', title: 'Một ly trà sữa',          note: 'Anh bao, em chọn quán, size to nhất, thêm topping tùy thích.' },
+    { id: 'an-ngon',   icon: '🍜', title: 'Một bữa ăn ngon',         note: 'Em thèm món gì, anh chở đi ăn món đó.' },
+    { id: 'xem-phim',  icon: '🎬', title: 'Một buổi xem phim',       note: 'Em chọn phim, anh mua vé và bắp nước.' },
+    { id: 'cong-chua', icon: '👑', title: 'Một ngày làm công chúa',  note: 'Cả ngày hôm đó anh nghe lời em vô điều kiện.' },
+    { id: 'anh-nau',   icon: '🍳', title: 'Một bữa anh nấu',         note: 'Anh vào bếp, em chỉ việc ngồi ăn và khen.' },
+    { id: 'di-choi',   icon: '🛵', title: 'Một chuyến đi chơi',      note: 'Em chọn chỗ, anh chở em đi tới nơi.' },
+    { id: 'mat-xa',    icon: '💆‍♀️', title: 'Một lần đấm lưng',       note: '15 phút anh đấm lưng bóp vai cho em.' },
+    { id: 'chup-hinh', icon: '📸', title: 'Một buổi chụp hình',      note: 'Anh làm thợ chụp, chụp tới khi em ưng thì thôi.' },
+    { id: 'lam-lanh',  icon: '🕊️', title: 'Một lần làm lành',        note: 'Đưa phiếu này ra là anh xin lỗi trước, không cãi.' },
+    { id: 'uoc',       icon: '🎁', title: 'Một điều ước',            note: 'Em ước một điều, anh cố hết sức làm được.' },
+  ];
+  const STORE_KEY = 'phieu-yeu-thuong';
+  const DONE_AT = 0.5;           // cao duoc bao nhieu phan lop nhu thi tu mo het
+
+  const $ = (id) => document.getElementById(id);
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const fmtDate = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── LUU TREN MAY ─────────────────────────────────────────────
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch (e) { state = {}; }
+  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} };
+  const st = (id) => (state[id] = state[id] || {});
+
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ── XAP PHIEU ────────────────────────────────────────────────
+  const noOf = (i) => `PHIẾU #${pad2(i + 1)}`;
+  function couponHTML(c, i, big) {
+    return `<div class="cp-in">
+      <div class="cp-no">${noOf(i)}</div>
+      <div class="cp-ic">${c.icon}</div>
+      <div class="cp-title"></div>
+      ${big ? '<div class="cp-note"></div>' : ''}
+      <div class="cp-cut">${big ? 'Hạn dùng: mãi mãi · Người tặng: Hữu Phước' : 'Hạn dùng: mãi mãi'}</div>
+    </div>`;
+  }
+  function fillText(el, c) {
+    el.querySelector('.cp-title').textContent = c.title;
+    const n = el.querySelector('.cp-note'); if (n) n.textContent = c.note;
+  }
+  function renderGrid() {
+    const grid = $('grid');
+    grid.innerHTML = '';
+    COUPONS.forEach((c, i) => {
+      const s = state[c.id] || {};
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'cp' + (s.r ? '' : ' sealed') + (s.u ? ' used' : '');
+      el.dataset.no = noOf(i);
+      el.style.animationDelay = `${i * 0.05}s`;
+      el.setAttribute('aria-label', s.r ? `${noOf(i)}: ${c.title}` : `${noOf(i)}: chưa cào`);
+      el.innerHTML = couponHTML(c, i, false);
+      fillText(el, c);
+      el.addEventListener('click', () => openCoupon(i));
+      grid.appendChild(el);
+    });
+    const r = COUPONS.filter((c) => (state[c.id] || {}).r).length;
+    const u = COUPONS.filter((c) => (state[c.id] || {}).u).length;
+    $('stat').textContent = `Đã cào ${r}/${COUPONS.length} · Đã dùng ${u}`;
+  }
+
+  // ── MO 1 PHIEU + CAO ─────────────────────────────────────────
+  let cur = -1, armed = false, sending = false;
+  const modal = $('modal'), big = $('big');
+
+  function openCoupon(i) {
+    cur = i; armed = false;
+    const c = COUPONS[i], s = st(c.id);
+    big.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = 'cp' + (s.u ? ' used' : '');
+    card.innerHTML = couponHTML(c, i, true);
+    fillText(card, c);
+    big.appendChild(card);
+    $('note').value = '';
+    $('msg').textContent = '';
+    $('useBtn').textContent = 'Dùng phiếu này 💌';
+    $('useBtn').classList.remove('armed');
+    modal.classList.add('show');
+    document.documentElement.style.overflow = 'hidden';
+    if (s.r) afterReveal(false);
+    else {
+      $('actions').hidden = true; $('usedNote').hidden = true;
+      $('hint').textContent = 'Dùng ngón tay cào lớp nhũ vàng nhé ✨';
+      makeFoil(i);
+    }
+  }
+  function closeCoupon() {
+    modal.classList.remove('show');
+    document.documentElement.style.overflow = '';
+    cur = -1;
+    renderGrid();
+  }
+  $('close').addEventListener('click', closeCoupon);
+  $('laterBtn').addEventListener('click', closeCoupon);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeCoupon(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('show')) closeCoupon(); });
+
+  function afterReveal(fresh) {
+    const c = COUPONS[cur], s = st(c.id);
+    $('hint').textContent = fresh ? 'Yeee! Phiếu này là của em 💝' : '';
+    if (s.u) {
+      $('actions').hidden = true;
+      $('usedNote').hidden = false;
+      $('usedNote').textContent = `Em đã dùng phiếu này ngày ${fmtDate(new Date(s.u))} 💕`;
+    } else {
+      $('usedNote').hidden = true;
+      $('actions').hidden = false;
+    }
+  }
+
+  function makeFoil(i) {
+    const cv = document.createElement('canvas');
+    cv.className = 'foil';
+    big.appendChild(cv);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = big.clientWidth, H = big.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    // nhu vang: nen chuyen mau + hat lap lanh + chu
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#f8dd7a'); g.addColorStop(0.35, '#d9a53a'); g.addColorStop(0.55, '#fbe7a1'); g.addColorStop(1, '#c98f2a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    for (let k = 0; k < 260; k++) {
+      ctx.fillStyle = `rgba(255,255,255,${(Math.random() * 0.5 + 0.15).toFixed(2)})`;
+      ctx.beginPath(); ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 1.6 + 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(70,40,5,0.72)';
+    ctx.textAlign = 'center';
+    ctx.font = '600 13px Inter, sans-serif';
+    ctx.fillText(noOf(i), W / 2, H * 0.36);
+    ctx.font = '700 22px "Playfair Display", serif';
+    ctx.fillText('Cào ở đây ✨', W / 2, H * 0.5);
+    ctx.font = '500 12px Inter, sans-serif';
+    ctx.fillText('một lời hứa của anh đang nằm bên dưới', W / 2, H * 0.58);
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(34, W * 0.13);
+    let down = false, last = null, moves = 0, finished = false;
+    const pt = (e) => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const scratch = (p) => {
+      ctx.beginPath();
+      if (last) { ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+      else { ctx.arc(p.x, p.y, ctx.lineWidth / 2, 0, Math.PI * 2); ctx.fill(); }
+      last = p;
+      if (++moves % 8 === 0) check();
+    };
+    const check = () => {
+      if (finished) return;
+      const step = 8 * dpr;
+      const data = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      let clear = 0, total = 0;
+      for (let y = 0; y < cv.height; y += step) for (let x = 0; x < cv.width; x += step) {
+        total++;
+        if (data[(Math.floor(y) * cv.width + Math.floor(x)) * 4 + 3] < 40) clear++;
+      }
+      if (clear / total >= DONE_AT) finish();
+    };
+    const finish = () => {
+      finished = true;
+      cv.classList.add('done');
+      setTimeout(() => cv.remove(), 900);
+      const c = COUPONS[i];
+      st(c.id).r = 1; save();
+      if (navigator.vibrate) navigator.vibrate(30);
+      burst();
+      afterReveal(true);
+    };
+    cv.addEventListener('pointerdown', (e) => { down = true; last = null; cv.setPointerCapture(e.pointerId); scratch(pt(e)); });
+    cv.addEventListener('pointermove', (e) => { if (down) scratch(pt(e)); });
+    const up = () => { if (!down) return; down = false; last = null; check(); };
+    cv.addEventListener('pointerup', up);
+    cv.addEventListener('pointercancel', up);
+  }
+
+  function burst() {
+    if (reduceMotion) return;
+    const r = big.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const EMO = ['💖', '💕', '✨', '💝', '🎉', '💗'];
+    for (let k = 0; k < 22; k++) {
+      const el = document.createElement('div');
+      el.className = 'burst';
+      el.textContent = EMO[k % EMO.length];
+      el.style.left = `${cx}px`; el.style.top = `${cy}px`;
+      document.body.appendChild(el);
+      const a = Math.random() * Math.PI * 2, d = 90 + Math.random() * 140;
+      el.animate([
+        { transform: 'translate(-50%, -50%) scale(0.4)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(1.1) rotate(${(Math.random() - 0.5) * 120}deg)`, opacity: 0 },
+      ], { duration: 1100 + Math.random() * 500, easing: 'cubic-bezier(.2,.8,.3,1)' }).onfinish = () => el.remove();
+    }
+  }
+
+  // ── DUNG PHIEU -> GUI MAIL CHO ANH ───────────────────────────
+  // Bam 1 lan de "len co", bam lan nua moi gui — tranh lo tay.
+  $('useBtn').addEventListener('click', async () => {
+    if (cur < 0 || sending) return;
+    const c = COUPONS[cur], i = cur, btn = $('useBtn');
+    if (!armed) {
+      armed = true;
+      btn.textContent = 'Chắc chưa? Bấm lần nữa để gửi anh 💌';
+      btn.classList.add('armed');
+      return;
+    }
+    sending = true; btn.disabled = true;
+    $('msg').textContent = 'Đang gửi cho anh…';
+    const note = $('note').value.trim();
+    const text = `${c.icon} ${c.title}\n${c.note}\n\n${noOf(i)} — em muốn dùng phiếu này 💕` + (note ? `\n\nEm nhắn: ${note}` : '');
+    let ok = false;
+    try {
+      const r = await fetch('api/notify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'coupon', text }),
+      });
+      ok = r.ok;
+    } catch (e) {}
+    sending = false; btn.disabled = false;
+    if (!ok) {
+      $('msg').textContent = 'Chưa gửi được (mạng yếu?) — em bấm lại nha 🥺';
+      return;
+    }
+    st(c.id).u = new Date().toISOString(); save();
+    const card = big.querySelector('.cp'); if (card) card.classList.add('used');
+    burst();
+    afterReveal(false);
+    toast('Anh nhận được rồi nha 💕');
+  });
+
+  renderGrid();
+
+  // ── NHAC ─────────────────────────────────────────────────────
+  const musicEl = $('music');
+  let track = 0, musicOn = false;
+  const audio = new Audio(PLAYLIST[0]);
+  audio.preload = 'auto';
+  // Doi bai tren CUNG mot phan tu audio: iPhone chi cho phat tiep khong can cham
+  audio.addEventListener('ended', () => {
+    track = (track + 1) % PLAYLIST.length;
+    audio.src = PLAYLIST[track];
+    if (musicOn) audio.play().catch(() => {});
+  });
+  function setMusic(on) {
+    musicOn = on;
+    musicEl.textContent = on ? '🔊' : '🎵';
+    if (!on) { audio.pause(); return; }
+    audio.volume = 0;
+    audio.play().catch(() => setMusic(false));
+    const t0 = performance.now();
+    const fade = (t) => {
+      const p = clamp01((t - t0) / 3000);
+      audio.volume = 0.5 * p;
+      if (p < 1 && musicOn) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  }
+  musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // Bam the tren trang love (cung web) -> Chrome cho phat tieng ngay; bi chan (iPhone,
+  // mo thang link) thi bat o lan cham dau tien
+  setMusic(true);
+  const unlock = (e) => {
+    ['touchend', 'click', 'keydown'].forEach((ev) => document.removeEventListener(ev, unlock, true));
+    if (e.target instanceof Element && e.target.closest('#music')) return;   // nut nhac tu xu ly
+    if (!musicOn || audio.paused) setMusic(true);
+  };
+  ['touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, unlock, true));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (musicOn) audio.pause(); }
+    else if (musicOn) audio.play().catch(() => {});
+  });
+})();
+</script>
+</body>
+</html>
