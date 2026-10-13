@@ -21,7 +21,7 @@
    * Su kien truoc ngay yeu nhau van hien, chi su kien lap lai moi bat dau tu START.
    */
   const PERSONAL = [
-    { icon: '🩸', name: 'Lần đầu cùng nhau đi hiến máu', d: '2025-08-03', tag: 'hien-mau' },
+    { icon: '🩸', name: 'Lần đầu cùng nhau đi hiến máu', d: '2025-08-24', tag: 'hien-mau' },
     { icon: '💘', name: 'Ngày đầu yêu nhau',              d: '2025-10-18' },
     { icon: '🎂', name: 'Sinh nhật em — Thị Huyền 🎉',    d: '2025-10-23', yearly: true },
     { icon: '🎂', name: 'Sinh nhật anh — Hữu Phước 🎉',   d: '2025-10-09', yearly: true },

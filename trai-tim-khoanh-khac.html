@@ -763,7 +763,7 @@
   const viewerEl = $('viewer'), vwStage = $('vwStage');
   let vwIndex = 0;
 
-  // Anh dat ten theo ngay (03-08-25.jpg, 100 day.jpg...) -> "🩸 Ten moc · 03/08/2025"
+  // Anh dat ten theo ngay (24-08-25.jpg, 100 day.jpg...) -> "🩸 Ten moc · 24/08/2025"
   const msByDay = {};
   Milestones.build().forEach((m) => (msByDay[m.key] = msByDay[m.key] || []).push(m));
   function captionOf(m) {

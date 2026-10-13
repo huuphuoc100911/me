@@ -43,10 +43,10 @@ function ymd(y, m, d) {
 
 /**
  * Ngay cua anh doc tu ten file — cac trang lay ngay nay de gan anh vao dung moc:
- *   03-08-25.jpg, 06-09-2026.jpg, 2026-09-06.jpg   -> dung ngay do
+ *   24-08-25.jpg, 06-09-2026.jpg, 2026-09-06.jpg   -> dung ngay do
  *   100 day.jpg, 200.jpg, 300day.mp4, 400-ngay.jpg -> moc 100, 200, 300, 400 ngay
  *   tet-am-lich-2026.mp4, tet-2027.jpg             -> mung 1 Tet nam do
- * Them chu phia sau van nhan (03-08-25 (2).jpg, 06-09-26-hien-mau.jpg) de mot
+ * Them chu phia sau van nhan (24-08-25 (2).jpg, 06-09-26-hien-mau.jpg) de mot
  * ngay co nhieu tam. Ten khac (hello.jpg, love-1.jpg...) thi khong co ngay.
  */
 function dateFromName(file) {

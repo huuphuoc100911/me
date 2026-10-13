@@ -1005,7 +1005,7 @@
     }
     .milestone.reached .ms-badge { background: rgba(245,200,66,0.2); color: var(--gold2); border-color: rgba(245,200,66,0.3); }
 
-    /* Anh dat ten theo ngay (03-08-25.jpg, 100 day.jpg...) tu hien o moc, o lich va khi mo anh */
+    /* Anh dat ten theo ngay (24-08-25.jpg, 100 day.jpg...) tu hien o moc, o lich va khi mo anh */
     .ms-thumb {
       position: relative; flex-shrink: 0;
       width: 48px; height: 48px; padding: 0;
@@ -2654,7 +2654,7 @@ fetch(MEDIA_DIR + 'images.json')
   });
 
 // ── ANH THEO NGAY ────────────────────────────────────────────────────────────
-// Dat ten file theo ngay (03-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi
+// Dat ten file theo ngay (24-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi
 // chay `npm run gallery` -> anh tu hien canh moc cung ngay, trong lich ky niem
 // va ghi ngay + ten moc khi mo to. Quy tac dat ten xem tools/gallery.js.
 function mediaThumb(m) {
@@ -2685,7 +2685,7 @@ function attachDatedMedia(list) {
   if (selKey) showDay(selKey); else renderCalendar();
 }
 
-/** "🩸 Lần đầu cùng nhau đi hiến máu · 03/08/2025" — anh khong co ngay thi an */
+/** "🩸 Lần đầu cùng nhau đi hiến máu · 24/08/2025" — anh khong co ngay thi an */
 function mediaCaption(m) {
   if (!m.d) return '';
   const [y, mo, d] = m.d.split('-').map(Number);

@@ -525,7 +525,7 @@
   const MEDIA_DIR = 'images/love/';
   // ★ Anh nen cho cac man — doi ten file trong images/love/ tuy y.
   //   Ten nao khong con trong thu vien thi tu lay tam mot tam khac.
-  //   Anh dat ten theo ngay (03-08-25.jpg, 100 day.jpg...) thi tu hien o dung moc.
+  //   Anh dat ten theo ngay (24-08-25.jpg, 100 day.jpg...) thi tu hien o dung moc.
   const PHOTOS = {
     open:  'love-6.jpg',                                   // man mo dau
     first: '2aOboR0f3nAI3WoyIAfjA7pk7Q8TEen6Sqo5qLse.jpg', // "moi chuyen bat dau vao..."
@@ -935,9 +935,11 @@
     const hm = donations[0];
     if (hm) {
       const d = new Date(hm.ts);
-      const swap = new Date(d.getFullYear(), d.getDate() - 1, d.getMonth() + 1);   // dao ngay <-> thang cho kho
+      const alt = d.getDate() <= 12                                                 // dao ngay <-> thang cho kho;
+        ? new Date(d.getFullYear(), d.getDate() - 1, d.getMonth() + 1)             // ngay > 12 khong dao duoc
+        : new Date(d.getFullYear(), d.getMonth(), d.getDate() - 7);                // thi lui 1 tuan
       const next = new Date(d.getFullYear(), d.getMonth() + 1, d.getDate());
-      out.push({ q: 'Lần đầu mình cùng nhau đi hiến máu là ngày nào?', a: fmtVN(d), wrong: [fmtVN(swap), fmtVN(next)].filter((t) => t !== fmtVN(d)) });
+      out.push({ q: 'Lần đầu mình cùng nhau đi hiến máu là ngày nào?', a: fmtVN(d), wrong: [fmtVN(alt), fmtVN(next)].filter((t) => t !== fmtVN(d)) });
     }
     if (N >= 30) {
       const f = (n) => `${n.toLocaleString('vi-VN')} ngày`;
