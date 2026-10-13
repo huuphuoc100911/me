@@ -446,10 +446,21 @@
   $('tPrice').textContent = FILM.price;
 
   // ── KICH BAN PHIM ────────────────────────────────────────────
-  // Chuong = cac moc lon (bo moc thang) tu dau toi Ky niem 1 nam. Anh/video dat ten
-  // theo ngay hien ngay sau chuong cung ngay; con lai rai deu vao khoang giua cac
-  // chuong — khoang nao dai ngay hon thi nhieu canh hon.
+  // Phim chay dung THU TU THOI GIAN. Ngay cua tung anh/video lay tu ten file
+  // (tools/gallery.js doc ten roi ghi vao images.json):
+  //   d  — biet dung ngay (09-10-26..., sinhnhatanh, giaothua, le2:9...) -> ngay sau
+  //        chuong cung ngay, hoac giua 2 chuong neu ngay do khong phai moc
+  //   s  — chi biet thang (thang4-2026, cuoinam2025, muadong2025) -> thang co chuong
+  //        (12/2025 co Giang Sinh) thi xem sau chuong do, khong thi dat giua thang
+  // Cung mot luc: anh truoc, video sau, roi theo ten file. File chua co ngay gom
+  // vao doan "nhung ngay binh thuong" ngay truoc chuong cuoi.
   let scenes = [], totalMs = 0, photos = [];
+
+  // Hai video giong het nhau (cung mot clip luu 2 lan, fp = van tay anh dai dien)
+  // -> chieu 1 lan, giu ban co ngay
+  const sameClip = (a, b) => a.t === 'vid' && b.t === 'vid' && a.fp && b.fp && a.w === b.w && a.h === b.h &&
+    [...a.fp].reduce((n, ch, i) => n + popcnt(parseInt(ch, 16) ^ parseInt(b.fp[i], 16)), 0) <= 3;
+  const popcnt = (x) => (x & 1) + ((x >> 1) & 1) + ((x >> 2) & 1) + ((x >> 3) & 1);
 
   function buildScenes(list) {
     const all = Milestones.build();
@@ -457,54 +468,56 @@
     const chapters = all.filter((m) => m.type !== 'month' && m.ts <= finale.ts);
     const keyTs = (k) => { const [y, mo, d] = k.split('-').map(Number); return new Date(y, mo - 1, d).getTime(); };
 
-    const dated = list.filter((m) => m.d || ATTACH[m.f]).map((m) => ({ m, key: m.d || ATTACH[m.f] }));
-    dated.sort((a, b) => keyTs(a.key) - keyTs(b.key) || (a.m.f < b.m.f ? -1 : 1));
-    const undated = list.filter((m) => !m.d && !ATTACH[m.f]);
-    const byName = (a, b) => (a.f < b.f ? -1 : 1);
-    const imgs = undated.filter((m) => m.t === 'img').sort(byName);
-    const vids = undated.filter((m) => m.t === 'vid').sort(byName);
-    const mixed = [];                                   // xen ke anh / video cho deu nhip
-    for (let i = 0, j = 0; i < imgs.length || j < vids.length;) {
-      if (j >= vids.length || (i < imgs.length && i / imgs.length <= j / vids.length)) mixed.push(imgs[i++]);
-      else mixed.push(vids[j++]);
-    }
+    const rank = (m) => (m.d || ATTACH[m.f] ? 0 : m.s ? 1 : 2);
+    const uniq = [];
+    [...list].sort((a, b) => rank(a) - rank(b)).forEach((m) => { if (!uniq.some((u) => sameClip(u, m))) uniq.push(m); });
 
-    // Chia canh cho cac khoang (tu ngay yeu nhau toi truoc chuong cuoi), ty le theo so ngay
-    const gaps = [];
-    for (let i = 0; i < chapters.length - 1; i++) if (chapters[i].ts >= START) gaps.push({ i, w: chapters[i + 1].ts - chapters[i].ts });
-    const wsum = gaps.reduce((s, g) => s + g.w, 0) || 1;
-    gaps.forEach((g) => { g.exact = mixed.length * g.w / wsum; g.n = Math.floor(g.exact); });
-    let left = mixed.length - gaps.reduce((s, g) => s + g.n, 0);
-    [...gaps].sort((a, b) => (b.exact - b.n) - (a.exact - a.n)).forEach((g) => { if (left > 0) { g.n++; left--; } });
-    const fill = {};
-    let cursor = 0;
-    gaps.forEach((g) => { fill[g.i] = mixed.slice(cursor, cursor + g.n); cursor += g.n; });
+    const timed = [], loose = [];
+    uniq.forEach((m) => {
+      const d = m.d || ATTACH[m.f];
+      if (d) return timed.push({ m, ts: keyTs(d), key: d, exact: 1 });
+      if (m.s) {
+        const [y, mo] = m.s.split('-').map(Number);
+        const from = new Date(y, mo - 1, 1).getTime(), to = new Date(y, mo, 1).getTime();
+        const ch = chapters.find((c) => c.ts >= from && c.ts < to);
+        return timed.push({ m, ts: ch ? ch.ts : new Date(y, mo - 1, 15).getTime(), label: m.sl || `Tháng ${mo} · ${y}`, exact: 0 });
+      }
+      loose.push({ m });
+    });
+    const base = (m) => m.f.replace(/\.[^.]+$/, '');
+    const byName = (a, b) => (a.m.t === b.m.t ? 0 : a.m.t === 'img' ? -1 : 1) || base(a.m).localeCompare(base(b.m), 'vi', { numeric: true });
+    timed.sort((a, b) => a.ts - b.ts || b.exact - a.exact || byName(a, b));
+    loose.sort(byName);
 
     const out = [];
     const kb = ['kbA', 'kbB', 'kbC', 'kbD'];
     const media = (m, cap) => out.push(m.t === 'vid'
       ? { type: 'vid', m, cap, ms: CLIP_MS }
       : { type: 'img', m, cap, ms: PHOTO_MS, kb: kb[out.length % kb.length] });
+    const card = (k, ic, t, d) => out.push({ type: 'card', html: `<div class="k">${k}</div><div class="ic">${ic}</div><div class="t">${esc(t)}</div><div class="d">${d}</div>`, ms: CARD_MS });
 
     out.push({ type: 'card', html: `<div class="k">${esc(FILM.studio)}</div><div class="d">trân trọng giới thiệu</div>`, ms: 3200 });
     out.push({ type: 'card', big: true, html: `<div class="k">Một bộ phim</div><div class="t">${esc(FILM.title)}</div><div class="d">${esc(FILM.tagline)}</div>`, ms: 4600 });
 
-    let chapterNo = 0, di = 0;
+    let chapterNo = 0, ti = 0;
     chapters.forEach((c, i) => {
       const isFinale = i === chapters.length - 1;
-      const label = c.ts < START ? 'Mở đầu' : isFinale ? 'Chương cuối' : `Chương ${++chapterNo}`;
-      out.push({ type: 'card', html: `<div class="k">${label}</div><div class="ic">${c.icon}</div><div class="t">${esc(c.name.replace(/\s*[🎉💕]+\s*$/, ''))}</div><div class="d">${c.date}</div>`, ms: CARD_MS });
-      // anh/video dung ngay chuong nay + anh co ngay roi vao truoc chuong sau
-      const nextTs = isFinale ? Infinity : chapters[i + 1].ts;
-      while (di < dated.length && keyTs(dated[di].key) < nextTs) {
-        const { m, key } = dated[di++];
-        media(m, (key === c.key ? `${c.icon} ` : '📅 ') + fmtVN(new Date(keyTs(key))));
+      if (isFinale && loose.length) {
+        card('Xen giữa những mốc ấy', '☕', 'Và cả những ngày bình thường', 'chẳng cần dịp gì đặc biệt');
+        loose.forEach(({ m }) => media(m, ''));
       }
-      (fill[i] || []).forEach((m) => media(m, ''));
+      const label = c.ts < START ? 'Mở đầu' : isFinale ? 'Chương cuối' : `Chương ${++chapterNo}`;
+      card(label, c.icon, c.name.replace(/\s*[🎉💕]+\s*$/, ''), c.date);
+      // anh/video tu ngay chuong nay toi truoc chuong sau
+      const nextTs = isFinale ? Infinity : chapters[i + 1].ts;
+      while (ti < timed.length && timed[ti].ts < nextTs) {
+        const x = timed[ti++];
+        media(x.m, x.exact ? (x.key === c.key ? `${c.icon} ` : '📅 ') + fmtVN(new Date(x.ts)) : `🗓️ ${x.label}`);
+      }
     });
 
     const days = Math.round((finale.ts - START) / DAY);
-    const nImg = list.filter((m) => m.t === 'img').length, nVid = list.length - nImg;
+    const nImg = uniq.filter((m) => m.t === 'img').length, nVid = uniq.length - nImg;
     out.push({ type: 'card', html: `<div class="k">Tổng kết</div><div class="stats">
       <div><b>${days}</b><span>ngày bên nhau</span></div>
       <div><b>${nImg}</b><span>tấm ảnh</span></div>

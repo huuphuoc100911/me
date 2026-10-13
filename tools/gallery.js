@@ -64,7 +64,98 @@ function dateFromName(file) {
     const [d, mo, y] = Lunar.toSolar(1, 1, +m[1]);
     return ymd(y, mo, d);
   }
+  // ngay day du nam giua ten: hienmau06-09-2026.jpg, photobook-07-12-25.jpg
+  if ((m = base.match(/(?:^|\D)(\d{1,2})[-_.](\d{1,2})[-_.](20\d{2}|\d{2})(?!\d)/))) {
+    const d = ymd(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2], +m[1]);
+    if (d) return d;
+  }
+  return eventFromName(file);
+}
+
+/** Ten khong dau, viet lien: "Pháo hoa giao thừa.mp4" -> "phaohoagiaothua" */
+function compactName(file) {
+  return file.replace(/\.[^.]+$/, '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+/** Nam ghi trong ten (2025, 2026...) neu co */
+const yearIn = (s) => { const m = s.match(/20[2-3]\d/); return m ? +m[0] : null; };
+
+/**
+ * Ten ke dip (khong can ngay so) -> dung ngay cua dip do. Khong ghi nam thi lay
+ * lan dau tien tu ngay yeu nhau:
+ *   sinhnhatanh, quasinhnhatanh2.jpg  -> 09/10/2026      sinhnhatem -> 23/10/2025
+ *   giangsinh / noel -> 25/12   nammoi -> 01/01   valentine -> 14/02
+ *   giaothua, phaohoatet -> mung 1 Tet               ngayyeunhau -> 18/10/2025
+ *   hienmaulandau / hienmaulan2 / hienmau2026 -> dung lan di hien mau do
+ *   emhienmau3.jpg (khong ghi nam)             -> lan di hien mau gan nhat
+ *   le2:9 (Finder doi dau / thanh :), ngay7thang12 -> ngay do
+ */
+function eventFromName(file) {
+  const c = compactName(file);
+  const y = yearIn(c);
+  const START = new Date(Milestones.START);
+  // ngay thang/nam dau tien >= ngay yeu nhau (hoac dung nam ghi trong ten)
+  const solar = (mo, d) => {
+    if (y) return ymd(y, mo, d);
+    const first = new Date(START.getFullYear(), mo - 1, d);
+    return Milestones.dayKey(first < START ? new Date(START.getFullYear() + 1, mo - 1, d) : first);
+  };
+  // "lễ 2/9" (Finder luu dau / thanh :), "ngay 7 thang 12" -> dung ngay do
+  const plain = file.replace(/\.[^.]+$/, '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  let m = plain.match(/(?:le|ngay)[\s_-]*(\d{1,2})[\s_-]*(?:[:/.-]|thang)[\s_-]*(\d{1,2})(?!\d)/);
+  if (m && +m[2] >= 1 && +m[2] <= 12) return solar(+m[2], +m[1]);
+  if (/sinhnhatanh|snanh/.test(c)) return solar(10, 9);
+  if (/sinhnhatem|snem/.test(c)) return solar(10, 23);
+  if (/giangsinh|noel|christmas|xmas/.test(c)) return solar(12, 25);
+  if (/val[a-z]{0,3}ntin/.test(c)) return solar(2, 14);   // ca "valientine" go nham
+  if (/giaothua|tet/.test(c)) {
+    let ly = y || START.getFullYear();
+    let [d, mo, sy] = Lunar.toSolar(1, 1, ly);
+    if (!y && new Date(sy, mo - 1, d) < START) [d, mo, sy] = Lunar.toSolar(1, 1, ly + 1);
+    return ymd(sy, mo, d);
+  }
+  if (/nammoi|newyear/.test(c)) return solar(1, 1);
+  if (/(ngaydau|ngay)yeunhau/.test(c)) return Milestones.dayKey(START);
+  if (/hienmau/.test(c)) {
+    const all = Milestones.build().filter((m) => m.tag === 'hien-mau');
+    // khong ghi nam / lan -> lan di hien mau gan nhat (anh moi chup thuong la lan vua roi)
+    const past = all.filter((m) => m.ts <= Date.now());
+    const pick = /landau|lan1(?!\d)|lanmot/.test(c) ? all[0]
+      : /lan2(?!\d)|lanhai/.test(c) ? all[1]
+      : y ? all.find((m) => m.key.startsWith(String(y))) : past[past.length - 1];
+    return pick ? pick.key : null;
+  }
   return null;
+}
+
+/**
+ * Chi biet thang (khong ro ngay) -> { s: '2026-04', sl: 'Tháng 4 · 2026' }.
+ * Trang Rap phim dung de xep phim cho dung thu tu; cac trang khac van coi la
+ * anh chua co ngay.
+ *   xemphimthang4-2026, emdethuongthang42026, chupphotobook1220252 -> thang 4, 4, 12
+ *   cuoinam2025 / daunam2026 / giuanam2026                         -> thang 12, 1, 6
+ *   thang11 (khong ghi nam) -> lan dau tien tu ngay yeu nhau (11/2025)
+ */
+function monthFromName(file) {
+  const c = compactName(file);
+  let m, y, mo, label;
+  if ((m = c.match(/(cuoi|dau|giua)nam(20[2-3]\d)/))) {
+    y = +m[2];
+    mo = { cuoi: 12, dau: 1, giua: 6 }[m[1]];
+    label = `${{ cuoi: 'Cuối', dau: 'Đầu', giua: 'Giữa' }[m[1]]} năm ${y}`;
+  } else if ((m = c.match(/mua(xuan|he|thu|dong)(20[2-3]\d)/))) {
+    y = +m[2];
+    mo = { xuan: 3, he: 6, thu: 9, dong: 12 }[m[1]];
+    label = `Mùa ${{ xuan: 'xuân', he: 'hè', thu: 'thu', dong: 'đông' }[m[1]]} ${y}`;
+  } else if ((m = c.match(/(?:^|[^0-9])(?:thang)?(1[0-2]|0?[1-9])(20[2-3]\d)/))) {
+    mo = +m[1]; y = +m[2];
+  } else if ((m = c.match(/thang(1[0-2]|0?[1-9])(?![0-9])/))) {
+    const START = new Date(Milestones.START);
+    mo = +m[1];
+    y = START.getFullYear() + (mo - 1 < START.getMonth() ? 1 : 0);
+  } else return null;
+  return { s: `${y}-${String(mo).padStart(2, '0')}`, sl: label || `Tháng ${mo} · ${y}` };
 }
 
 /** ffmpeg he thong, khong co thi muon binary cua yt-playlist-mp3 (Mac: darwin_arm64, Linux: linux) */
@@ -120,7 +211,24 @@ async function videoEntry(file, ffmpeg) {
     const m = await sharp(thumb).metadata();
     w = m.width; h = m.height;
   }
-  return { f: file, t: 'vid', w, h, thumb: fs.existsSync(thumb) ? path.basename(thumb) : null };
+  const entry = { f: file, t: 'vid', w, h, thumb: fs.existsSync(thumb) ? path.basename(thumb) : null };
+  if (entry.thumb) entry.fp = await fingerprint(thumb);
+  return entry;
+}
+
+/**
+ * "Dau van tay" 64 bit cua anh dai dien (dHash): cung mot clip luu 2 lan (ten khac,
+ * nen lai khac) van ra gan nhu y het -> trang Rap phim chi chieu 1 lan.
+ */
+async function fingerprint(file) {
+  const px = await sharp(file).grayscale().resize(9, 8, { fit: 'fill' }).raw().toBuffer();
+  let hex = '';
+  for (let y = 0; y < 8; y++) {
+    let byte = 0;
+    for (let x = 0; x < 8; x++) byte = (byte << 1) | (px[y * 9 + x] > px[y * 9 + x + 1] ? 1 : 0);
+    hex += byte.toString(16).padStart(2, '0');
+  }
+  return hex;
 }
 
 async function main() {
@@ -139,6 +247,7 @@ async function main() {
     if (fs.readdirSync(THUMBS).length > before) made++;
     const d = dateFromName(file);
     if (d) entry.d = d;
+    else Object.assign(entry, monthFromName(file));
     entries.push(entry);
     process.stdout.write(`\r  ${entries.length}/${files.length} ${file.slice(0, 44).padEnd(46)}`);
   }
@@ -168,7 +277,12 @@ async function main() {
   if (stale.length) console.log(`  Xoa ${stale.length} ban thu nho khong con file goc`);
   const dated = entries.filter((e) => e.d);
   if (dated.length) console.log(`  Co ngay: ${dated.map((e) => `${e.f} -> ${e.d}`).join(', ')}`);
+  const monthly = entries.filter((e) => e.s);
+  if (monthly.length) console.log(`  Biet thang: ${monthly.map((e) => `${e.f} -> ${e.sl}`).join(', ')}`);
+  const none = entries.filter((e) => !e.d && !e.s);
+  if (none.length) console.log(`  Chua co ngay (${none.length}): ${none.map((e) => e.f).join(', ')}`);
   console.log(`  Da ghi ${path.relative(ROOT, MANIFEST)}`);
 }
 
-main().catch((e) => { console.error('\nLoi:', e.message); process.exit(1); });
+if (require.main === module) main().catch((e) => { console.error('\nLoi:', e.message); process.exit(1); });
+module.exports = { dateFromName, monthFromName };
