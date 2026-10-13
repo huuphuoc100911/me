@@ -500,6 +500,14 @@
     out.push({ type: 'card', big: true, html: `<div class="k">Một bộ phim</div><div class="t">${esc(FILM.title)}</div><div class="d">${esc(FILM.tagline)}</div>`, ms: 4600 });
 
     let chapterNo = 0, ti = 0;
+    // anh truoc ca moc dau tien (vd thang 4/2025) -> doan "Ngay ay" truoc chuong Mo dau
+    if (timed.length && timed[0].ts < chapters[0].ts) {
+      card('Ngày ấy', '🌱', 'Khi hai đứa còn chưa là của nhau', 'trước tất cả');
+      while (ti < timed.length && timed[ti].ts < chapters[0].ts) {
+        const x = timed[ti++];
+        media(x.m, x.exact ? '📅 ' + fmtVN(new Date(x.ts)) : `🗓️ ${x.label}`);
+      }
+    }
     chapters.forEach((c, i) => {
       const isFinale = i === chapters.length - 1;
       if (isFinale && loose.length) {
