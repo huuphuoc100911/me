@@ -63,6 +63,21 @@
       gap: 24px;
       transition: opacity 0.8s ease, visibility 0.8s ease;
     }
+    /* Cong mat khau: nam ngay duoi man tai (cung z-index, dung truoc trong HTML) */
+    .gate {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px 18px;
+      background: radial-gradient(ellipse at 50% 40%, #3d1525 0%, #1a0a14 50%, #0d0610 100%);
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+    .gate[hidden] { display: none; }
+    .gate.gate-open { opacity: 0; visibility: hidden; }
+    .gate-box { width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+    .gate-names { font-family: 'Dancing Script', cursive; font-size: 2rem; color: var(--pink); text-align: center; }
+    .gate-names span { font-size: 0.8em; }
+    .gate .gift-lock { margin-top: 0; }
+    html.gate-on, html.gate-on body { overflow: hidden; }
     .loading-screen.hide {
       opacity: 0;
       visibility: hidden;
@@ -1636,6 +1651,12 @@
 <body>
 
 <!-- LOADING SCREEN -->
+<!-- CONG MAT KHAU: man "Dang tai tinh yeu" mo di la thay o nay (xem LOCK_PAGE) -->
+<div class="gate" id="gate" hidden>
+  <div class="gate-box">
+    <div class="gate-names">Thị Huyền <span>❤️</span> Hữu Phước</div>
+  </div>
+</div>
 <div class="loading-screen" id="loadingScreen">
   <div class="loading-heart">💕</div>
   <div class="loading-text">Đang tải tình yêu...</div>
@@ -1702,12 +1723,19 @@
     </a>
   </div>
   <script>
-  // Khoa 4 mon qua. Chi la khoa nhe tren trinh duyet: trong ma chi co ma bam cua
+  // Khoa bang mat khau. Chi la khoa nhe tren trinh duyet: trong ma chi co ma bam cua
   // mat khau (khong lo chu that), mo dung mot lan thi may nho, lan sau khoi go.
   // Doi mat khau: mo trang nay, F12 > Console, go  giftHash('mat-khau-moi')
   // roi dan ket qua vao GIFT_HASH. Go hoa/thuong, co dau hay dau cach deu duoc.
+  //
+  // ★ LOCK_PAGE = true : hoi mat khau ngay sau man "Dang tai tinh yeu", nhap dung moi
+  //                      vao trang; 4 mon qua mo san.
+  //   LOCK_PAGE = false: nhu truoc — trang mo, chi khoa 4 mon qua.
+  // window.loveUnlocked: Promise xong khi da vao duoc trang (man ky niem doi cai nay).
   (() => {
+    const LOCK_PAGE = true;
     const GIFT_HASH = 'cmqzm1mwhu';
+    const KEY = LOCK_PAGE ? 'love-key' : 'gifts-key';
     const WRONG = ['Chưa đúng rồi 🥺 Thử lại nha', 'Sai nữa rồi nè 😝', 'Gần đúng rồi đó… chắc vậy 🙈'];
     const norm = (v) => v.trim().toLowerCase().normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/\s+/g, '');
@@ -1726,23 +1754,52 @@
 
     const lock = document.getElementById('giftLock'), gifts = document.getElementById('gifts');
     const input = document.getElementById('giftPass'), msg = document.getElementById('giftMsg');
+    const gate = document.getElementById('gate');
+    let unlock;
+    window.loveUnlocked = new Promise((r) => { unlock = r; });
+
     const show = (animate) => {
       lock.hidden = true;
       gifts.hidden = false;
       if (animate) gifts.classList.add('gifts-open');
     };
-    try { if (localStorage.getItem('gifts-key') === GIFT_HASH) show(false); } catch (e) {}
+    const openPage = (animate) => {
+      document.documentElement.classList.remove('gate-on');
+      if (!animate) { gate.hidden = true; unlock(false); return; }
+      gate.classList.add('gate-open');                  // mo dan ra
+      setTimeout(() => { gate.hidden = true; }, 700);
+      unlock(true);
+    };
+    let saved = false;
+    try { saved = localStorage.getItem(KEY) === GIFT_HASH; } catch (e) {}
+
+    if (LOCK_PAGE) {
+      show(false);                                      // 4 mon qua mo san
+      if (saved) openPage(false);
+      else {
+        gate.querySelector('.gate-box').appendChild(lock);   // dua o mat khau ra cong vao trang
+        lock.hidden = false;
+        lock.querySelector('.gl-title').textContent = 'Trang này chỉ dành cho em';
+        lock.querySelector('.gl-sub').textContent = 'Nhập mật khẩu để vào nhé 💕';
+        gate.hidden = false;
+        document.documentElement.classList.add('gate-on');
+      }
+    } else {
+      gate.hidden = true;
+      unlock(false);
+      if (saved) show(false);
+    }
 
     let wrong = 0;
     lock.addEventListener('submit', (e) => {
       e.preventDefault();
       if (giftHash(input.value) === GIFT_HASH) {
-        try { localStorage.setItem('gifts-key', GIFT_HASH); } catch (err) {}
+        try { localStorage.setItem(KEY, GIFT_HASH); } catch (err) {}
         input.blur();
         msg.textContent = '';
         document.getElementById('giftLockIc').textContent = '🔓';
         lock.classList.add('opening');
-        setTimeout(() => show(true), 450);
+        setTimeout(() => (LOCK_PAGE ? openPage(true) : show(true)), 450);
         return;
       }
       msg.textContent = input.value.trim() ? WRONG[wrong++ % WRONG.length] : 'Em nhập mật khẩu trước đã nha 💕';
@@ -3409,7 +3466,8 @@ document.getElementById('annivPlay').addEventListener('click', () => { annivHide
       localStorage.setItem('anniv-seen', todayKey);
     } catch {}
   }
-  setTimeout(() => annivShow(ms), xemTruoc ? 300 : 1900);   // doi man hinh tai xong
+  // doi man tai xong — va doi nhap dung mat khau neu trang dang khoa
+  window.loveUnlocked.then((wasLocked) => setTimeout(() => annivShow(ms), xemTruoc ? 300 : wasLocked ? 600 : 1900));
 })();
 
 // ── SCROLL REVEAL ───────────────────────────────────────────────────────────
