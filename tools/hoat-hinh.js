@@ -5,7 +5,8 @@
  *
  *   npm run hoathinh        # -> video/chuyen-cua-chung-minh.mp4
  *
- * Sua loi ke (STORY o dau trang) xong chay lai lenh nay. Cach lam: mo trang bang
+ * Sua loi ke (STORY o dau trang) xong chay lai lenh nay. Video nao co trong STORY thi
+ * tu cat 1 doan 6 giay nho (video/clips/) de chay trong khung anh. Cach lam: mo trang bang
  * Chrome khong giao dien (?xuat), ve tung khung bang renderAt(t), chup lai roi dua
  * thang vao ffmpeg ghep voi nhac phim. Can Google Chrome + ffmpeg (nhu tools/gallery.js).
  */
@@ -17,6 +18,8 @@ const { spawn, execFileSync } = require('child_process');
 const ROOT = path.join(__dirname, '..');
 const PAGE = path.join(ROOT, 'chuyen-cua-chung-minh.html');
 const OUT = path.join(ROOT, 'video', 'chuyen-cua-chung-minh.mp4');
+const CLIPS = path.join(ROOT, 'video', 'clips');
+const CLIP_FROM = 1, CLIP_S = 6;     // bo 1 giay dau, lay 6 giay
 const FPS = 30;
 const CHROME = process.env.CHROME || (process.platform === 'darwin'
   ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : 'google-chrome');
@@ -29,12 +32,36 @@ function findFfmpeg() {
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** Cat doan 6 giay (360px, khong tieng) cho moi video trong STORY — trang web va MP4 deu dung */
+function makeClips(ffmpeg) {
+  const html = fs.readFileSync(PAGE, 'utf8');
+  const story = html.slice(html.indexOf('const STORY'), html.indexOf('const SONG'));
+  const vids = [...new Set([...story.matchAll(/'([^']+\.(?:mp4|mov|webm))'/gi)].map((m) => m[1]))];
+  fs.mkdirSync(CLIPS, { recursive: true });
+  let made = 0;
+  for (const f of vids) {
+    const src = path.join(ROOT, 'images', 'love', f);
+    const out = path.join(CLIPS, f.replace(/\.[^.]+$/, '') + '.mp4');
+    if (!fs.existsSync(src)) { console.warn(`  ! Khong thay images/love/${f}`); continue; }
+    if (fs.existsSync(out) && fs.statSync(out).mtimeMs >= fs.statSync(src).mtimeMs) continue;
+    execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-ss', String(CLIP_FROM), '-i', src, '-t', String(CLIP_S), '-an',
+      '-vf', 'scale=360:-2:flags=lanczos,fps=30', '-c:v', 'libx264', '-preset', 'slow', '-crf', '26', '-g', '15',
+      '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out]);
+    made++;
+  }
+  // doan cat khong con video nao dung -> xoa
+  const keep = new Set(vids.map((f) => f.replace(/\.[^.]+$/, '') + '.mp4'));
+  fs.readdirSync(CLIPS).filter((f) => f.endsWith('.mp4') && !keep.has(f)).forEach((f) => fs.rmSync(path.join(CLIPS, f)));
+  console.log(`  Anh dong tu video: ${vids.length} doan (cat moi ${made})`);
+}
+
 async function main() {
   const ffmpeg = findFfmpeg();
   if (!ffmpeg) throw new Error('khong tim thay ffmpeg');
   // bai nhac lay tu chinh trang (SONG = '...')
   const song = path.join(ROOT, (fs.readFileSync(PAGE, 'utf8').match(/const SONG = '([^']+)'/) || [])[1] || '');
   if (!fs.existsSync(song)) throw new Error('khong thay file nhac ' + song);
+  makeClips(ffmpeg);
 
   const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'hoathinh-'));
   const chrome = spawn(CHROME, ['--headless=new', '--mute-audio', '--hide-scrollbars', '--remote-debugging-port=0',

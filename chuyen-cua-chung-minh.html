@@ -126,8 +126,25 @@
       box-shadow: 0 14px 30px rgba(0,0,0,0.35);
       border-radius: 3px;
     }
-    .pola img { display: block; width: 160px; height: 172px; object-fit: cover; background: #eee; }
+    .pola img, .pola video { display: block; width: 160px; height: 172px; object-fit: cover; background: #eee; }
+    .pola video { background: #111; }
+    .pola.vid img, .pola:not(.vid) video, .pola:not(.vid) .vtag { display: none; }
+    .vtag {                              /* nhan "anh dong" goc anh tu video */
+      position: absolute; left: 15px; top: 15px;
+      width: 26px; height: 26px; border-radius: 50%; padding-left: 2px;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.88); color: #e8456b;
+      font: 700 11px/1 'Inter', sans-serif; font-style: normal;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .pola.sm4 { width: 136px; }
+    .pola.sm4 img, .pola.sm4 video { width: 122px; height: 136px; }
+    .pola.sm .vtag { left: 12px; top: 12px; width: 22px; height: 22px; font-size: 9px; }
     .pola b { position: absolute; left: 0; right: 0; bottom: 7px; text-align: center; font: 700 20px/1 'Dancing Script', cursive; color: #b8325a; }
+    .pola.sm { width: 150px; padding: 7px 7px 26px; }
+    .pola.sm img, .pola.sm video { width: 136px; height: 150px; }
+    .pola.sm b { font-size: 16px; bottom: 5px; }
+    .pola.sm::before { width: 52px; height: 18px; top: -9px; }
     .pola::before {                      /* bang dinh */
       content: ''; position: absolute; top: -12px; left: 50%; width: 70px; height: 24px;
       transform: translateX(-50%) rotate(-3deg);
@@ -192,7 +209,10 @@
 <div class="wrap"><div class="stage" id="stage">
   <div class="dots" id="dots"></div>
   <div class="head" id="head"><span class="chip" id="chip"></span><div class="ttl" id="ttl"></div></div>
-  <div class="pola" id="pola" hidden><img id="polaImg" alt=""><b id="polaCap"></b></div>
+  <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
+  <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
+  <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
+  <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
   <div class="say" id="say"></div>
   <div class="flash" id="flash"></div>
   <div class="veil" id="veil"></div>
@@ -231,34 +251,37 @@
   'use strict';
 
   // ★ LOI KE — sua thoai mai. Sua xong chay `npm run hoathinh` de xuat lai file MP4.
-  //   art: canh ve (xem ART ben duoi) · photo: anh that trong images/love/ (bo trong = khong co anh)
+  //   art: canh ve (xem ART ben duoi)
+  //   photos: anh/video that trong images/love/ (video thi chay 1 doan 6 giay ngay trong khung
+  //   anh — "anh dong", lay tu video/clips/, `npm run hoathinh` tu cat). 1 tam -> polaroid
+  //   to ben phai; 2-4 tam -> xoe hinh quat tren dau hai nhan vat. Bo trong = khong co anh.
   //   dur: so mili giay (bo trong = tu tinh theo do dai loi ke)
   const STORY = [
     { art: 'mo-dau', hero: true, date: '18.10.2025 — 18.10.2026', title: 'Chuyện của\nchúng mình',
       text: 'Ngày xửa ngày xưa, ở thành phố Huế, có một chàng trai và một cô gái…', dur: 7200 },
-    { art: 'hien-mau', date: '24 · 08 · 2025', title: 'Lần đầu đi hiến máu', photo: '24-08-25.jpg',
+    { art: 'hien-mau', date: '24 · 08 · 2025', title: 'Lần đầu đi hiến máu', photos: ['24-08-25.jpg'],
       text: 'Lần đầu tiên hai đứa cùng đi hiến máu. Lúc ấy anh chưa biết, cô gái áo xanh đứng cạnh sẽ là cả thế giới của anh.' },
     { art: 'to-tinh', date: '18 · 10 · 2025', title: 'Ngày đầu yêu nhau',
       text: 'Rồi một ngày, em gật đầu. Từ hôm ấy, “anh” và “em” trở thành “chúng mình”.' },
-    { art: 'sinh-nhat-em', date: '23 · 10 · 2025', title: 'Sinh nhật em', photo: 'anhsinhnhatemvsbanthan.jpg',
+    { art: 'sinh-nhat-em', date: '23 · 10 · 2025', title: 'Sinh nhật em', photos: ['anhsinhnhatemvsbanthan.jpg', '23-10-25-sinhnhatem.mp4'],
       text: 'Mới yêu được năm ngày đã tới sinh nhật em. Ngọn nến đầu tiên anh được cùng em thổi.' },
-    { art: 'giang-sinh', date: '12 · 2025', title: 'Giáng Sinh đầu tiên', photo: 'chupphotobook.jpg',
+    { art: 'giang-sinh', date: '12 · 2025', title: 'Giáng Sinh đầu tiên', photos: ['chupphotobook.jpg', 'chupphotobookthang122025.mp4', 'muadong2025.jpg'],
       text: 'Mùa đông đầu tiên, hai đứa chen nhau vào buồng chụp ảnh, đội mũ ông già Noel và cười không ngớt.' },
-    { art: 'tram-ngay', date: '26 · 01 · 2026', title: 'Tròn 100 ngày', photo: 'thumbs/100days.webp',
+    { art: 'tram-ngay', date: '26 · 01 · 2026', title: 'Tròn 100 ngày', photos: ['100days.mp4'],
       text: '100 ngày — chưa nhiều, nhưng đủ để anh biết anh muốn đi cùng em thật lâu.' },
-    { art: 'valentine', date: '14 · 02 · 2026', title: 'Valentine', photo: 'valentine-anhemratthich.jpg',
+    { art: 'valentine', date: '14 · 02 · 2026', title: 'Valentine', photos: ['valentine-anhemratthich.jpg', 'valentine2.jpg', 'valentine3.jpg', '14-02-26.jpg'],
       text: 'Valentine đầu tiên: một bó hoa, một hộp sô-cô-la chữ LOVE, và nụ cười của em đẹp hơn tất cả.' },
-    { art: 'tet', date: '17 · 02 · 2026', title: 'Tết đầu tiên', photo: 'thumbs/tet-am-lich-2026.webp',
+    { art: 'tet', date: '17 · 02 · 2026', title: 'Tết đầu tiên', photos: ['tet-am-lich-2026.mp4', 'phaohoagiaothua.mp4'],
       text: 'Giao thừa đầu tiên bên nhau. Pháo hoa nở rực trời, còn anh thì chỉ mải nhìn em.' },
-    { art: 'di-choi', date: '04 — 05 · 2026', title: 'Những ngày bình thường', photo: 'dichoithang52026.jpg',
+    { art: 'di-choi', date: '04 — 05 · 2026', title: 'Những ngày bình thường', photos: ['dichoithang52026.jpg', 'anhemditructhang42026.jpg', 'emdethuongthang42026.mp4'],
       text: 'Có những ngày chẳng có dịp gì: đi trực, đi xem phim, đi dạo. Chỉ cần có em bên cạnh là đủ.' },
-    { art: 'le-2-9', date: '02 · 09 · 2026', title: 'Lễ 2/9', photo: 'le2:9:3.jpg',
+    { art: 'le-2-9', date: '02 · 09 · 2026', title: 'Lễ 2/9', photos: ['le2:9:3.jpg', 'le2:9:2.jpg', 'le2:9.jpg'],
       text: 'Lễ 2/9, hai đứa lên đồi thông, ngồi trên cỏ, ngắm trời xanh và kể nhau nghe đủ thứ chuyện.' },
-    { art: 'hien-mau-2', date: '06 · 09 · 2026', title: 'Hiến máu lần 2', photo: 'hienmau-em-10lan-anh-15lan.jpg',
+    { art: 'hien-mau-2', date: '06 · 09 · 2026', title: 'Hiến máu lần 2', photos: ['hienmau-em-10lan-anh-15lan.jpg', 'emhienmau.jpg', 'emhienmau5.jpg', 'hienmau06-09-2026.jpg'],
       text: 'Một năm sau, mình lại cùng nhau đi hiến máu. Em đã 10 lần, anh 15 lần — gửi đi những giọt máu cho người cần.' },
-    { art: 'sinh-nhat-anh', date: '09 · 10 · 2026', title: 'Sinh nhật anh', photo: 'quasinhnhatanh-dacbiet.jpg',
+    { art: 'sinh-nhat-anh', date: '09 · 10 · 2026', title: 'Sinh nhật anh', photos: ['quasinhnhatanh-dacbiet.jpg', 'anhngaysinhnhatanh.jpg', 'emngaysinhnhatanh.jpg', 'xemphimsinhnhatanh.jpg'],
       text: 'Sinh nhật anh, em chuẩn bị bánh kem, gấu bông và cả một buổi xem phim. Nhưng món quà lớn nhất vẫn là em.' },
-    { art: 'ky-niem', date: '18 · 10 · 2026', title: 'Tròn 1 năm', photo: 'aodoidautiencuaanhvsem.jpg',
+    { art: 'ky-niem', date: '18 · 10 · 2026', title: 'Tròn 1 năm', photos: ['aodoidautiencuaanhvsem.jpg'],
       text: 'Tròn một năm. Hai đứa mặc chung áo đôi, và em hiến tóc lần 2 cho các chiến binh K — đúng ngày kỷ niệm.' },
     { art: 'ket', hero: true, date: '365 ngày · và còn nữa', title: 'Anh yêu em',
       text: 'Cảm ơn em vì một năm qua. Năm thứ hai, năm thứ ba, và thật nhiều năm nữa — mình viết tiếp nhé. ❤️', dur: 10500 },
@@ -971,8 +994,10 @@
     svg.appendChild(actors);
     svg.style.opacity = 0; svg.style.visibility = 'hidden';
     stage.insertBefore(svg, $('dots'));
-    const dur = st.dur || Math.max(7000, 3000 + st.text.length * 48);
-    const sc = { ...st, svg, actors, upd, dur, start: T, photoAt: st.photo ? Math.min(dur * 0.42, 3400) : Infinity };
+    const photos = (st.photos || []).slice(0, 4);
+    // moi tam anh them sau tung ~0.7s de kip nhin
+    const dur = st.dur || Math.max(7000, 3000 + st.text.length * 48) + Math.max(0, photos.length - 1) * 700;
+    const sc = { ...st, photos, svg, actors, upd, dur, start: T, photoAt: photos.length ? Math.min(dur * 0.42, 3400) : Infinity };
     T += dur;
     return sc;
   });
@@ -981,13 +1006,44 @@
   const dots = [...$('dots').children];
 
   // anh polaroid: tai truoc, xong het moi bao san sang (MP4 khong bi khung trong)
-  const photoLoads = scenes.filter((s) => s.photo).map((s) => new Promise((ok) => {
-    const im = new Image(); im.onload = im.onerror = () => ok(); im.src = MEDIA + s.photo; s.img = im;
+  // dung anh nho thumbs/ (video cung co): nhe, ma khung polaroid cung chi ~300px
+  const thumbOf = (f) => MEDIA + 'thumbs/' + encodeURIComponent(f.replace(/\.[^.]+$/, '') + '.webp').replace(/%3A/gi, ':');
+  // video -> doan cat ngan (360px, 6 giay, khong tieng) cho nhe
+  const isVid = (f) => /\.(mp4|mov|webm)$/i.test(f);
+  const clipOf = (f) => 'video/clips/' + encodeURIComponent(f.replace(/\.[^.]+$/, '') + '.mp4').replace(/%3A/gi, ':');
+  const CLIP_S = 6;
+  const photoLoads = scenes.flatMap((s) => s.photos).map((f) => new Promise((ok) => {
+    const im = new Image(); im.onload = im.onerror = () => ok(); im.src = thumbOf(f);
+  }));
+  // xuat MP4: tai truoc ca cac doan video
+  const clipLoads = () => scenes.flatMap((s) => s.photos).filter(isVid).map((f) => new Promise((ok) => {
+    const v = document.createElement('video'); v.muted = true; v.preload = 'auto';
+    v.onloadeddata = v.onerror = () => ok(); v.src = clipOf(f);
+    setTimeout(ok, 8000);
   }));
 
   // ── VE KHUNG HINH TAI THOI DIEM t (ms) ───────────────────────
   // Moi thu tinh tu t -> tua di dau cung dung, xuat MP4 tung khung y het luc xem.
-  let shownPola = null, curIdx = -1;
+  let curIdx = -1, livePlay = false;        // livePlay: phim tren web dang chay -> video trong anh chay theo
+  const polas = [...document.querySelectorAll('.pola')];
+  polas.forEach((el) => { const v = el.querySelector('video'); v.muted = true; v.loop = !EXPORT; });
+  // dua video trong khung anh toi dung giay `sec` (tinh tu luc anh bay vao, lap lai)
+  function syncClip(v, sec) {
+    const len = v.duration > 0 && isFinite(v.duration) ? v.duration : CLIP_S;
+    const want = sec % len;
+    const off = Math.abs(v.currentTime - want);
+    if (EXPORT) { if (off > 0.004) try { v.currentTime = want; } catch (e) {} return; }
+    if (!livePlay) { if (!v.paused) v.pause(); if (off > 0.25) try { v.currentTime = want; } catch (e) {} return; }
+    if (v.paused) { try { v.currentTime = want; } catch (e) {} v.play().catch(() => {}); }
+    else if (off > 0.5 && off < len - 0.5) try { v.currentTime = want; } catch (e) {}
+  }
+  // quat anh: vi tri tam (x), do nghieng cho 2 / 3 / 4 tam
+  const FAN = {
+    2: { dx: 176, rot: [-6, 6] },
+    3: { dx: 150, rot: [-8, 2, 9] },
+    4: { dx: 122, rot: [-10, -3, 4, 10] },
+  };
+  const STAGGER = 560;
   function renderAt(t) {
     t = Math.max(0, Math.min(TOTAL - 1, t));
     let i = scenes.findIndex((s) => t < s.start + s.dur);
@@ -1021,17 +1077,35 @@
     say.style.opacity = (sIn * (1 - outP)).toFixed(3);
     say.style.transform = `translateY(${((1 - sIn) * 24).toFixed(1)}px)`;
 
-    // polaroid anh that
-    const pola = $('pola');
-    if (sc.photo && lt >= sc.photoAt) {
-      if (shownPola !== sc) { $('polaImg').src = MEDIA + sc.photo; $('polaCap').textContent = sc.date; shownPola = sc; }
-      pola.hidden = false;
-      const p = seg(lt, sc.photoAt, sc.photoAt + 900);
-      const b = back(p);
-      pola.style.left = '338px'; pola.style.top = (POLA_TOP[sc.art] || 300) + 'px';
-      pola.style.opacity = (Math.min(1, p * 3) * (1 - outP)).toFixed(3);
-      pola.style.transform = `translate(${((1 - b) * 120).toFixed(1)}px,${((1 - b) * -60).toFixed(1)}px) rotate(${lerp(18, 5, b).toFixed(2)}deg)`;
-    } else pola.hidden = true;
+    // anh that dang polaroid: 1 tam to ben phai, nhieu tam xoe quat bay vao lan luot
+    const np = sc.photos.length;
+    polas.forEach((el, k) => {
+      const at = sc.photoAt + k * STAGGER;
+      const v = el.querySelector('video');
+      if (k >= np || lt < at) { el.hidden = true; if (!v.paused) v.pause(); return; }
+      const f = sc.photos[k], vid = isVid(f);
+      if (el.dataset.f !== f) {
+        el.dataset.f = f;
+        if (vid) { v.poster = thumbOf(f); v.src = clipOf(f); }
+        else { el.querySelector('img').src = thumbOf(f); if (v.getAttribute('src')) { v.pause(); v.removeAttribute('src'); v.load(); } }
+        el.querySelector('b').textContent = np === 1 || k === np - 1 ? sc.date : '';
+      }
+      el.hidden = false;
+      el.className = 'pola' + (np > 1 ? ' sm' : '') + (np === 4 ? ' sm4' : '') + (vid ? ' vid' : '');
+      if (vid) syncClip(v, (lt - at) / 1000);
+      const p = seg(lt, at, at + 900), b = back(p);
+      el.style.opacity = (Math.min(1, p * 3) * (1 - outP)).toFixed(3);
+      el.style.zIndex = 4 + k;
+      if (np === 1) {
+        el.style.left = '338px'; el.style.top = (POLA_TOP[sc.art] || 300) + 'px';
+        el.style.transform = `translate(${((1 - b) * 120).toFixed(1)}px,${((1 - b) * -60).toFixed(1)}px) rotate(${lerp(18, 5, b).toFixed(2)}deg)`;
+      } else {
+        const F = FAN[np], off = k - (np - 1) / 2;
+        const cx = 270 + off * F.dx, top = 214 + Math.abs(off) * 16 + Math.sin(lt * 0.002 + k * 1.7) * 2.5;
+        el.style.left = (cx - (np === 4 ? 68 : 75)).toFixed(1) + 'px'; el.style.top = top.toFixed(1) + 'px';
+        el.style.transform = `translate(${((1 - b) * off * 40).toFixed(1)}px,${((1 - b) * -110).toFixed(1)}px) rotate(${(F.rot[k] + (1 - b) * 16 * (off < 0 ? -1 : 1)).toFixed(2)}deg)`;
+      }
+    });
 
     dots.forEach((d, k) => { d.className = k < i ? 'on' : k === i ? 'cur' : ''; });
     // dau phim mo tu den, cuoi phim toi dan
@@ -1040,7 +1114,8 @@
   function drawScene(s, lt) {
     s.upd(lt, s.dur);
     // anh polaroid hien -> nhan vat dich sang trai nhuong cho
-    const sh = s.photo ? eio(seg(lt, s.photoAt - 200, s.photoAt + 700)) * (SHIFT[s.art] || -60) : 0;
+    // (nhieu anh xoe quat phia tren -> khong can dich)
+    const sh = s.photos.length === 1 ? eio(seg(lt, s.photoAt - 200, s.photoAt + 700)) * (SHIFT[s.art] || -60) : 0;
     tf(s.actors, `translate(${sh.toFixed(1)},0)`);
   }
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1059,10 +1134,20 @@
     document.body.classList.add('export');
     window.TOTAL = TOTAL;
     window.SCENES = scenes.map((s) => [s.start, s.dur, s.art]);
-    window.renderAt = renderAt;
+    // cho cac video trong khung anh tua toi dung khung roi moi chup
+    const settle = () => Promise.all(polas.filter((el) => !el.hidden && el.classList.contains('vid')).map((el) => {
+      const v = el.querySelector('video');
+      return new Promise((ok) => {
+        if (v.readyState >= 2 && !v.seeking) return ok();
+        const t = setTimeout(ok, 3000);
+        const h = () => { if (v.readyState >= 2 && !v.seeking) { clearTimeout(t); v.removeEventListener('seeked', h); v.removeEventListener('loadeddata', h); ok(); } };
+        v.addEventListener('seeked', h); v.addEventListener('loadeddata', h);
+      });
+    })).then(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    window.renderAt = (t) => { renderAt(t); return settle(); };
     // nap het font (ke ca font chi dung o canh sau) + anh roi moi bat dau chup
     const FONTS = ['800 40px "Playfair Display"', '700 40px "Dancing Script"', '500 20px Inter', '600 20px Inter', '700 20px Inter'];
-    Promise.all([...FONTS.map((f) => document.fonts.load(f)), document.fonts.ready, ...photoLoads])
+    Promise.all([...FONTS.map((f) => document.fonts.load(f)), document.fonts.ready, ...photoLoads, ...clipLoads()])
       .then(() => { renderAt(0); window.READY = true; });
     return;
   }
@@ -1093,16 +1178,18 @@
     raf = requestAnimationFrame(loop);
   }
   const fmt = (ms) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const stopClips = () => polas.forEach((el) => el.querySelector('video').pause());
   function play(from) {
     at = from == null ? at : from;
-    playing = true; t0 = performance.now() - at;
+    playing = true; livePlay = true; t0 = performance.now() - at;
     $('play').textContent = '⏸';
     if (musicOn) { audio.volume = 0.7; audio.play().catch(() => {}); }
     cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
   }
   function pause() {
     if (!playing) return;
-    at = now(); playing = false;
+    at = now(); playing = false; livePlay = false;
+    stopClips();
     $('play').textContent = '▶';
     audio.pause();
     cancelAnimationFrame(raf);
@@ -1115,8 +1202,9 @@
     try { audio.currentTime = t / 1000; } catch (e) {}
   }
   function finish() {
-    playing = false; cancelAnimationFrame(raf);
+    playing = false; livePlay = false; cancelAnimationFrame(raf);
     renderAt(TOTAL - 1);
+    stopClips();
     audio.pause();
     document.body.classList.remove('playing', 'hud-on');
     $('endCover').classList.remove('gone');
