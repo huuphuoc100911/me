@@ -12,7 +12,7 @@
   <meta property="og:title" content="365 vì sao — Thị Huyền ❤️ Hữu Phước">
   <meta property="og:description" content="Mỗi ngày yêu nhau là một vì sao. Gom lại, thành một trái tim 💫">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/valentine-anhemratthich.jpg">
   <meta property="og:url" content="https://love.personal.io.vn/365-vi-sao.html">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Mỗi ngày Thị Huyền và Hữu Phước bên nhau là một vì sao 💫">
@@ -529,7 +529,7 @@
   const { START, DAY, fmtVN, dayKey } = Milestones;
 
   // ★ Anh/video cho tung moc: dat ten file trong images/love/ theo ngay
-  //   (24-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi chay `npm run gallery`
+  //   (24-08-25.jpg, 100days.mp4, sinhnhatanh.jpg, tet-am-lich-2026.mp4...) roi chay `npm run gallery`
   //   -> moc cung ngay tu lay dung tam do. Moc chua co thi lay mot tam trong thu vien.
   // Bai dau phat ngay khi bat dau; het bai thi sang bai ke, het danh sach thi quay lai bai dau
   const PLAYLIST = LoveMusic.shuffled();       // moi lan mo trang mot thu tu ngau nhien (js/love-music.js)
@@ -1618,19 +1618,30 @@
 
   // ── THE NGAY ─────────────────────────────────────────────────
   const cardEl = $('card'), dcPhoto = $('dcPhoto'), dcVid = $('dcVid'), dcVideo = $('dcVideo'), dcMs = $('dcMs'), dcLine = $('dcLine');
-  let pool = [], mediaByDay = {};
+  let pool = [], mediaByDay = {}, byMonth = {};
+  const shuffle = (a) => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
   fetch('images/love/images.json')
     .then((r) => (r.ok ? r.json() : []))
     .then((list) => {
       list.forEach((m) => { if (m.d) (mediaByDay[m.d] = mediaByDay[m.d] || []).push(m); });
-      // Ngay khong co anh rieng: lay anh/video chua gan ngay (anh co ngay chi hien o
-      // dung moc cua no). Tron mot lan moi lan mo trang -> ngay lien nhau khong trung,
-      // bam lai cung mot sao van ra dung tam cu.
-      pool = list.filter((m) => !m.d);
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
+      // Ngay khong co anh rieng: uu tien anh/video CUNG THANG (thang 10 hien anh sinh
+      // nhat anh, thang 9 anh hien mau...) — tru tam dau cua moi ngay, de danh cho
+      // chinh ngoi sao do. Thang khong co thi lay anh chua ro ngay / chi biet thang.
+      // Tron mot lan moi lan mo trang -> ngay lien nhau khong trung, bam lai cung
+      // mot sao van ra dung tam cu.
+      const heads = new Set(Object.values(mediaByDay).map((a) => a[0]));
+      list.forEach((m) => {
+        const ym = (m.d || m.s || '').slice(0, 7);
+        if (ym && !heads.has(m)) (byMonth[ym] = byMonth[ym] || []).push(m);
+      });
+      Object.values(byMonth).forEach(shuffle);
+      pool = shuffle(list.filter((m) => !m.d));
       warmThumbs([...list.filter((m) => m.d), ...pool]);
     })
     .catch(() => {});
@@ -1656,6 +1667,8 @@
 
   function mediaFor(s) {
     if (mediaByDay[s.key]) return mediaByDay[s.key][0];
+    const mon = byMonth[s.key.slice(0, 7)];
+    if (mon && mon.length >= 2) return mon[s.dt.getDate() % mon.length];   // 1 tam thi ca thang lap lai — bo
     return pool.length ? pool[s.i % pool.length] : null;
   }
 

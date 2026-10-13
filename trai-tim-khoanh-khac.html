@@ -12,7 +12,7 @@
   <meta property="og:title" content="Trái tim khoảnh khắc — Thị Huyền ❤️ Hữu Phước">
   <meta property="og:description" content="Những khoảnh khắc của chúng mình, ghép lại thành một trái tim 💗">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/valentine-anhemratthich.jpg">
   <meta property="og:url" content="https://love.personal.io.vn/trai-tim-khoanh-khac.html">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Những khoảnh khắc của Thị Huyền và Hữu Phước, ghép lại thành một trái tim 💗">
@@ -763,11 +763,11 @@
   const viewerEl = $('viewer'), vwStage = $('vwStage');
   let vwIndex = 0;
 
-  // Anh dat ten theo ngay (24-08-25.jpg, 100 day.jpg...) -> "🩸 Ten moc · 24/08/2025"
+  // Anh dat ten theo ngay (24-08-25.jpg, 100days.mp4, sinhnhatanh.jpg...) -> "🩸 Ten moc · 24/08/2025"
   const msByDay = {};
   Milestones.build().forEach((m) => (msByDay[m.key] = msByDay[m.key] || []).push(m));
   function captionOf(m) {
-    if (!m.d) return '';
+    if (!m.d) return m.sl ? '🗓️ ' + m.sl : '';
     const [y, mo, d] = m.d.split('-').map(Number);
     const evs = (msByDay[m.d] || []).map((e) => `${e.icon} ${e.name}`);
     return [...evs, (evs.length ? '' : '📅 ') + fmtVN(new Date(y, mo - 1, d))].join(' · ');
@@ -887,7 +887,7 @@
       const [y, mo, d] = m.d.split('-');
       date = `${d} · ${mo} · ${y}`;
       ms = (msByDay[m.d] || []).map((e) => `${e.icon} ${e.name}`).join('<br>');
-    }
+    } else if (m.sl) date = m.sl;                       // chi biet thang (thang4-2026.jpg)
     return `<div class="fb-no">Khoảnh khắc ${k + 1} / ${media.length}</div>
       <div class="fb-date">${date}</div>
       ${ms ? `<div class="fb-ms">${ms}</div>` : ''}

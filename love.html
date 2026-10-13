@@ -15,7 +15,7 @@
   <meta property="og:title" content="Thị Huyền ❤️ Hữu Phước — Tình yêu của chúng mình">
   <meta property="og:description" content="Bên nhau từ 18/10/2025 · Mỗi ngày yêu thương, ngàn năm hạnh phúc 💕">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://love.personal.io.vn/images/love/love-1.jpg">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/valentine-anhemratthich.jpg">
   <meta property="og:url" content="https://love.personal.io.vn/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Trang kỷ niệm tình yêu của Thị Huyền và Hữu Phước 💕">
@@ -1019,7 +1019,7 @@
     }
     .milestone.reached .ms-badge { background: rgba(245,200,66,0.2); color: var(--gold2); border-color: rgba(245,200,66,0.3); }
 
-    /* Anh dat ten theo ngay (24-08-25.jpg, 100 day.jpg...) tu hien o moc, o lich va khi mo anh */
+    /* Anh dat ten theo ngay (24-08-25.jpg, 100days.mp4, sinhnhatanh.jpg...) tu hien o moc, o lich va khi mo anh */
     .ms-thumb {
       position: relative; flex-shrink: 0;
       width: 48px; height: 48px; padding: 0;
@@ -2773,7 +2773,7 @@ fetch(MEDIA_DIR + 'images.json')
   });
 
 // ── ANH THEO NGAY ────────────────────────────────────────────────────────────
-// Dat ten file theo ngay (24-08-25.jpg, 100 day.jpg, tet-am-lich-2026.mp4...) roi
+// Dat ten file theo ngay (24-08-25.jpg, 100days.mp4, sinhnhatanh.jpg, tet-am-lich-2026.mp4...) roi
 // chay `npm run gallery` -> anh tu hien canh moc cung ngay, trong lich ky niem
 // va ghi ngay + ten moc khi mo to. Quy tac dat ten xem tools/gallery.js.
 function mediaThumb(m) {
@@ -2804,9 +2804,9 @@ function attachDatedMedia(list) {
   if (selKey) showDay(selKey); else renderCalendar();
 }
 
-/** "🩸 Lần đầu cùng nhau đi hiến máu · 24/08/2025" — anh khong co ngay thi an */
+/** "🩸 Lần đầu cùng nhau đi hiến máu · 24/08/2025" — chi biet thang: "🗓️ Tháng 4 · 2026" */
 function mediaCaption(m) {
-  if (!m.d) return '';
+  if (!m.d) return m.sl ? '🗓️ ' + m.sl : '';
   const [y, mo, d] = m.d.split('-').map(Number);
   const evs = (msByDay[m.d] || []).map(e => `${e.icon} ${e.name}`);
   return [...evs, (evs.length ? '' : '📅 ') + fmtVN(new Date(y, mo - 1, d))].join(' · ');
