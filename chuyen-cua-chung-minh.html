@@ -194,6 +194,8 @@
     .hud .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ff6b8a, #fde68a); }
     .hud .time { font: 500 0.72rem/1 'Inter'; color: rgba(255,255,255,0.75); min-width: 74px; text-align: right; font-variant-numeric: tabular-nums; }
     .export .bar, .export .hud, .export .cover { display: none !important; }
+    /* ?xuat&tranh: chi lay hinh ve + anh cho truyen tranh in (tools/truyen-tranh.js) */
+    .bare .head, .bare .say, .bare .dots, .bare .veil, .bare .flash { display: none !important; }
   </style>
 </head>
 <body>
@@ -1132,6 +1134,9 @@
   // ── XUAT MP4: tools/hoat-hinh.js mo trang voi ?xuat roi goi renderAt tung khung ──
   if (EXPORT) {
     document.body.classList.add('export');
+    if (new URLSearchParams(location.search).has('tranh')) document.body.classList.add('bare');
+    window.BOOK = scenes.map((s) => ({ art: s.art, title: s.title, date: s.date, text: s.text, photos: s.photos,
+      start: s.start, dur: s.dur, photoAt: isFinite(s.photoAt) ? s.photoAt : null }));
     window.TOTAL = TOTAL;
     window.SCENES = scenes.map((s) => [s.start, s.dur, s.art]);
     // cho cac video trong khung anh tua toi dung khung roi moi chup
