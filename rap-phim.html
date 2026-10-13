@@ -132,9 +132,10 @@
     .cap {
       position: absolute; left: 50%; bottom: calc(10vh + var(--safe-b));
       transform: translateX(-50%);
-      padding: 6px 15px; border-radius: 999px;
+      padding: 6px 15px;
       background: rgba(0,0,0,0.5); border: 1px solid rgba(245,200,66,0.35);
-      color: var(--gold2); font-size: 0.82rem; white-space: nowrap;
+      color: var(--gold2); font-size: 0.82rem; line-height: 1.35;
+      width: max-content; max-width: calc(100vw - 32px); text-align: center; border-radius: 18px;
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       animation: capIn 1s 0.5s both;
     }
@@ -413,11 +414,17 @@
     ],
     sequel: { k: 'Phần 2', t: 'Năm thứ hai', d: 'Khởi chiếu 18/10/2027' },
   };
-  // Video / anh khong dat ten theo ngay nhung thuoc ve mot moc: ten file -> ngay cua moc
-  const ATTACH = { 'primary.mp4': '2026-10-09' };
+  // Anh/video ma ten file khong noi ngay nhung thuoc ve mot moc: ten file -> ngay
+  // cua moc (+ chu thich rieng neu muon)
+  const ATTACH = {
+    'primary.mp4': { d: '2026-10-09' },
+    'aodoidautiencuaanhvsem.jpg': { d: '2026-10-18', cap: '👕 Áo đôi đầu tiên — hai đứa mặc chung ngày kỷ niệm 1 năm' },
+    'emhientoclan2-trung ngaykyniem.mp4': { d: '2026-10-18', cap: '💇‍♀️ Em hiến tóc lần 2 — trùng đúng ngày kỷ niệm 1 năm' },
+  };
+  const dateOf = (m) => m.d || (ATTACH[m.f] && ATTACH[m.f].d);
 
   const PHOTO_MS = 3400;         // moi tam anh
-  const CLIP_MS = 5200;          // moi doan video (khong tieng — nhac phim chay suot)
+  const CLIP_MS = 5200;          // video cam: cat 1 doan (nhac phim chay suot); video co tieng chieu het
   const CARD_MS = 3300;          // man ten chuong
   const FADE_MS = 900;
   const CREDIT_PX_S = 46;        // toc do cuon danh de (px/giay)
@@ -468,13 +475,13 @@
     const chapters = all.filter((m) => m.type !== 'month' && m.ts <= finale.ts);
     const keyTs = (k) => { const [y, mo, d] = k.split('-').map(Number); return new Date(y, mo - 1, d).getTime(); };
 
-    const rank = (m) => (m.d || ATTACH[m.f] ? 0 : m.s ? 1 : 2);
+    const rank = (m) => (dateOf(m) ? 0 : m.s ? 1 : 2);
     const uniq = [];
     [...list].sort((a, b) => rank(a) - rank(b)).forEach((m) => { if (!uniq.some((u) => sameClip(u, m))) uniq.push(m); });
 
     const timed = [], loose = [];
     uniq.forEach((m) => {
-      const d = m.d || ATTACH[m.f];
+      const d = dateOf(m);
       if (d) return timed.push({ m, ts: keyTs(d), key: d, exact: 1 });
       if (m.s) {
         const [y, mo] = m.s.split('-').map(Number);
@@ -491,9 +498,13 @@
 
     const out = [];
     const kb = ['kbA', 'kbB', 'kbC', 'kbD'];
-    const media = (m, cap) => out.push(m.t === 'vid'
-      ? { type: 'vid', m, cap, ms: CLIP_MS }
-      : { type: 'img', m, cap, ms: PHOTO_MS, kb: kb[out.length % kb.length] });
+    // video co tieng: chieu het (do dai lay tu images.json), mo tieng, tat nhac nen
+    const media = (m, cap) => {
+      if (ATTACH[m.f] && ATTACH[m.f].cap) cap = ATTACH[m.f].cap;
+      out.push(m.t === 'vid'
+        ? (m.a ? { type: 'vid', m, cap, sound: true, ms: Math.round((m.dur || 20) * 1000) } : { type: 'vid', m, cap, ms: CLIP_MS })
+        : { type: 'img', m, cap, ms: PHOTO_MS, kb: kb[out.length % kb.length] });
+    };
     const card = (k, ic, t, d) => out.push({ type: 'card', html: `<div class="k">${k}</div><div class="ic">${ic}</div><div class="t">${esc(t)}</div><div class="d">${d}</div>`, ms: CARD_MS });
 
     out.push({ type: 'card', html: `<div class="k">${esc(FILM.studio)}</div><div class="d">trân trọng giới thiệu</div>`, ms: 3200 });
@@ -543,6 +554,37 @@
   let idx = -1, front = 0, playing = false, timer = 0, sceneStart = 0, remaining = 0;
   const cache = new Map();
 
+  // Video co tieng dung chung 2 the <video> duoc "mo khoa" luc xe ve: iPhone chi cho
+  // phat CO TIENG tren the da tung duoc cham. 2 the: canh truoc mo dan trong luc canh
+  // sau hien len, va the ranh tai truoc video co tieng ke tiep.
+  const soundPool = [0, 1].map(() => {
+    const v = document.createElement('video');
+    v.className = 'fg';
+    v.playsInline = true; v.setAttribute('playsinline', '');
+    v.preload = 'auto';
+    v.owner = -1;                                     // canh dang giu the nay
+    return v;
+  });
+  function soundVid(i) {
+    let v = soundPool.find((x) => x.owner === i);
+    if (!v) {
+      v = soundPool.find((x) => x.owner === -1) || soundPool.find((x) => x.owner !== idx) || soundPool[0];
+      v.pause();
+      v.owner = i;
+      const m = scenes[i].m;
+      v.poster = m.thumb ? MEDIA + 'thumbs/' + m.thumb : '';
+      v.src = MEDIA + m.f;
+    }
+    return v;
+  }
+  function freeVid(v) { v.pause(); v.owner = -1; v.removeAttribute('src'); v.load(); }
+  // gan the video co tieng vao khung cua canh (truoc dong chu thich)
+  function attachSound(i, node) {
+    const v = soundVid(i);
+    if (v.parentNode !== node) node.insertBefore(v, node.querySelector('.cap'));
+    return v;
+  }
+
   function makeNode(s) {
     const node = document.createElement('div');
     if (s.type === 'card') {
@@ -556,7 +598,9 @@
     bg.className = 'bg';
     if (m.thumb) bg.style.backgroundImage = `url("${MEDIA}thumbs/${encodeURI(m.thumb)}")`;
     node.appendChild(bg);
-    if (s.type === 'img') {
+    if (s.sound) {
+      // the <video> lay tu soundPool luc sap chieu (attachSound)
+    } else if (s.type === 'img') {
       const img = new Image();
       img.className = 'fg';
       img.decoding = 'async';
@@ -591,13 +635,28 @@
   const elapsedBefore = (i) => scenes.slice(0, Math.max(0, i)).reduce((s, x) => s + (x.ms || 0), 0);
 
   function startClip(v, i) {
+    const s = scenes[i];
     const go = () => {
       if (idx !== i) return;
-      try { v.currentTime = Math.min(1, (v.duration || 10) * 0.08); } catch (e) {}
-      if (playing) v.play().catch(() => {});
+      try {
+        if (!s.sound) v.currentTime = Math.min(1, (v.duration || 10) * 0.08);   // video cam: bo doan dau
+        else if (v.currentTime > 0.3) v.currentTime = 0;                        // video co tieng: tu dau
+      } catch (e) {}
+      if (playing) playVid(v, s);
     };
     if (v.readyState >= 1) go(); else v.addEventListener('loadedmetadata', go, { once: true });
     v.addEventListener('error', () => { if (idx === i && playing) show(i + 1); }, { once: true });   // video loi -> sang canh sau
+    if (s.sound) v.onended = () => { if (idx === i && playing) show(i + 1); };                      // het video moi sang canh
+  }
+  function playVid(v, s) {
+    if (!s.sound) { v.play().catch(() => {}); return; }
+    v.muted = false;
+    v.play().catch((err) => {
+      if (!err || err.name !== 'NotAllowedError' || scenes[idx] !== s) return;
+      v.muted = true;                                   // trinh duyet chan tieng -> phat cam, cham man hinh de bat
+      v.play().catch(() => {});
+      toast('Chạm vào màn hình để bật tiếng video 🔊');
+    });
   }
 
   function show(i) {
@@ -611,16 +670,26 @@
     const node = cache.get(i);
     cache.delete(i);
     const back = layers[1 - front], old = layers[front];
+    old.querySelectorAll('video').forEach((x) => { if (soundPool.includes(x)) x.pause(); });   // tat tieng canh cu ngay
     back.replaceChildren(node);
-    const v = node.querySelector('video');
+    const v = s.sound ? attachSound(i, node) : node.querySelector('video');
     if (v) startClip(v, i);
     back.classList.add('show');
     old.classList.remove('show');
     setTimeout(() => {
       if (old.classList.contains('show')) return;
-      old.querySelectorAll('video').forEach((x) => { x.pause(); x.removeAttribute('src'); x.load(); });
+      old.querySelectorAll('video').forEach((x) => {
+        if (!soundPool.includes(x)) { x.pause(); x.removeAttribute('src'); x.load(); }
+        else if (x.owner !== idx && x.owner !== idx + 1) freeVid(x);
+      });
       old.replaceChildren();
     }, FADE_MS + 60);
+    // het luc mo dan moi tai truoc video co tieng ke tiep (vao the ranh)
+    setTimeout(() => {
+      const n = scenes[i + 1];
+      if (idx === i && n && n.sound && cache.has(i + 1)) attachSound(i + 1, cache.get(i + 1));
+    }, FADE_MS + 120);
+    musicFor(i);
     front = 1 - front;
     // tai truoc canh sau (va anh cua canh sau nua) cho khoi khung trong
     for (const [k] of cache) if (k < i || k > i + 2) cache.delete(k);
@@ -633,6 +702,7 @@
   function schedule() {
     sceneStart = performance.now();
     clearTimeout(timer);
+    if (scenes[idx] && scenes[idx].sound) return;        // video co tieng: het video (onended) moi sang canh
     timer = setTimeout(() => show(idx + 1), remaining);
   }
   const currentVideo = () => layers[front].querySelector('video');
@@ -651,10 +721,10 @@
   function resume() {
     if (playing || idx < 0 || scenes[idx].type === 'credits') return;
     playing = true;
-    const v = currentVideo(); if (v) v.play().catch(() => {});
+    const v = currentVideo(); if (v) playVid(v, scenes[idx]);
     screen.classList.remove('paused');
     $('play').textContent = '⏸'; $('play').setAttribute('aria-label', 'Tạm dừng');
-    if (musicOn) audio.play().catch(() => {});
+    if (musicOn && !ducked) audio.play().catch(() => {});
     schedule();
     showHud();
   }
@@ -669,6 +739,8 @@
   const inCredits = () => idx >= 0 && scenes[idx] && scenes[idx].type === 'credits';
   screen.addEventListener('click', (e) => {
     if (!document.body.classList.contains('playing') || inCredits() || e.target.closest('.hud, .end')) return;
+    const v = currentVideo();
+    if (v && playing && scenes[idx].sound && v.muted) { v.muted = false; v.play().catch(() => {}); return; }   // bi chan tieng -> cham la bat
     if (!document.body.classList.contains('hud-on')) { showHud(!playing); return; }
     playing ? pause() : resume();
   });
@@ -677,7 +749,8 @@
   $('prev').addEventListener('click', () => { show(idx - 1); showHud(!playing); });
   (function tick() {
     if (idx >= 0 && scenes[idx] && scenes[idx].type !== 'credits') {
-      const inScene = playing ? performance.now() - sceneStart : (scenes[idx].ms - remaining);
+      const sv = scenes[idx].sound && currentVideo();
+      const inScene = sv ? sv.currentTime * 1000 : playing ? performance.now() - sceneStart : (scenes[idx].ms - remaining);
       const done = elapsedBefore(idx) + Math.min(scenes[idx].ms, Math.max(0, inScene));
       $('progFill').style.width = `${(clamp01(done / totalMs) * 100).toFixed(2)}%`;
       $('time').textContent = `${fmtTime(done)} / ${fmtTime(totalMs)}`;
@@ -698,6 +771,8 @@
     clearTimeout(timer);
     document.body.classList.remove('hud-on');
     layers.forEach((l) => { l.classList.remove('show'); l.querySelectorAll('video').forEach((x) => x.pause()); });
+    duckMusic(false);
+    if (musicOn) audio.play().catch(() => {});
     const pick = () => photos.length ? photos.splice(Math.floor(Math.random() * photos.length), 1)[0] : null;
     const pics = () => {
       const p = [pick(), pick(), pick()].filter(Boolean);
@@ -733,7 +808,7 @@
     playing = true;
     screen.classList.remove('paused');
     $('play').textContent = '⏸';
-    if (!photos.length && lastList) { buildScenes(lastList); cache.clear(); }
+    if (!photos.length && lastList) { buildScenes(lastList); cache.clear(); soundPool.forEach(freeVid); }
     show(0);
   }
 
@@ -746,21 +821,49 @@
   audio.addEventListener('ended', () => {
     track = (track + 1) % PLAYLIST.length;
     audio.src = PLAYLIST[track];
-    if (musicOn) audio.play().catch(() => {});
+    if (musicOn && !ducked) audio.play().catch(() => {});
   });
+  const MUSIC_VOL = 0.55;
   function setMusic(on) {
     musicOn = on;
     musicEl.textContent = on ? '🔊' : '🎵';
     if (!on) { audio.pause(); return; }
+    if (ducked) return;                               // dang chieu video co tieng -> het video moi bat
     audio.volume = 0;
     audio.play().catch(() => setMusic(false));
     const t0 = performance.now();
     const fade = (t) => {
       const p = clamp01((t - t0) / 3000);
-      audio.volume = 0.55 * p;
-      if (p < 1 && musicOn) requestAnimationFrame(fade);
+      if (!musicOn || ducked) return;
+      audio.volume = MUSIC_VOL * p;
+      if (p < 1) requestAnimationFrame(fade);
     };
     requestAnimationFrame(fade);
+  }
+
+  // Nhac nen chi chay o canh anh / ten chuong / video cam. Video co tieng -> nhac nho
+  // dan roi dung; het video thi to dan lai. Canh ngan ke giua 2 video co tieng thi
+  // giu im luon cho khoi chop tat.
+  let ducked = false, duckRaf = 0;
+  function duckMusic(d) {
+    if (ducked === d) return;
+    ducked = d;
+    cancelAnimationFrame(duckRaf);
+    if (!musicOn) return;
+    if (!d && !playing) return;                       // dang tam dung -> resume() se bat lai
+    if (!d) audio.play().catch(() => {});
+    const from = audio.volume, to = d ? 0 : MUSIC_VOL, t0 = performance.now(), dur = d ? 700 : 1600;
+    const step = (t) => {
+      const p = clamp01((t - t0) / dur);
+      audio.volume = from + (to - from) * p;
+      if (p < 1) duckRaf = requestAnimationFrame(step);
+      else if (ducked) audio.pause();
+    };
+    duckRaf = requestAnimationFrame(step);
+  }
+  function musicFor(i) {
+    const s = scenes[i], a = scenes[i - 1], b = scenes[i + 1];
+    duckMusic(!!(s.sound || (s.ms <= 3600 && a && a.sound && b && b.sound)));
   }
   musicEl.addEventListener('click', () => setMusic(!musicOn));
   // Bam the qua tren trang love (cung web) -> Chrome cho phat tieng ngay; bi chan
@@ -776,7 +879,7 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { if (playing) pause(); else if (musicOn) audio.pause(); return; }
     if (document.body.classList.contains('playing')) keepAwake();
-    else if (musicOn) audio.play().catch(() => {});
+    else if (musicOn && !ducked) audio.play().catch(() => {});
   });
 
   // ── XE VE -> KEO REM -> CHIEU ────────────────────────────────
@@ -791,6 +894,8 @@
     if (!lastList) { toast('Phim đang tải, đợi xíu nha 🎬'); return; }
     torn = true;
     if (!musicOn || audio.paused) setMusic(true);
+    // mo khoa 2 the video co tieng ngay trong lan cham nay (iPhone)
+    soundPool.forEach((v) => { v.muted = false; const p = v.play(); if (p) p.catch(() => {}); v.pause(); });
     keepAwake();
     const de = document.documentElement;
     if (de.requestFullscreen && !/iPhone|iPod/.test(navigator.userAgent)) de.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
@@ -801,7 +906,7 @@
     setTimeout(startFilm, reduceMotion ? 600 : 2600);
   }
   // de thu nhanh tren may: filmDebug.show(so canh)
-  window.filmDebug = { get scenes() { return scenes; }, get idx() { return idx; }, show: (i) => show(i) };
+  window.filmDebug = { get scenes() { return scenes; }, get idx() { return idx; }, get music() { return !audio.paused; }, show: (i) => show(i) };
   $('ticket').addEventListener('click', tear);
   $('ticket').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tear(); } });
 })();

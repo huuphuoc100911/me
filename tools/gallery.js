@@ -12,7 +12,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
+const { execFileSync, spawnSync } = require('child_process');
 const sharp = require('sharp');
 const Milestones = require('../js/milestones.js');
 const Lunar = require('../js/lunar.js');
@@ -213,7 +213,25 @@ async function videoEntry(file, ffmpeg) {
   }
   const entry = { f: file, t: 'vid', w, h, thumb: fs.existsSync(thumb) ? path.basename(thumb) : null };
   if (entry.thumb) entry.fp = await fingerprint(thumb);
+  if (ffmpeg) Object.assign(entry, soundInfo(ffmpeg, src));
   return entry;
+}
+
+/**
+ * Do dai (giay) + co tieng hay khong: { dur: 26.3, a: 1 }. Trang Rap phim chieu
+ * het video co tieng (mo tieng, tat nhac nen); video cam thi cat mot doan ngan.
+ * Co track am thanh nhung im lang (to nhat < -45 dB) van tinh la video cam.
+ */
+function soundInfo(ffmpeg, src) {
+  // ffmpeg in thong tin ra stderr
+  const log = spawnSync(ffmpeg, ['-hide_banner', '-nostats', '-i', src, '-vn', '-af', 'volumedetect', '-f', 'null', '-'],
+    { encoding: 'utf8' }).stderr || '';
+  const out = {};
+  const d = log.match(/Duration: (\d+):(\d+):(\d+(?:\.\d+)?)/);
+  if (d) out.dur = Math.round((+d[1] * 3600 + +d[2] * 60 + +d[3]) * 10) / 10;
+  const max = log.match(/max_volume: (-?[\d.]+) dB/);
+  if (/Stream #.*Audio:/.test(log) && max && +max[1] > -45) out.a = 1;
+  return out;
 }
 
 /**
