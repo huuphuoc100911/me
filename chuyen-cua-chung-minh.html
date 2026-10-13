@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Chuyện của chúng mình ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Chuyện của chúng mình — phim hoạt hình một năm của Thị Huyền & Hữu Phước ✨">
+  <meta property="og:description" content="Một năm yêu nhau, kể lại bằng hoạt hình 💕">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/aodoidautiencuaanhvsem.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/chuyen-cua-chung-minh.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Phim hoạt hình kể lại một năm của Thị Huyền và Hữu Phước ✨">
+  <meta name="theme-color" content="#14060d">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rose: #ff6b8a;
+      --pink: #ffb3c6;
+      --gold: #f5c842;
+      --border: rgba(255,255,255,0.15);
+      --glass: rgba(20,6,12,0.55);
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+    html, body { height: 100%; overflow: hidden; }
+    html { background-color: #14060d; }
+    body {
+      background: radial-gradient(ellipse at 50% 20%, #3a0d1c 0%, #14060d 70%);
+      color: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      user-select: none; -webkit-user-select: none;
+    }
+    button, a { font-family: inherit; }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 30;
+      top: calc(10px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      transition: opacity 0.4s ease;
+    }
+    .playing .bar { opacity: 0; pointer-events: none; }
+    .playing.hud-on .bar { opacity: 1; pointer-events: auto; }
+    .pill {
+      height: 38px; min-width: 38px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.88);
+      font: 500 0.8rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 38px; padding: 0; font-size: 1rem; }
+    .bar .right { display: flex; gap: 8px; }
+
+    /* ── SAN KHAU 540x960 (9:16), co gian vua man hinh ─────── */
+    .wrap { position: fixed; inset: 0; overflow: hidden; }
+    .stage {
+      position: absolute; left: 50%; top: 50%; width: 540px; height: 960px;
+      overflow: hidden; background: #000;
+      transform-origin: 50% 50%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      border-radius: 18px;
+      font-family: 'Inter', sans-serif;
+    }
+    .export .stage { left: 0; top: 0; border-radius: 0; box-shadow: none; }
+    .stage svg.scene { position: absolute; inset: 0; width: 540px; height: 960px; }
+
+    .dots { position: absolute; top: 26px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 5; }
+    .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); box-shadow: 0 0 4px rgba(0,0,0,0.25); }
+    .dots i.on { background: #fff; }
+    .dots i.cur { width: 22px; border-radius: 4px; background: #fff; }
+
+    .head { position: absolute; top: 52px; left: 24px; right: 24px; text-align: center; z-index: 5; }
+    .chip {
+      display: inline-block; padding: 6px 14px; border-radius: 999px;
+      background: rgba(255,255,255,0.9); color: #b8325a;
+      font: 600 15px/1 'Inter', sans-serif; letter-spacing: 1.5px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    .ttl {
+      margin-top: 10px;
+      font: 700 44px/1.1 'Dancing Script', cursive; color: #fff; white-space: pre-line;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35), 0 0 2px rgba(0,0,0,0.3);
+    }
+    .head.light .ttl { color: #b0284f; text-shadow: 0 2px 0 rgba(255,255,255,0.9), 0 0 14px rgba(255,255,255,0.9); }
+    .head.hero { top: 200px; }
+    .head.hero .ttl { font-size: 66px; margin-top: 16px; }
+
+    .say {
+      position: absolute; left: 22px; right: 22px; bottom: 56px; z-index: 6;
+      padding: 18px 22px 20px;
+      background: rgba(255,250,246,0.94); color: #3b2430;
+      border: 2px solid #ffc2d1; border-radius: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+      font: 500 21px/1.5 'Inter', sans-serif;
+    }
+    .say .ghost { color: transparent; }
+    .say .caret { display: inline-block; width: 2px; height: 1em; margin-left: 1px; vertical-align: -2px; background: #e8456b; }
+    .say::before {                       /* dau may noi nho tren khung chu */
+      content: '♥'; position: absolute; top: -15px; left: 26px;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: #ff6b8a; color: #fff; font-size: 14px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .pola {
+      position: absolute; z-index: 4; width: 178px;
+      padding: 9px 9px 34px; background: #fff;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+      border-radius: 3px;
+    }
+    .pola img { display: block; width: 160px; height: 172px; object-fit: cover; background: #eee; }
+    .pola b { position: absolute; left: 0; right: 0; bottom: 7px; text-align: center; font: 700 20px/1 'Dancing Script', cursive; color: #b8325a; }
+    .pola::before {                      /* bang dinh */
+      content: ''; position: absolute; top: -12px; left: 50%; width: 70px; height: 24px;
+      transform: translateX(-50%) rotate(-3deg);
+      background: rgba(255,214,226,0.85);
+    }
+    .veil { position: absolute; inset: 0; z-index: 8; background: #000; pointer-events: none; }
+    .flash { position: absolute; inset: 0; z-index: 7; background: #fff; pointer-events: none; opacity: 0; }
+
+    /* ── MAN BAT DAU / KET THUC ─────────────────────────── */
+    .cover {
+      position: fixed; inset: 0; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 24px; text-align: center;
+      background: rgba(10,3,7,0.62);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      transition: opacity 0.6s ease;
+    }
+    .cover.gone { opacity: 0; pointer-events: none; }
+    .cover .k { font: 600 0.78rem/1 'Inter'; letter-spacing: 3px; text-transform: uppercase; color: var(--pink); }
+    .cover h1 { font: 700 clamp(2.4rem, 11vw, 3.6rem)/1.05 'Dancing Script', cursive; }
+    .cover p { max-width: 340px; color: rgba(255,255,255,0.75); font-size: 0.95rem; line-height: 1.5; }
+    .big {
+      margin-top: 8px; padding: 15px 30px; border: 0; border-radius: 999px; cursor: pointer;
+      background: linear-gradient(135deg, #ff6b8a, #e8456b); color: #fff;
+      font: 600 1.05rem/1 'Inter'; box-shadow: 0 10px 30px rgba(232,69,107,0.45);
+    }
+    .ghostbtn {
+      padding: 12px 22px; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); color: #fff;
+      font: 500 0.92rem/1 'Inter'; text-decoration: none;
+    }
+    .cover .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+    /* ── DIEU KHIEN ─────────────────────────────────────── */
+    .hud {
+      position: fixed; z-index: 25; left: 12px; right: 12px; bottom: calc(12px + var(--safe-b));
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 999px;
+      background: var(--glass); border: 1px solid var(--border);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+      max-width: 520px; margin: 0 auto;
+    }
+    .hud-on .hud { opacity: 1; pointer-events: auto; }
+    .hud button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.12); color: #fff; font-size: 0.9rem; cursor: pointer; flex: none; }
+    .hud .prog { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); overflow: hidden; }
+    .hud .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ff6b8a, #fde68a); }
+    .hud .time { font: 500 0.72rem/1 'Inter'; color: rgba(255,255,255,0.75); min-width: 74px; text-align: right; font-variant-numeric: tabular-nums; }
+    .export .bar, .export .hud, .export .cover { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <div class="right">
+    <a class="pill" href="video/chuyen-cua-chung-minh.mp4" download>⬇ MP4</a>
+    <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+  </div>
+</header>
+
+<div class="wrap"><div class="stage" id="stage">
+  <div class="dots" id="dots"></div>
+  <div class="head" id="head"><span class="chip" id="chip"></span><div class="ttl" id="ttl"></div></div>
+  <div class="pola" id="pola" hidden><img id="polaImg" alt=""><b id="polaCap"></b></div>
+  <div class="say" id="say"></div>
+  <div class="flash" id="flash"></div>
+  <div class="veil" id="veil"></div>
+</div></div>
+
+<div class="hud" id="hud">
+  <button id="prev" aria-label="Cảnh trước">⏮</button>
+  <button id="play" aria-label="Tạm dừng">⏸</button>
+  <button id="next" aria-label="Cảnh sau">⏭</button>
+  <div class="prog"><i id="progFill"></i></div>
+  <div class="time" id="time">0:00</div>
+</div>
+
+<div class="cover" id="startCover">
+  <div class="k">✦ Phim hoạt hình ✦</div>
+  <h1>Chuyện của<br>chúng mình</h1>
+  <p>Một năm yêu nhau, kể lại bằng hoạt hình — từ lần đầu đi hiến máu tới ngày tròn 1 năm.</p>
+  <button class="big" id="startBtn">▶ Xem phim</button>
+  <a class="ghostbtn" href="video/chuyen-cua-chung-minh.mp4" download>⬇ Tải video MP4</a>
+</div>
+
+<div class="cover gone" id="endCover">
+  <div class="k">✦ Hết phần 1 ✦</div>
+  <h1>Còn tiếp…</h1>
+  <div class="row">
+    <button class="big" id="againBtn">↺ Xem lại</button>
+  </div>
+  <div class="row">
+    <a class="ghostbtn" href="video/chuyen-cua-chung-minh.mp4" download>⬇ Tải video MP4</a>
+    <a class="ghostbtn" href="love.html">Về trang tình yêu</a>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ★ LOI KE — sua thoai mai. Sua xong chay `npm run hoathinh` de xuat lai file MP4.
+  //   art: canh ve (xem ART ben duoi) · photo: anh that trong images/love/ (bo trong = khong co anh)
+  //   dur: so mili giay (bo trong = tu tinh theo do dai loi ke)
+  const STORY = [
+    { art: 'mo-dau', hero: true, date: '18.10.2025 — 18.10.2026', title: 'Chuyện của\nchúng mình',
+      text: 'Ngày xửa ngày xưa, ở thành phố Huế, có một chàng trai và một cô gái…', dur: 7200 },
+    { art: 'hien-mau', date: '24 · 08 · 2025', title: 'Lần đầu đi hiến máu', photo: '24-08-25.jpg',
+      text: 'Lần đầu tiên hai đứa cùng đi hiến máu. Lúc ấy anh chưa biết, cô gái áo xanh đứng cạnh sẽ là cả thế giới của anh.' },
+    { art: 'to-tinh', date: '18 · 10 · 2025', title: 'Ngày đầu yêu nhau',
+      text: 'Rồi một ngày, em gật đầu. Từ hôm ấy, “anh” và “em” trở thành “chúng mình”.' },
+    { art: 'sinh-nhat-em', date: '23 · 10 · 2025', title: 'Sinh nhật em', photo: 'anhsinhnhatemvsbanthan.jpg',
+      text: 'Mới yêu được năm ngày đã tới sinh nhật em. Ngọn nến đầu tiên anh được cùng em thổi.' },
+    { art: 'giang-sinh', date: '12 · 2025', title: 'Giáng Sinh đầu tiên', photo: 'chupphotobook.jpg',
+      text: 'Mùa đông đầu tiên, hai đứa chen nhau vào buồng chụp ảnh, đội mũ ông già Noel và cười không ngớt.' },
+    { art: 'tram-ngay', date: '26 · 01 · 2026', title: 'Tròn 100 ngày', photo: 'thumbs/100days.webp',
+      text: '100 ngày — chưa nhiều, nhưng đủ để anh biết anh muốn đi cùng em thật lâu.' },
+    { art: 'valentine', date: '14 · 02 · 2026', title: 'Valentine', photo: 'valentine-anhemratthich.jpg',
+      text: 'Valentine đầu tiên: một bó hoa, một hộp sô-cô-la chữ LOVE, và nụ cười của em đẹp hơn tất cả.' },
+    { art: 'tet', date: '17 · 02 · 2026', title: 'Tết đầu tiên', photo: 'thumbs/tet-am-lich-2026.webp',
+      text: 'Giao thừa đầu tiên bên nhau. Pháo hoa nở rực trời, còn anh thì chỉ mải nhìn em.' },
+    { art: 'di-choi', date: '04 — 05 · 2026', title: 'Những ngày bình thường', photo: 'dichoithang52026.jpg',
+      text: 'Có những ngày chẳng có dịp gì: đi trực, đi xem phim, đi dạo. Chỉ cần có em bên cạnh là đủ.' },
+    { art: 'le-2-9', date: '02 · 09 · 2026', title: 'Lễ 2/9', photo: 'le2:9:3.jpg',
+      text: 'Lễ 2/9, hai đứa lên đồi thông, ngồi trên cỏ, ngắm trời xanh và kể nhau nghe đủ thứ chuyện.' },
+    { art: 'hien-mau-2', date: '06 · 09 · 2026', title: 'Hiến máu lần 2', photo: 'hienmau-em-10lan-anh-15lan.jpg',
+      text: 'Một năm sau, mình lại cùng nhau đi hiến máu. Em đã 10 lần, anh 15 lần — gửi đi những giọt máu cho người cần.' },
+    { art: 'sinh-nhat-anh', date: '09 · 10 · 2026', title: 'Sinh nhật anh', photo: 'quasinhnhatanh-dacbiet.jpg',
+      text: 'Sinh nhật anh, em chuẩn bị bánh kem, gấu bông và cả một buổi xem phim. Nhưng món quà lớn nhất vẫn là em.' },
+    { art: 'ky-niem', date: '18 · 10 · 2026', title: 'Tròn 1 năm', photo: 'aodoidautiencuaanhvsem.jpg',
+      text: 'Tròn một năm. Hai đứa mặc chung áo đôi, và em hiến tóc lần 2 cho các chiến binh K — đúng ngày kỷ niệm.' },
+    { art: 'ket', hero: true, date: '365 ngày · và còn nữa', title: 'Anh yêu em',
+      text: 'Cảm ơn em vì một năm qua. Năm thứ hai, năm thứ ba, và thật nhiều năm nữa — mình viết tiếp nhé. ❤️', dur: 10500 },
+  ];
+  // Nhac phim (file MP4 cung dung bai nay)
+  const SONG = 'music/love/yeu-em-hon-moi-ngay.mp3';
+
+  const W = 540, H = 960;
+  const FADE = 700;              // mo dan giua 2 canh
+  const TYPE_MS = 34;            // moi chu hien sau bao lau
+  const MEDIA = 'images/love/';
+  const EXPORT = new URLSearchParams(location.search).has('xuat');
+
+  // ── TIEN ICH ─────────────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  function S(tag, attrs = {}, kids = []) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    kids.forEach((c) => c && e.appendChild(c));
+    return e;
+  }
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const seg = (t, a, b) => clamp01((t - a) / (b - a));
+  const eo = (p) => 1 - Math.pow(1 - p, 3);                       // easeOutCubic
+  const eio = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+  const back = (p) => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  // so ngau nhien co dinh (lan nao ve cung giong nhau -> MP4 khong nhap nhay)
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const tf = (el, v) => el.setAttribute('transform', v);
+  const op = (el, v) => el.setAttribute('opacity', v.toFixed(3));
+  let gradN = 0;
+  function grad(defs, stops, vertical = true) {
+    const id = 'g' + (++gradN);
+    defs.appendChild(S('linearGradient', vertical ? { id, x1: 0, y1: 0, x2: 0, y2: 1 } : { id, x1: 0, y1: 0, x2: 1, y2: 0 },
+      stops.map(([o, c]) => S('stop', { offset: o, 'stop-color': c }))));
+    return `url(#${id})`;
+  }
+  const HEART = 'M0,6 C-2,-2 -14,-4 -14,-12 C-14,-19 -6,-22 0,-15 C6,-22 14,-19 14,-12 C14,-4 2,-2 0,6Z';
+  const DROP = 'M0,-14 C5,-6 9,-1 9,4 A9,9 0 1 1 -9,4 C-9,-1 -5,-6 0,-14Z';
+  const heart = (fill, s = 1) => S('path', { d: HEART, fill, transform: `scale(${s})` });
+
+  // ── NHAN VAT ─────────────────────────────────────────────────
+  // Goc toa do o giua hai ban chan; cao ~240. Tay: 0 = buong thang, duong = gio ra ngoai,
+  // am = dua vao trong (truoc nguoi).
+  const SKIN = '#ffe1cc';
+  function makeChar(who, o = {}) {
+    const isAnh = who === 'anh';
+    const c = isAnh
+      ? { shirt: '#fbfaf6', line: '#d9d2c7', pants: '#34405e', shoe: '#3b2a24', hair: '#231713' }
+      : { shirt: '#ff9fb7', line: '#ee7d9a', skirt: '#fff3f6', shoe: '#9a3d58', hair: '#2a1915' };
+    if (o.outfit === 'blood') { if (isAnh) c.shirt = '#ffffff'; else { c.shirt = '#bcd9f3'; c.line = '#93b9dc'; c.skirt = '#2f3b58'; } }
+    if (o.outfit === 'couple') { c.shirt = '#ffffff'; c.line = '#ddd'; if (!isAnh) c.skirt = '#dfe9f7'; }
+    if (o.outfit === 'red' && !isAnh) { c.shirt = '#b8324f'; c.line = '#932640'; }
+
+    const g = S('g');
+    // toc dai phia sau (nam sau than va tay, di theo dau)
+    const hairBack = S('g');
+    const hairLong = S('g'), hairShort = S('g');
+    if (!isAnh) {
+      hairLong.appendChild(S('path', { d: 'M-62,-8 C-76,-104 76,-104 62,-8 L60,74 C38,86 -38,86 -60,74Z', fill: c.hair }));
+      hairShort.appendChild(S('path', { d: 'M-62,-8 C-76,-104 76,-104 62,-8 L63,30 C40,42 -40,42 -63,30Z', fill: c.hair }));
+      hairBack.append(hairLong, hairShort);
+    }
+    g.appendChild(hairBack);
+    // chan
+    const leg = () => {
+      const lg = S('g');
+      lg.appendChild(S('rect', { x: -6.5, y: 0, width: 13, height: 56, rx: 6.5, fill: isAnh ? c.pants : SKIN }));
+      lg.appendChild(S('ellipse', { cx: 3, cy: 57, rx: 11, ry: 6.5, fill: c.shoe }));
+      return lg;
+    };
+    const legL = leg(), legR = leg();
+    g.append(legL, legR);
+    // than
+    if (isAnh) {
+      g.appendChild(S('rect', { x: -31, y: -74, width: 62, height: 16, rx: 6, fill: c.pants }));
+      g.appendChild(S('path', { d: 'M-34,-128 Q-38,-98 -33,-66 L33,-66 Q38,-98 34,-128 Q0,-138 -34,-128Z', fill: c.shirt, stroke: c.line, 'stroke-width': 2 }));
+      if (o.outfit !== 'couple' && o.outfit !== 'blood') {
+        g.appendChild(S('path', { d: 'M-13,-132 L0,-116 L13,-132', fill: 'none', stroke: c.line, 'stroke-width': 2.5, 'stroke-linejoin': 'round' }));
+        [-104, -90, -76].forEach((y) => g.appendChild(S('circle', { cx: 0, cy: y, r: 2.2, fill: c.line })));
+      }
+    } else {
+      g.appendChild(S('path', { d: 'M-31,-88 L31,-88 L44,-44 Q0,-36 -44,-44Z', fill: c.skirt, stroke: 'rgba(0,0,0,0.06)', 'stroke-width': 2 }));
+      g.appendChild(S('path', { d: 'M-30,-128 Q-34,-108 -31,-86 L31,-86 Q34,-108 30,-128 Q0,-137 -30,-128Z', fill: c.shirt, stroke: c.line, 'stroke-width': 2 }));
+    }
+    if (o.outfit === 'couple') {
+      g.appendChild(S('text', { x: 0, y: -94, 'text-anchor': 'middle', 'font-family': 'Playfair Display, serif', 'font-weight': 800, 'font-size': 24, fill: '#7fb6e6', stroke: '#e58aa6', 'stroke-width': 1 }, [document.createTextNode(isAnh ? 'P' : 'H')]));
+    }
+    // tay
+    const arm = () => {
+      const ag = S('g');
+      ag.appendChild(S('rect', { x: -6.5, y: 12, width: 13, height: 36, rx: 6.5, fill: SKIN }));
+      ag.appendChild(S('rect', { x: -8, y: -6, width: 16, height: 22, rx: 5, fill: c.shirt, stroke: c.line, 'stroke-width': 1.5 }));
+      ag.appendChild(S('circle', { cx: 0, cy: 50, r: 8, fill: SKIN }));
+      return ag;
+    };
+    const armL = arm(), armR = arm();
+    g.append(armL, armR);
+    // dau
+    const head = S('g');
+    head.appendChild(S('circle', { cx: -54, cy: 4, r: 9, fill: SKIN }));
+    head.appendChild(S('circle', { cx: 54, cy: 4, r: 9, fill: SKIN }));
+    head.appendChild(S('circle', { cx: 0, cy: 0, r: 56, fill: SKIN }));
+    const blush = S('g', {}, [
+      S('ellipse', { cx: -32, cy: 22, rx: 10, ry: 5.5, fill: '#ff8fa3' }),
+      S('ellipse', { cx: 32, cy: 22, rx: 10, ry: 5.5, fill: '#ff8fa3' }),
+    ]);
+    head.appendChild(blush);
+    const eye = (x) => S('g', { transform: `translate(${x},4)` }, [
+      S('ellipse', { cx: 0, cy: 0, rx: 6.5, ry: 8.5, fill: '#2b1b18' }),
+      S('circle', { cx: 2.2, cy: -3.2, r: 2.6, fill: '#fff' }),
+    ]);
+    const eyeL = eye(-20), eyeR = eye(20);
+    head.append(eyeL, eyeR);
+    const smile = S('path', { d: 'M-8,26 Q0,33 8,26', fill: 'none', stroke: '#8a3b3b', 'stroke-width': 3, 'stroke-linecap': 'round' });
+    const open = S('path', { d: 'M-9,24 Q0,40 9,24Z', fill: '#c4485f', stroke: '#8a3b3b', 'stroke-width': 2, 'stroke-linejoin': 'round' });
+    head.append(smile, open);
+    if (isAnh) {
+      head.appendChild(S('path', { d: 'M-61,10 C-72,-96 72,-100 62,10 C58,-14 46,-26 30,-28 L22,-14 L10,-30 L-4,-16 L-18,-30 C-38,-26 -56,-14 -61,10Z', fill: c.hair }));
+    } else {
+      head.appendChild(S('path', { d: 'M-61,12 C-70,-96 70,-98 61,12 C55,-18 34,-30 6,-28 C-2,-14 -14,-8 -30,-5 C-46,-2 -57,4 -61,12Z', fill: c.hair }));
+      // bim toc ben vai phai (chi khi toc dai)
+      const braid = S('g');
+      [0, 1, 2, 3, 4].forEach((k) => braid.appendChild(S('ellipse', { cx: 46 + (k % 2 ? 3 : -3), cy: 34 + k * 15, rx: 9, ry: 9.5, fill: c.hair })));
+      braid.appendChild(S('circle', { cx: 46, cy: 106, r: 5, fill: '#ff6b8a' }));
+      hairLong.appendChild(braid);
+      head.appendChild(S('circle', { cx: -40, cy: -30, r: 7, fill: '#ff6b8a' }));        // kep toc
+    }
+    if (o.hat === 'santa' || o.hat === 'party') {
+      const hat = o.hat === 'santa'
+        ? S('g', { transform: 'translate(4,-48) rotate(14)' }, [
+          S('path', { d: 'M-46,8 Q0,-70 44,8Z', fill: '#e2283c' }),
+          S('rect', { x: -50, y: 2, width: 100, height: 16, rx: 8, fill: '#fff' }),
+          S('circle', { cx: 4, cy: -54, r: 10, fill: '#fff' })])
+        : S('g', { transform: 'translate(18,-50) rotate(18)' }, [
+          S('path', { d: 'M-22,10 L0,-52 L22,10Z', fill: isAnh ? '#5aa9e6' : '#ffd23f' }),
+          S('path', { d: 'M-15,-10 L15,-10 M-19,2 L19,2', stroke: '#fff', 'stroke-width': 4 }),
+          S('circle', { cx: 0, cy: -54, r: 7, fill: '#ff6b8a' })]);
+      head.appendChild(hat);
+    }
+    g.appendChild(head);
+
+    const st = { who, g, hairLong, hairShort };
+    // p: { x, y, s, armL, armR, legL, legR, bob, tilt, nod, blink, mouth:'open', blush, short }
+    st.set = (p) => {
+      const s = p.s || 1;
+      tf(g, `translate(${p.x.toFixed(1)},${(p.y + (p.bob || 0)).toFixed(1)}) scale(${s})`);
+      tf(legL, `translate(-13,-66) rotate(${(p.legL || 0).toFixed(1)})`);
+      tf(legR, `translate(13,-66) rotate(${(p.legR || 0).toFixed(1)})`);
+      tf(armL, `translate(-33,-124) rotate(${(p.armL || 0).toFixed(1)})`);
+      tf(armR, `translate(33,-124) rotate(${(-(p.armR || 0)).toFixed(1)})`);
+      const hv = `translate(0,${(-182 + (p.nod || 0)).toFixed(1)}) rotate(${(p.tilt || 0).toFixed(1)})`;
+      tf(head, hv); tf(hairBack, hv);
+      const b = 1 - 0.9 * (p.blink || 0);
+      tf(eyeL, `translate(-20,${4 + (p.look || 0)}) scale(1,${b.toFixed(2)})`);
+      tf(eyeR, `translate(20,${4 + (p.look || 0)}) scale(1,${b.toFixed(2)})`);
+      smile.setAttribute('opacity', p.mouth === 'open' ? 0 : 1);
+      open.setAttribute('opacity', p.mouth === 'open' ? 1 : 0);
+      op(blush, p.blush == null ? 0.5 : p.blush);
+      if (!isAnh) { op(hairLong, 1 - (p.short || 0)); op(hairShort, p.short || 0); }
+    };
+    // vi tri ban tay (toa do canh) de cam do vat
+    st.hand = (p, side) => {
+      const s = p.s || 1, a = (side === 'L' ? p.armL || 0 : -(p.armR || 0)) * Math.PI / 180;
+      const sx = side === 'L' ? -33 : 33;
+      return [p.x + s * (sx - 50 * Math.sin(a)), p.y + (p.bob || 0) + s * (-124 + 50 * Math.cos(a))];
+    };
+    return st;
+  }
+  // chop mat moi ~3.4s, lech nhau giua 2 nguoi
+  const blinkAt = (t, off = 0) => { const k = (t + off) % 3400; return k < 150 ? Math.sin((k / 150) * Math.PI) : 0; };
+  // di bo: chan va tay dua nhip, nguoi nhun nhe
+  const walk = (t, amp = 1) => {
+    const w = Math.sin(t * 0.011);
+    return { legL: 24 * w * amp, legR: -24 * w * amp, armL: 14 * w * amp, armR: -14 * w * amp, bob: -Math.abs(Math.cos(t * 0.011)) * 5 * amp };
+  };
+
+  // ── PHONG NEN DUNG CHUNG ─────────────────────────────────────
+  function sky(svg, defs, top, bottom) { svg.appendChild(S('rect', { width: W, height: H, fill: grad(defs, [[0, top], [1, bottom]]) })); }
+  function stars(svg, n, maxY = 620) {
+    const list = [];
+    for (let i = 0; i < n; i++) {
+      const s = S('circle', { cx: rnd() * W, cy: rnd() * maxY, r: 0.8 + rnd() * 1.8, fill: '#fff' });
+      s.ph = rnd() * 6.28; svg.appendChild(s); list.push(s);
+    }
+    return (t) => list.forEach((s) => op(s, 0.35 + 0.65 * Math.abs(Math.sin(t * 0.0018 + s.ph))));
+  }
+  function ground(svg, fill, d = 'M0,640 Q270,600 540,640 L540,960 L0,960Z') { svg.appendChild(S('path', { d, fill })); }
+  function cloud(x, y, s = 1, fill = '#fff') {
+    return S('g', { transform: `translate(${x},${y}) scale(${s})`, opacity: 0.95 }, [
+      S('ellipse', { cx: 0, cy: 0, rx: 46, ry: 22, fill }), S('circle', { cx: -18, cy: -14, r: 22, fill }), S('circle', { cx: 14, cy: -20, r: 26, fill })]);
+  }
+  function sun(x, y, r = 40) {
+    return S('g', {}, [S('circle', { cx: x, cy: y, r: r * 1.6, fill: '#fff6c9', opacity: 0.45 }), S('circle', { cx: x, cy: y, r, fill: '#ffd95a' })]);
+  }
+  function tree(x, y, s = 1) {
+    return S('g', { transform: `translate(${x},${y}) scale(${s})` }, [
+      S('rect', { x: -9, y: -70, width: 18, height: 72, rx: 6, fill: '#8a5a3c' }),
+      S('circle', { cx: 0, cy: -100, r: 48, fill: '#58b368' }), S('circle', { cx: -34, cy: -78, r: 32, fill: '#4ea35d' }),
+      S('circle', { cx: 34, cy: -80, r: 34, fill: '#63c072' })]);
+  }
+  function pine(x, y, s = 1, fill = '#2f7d4f') {
+    return S('g', { transform: `translate(${x},${y}) scale(${s})` }, [
+      S('rect', { x: -6, y: -20, width: 12, height: 22, fill: '#6b4430' }),
+      S('path', { d: 'M0,-130 L34,-70 L18,-70 L44,-24 L-44,-24 L-18,-70 L-34,-70Z', fill })]);
+  }
+  function banner(year) {
+    const g = S('g', { transform: 'translate(270,262)' }, [
+      S('rect', { x: -168, y: -6, width: 8, height: 230, fill: '#8a5a3c' }), S('rect', { x: 160, y: -6, width: 8, height: 230, fill: '#8a5a3c' }),
+      S('rect', { x: -165, y: -78, width: 330, height: 138, rx: 10, fill: '#d7263d', stroke: '#fff', 'stroke-width': 4 }),
+      S('text', { x: 0, y: -46, 'text-anchor': 'middle', 'font-family': 'Inter, sans-serif', 'font-weight': 600, 'font-size': 15, fill: '#ffe3e8', 'letter-spacing': 1 }, [document.createTextNode('NGÀY HỘI HIẾN MÁU TÌNH NGUYỆN')]),
+      S('text', { x: 0, y: 0, 'text-anchor': 'middle', 'font-family': 'Playfair Display, serif', 'font-weight': 800, 'font-size': 40, fill: '#fff' }, [document.createTextNode('CHỦ NHẬT ĐỎ')]),
+      S('text', { x: 0, y: 36, 'text-anchor': 'middle', 'font-family': 'Inter, sans-serif', 'font-weight': 600, 'font-size': 16, fill: '#ffd1d9' }, [document.createTextNode(`Thành phố Huế · ${year}`)]),
+    ]);
+    return g;
+  }
+  // nhung thu bay len roi mo dan (tim, giot mau...) — lap lai theo chu ky
+  function floaters(parent, n, make, area) {
+    const list = [];
+    for (let i = 0; i < n; i++) {
+      const e = make(i); e.p = { x: area.x + rnd() * area.w, y0: area.y, off: rnd(), sp: 0.7 + rnd() * 0.6, sw: 8 + rnd() * 14 };
+      parent.appendChild(e); list.push(e);
+    }
+    return (t, on = 1) => list.forEach((e) => {
+      const k = ((t * 0.00022 * e.p.sp) + e.p.off) % 1;
+      tf(e, `translate(${(e.p.x + Math.sin(t * 0.002 + e.p.off * 9) * e.p.sw).toFixed(1)},${(e.p.y0 - k * area.h).toFixed(1)}) scale(${(0.6 + 0.6 * e.p.off).toFixed(2)})`);
+      op(e, on * Math.sin(k * Math.PI) * 0.9);
+    });
+  }
+  // phao hoa: chum hat bung ra tu tam roi roi xuong, mo dan
+  function firework(parent, x, y, color, start, period) {
+    const g = S('g'); parent.appendChild(g);
+    const glow = S('circle', { cx: x, cy: y, r: 10, fill: color }); g.appendChild(glow);
+    const ps = [];
+    for (let i = 0; i < 64; i++) {
+      const c = S('circle', { r: i % 2 ? 2.2 : 3.6, fill: i % 5 ? color : '#fff' });
+      c.a = (i / 64) * Math.PI * 4 + (i % 2) * 0.1; c.k = i % 2 ? 0.62 : 1; g.appendChild(c); ps.push(c);
+    }
+    const core = S('circle', { r: 4, fill: '#fff' }); g.appendChild(core);
+    return (t) => {
+      const k = t - start; if (k < 0) { op(g, 0); return; }
+      const p = (k % period) / 1500;
+      if (p > 1) { op(g, 0); return; }
+      op(g, 1);
+      const r = eo(p) * 92;
+      glow.setAttribute('r', (20 + r).toFixed(1)); op(glow, 0.22 * (1 - p));
+      ps.forEach((c) => { c.setAttribute('cx', (x + Math.cos(c.a) * r * c.k).toFixed(1)); c.setAttribute('cy', (y + Math.sin(c.a) * r * c.k + p * p * 34).toFixed(1)); op(c, 1 - p); });
+      core.setAttribute('cx', x); core.setAttribute('cy', y); op(core, Math.max(0, 1 - p * 4));
+    };
+  }
+
+  // ── CAC CANH VE ──────────────────────────────────────────────
+  // Moi canh: build(svg, defs, actors) -> update(t, dur). actors: nhom nhan vat + do vat,
+  // tu dich sang trai khi anh polaroid hien ra.
+  const ART = {
+    'mo-dau'(svg, defs, actors) {
+      sky(svg, defs, '#0d0b2e', '#3b1f5c');
+      const tw = stars(svg, 70, 640);
+      svg.appendChild(S('circle', { cx: 430, cy: 150, r: 60, fill: '#fff4c8', opacity: 0.18 }));
+      svg.appendChild(S('circle', { cx: 430, cy: 150, r: 34, fill: '#fff4c8' }));
+      ground(svg, '#23163f', 'M0,660 Q270,600 540,660 L540,960 L0,960Z');
+      const anh = makeChar('anh'), em = makeChar('em');
+      const hz = S('g', {}, [heart('#ff6b8a', 1.6)]);
+      actors.append(anh.g, em.g, hz);
+      return (t) => {
+        tw(t);
+        const p = eo(seg(t, 300, 3200));
+        const wa = t < 3200 ? walk(t, 1 - p * 0.6) : {};
+        anh.set({ x: lerp(-90, 205, p), y: 668, s: 0.82, ...wa, blink: blinkAt(t) });
+        em.set({ x: lerp(630, 335, p), y: 668, s: 0.82, ...(t < 3200 ? walk(t + 300, 1 - p * 0.6) : {}), blink: blinkAt(t, 900) });
+        const h = back(seg(t, 3300, 4000));
+        tf(hz, `translate(270,${(470 - 10 * Math.sin(t * 0.004)).toFixed(1)}) scale(${(h * (1 + 0.08 * Math.sin(t * 0.008))).toFixed(3)})`);
+        op(hz, seg(t, 3300, 3500));
+      };
+    },
+
+    'hien-mau'(svg, defs, actors, year = '2025') {
+      sky(svg, defs, '#bfe4ff', '#fff3f6');
+      svg.appendChild(sun(492, 196, 28));
+      svg.appendChild(cloud(70, 190, 0.8));
+      svg.appendChild(tree(-10, 640, 1.3));
+      svg.appendChild(tree(560, 650, 1.1));
+      svg.appendChild(banner(year));
+      ground(svg, '#9fdc8a');
+      const drops = S('g'); svg.appendChild(drops);
+      const fl = floaters(drops, 9, (i) => S('g', {}, [i % 3 ? S('path', { d: DROP, fill: '#e63950' }) : heart('#ff6b8a', 0.9)]), { x: 140, y: 560, w: 260, h: 330 });
+      const anh = makeChar('anh', { outfit: 'blood' }), em = makeChar('em', { outfit: 'blood' });
+      actors.append(anh.g, em.g);
+      return (t) => {
+        fl(t, seg(t, 2400, 3200));
+        const p = eo(seg(t, 200, 2400));
+        anh.set({ x: lerp(-80, 200, p), y: 676, ...(t < 2400 ? walk(t, 1 - p * 0.5) : {}), blink: blinkAt(t), look: t > 2400 ? -1 : 0 });
+        const wave = t > 2300 && t < 4200 ? 120 + 25 * Math.sin(t * 0.012) : 0;
+        em.set({ x: 345, y: 676, armR: wave, blink: blinkAt(t, 1200), mouth: t > 2300 ? 'open' : '', blush: 0.5 + 0.3 * seg(t, 2600, 3400) });
+      };
+    },
+
+    'to-tinh'(svg, defs, actors) {
+      sky(svg, defs, '#ffb199', '#7b4fa3');
+      svg.appendChild(S('circle', { cx: 270, cy: 640, r: 110, fill: '#ffd27a', opacity: 0.9 }));
+      svg.appendChild(S('circle', { cx: 270, cy: 640, r: 170, fill: '#ffd27a', opacity: 0.18 }));
+      ground(svg, '#5a2d5e', 'M0,650 Q270,620 540,650 L540,960 L0,960Z');
+      const burst = S('g'); svg.appendChild(burst);
+      const bh = [];
+      for (let i = 0; i < 16; i++) { const h = heart(['#ff6b8a', '#ffb3c6', '#fff'][i % 3], 0.8); h.a = rnd() * Math.PI - Math.PI; h.d = 80 + rnd() * 140; burst.appendChild(h); bh.push(h); }
+      const anh = makeChar('anh'), em = makeChar('em');
+      const bigH = S('g', {}, [heart('#ff3d68', 1.7)]);
+      actors.append(anh.g, em.g, bigH);
+      return (t) => {
+        const A = { x: 190, y: 676, armL: -40, armR: -40, blink: blinkAt(t), mouth: t > 3600 ? 'open' : '' };
+        anh.set(A);
+        const hands = anh.hand(A, 'R');
+        const fly = eio(seg(t, 2300, 3300));
+        const hx = lerp(hands[0] - 10, 350, fly), hy = lerp(hands[1] - 6, 470, fly) - Math.sin(fly * Math.PI) * 60;
+        const pop = seg(t, 3400, 3700);
+        tf(bigH, `translate(${hx.toFixed(1)},${hy.toFixed(1)}) scale(${((1 + 0.1 * Math.sin(t * 0.01)) * (1 - pop)).toFixed(3)})`);
+        const cheeks = seg(t, 2600, 3200);
+        const nod = t > 3600 && t < 4800 ? Math.max(0, Math.sin((t - 3600) * 0.013)) * 9 : 0;
+        em.set({ x: 345, y: 676, armL: -172 * cheeks, armR: -172 * cheeks, blink: blinkAt(t, 700), nod, blush: 0.5 + 0.45 * cheeks, mouth: t > 3600 ? 'open' : '' });
+        bh.forEach((h) => {
+          const q = eo(seg(t, 3500, 5200));
+          tf(h, `translate(${(270 + Math.cos(h.a) * h.d * q).toFixed(1)},${(470 + Math.sin(h.a) * h.d * q).toFixed(1)}) scale(${(0.6 + q * 0.5).toFixed(2)})`);
+          op(h, t < 3500 ? 0 : 1 - seg(t, 5600, 7000));
+        });
+      };
+    },
+
+    'sinh-nhat-em'(svg, defs, actors) {
+      sky(svg, defs, '#ffe6d6', '#ffc3c9');
+      for (let i = 0; i < 9; i++) svg.appendChild(S('circle', { cx: 40 + i * 58, cy: 520 + (i % 3) * 30, r: 18 + (i % 4) * 6, fill: '#fff', opacity: 0.25 }));
+      svg.appendChild(S('path', { d: 'M0,190 Q270,250 540,190', fill: 'none', stroke: '#c98b6b', 'stroke-width': 2 }));
+      ['#ff6b8a', '#ffd23f', '#5aa9e6', '#7ed37e', '#c38bff'].forEach((col, i, a) => {
+        for (let k = 0; k < 2; k++) {
+          const x = 30 + (i + k * a.length) * 50, y = 190 + 60 * (1 - Math.pow((x - 270) / 270, 2)) * 0.5 + 6;
+          svg.appendChild(S('path', { d: `M${x - 16},${y - 4} L${x + 16},${y - 4} L${x},${y + 28}Z`, fill: col }));
+        }
+      });
+      const balloons = S('g'); svg.appendChild(balloons);
+      const bl = [[70, 300, '#ff6b8a'], [470, 280, '#5aa9e6'], [500, 360, '#ffd23f']].map(([x, y, f]) => {
+        const b = S('g', {}, [S('path', { d: `M0,40 Q8,90 -4,140`, stroke: '#fff', fill: 'none', 'stroke-width': 1.5 }), S('ellipse', { cx: 0, cy: 0, rx: 30, ry: 38, fill: f }), S('ellipse', { cx: -9, cy: -12, rx: 7, ry: 11, fill: '#fff', opacity: 0.4 })]);
+        b.p = [x, y]; balloons.appendChild(b); return b;
+      });
+      const anh = makeChar('anh'), em = makeChar('em', { hat: 'party' });
+      actors.append(anh.g, em.g);
+      // ban + banh
+      const table = S('g', {}, [S('rect', { x: 120, y: 600, width: 300, height: 26, rx: 6, fill: '#ffffff' }), S('rect', { x: 120, y: 620, width: 300, height: 120, fill: '#f6b6c4' })]);
+      const cake = S('g', { transform: 'translate(270,600)' }, [
+        S('rect', { x: -62, y: -50, width: 124, height: 50, rx: 8, fill: '#ffd1dc' }),
+        S('rect', { x: -44, y: -92, width: 88, height: 44, rx: 8, fill: '#fff0f4' }),
+        S('path', { d: 'M-62,-36 Q-46,-26 -31,-36 Q-15,-26 0,-36 Q15,-26 31,-36 Q46,-26 62,-36', fill: 'none', stroke: '#fff', 'stroke-width': 5 })]);
+      const flames = [];
+      [-24, 0, 24].forEach((x) => {
+        cake.appendChild(S('rect', { x: x - 3, y: -118, width: 6, height: 26, rx: 2, fill: ['#5aa9e6', '#ff6b8a', '#ffd23f'][(x / 24 + 1)] }));
+        const f = S('path', { d: 'M0,-12 C5,-5 5,0 0,3 C-5,0 -5,-5 0,-12Z', fill: '#ffb627' }); f.x = x; cake.appendChild(f); flames.push(f);
+      });
+      actors.append(table, cake);
+      const conf = S('g'); svg.appendChild(conf);
+      const cs = [];
+      for (let i = 0; i < 40; i++) { const r = S('rect', { width: 8, height: 13, fill: ['#ff6b8a', '#ffd23f', '#5aa9e6', '#7ed37e', '#c38bff'][i % 5] }); r.p = [rnd() * W, rnd(), rnd() * 360]; conf.appendChild(r); cs.push(r); }
+      return (t) => {
+        bl.forEach((b, i) => tf(b, `translate(${b.p[0] + Math.sin(t * 0.0015 + i) * 8},${b.p[1] + Math.sin(t * 0.002 + i * 2) * 10})`));
+        anh.set({ x: 178, y: 640, armR: 30 + 20 * Math.sin(t * 0.006), blink: blinkAt(t), mouth: t > 3600 ? 'open' : '' });
+        const lean = eio(seg(t, 2800, 3400)) * (1 - eio(seg(t, 3800, 4300)));
+        em.set({ x: 360, y: 640, tilt: -10 * lean, armL: -25, blink: blinkAt(t, 1500), mouth: t > 3000 && t < 3700 ? 'open' : t > 3700 ? 'open' : '', blush: 0.6 });
+        const out = seg(t, 3300, 3600);
+        flames.forEach((f, i) => tf(f, `translate(${f.x},-124) scale(${((1 - out) * (1 + 0.15 * Math.sin(t * 0.03 + i))).toFixed(3)},${((1 - out) * (1 + 0.2 * Math.sin(t * 0.04 + i * 2))).toFixed(3)})`));
+        const ck = t - 3600;
+        cs.forEach((r) => {
+          const y = ck < 0 ? -40 : -30 + ((ck * 0.18 * (0.6 + r.p[1])) % 980);
+          tf(r, `translate(${(r.p[0] + Math.sin(t * 0.004 + r.p[2]) * 18).toFixed(1)},${y.toFixed(1)}) rotate(${(r.p[2] + t * 0.3).toFixed(0)})`);
+          op(r, ck < 0 ? 0 : 1);
+        });
+      };
+    },
+
+    'giang-sinh'(svg, defs, actors) {
+      sky(svg, defs, '#1b2550', '#3d5ea6');
+      const tw = stars(svg, 30, 360);
+      ground(svg, '#eef5ff', 'M0,640 Q150,610 300,640 T540,632 L540,960 L0,960Z');
+      // cay thong Noel
+      const xt = S('g', { transform: 'translate(78,640)' }, [
+        S('rect', { x: -10, y: -26, width: 20, height: 28, fill: '#6b4430' }),
+        S('path', { d: 'M0,-230 L56,-150 L30,-150 L70,-80 L40,-80 L82,-24 L-82,-24 L-40,-80 L-70,-80 L-30,-150 L-56,-150Z', fill: '#2e8b57' }),
+        S('path', { d: 'M0,-252 L7,-236 L24,-236 L10,-226 L15,-210 L0,-220 L-15,-210 L-10,-226 L-24,-236 L-7,-236Z', fill: '#ffd23f' })]);
+      svg.appendChild(xt);
+      const lights = [];
+      [[-20, -175], [22, -160], [-36, -112], [10, -120], [40, -98], [-54, -52], [-12, -60], [30, -48], [62, -40]].forEach(([x, y], i) => {
+        const l = S('circle', { cx: x, cy: y, r: 5, fill: ['#ff6b8a', '#ffd23f', '#7fd1ff'][i % 3] }); l.i = i; xt.appendChild(l); lights.push(l);
+      });
+      // khung buong chup anh
+      const frame = S('g', {}, [
+        S('rect', { x: 130, y: 330, width: 290, height: 330, rx: 14, fill: 'none', stroke: '#e2283c', 'stroke-width': 14 }),
+        S('rect', { x: 200, y: 312, width: 150, height: 34, rx: 17, fill: '#e2283c' }),
+        S('text', { x: 275, y: 336, 'text-anchor': 'middle', 'font-family': 'Inter, sans-serif', 'font-weight': 700, 'font-size': 16, fill: '#fff' }, [document.createTextNode('📸 Merry Xmas')])]);
+      const anh = makeChar('anh', { hat: 'santa' }), em = makeChar('em', { hat: 'santa', outfit: 'red' });
+      actors.append(anh.g, em.g, frame);
+      const snow = S('g'); svg.appendChild(snow);
+      const fl = [];
+      for (let i = 0; i < 55; i++) { const f = S('circle', { r: 1.5 + rnd() * 3, fill: '#fff', opacity: 0.85 }); f.p = [rnd() * W, rnd() * H, 0.04 + rnd() * 0.05]; snow.appendChild(f); fl.push(f); }
+      return (t) => {
+        tw(t);
+        lights.forEach((l) => op(l, 0.4 + 0.6 * ((Math.floor(t / 400) + l.i) % 2)));
+        fl.forEach((f) => tf(f, `translate(${(f.p[0] + Math.sin(t * 0.001 + f.p[1]) * 14).toFixed(1)},${((f.p[1] + t * f.p[2]) % H).toFixed(1)})`));
+        const peace = t > 1800 ? 155 : 0;
+        anh.set({ x: 222, y: 640, s: 0.92, armR: -55, blink: blinkAt(t), mouth: 'open', tilt: 6 });
+        em.set({ x: 330, y: 640, s: 0.92, armR: peace, blink: blinkAt(t, 600), mouth: t > 1800 ? 'open' : '', tilt: -6 });
+        const fA = Math.max(0, 1 - Math.abs(t - 2500) / 180), fB = Math.max(0, 1 - Math.abs(t - 4600) / 180);
+        $('flash').style.opacity = (Math.max(fA, fB) * 0.85).toFixed(3);
+      };
+    },
+
+    'tram-ngay'(svg, defs, actors) {
+      sky(svg, defs, '#fff0f5', '#ffc9dd');
+      const ring = S('g', { transform: 'translate(270,340)' }); svg.appendChild(ring);
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2;
+        ring.appendChild(S('g', { transform: `translate(${(Math.cos(a) * 140).toFixed(1)},${(Math.sin(a) * 140).toFixed(1)}) scale(${i % 2 ? 0.8 : 1.1})` }, [heart(i % 3 ? '#ff8fab' : '#ff4d73')]));
+      }
+      const num = S('text', { x: 270, y: 372, 'text-anchor': 'middle', 'font-family': 'Playfair Display, serif', 'font-weight': 800, 'font-size': 120, fill: '#e8456b' });
+      const lbl = S('text', { x: 270, y: 418, 'text-anchor': 'middle', 'font-family': 'Dancing Script, cursive', 'font-weight': 700, 'font-size': 38, fill: '#b8325a' }, [document.createTextNode('ngày bên nhau')]);
+      svg.append(num, lbl);
+      ground(svg, '#ffb3c6', 'M0,660 Q270,630 540,660 L540,960 L0,960Z');
+      const anh = makeChar('anh'), em = makeChar('em');
+      actors.append(anh.g, em.g);
+      return (t) => {
+        tf(ring, `translate(270,340) rotate(${(t * 0.012).toFixed(1)})`);
+        const n = Math.round(eo(seg(t, 500, 2900)) * 100);
+        num.textContent = n;
+        const pulse = t > 2900 ? 1 + 0.06 * Math.sin((t - 2900) * 0.012) : 1;
+        tf(num, `translate(270,340) scale(${pulse.toFixed(3)}) translate(-270,-340)`);
+        const jump = t > 2900 ? -Math.abs(Math.sin((t - 2900) * 0.007)) * 26 : 0;
+        anh.set({ x: 222, y: 704, armR: -38, armL: t > 2900 ? 140 : 0, bob: jump, blink: blinkAt(t), mouth: t > 2900 ? 'open' : '' });
+        em.set({ x: 322, y: 704, armL: -38, armR: t > 2900 ? 140 : 0, bob: t > 2900 ? -Math.abs(Math.sin((t - 2750) * 0.007)) * 26 : 0, blink: blinkAt(t, 1000), mouth: t > 2900 ? 'open' : '' });
+      };
+    },
+
+    'valentine'(svg, defs, actors) {
+      sky(svg, defs, '#ff9ab5', '#ffe0e8');
+      const bg = S('g'); svg.appendChild(bg);
+      const fl = floaters(bg, 16, () => heart('#fff', 1), { x: 0, y: 980, w: W, h: 1000 });
+      ground(svg, '#ff7f9f', 'M0,660 Q270,630 540,660 L540,960 L0,960Z');
+      // hop so-co-la chu LOVE
+      const box = S('g', { transform: 'translate(452,626)' }, [S('rect', { x: -52, y: -26, width: 104, height: 34, rx: 5, fill: '#5a2f22' })]);
+      'LOVE'.split('').forEach((ch, i) => {
+        box.appendChild(S('rect', { x: -48 + i * 25, y: -22, width: 22, height: 26, rx: 4, fill: '#8a4c34' }));
+        box.appendChild(S('text', { x: -37 + i * 25, y: -3, 'text-anchor': 'middle', 'font-family': 'Inter', 'font-weight': 700, 'font-size': 15, fill: '#ffd1dc' }, [document.createTextNode(ch)]));
+      });
+      svg.appendChild(box);
+      const anh = makeChar('anh'), em = makeChar('em');
+      const bouquet = S('g', {}, [
+        S('path', { d: 'M-22,-6 L22,-6 L4,50 L-4,50Z', fill: '#fff', stroke: '#f2c4d0', 'stroke-width': 2 }),
+        S('circle', { cx: -14, cy: -14, r: 12, fill: '#ff6b8a' }), S('circle', { cx: 10, cy: -18, r: 13, fill: '#ffb3c6' }),
+        S('circle', { cx: -2, cy: -30, r: 12, fill: '#ff8fab' }), S('circle', { cx: 18, cy: -4, r: 10, fill: '#ffd1dc' }), S('circle', { cx: -22, cy: 2, r: 9, fill: '#ffc2d1' }),
+        S('path', { d: 'M-8,40 Q0,30 8,40', fill: 'none', stroke: '#e8456b', 'stroke-width': 4 })]);
+      const bub = S('g', {}, [S('circle', { r: 26, fill: '#fff' }), heart('#ff3d68', 1)]);
+      actors.append(anh.g, em.g, bouquet, bub);
+      return (t) => {
+        fl(t);
+        const p = eo(seg(t, 0, 2200));
+        const A = { x: lerp(-70, 215, p), y: 680, armL: -30, armR: -30 * (1 - seg(t, 2600, 3200)), ...(t < 2200 ? { legL: walk(t).legL, legR: walk(t).legR, bob: walk(t).bob } : {}), blink: blinkAt(t), mouth: t > 3200 ? 'open' : '' };
+        anh.set(A);
+        const give = eio(seg(t, 2400, 3200));
+        const E = { x: 345, y: 680, armL: -35 * give, armR: -35 * give, blink: blinkAt(t, 400), blush: 0.5 + 0.4 * give, mouth: t > 3000 ? 'open' : '', tilt: -5 * give };
+        em.set(E);
+        const ha = anh.hand(A, 'R'), he = em.hand(E, 'L');
+        const bx = lerp(ha[0] + 8, he[0] + 30, give), by = lerp(ha[1] - 10, he[1] - 18, give);
+        tf(bouquet, `translate(${bx.toFixed(1)},${by.toFixed(1)}) rotate(${lerp(-12, 8, give).toFixed(1)})`);
+        const bp = back(seg(t, 3400, 3900));
+        tf(bub, `translate(345,${(400 - 6 * Math.sin(t * 0.005)).toFixed(1)}) scale(${bp.toFixed(3)})`);
+        op(bub, seg(t, 3400, 3600));
+      };
+    },
+
+    'tet'(svg, defs, actors) {
+      sky(svg, defs, '#070b26', '#2b1a4a');
+      const tw = stars(svg, 40, 420);
+      const fw = S('g'); svg.appendChild(fw);
+      const fws = [[150, 250, '#ffd23f', 300], [400, 200, '#ff6b8a', 1100], [280, 330, '#7fd1ff', 1900], [110, 380, '#ff9a3d', 2600], [430, 340, '#c38bff', 3300]]
+        .map(([x, y, c, s]) => firework(fw, x, y, c, s, 3000));
+      // thanh pho xa
+      const city = S('g'); svg.appendChild(city);
+      for (let x = 0; x < W; x += 30) {
+        const h = 30 + rnd() * 70;
+        city.appendChild(S('rect', { x, y: 600 - h, width: 28, height: h + 40, fill: '#1c1438' }));
+        for (let k = 0; k < 3; k++) if (rnd() > 0.5) city.appendChild(S('rect', { x: x + 6 + (k % 2) * 10, y: 610 - h + k * 14, width: 5, height: 6, fill: '#ffd76a', opacity: 0.8 }));
+      }
+      ground(svg, '#120c26', 'M0,650 Q270,610 540,650 L540,960 L0,960Z');
+      // den long do
+      const lan = [40, 500].map((x) => {
+        const g = S('g', {}, [S('line', { x1: 0, y1: -120, x2: 0, y2: 0, stroke: '#c9a24a', 'stroke-width': 2 }), S('ellipse', { cx: 0, cy: 26, rx: 26, ry: 30, fill: '#e2283c' }),
+          S('rect', { x: -14, y: -6, width: 28, height: 8, fill: '#ffd23f' }), S('rect', { x: -14, y: 52, width: 28, height: 8, fill: '#ffd23f' }),
+          S('path', { d: 'M-6,60 L-6,86 M0,60 L0,90 M6,60 L6,86', stroke: '#ffd23f', 'stroke-width': 2 })]);
+        g.x = x; svg.appendChild(g); return g;
+      });
+      const anh = makeChar('anh'), em = makeChar('em');
+      actors.append(anh.g, em.g);
+      return (t) => {
+        tw(t); fws.forEach((f) => f(t));
+        lan.forEach((g, i) => tf(g, `translate(${g.x},120) rotate(${(Math.sin(t * 0.002 + i) * 6).toFixed(1)})`));
+        anh.set({ x: 218, y: 680, armR: -48, look: -3, blink: blinkAt(t), tilt: 8, mouth: t > 1800 ? 'open' : '' });
+        em.set({ x: 318, y: 680, armL: -168 * seg(t, 1100, 1500), armR: -20, look: -4, blink: blinkAt(t, 700), mouth: 'open', blush: 0.7 });
+      };
+    },
+
+    'di-choi'(svg, defs, actors) {
+      sky(svg, defs, '#9fd4ff', '#e9f6ff');
+      svg.appendChild(sun(470, 250, 32));
+      const far = S('g'), mid = S('g'); svg.append(far, mid);
+      for (let i = 0; i < 4; i++) far.appendChild(cloud(i * 180 + 40, 150 + (i % 2) * 70, 0.8 + (i % 2) * 0.3));
+      // nha, cay va rap phim chay ngang
+      const things = [];
+      const house = (x, col) => S('g', { transform: `translate(${x},610)` }, [S('rect', { x: -50, y: -120, width: 100, height: 120, fill: col }), S('path', { d: 'M-60,-120 L0,-170 L60,-120Z', fill: '#c4554d' }), S('rect', { x: -14, y: -50, width: 28, height: 50, fill: '#7a4a35' }), S('rect', { x: -38, y: -100, width: 22, height: 22, fill: '#cfe9ff' }), S('rect', { x: 16, y: -100, width: 22, height: 22, fill: '#cfe9ff' })]);
+      const cinema = (x) => S('g', { transform: `translate(${x},610)` }, [S('rect', { x: -80, y: -170, width: 160, height: 170, fill: '#6d3b8c' }), S('rect', { x: -70, y: -160, width: 140, height: 40, rx: 6, fill: '#ffd23f' }),
+        S('text', { x: 0, y: -132, 'text-anchor': 'middle', 'font-family': 'Inter', 'font-weight': 800, 'font-size': 22, fill: '#6d3b8c' }, [document.createTextNode('🎬 RẠP PHIM')]), S('rect', { x: -26, y: -70, width: 52, height: 70, fill: '#2b1838' })]);
+      [house(0, '#ffe2b8'), tree(0, 610, 0.9), cinema(0), tree(0, 610, 1), house(0, '#cde7c8'), tree(0, 610, 0.8)].forEach((e, i) => { const w = S('g', {}, [e]); w.x0 = i * 190; mid.appendChild(w); things.push(w); });
+      svg.appendChild(S('rect', { x: 0, y: 610, width: W, height: 360, fill: '#cfcac0' }));
+      svg.appendChild(S('rect', { x: 0, y: 610, width: W, height: 14, fill: '#b7b0a3' }));
+      const anh = makeChar('anh'), em = makeChar('em');
+      actors.append(anh.g, em.g);
+      return (t) => {
+        things.forEach((w) => tf(w, `translate(${(((w.x0 - t * 0.06) % 1140) + 1140) % 1140 - 140},0)`));
+        far.childNodes.forEach((c, i) => c.setAttribute('transform', `translate(${(((i * 180 + 40 - t * 0.012) % 720) + 720) % 720 - 90},${150 + (i % 2) * 70}) scale(${0.8 + (i % 2) * 0.3})`));
+        const w = walk(t);
+        anh.set({ x: 222, y: 690, ...w, armR: -30, blink: blinkAt(t), mouth: 'open' });
+        const w2 = walk(t + 280);
+        em.set({ x: 318, y: 690, ...w2, armL: -30, blink: blinkAt(t, 900), tilt: -4 });
+      };
+    },
+
+    'le-2-9'(svg, defs, actors) {
+      sky(svg, defs, '#5fb6ff', '#d9f0ff');
+      svg.appendChild(cloud(130, 170, 1));
+      svg.appendChild(cloud(420, 120, 0.8));
+      svg.appendChild(S('path', { d: 'M0,560 L90,470 L170,530 L280,440 L390,520 L470,460 L540,510 L540,640 L0,640Z', fill: '#8fb0c9' }));
+      ground(svg, '#79c46b', 'M0,620 Q270,580 540,620 L540,960 L0,960Z');
+      [[30, 650, 1.1], [470, 640, 1.25], [530, 620, 0.9]].forEach(([x, y, s]) => svg.appendChild(pine(x, y, s)));
+      // co do sao vang
+      const pole = S('g', { transform: 'translate(96,640)' }, [S('rect', { x: -3, y: -330, width: 6, height: 330, fill: '#d9d9d9' })]);
+      const flag = S('g', {}, [S('rect', { x: 0, y: 0, width: 96, height: 64, fill: '#da251d' }),
+        S('path', { d: 'M48,14 L53,28 L68,28 L56,37 L60,51 L48,42 L36,51 L40,37 L28,28 L43,28Z', fill: '#ffde00' })]);
+      pole.appendChild(flag);
+      svg.appendChild(pole);
+      const anh = makeChar('anh'), em = makeChar('em');
+      const spark = S('g', {}, [S('text', { 'font-size': 34, 'text-anchor': 'middle' }, [document.createTextNode('✌️')])]);
+      actors.append(anh.g, em.g, spark);
+      return (t) => {
+        tf(flag, `translate(3,-330) skewY(${(Math.sin(t * 0.006) * 4).toFixed(2)}) scale(${(1 + Math.sin(t * 0.006) * 0.03).toFixed(3)},1)`);
+        const up = eo(seg(t, 1400, 1900));
+        anh.set({ x: 200, y: 676, armL: 150 * up, armR: -40, blink: blinkAt(t), mouth: 'open' });
+        em.set({ x: 300, y: 676, armR: 150 * up, armL: -40, blink: blinkAt(t, 500), mouth: 'open', tilt: -5 });
+        tf(spark, `translate(250,${(400 - 20 * up).toFixed(1)}) scale(${back(seg(t, 1700, 2200)).toFixed(3)})`);
+        op(spark, seg(t, 1700, 1900));
+      };
+    },
+
+    'hien-mau-2'(svg, defs, actors) {
+      const upd = ART['hien-mau'].call(null, svg, defs, S('g'), '2026');   // dung lai phong nen (bo nhan vat cu)
+      const anh = makeChar('anh', { outfit: 'blood' }), em = makeChar('em', { outfit: 'blood' });
+      const cert = () => S('g', {}, [S('rect', { x: -16, y: -22, width: 32, height: 40, rx: 3, fill: '#e2283c', stroke: '#fff', 'stroke-width': 2 }), S('path', { d: DROP, fill: '#fff', transform: 'scale(0.6) translate(0,-6)' })]);
+      const cA = cert(), cE = cert();
+      const badge = (txt, col) => {
+        const g = S('g', {}, [S('rect', { x: -62, y: -22, width: 124, height: 44, rx: 22, fill: '#fff', stroke: col, 'stroke-width': 3 })]);
+        const tx = S('text', { x: 0, y: 7, 'text-anchor': 'middle', 'font-family': 'Inter', 'font-weight': 700, 'font-size': 19, fill: col });
+        g.appendChild(tx); g.tx = tx; g.lbl = txt; return g;
+      };
+      const bE = badge('Em', '#e8456b'), bA = badge('Anh', '#2f6db3');
+      actors.append(anh.g, em.g, cA, cE, bA, bE);
+      return (t, dur) => {
+        upd(t + 2600, dur);                 // phong nen + giot mau da bay san
+        const up = eo(seg(t, 600, 1300));
+        const A = { x: 200, y: 676, armR: 140 * up, blink: blinkAt(t), mouth: 'open' };
+        const E = { x: 345, y: 676, armL: 140 * up, blink: blinkAt(t, 800), mouth: 'open', blush: 0.7 };
+        anh.set(A); em.set(E);
+        const ha = anh.hand(A, 'R'), he = em.hand(E, 'L');
+        tf(cA, `translate(${ha[0].toFixed(1)},${(ha[1] - 18).toFixed(1)}) rotate(10)`);
+        tf(cE, `translate(${he[0].toFixed(1)},${(he[1] - 18).toFixed(1)}) rotate(-10)`);
+        [[bA, 15, 175, 1500], [bE, 10, 345, 1900]].forEach(([b, n, x, at]) => {
+          const p = seg(t, at, at + 1600);
+          b.tx.textContent = `${b.lbl} · ${Math.round(eo(p) * n)} lần`;
+          tf(b, `translate(${x},${(372 - 8 * Math.sin(t * 0.004 + n)).toFixed(1)}) scale(${back(seg(t, at, at + 450)).toFixed(3)})`);
+          op(b, seg(t, at, at + 200));
+        });
+      };
+    },
+
+    'sinh-nhat-anh'(svg, defs, actors) {
+      sky(svg, defs, '#2a1424', '#6e2f4b');
+      // day den nhay
+      const bulbs = [];
+      svg.appendChild(S('path', { d: 'M0,170 Q135,230 270,180 T540,175', fill: 'none', stroke: '#5c3a2c', 'stroke-width': 2 }));
+      for (let i = 0; i < 16; i++) {
+        const x = 18 + i * 34, y = 172 + Math.sin((x / 540) * Math.PI * 2) * 26 + 22;
+        const b = S('circle', { cx: x, cy: y, r: 6, fill: ['#ffd76a', '#ff9eb5', '#9fe0ff'][i % 3] }); b.i = i; svg.appendChild(b); bulbs.push(b);
+      }
+      for (let i = 0; i < 10; i++) svg.appendChild(S('circle', { cx: rnd() * W, cy: 280 + rnd() * 320, r: 12 + rnd() * 30, fill: '#ffd76a', opacity: 0.08 }));
+      ground(svg, '#4a2034', 'M0,660 L540,660 L540,960 L0,960Z');
+      const anh = makeChar('anh', { hat: 'party' }), em = makeChar('em');
+      // gau bong + banh tren ban
+      const table = S('g', {}, [S('rect', { x: 110, y: 610, width: 320, height: 24, rx: 6, fill: '#fff' }), S('rect', { x: 110, y: 630, width: 320, height: 120, fill: '#d99bb0' })]);
+      const bear = S('g', { transform: 'translate(160,610)' }, [S('circle', { cx: 0, cy: -34, r: 30, fill: '#c68b59' }), S('circle', { cx: 0, cy: -80, r: 24, fill: '#c68b59' }),
+        S('circle', { cx: -19, cy: -98, r: 9, fill: '#c68b59' }), S('circle', { cx: 19, cy: -98, r: 9, fill: '#c68b59' }), S('ellipse', { cx: 0, cy: -74, rx: 10, ry: 7, fill: '#f0d2b0' }),
+        S('circle', { cx: -8, cy: -84, r: 2.6, fill: '#2b1b18' }), S('circle', { cx: 8, cy: -84, r: 2.6, fill: '#2b1b18' }), S('path', { d: HEART, fill: '#ff6b8a', transform: 'translate(0,-30) scale(0.9)' })]);
+      const cake = S('g', { transform: 'translate(300,610)' }, [S('rect', { x: -48, y: -60, width: 96, height: 60, rx: 8, fill: '#fff8f0' }),
+        ...[-32, -14, 6, 24, 36, -24, 14].map((x, i) => S('rect', { x, y: -50 + (i % 3) * 15, width: 8, height: 3, rx: 1.5, fill: ['#ff6b8a', '#5aa9e6', '#ffd23f', '#7ed37e'][i % 4] })),
+        S('rect', { x: -2, y: -84, width: 4, height: 24, fill: '#ffd23f' })]);
+      const flame = S('path', { d: 'M0,-12 C5,-5 5,0 0,3 C-5,0 -5,-5 0,-12Z', fill: '#ffb627' }); cake.appendChild(flame);
+      const gift = S('g', {}, [S('rect', { x: -26, y: -20, width: 52, height: 40, rx: 4, fill: '#5aa9e6' }), S('rect', { x: -5, y: -20, width: 10, height: 40, fill: '#ffd23f' }),
+        S('rect', { x: -30, y: -28, width: 60, height: 12, rx: 3, fill: '#4a8fcf' }), S('path', { d: 'M0,-28 C-12,-44 -24,-34 0,-28 C24,-34 12,-44 0,-28Z', fill: '#ffd23f' })]);
+      actors.append(anh.g, em.g, table, bear, cake, gift);
+      const hs = S('g'); svg.appendChild(hs);
+      const fl = floaters(hs, 10, () => heart('#ff8fab', 0.9), { x: 140, y: 560, w: 260, h: 380 });
+      return (t) => {
+        bulbs.forEach((b) => op(b, 0.45 + 0.55 * Math.abs(Math.sin(t * 0.003 + b.i))));
+        tf(flame, `translate(0,-90) scale(${(1 + 0.15 * Math.sin(t * 0.03)).toFixed(3)},${(1 + 0.2 * Math.sin(t * 0.04)).toFixed(3)})`);
+        const give = eio(seg(t, 1600, 2600));
+        const A = { x: 190, y: 640, armR: -40 * give, armL: t > 2800 ? 30 + 15 * Math.sin(t * 0.01) : 0, blink: blinkAt(t), mouth: t > 2600 ? 'open' : '', blush: 0.4 + 0.4 * give };
+        const E = { x: 360, y: 640, armL: -45, armR: -45 * (1 - give), blink: blinkAt(t, 700), mouth: 'open' };
+        anh.set(A); em.set(E);
+        const he = em.hand(E, 'L'), ha = anh.hand(A, 'R');
+        tf(gift, `translate(${lerp(he[0] - 10, ha[0] + 20, give).toFixed(1)},${(lerp(he[1] - 16, ha[1] - 16, give) - Math.sin(give * Math.PI) * 40).toFixed(1)})`);
+        fl(t, seg(t, 2600, 3200));
+      };
+    },
+
+    'ky-niem'(svg, defs, actors) {
+      sky(svg, defs, '#ffe7a8', '#ffb3c6');
+      const rays = S('g', { transform: 'translate(270,300)' }); svg.appendChild(rays);
+      for (let i = 0; i < 18; i++) rays.appendChild(S('path', { d: 'M0,0 L-18,-420 L18,-420Z', fill: '#fff', opacity: 0.18, transform: `rotate(${i * 20})` }));
+      const one = S('g', {}, [
+        S('text', { x: 270, y: 352, 'text-anchor': 'middle', 'font-family': 'Playfair Display, serif', 'font-weight': 800, 'font-size': 190, fill: '#e8456b', opacity: 0.9 }, [document.createTextNode('1')]),
+        S('text', { x: 270, y: 402, 'text-anchor': 'middle', 'font-family': 'Dancing Script, cursive', 'font-weight': 700, 'font-size': 44, fill: '#b8325a' }, [document.createTextNode('năm yêu nhau')])]);
+      svg.appendChild(one);
+      ground(svg, '#ff9fb7', 'M0,670 Q270,640 540,670 L540,960 L0,960Z');
+      const anh = makeChar('anh', { outfit: 'couple' }), em = makeChar('em', { outfit: 'couple' });
+      const sparks = S('g'); const sp = [];
+      for (let i = 0; i < 12; i++) { const s = S('path', { d: 'M0,-9 L2.5,-2.5 L9,0 L2.5,2.5 L0,9 L-2.5,2.5 L-9,0 L-2.5,-2.5Z', fill: '#fff' }); s.a = (i / 12) * Math.PI * 2; sparks.appendChild(s); sp.push(s); }
+      // ruy bang hong (chien binh K)
+      const ribbon = S('g', {}, [S('path', { d: 'M0,-26 C14,-26 16,-8 6,4 L18,26 L10,30 L0,12 L-10,30 L-18,26 L-6,4 C-16,-8 -14,-26 0,-26Z M0,-18 C-6,-18 -7,-8 0,0 C7,-8 6,-18 0,-18Z', fill: '#ff6b9a', 'fill-rule': 'evenodd' })]);
+      actors.append(anh.g, em.g, sparks, ribbon);
+      return (t) => {
+        tf(rays, `translate(270,300) rotate(${(t * 0.008).toFixed(1)})`);
+        tf(one, `translate(270,300) scale(${(1 + 0.03 * Math.sin(t * 0.004)).toFixed(3)}) translate(-270,-300)`);
+        const cut = seg(t, 2200, 2700);
+        const close = eio(seg(t, 3700, 4600));
+        const A = { x: lerp(196, 222, close), y: 706, armR: -38 * close, blink: blinkAt(t), mouth: 'open', tilt: 8 * close };
+        const E = { x: lerp(344, 318, close), y: 706, armL: -38 * close, blink: blinkAt(t, 900), mouth: 'open', tilt: -8 * close, short: cut, blush: 0.5 + 0.4 * close };
+        anh.set(A); em.set(E);
+        const sk = seg(t, 2000, 3000);
+        sp.forEach((s) => {
+          const r = 40 + eo(sk) * 60;
+          tf(s, `translate(${(E.x + Math.cos(s.a) * r).toFixed(1)},${(E.y - 190 + Math.sin(s.a) * r).toFixed(1)}) scale(${(Math.sin(sk * Math.PI)).toFixed(3)})`);
+        });
+        const rb = seg(t, 2600, 5200);
+        tf(ribbon, `translate(${(E.x - 70 - rb * 90).toFixed(1)},${(E.y - 240 - eo(rb) * 130).toFixed(1)}) scale(${(0.6 + rb * 0.6).toFixed(2)}) rotate(${(Math.sin(t * 0.005) * 10).toFixed(1)})`);
+        op(ribbon, rb > 0 ? Math.min(1, rb * 5) * (1 - seg(t, 5600, 6400)) : 0);
+      };
+    },
+
+    'ket'(svg, defs, actors) {
+      sky(svg, defs, '#0b0624', '#3a1340');
+      const tw = stars(svg, 40, 900);
+      // sao bay ve thanh hinh trai tim
+      const hs = S('g'); svg.appendChild(hs);
+      const pts = [];
+      for (let i = 0; i < 64; i++) {
+        const a = (i / 64) * Math.PI * 2;
+        const hx = 16 * Math.pow(Math.sin(a), 3), hy = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a));
+        const c = S('circle', { r: 2.2 + rnd() * 2, fill: i % 4 ? '#fff' : '#ffb3c6' });
+        c.p = [rnd() * W, rnd() * 900, 270 + hx * 9.5, 520 + hy * 9.5, rnd()];
+        hs.appendChild(c); pts.push(c);
+      }
+      ground(svg, '#1a0b26', 'M0,700 Q270,680 540,700 L540,960 L0,960Z');
+      const anh = makeChar('anh'), em = makeChar('em');
+      actors.append(anh.g, em.g);
+      return (t) => {
+        tw(t);
+        pts.forEach((c) => {
+          const p = eio(seg(t, 400 + c.p[4] * 900, 3200 + c.p[4] * 900));
+          c.setAttribute('cx', lerp(c.p[0], c.p[2], p).toFixed(1));
+          c.setAttribute('cy', lerp(c.p[1], c.p[3], p).toFixed(1));
+          op(c, 0.6 + 0.4 * Math.abs(Math.sin(t * 0.003 + c.p[4] * 6)));
+        });
+        const away = eio(seg(t, 4800, 9500));
+        const s = lerp(0.75, 0.42, away), y = lerp(712, 690, away);
+        const w = t > 4800 ? walk(t, 0.6) : {};
+        anh.set({ x: 270 - 44 * s / 0.75, y, s, ...w, armR: -30, blink: blinkAt(t) });
+        em.set({ x: 270 + 44 * s / 0.75, y, s, ...(t > 4800 ? walk(t + 280, 0.6) : {}), armL: -30, blink: blinkAt(t, 500) });
+      };
+    },
+  };
+
+  // canh nen sang -> tieu de chu dam; anh polaroid hien -> nhan vat dich trai bao nhieu
+  const LIGHT = new Set(['hien-mau', 'to-tinh', 'sinh-nhat-em', 'tram-ngay', 'valentine', 'di-choi', 'le-2-9', 'hien-mau-2', 'ky-niem']);
+  const SHIFT = { 'hien-mau': -80, 'sinh-nhat-em': -92, 'giang-sinh': -65, 'tram-ngay': -80, 'valentine': -80, 'tet': -55,
+    'di-choi': -55, 'le-2-9': -40, 'hien-mau-2': -80, 'sinh-nhat-anh': -95, 'ky-niem': -45 };
+  const POLA_TOP = { 'ky-niem': 150, 'tram-ngay': 470 };
+
+  // ── DUNG CANH ────────────────────────────────────────────────
+  const stage = $('stage');
+  let T = 0;
+  const scenes = STORY.map((st, i) => {
+    seed = 7 + i * 101;
+    const svg = S('svg', { class: 'scene', viewBox: `0 0 ${W} ${H}`, width: W, height: H });
+    const defs = S('defs'); svg.appendChild(defs);
+    const actors = S('g');
+    const upd = ART[st.art](svg, defs, actors);
+    svg.appendChild(actors);
+    svg.style.opacity = 0; svg.style.visibility = 'hidden';
+    stage.insertBefore(svg, $('dots'));
+    const dur = st.dur || Math.max(7000, 3000 + st.text.length * 48);
+    const sc = { ...st, svg, actors, upd, dur, start: T, photoAt: st.photo ? Math.min(dur * 0.42, 3400) : Infinity };
+    T += dur;
+    return sc;
+  });
+  const TOTAL = T;
+  $('dots').innerHTML = scenes.map(() => '<i></i>').join('');
+  const dots = [...$('dots').children];
+
+  // anh polaroid: tai truoc, xong het moi bao san sang (MP4 khong bi khung trong)
+  const photoLoads = scenes.filter((s) => s.photo).map((s) => new Promise((ok) => {
+    const im = new Image(); im.onload = im.onerror = () => ok(); im.src = MEDIA + s.photo; s.img = im;
+  }));
+
+  // ── VE KHUNG HINH TAI THOI DIEM t (ms) ───────────────────────
+  // Moi thu tinh tu t -> tua di dau cung dung, xuat MP4 tung khung y het luc xem.
+  let shownPola = null, curIdx = -1;
+  function renderAt(t) {
+    t = Math.max(0, Math.min(TOTAL - 1, t));
+    let i = scenes.findIndex((s) => t < s.start + s.dur);
+    if (i < 0) i = scenes.length - 1;
+    const sc = scenes[i], lt = t - sc.start;
+    scenes.forEach((s, k) => {
+      const on = k === i || (k === i - 1 && lt < FADE);
+      s.svg.style.visibility = on ? 'visible' : 'hidden';
+      if (!on) return;
+      s.svg.style.opacity = k === i ? (i === 0 ? 1 : eio(seg(lt, 0, FADE))).toFixed(3) : '1';
+      s.svg.style.zIndex = k === i ? 2 : 1;
+    });
+    if (i > 0 && lt < FADE) { const p = scenes[i - 1]; drawScene(p, t - p.start); }
+    if (i !== curIdx) { $('flash').style.opacity = 0; curIdx = i; }
+    drawScene(sc, lt);
+
+    // chu: ngay + ten canh, loi ke hien tung chu
+    const head = $('head');
+    head.className = 'head' + (sc.hero ? ' hero' : '') + (LIGHT.has(sc.art) ? ' light' : '');
+    $('chip').textContent = sc.date;
+    $('ttl').textContent = sc.title;
+    const inP = eo(seg(lt, 150, 750)), outP = i < scenes.length - 1 ? seg(lt, sc.dur - 450, sc.dur) : 0;
+    head.style.opacity = (inP * (1 - outP)).toFixed(3);
+    head.style.transform = `translateY(${((1 - inP) * -14).toFixed(1)}px)`;
+    const n = Math.max(0, Math.floor((lt - 700) / TYPE_MS));
+    const shown = [...sc.text].slice(0, n).join(''), rest = [...sc.text].slice(n).join('');
+    const say = $('say');
+    const html = esc(shown) + (rest ? '<span class="caret"></span><span class="ghost">' + esc(rest) + '</span>' : '');
+    if (say.innerHTML !== html) say.innerHTML = html;
+    const sIn = eo(seg(lt, 300, 800));
+    say.style.opacity = (sIn * (1 - outP)).toFixed(3);
+    say.style.transform = `translateY(${((1 - sIn) * 24).toFixed(1)}px)`;
+
+    // polaroid anh that
+    const pola = $('pola');
+    if (sc.photo && lt >= sc.photoAt) {
+      if (shownPola !== sc) { $('polaImg').src = MEDIA + sc.photo; $('polaCap').textContent = sc.date; shownPola = sc; }
+      pola.hidden = false;
+      const p = seg(lt, sc.photoAt, sc.photoAt + 900);
+      const b = back(p);
+      pola.style.left = '338px'; pola.style.top = (POLA_TOP[sc.art] || 300) + 'px';
+      pola.style.opacity = (Math.min(1, p * 3) * (1 - outP)).toFixed(3);
+      pola.style.transform = `translate(${((1 - b) * 120).toFixed(1)}px,${((1 - b) * -60).toFixed(1)}px) rotate(${lerp(18, 5, b).toFixed(2)}deg)`;
+    } else pola.hidden = true;
+
+    dots.forEach((d, k) => { d.className = k < i ? 'on' : k === i ? 'cur' : ''; });
+    // dau phim mo tu den, cuoi phim toi dan
+    $('veil').style.opacity = Math.max(1 - seg(t, 0, 900), seg(t, TOTAL - 1400, TOTAL - 100)).toFixed(3);
+  }
+  function drawScene(s, lt) {
+    s.upd(lt, s.dur);
+    // anh polaroid hien -> nhan vat dich sang trai nhuong cho
+    const sh = s.photo ? eio(seg(lt, s.photoAt - 200, s.photoAt + 700)) * (SHIFT[s.art] || -60) : 0;
+    tf(s.actors, `translate(${sh.toFixed(1)},0)`);
+  }
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ── CO GIAN SAN KHAU VUA MAN HINH ───────────────────────────
+  function fit() {
+    if (EXPORT) { stage.style.transform = 'none'; return; }
+    const s = Math.min(innerWidth / W, innerHeight / H);
+    stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+  }
+  addEventListener('resize', fit);
+  fit();
+
+  // ── XUAT MP4: tools/hoat-hinh.js mo trang voi ?xuat roi goi renderAt tung khung ──
+  if (EXPORT) {
+    document.body.classList.add('export');
+    window.TOTAL = TOTAL;
+    window.SCENES = scenes.map((s) => [s.start, s.dur, s.art]);
+    window.renderAt = renderAt;
+    // nap het font (ke ca font chi dung o canh sau) + anh roi moi bat dau chup
+    const FONTS = ['800 40px "Playfair Display"', '700 40px "Dancing Script"', '500 20px Inter', '600 20px Inter', '700 20px Inter'];
+    Promise.all([...FONTS.map((f) => document.fonts.load(f)), document.fonts.ready, ...photoLoads])
+      .then(() => { renderAt(0); window.READY = true; });
+    return;
+  }
+
+  // ── XEM TREN WEB ─────────────────────────────────────────────
+  renderAt(scenes[0].dur * 0.6);             // khung xem truoc phia sau man bat dau
+  const audio = new Audio(SONG);
+  audio.preload = 'auto';
+  let musicOn = true;
+  const musicEl = $('music');
+  musicEl.textContent = '🔊';
+  musicEl.addEventListener('click', () => {
+    musicOn = !musicOn;
+    musicEl.textContent = musicOn ? '🔊' : '🎵';
+    if (musicOn && playing) audio.play().catch(() => {}); else audio.pause();
+  });
+
+  let playing = false, t0 = 0, at = 0, raf = 0;
+  const now = () => (playing ? performance.now() - t0 : at);
+  function loop() {
+    const t = now();
+    if (t >= TOTAL) { finish(); return; }
+    renderAt(t);
+    $('progFill').style.width = `${((t / TOTAL) * 100).toFixed(2)}%`;
+    $('time').textContent = `${fmt(t)} / ${fmt(TOTAL)}`;
+    // nhac nho dan o 3 giay cuoi
+    if (musicOn) audio.volume = 0.7 * (1 - seg(t, TOTAL - 3500, TOTAL));
+    raf = requestAnimationFrame(loop);
+  }
+  const fmt = (ms) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  function play(from) {
+    at = from == null ? at : from;
+    playing = true; t0 = performance.now() - at;
+    $('play').textContent = '⏸';
+    if (musicOn) { audio.volume = 0.7; audio.play().catch(() => {}); }
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+  }
+  function pause() {
+    if (!playing) return;
+    at = now(); playing = false;
+    $('play').textContent = '▶';
+    audio.pause();
+    cancelAnimationFrame(raf);
+    showHud(true);
+  }
+  function seekTo(t) {
+    t = Math.max(0, Math.min(TOTAL - 1, t));
+    if (playing) t0 = performance.now() - t; else { at = t; renderAt(t); }
+    // nhac di theo phim (bai nhac dai hon phim)
+    try { audio.currentTime = t / 1000; } catch (e) {}
+  }
+  function finish() {
+    playing = false; cancelAnimationFrame(raf);
+    renderAt(TOTAL - 1);
+    audio.pause();
+    document.body.classList.remove('playing', 'hud-on');
+    $('endCover').classList.remove('gone');
+  }
+  let hudTimer = 0;
+  function showHud(stay) {
+    document.body.classList.add('hud-on');
+    clearTimeout(hudTimer);
+    if (!stay) hudTimer = setTimeout(() => { if (playing) document.body.classList.remove('hud-on'); }, 2600);
+  }
+  const sceneAt = (t) => { const i = scenes.findIndex((s) => t < s.start + s.dur); return i < 0 ? scenes.length - 1 : i; };
+
+  $('startBtn').addEventListener('click', () => {
+    $('startCover').classList.add('gone');
+    document.body.classList.add('playing');
+    audio.currentTime = 0;
+    play(0);
+  });
+  $('againBtn').addEventListener('click', () => {
+    $('endCover').classList.add('gone');
+    document.body.classList.add('playing');
+    audio.currentTime = 0;
+    play(0);
+  });
+  document.querySelector('.wrap').addEventListener('click', () => {
+    if (!document.body.classList.contains('playing')) return;
+    if (!document.body.classList.contains('hud-on')) { showHud(!playing); return; }
+    playing ? pause() : (play(), showHud());
+  });
+  $('play').addEventListener('click', () => (playing ? pause() : (play(), showHud())));
+  $('next').addEventListener('click', () => { const i = sceneAt(now()); if (i < scenes.length - 1) seekTo(scenes[i + 1].start); showHud(!playing); });
+  $('prev').addEventListener('click', () => {
+    const t = now(), i = sceneAt(t);
+    seekTo(t - scenes[i].start > 1500 || i === 0 ? scenes[i].start : scenes[i - 1].start);
+    showHud(!playing);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('playing')) return;
+    if (e.key === ' ') { e.preventDefault(); playing ? pause() : play(); }
+    else if (e.key === 'ArrowRight') $('next').click();
+    else if (e.key === 'ArrowLeft') $('prev').click();
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  // de thu tren may: animDebug.renderAt(ms)
+  window.animDebug = { scenes, TOTAL, renderAt, seekTo };
+})();
+</script>
+</body>
+</html>

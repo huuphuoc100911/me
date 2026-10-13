@@ -6,6 +6,7 @@
   "scripts": {
     "gallery": "node tools/gallery.js",
     "letter": "node tools/letter.js",
-    "music": "node tools/music.js"
+    "music": "node tools/music.js",
+    "hoathinh": "node tools/hoat-hinh.js"
   }
 }
