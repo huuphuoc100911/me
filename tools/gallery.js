@@ -67,13 +67,14 @@ function dateFromName(file) {
   return null;
 }
 
-/** ffmpeg he thong, khong co thi muon binary cua yt-playlist-mp3 */
+/** ffmpeg he thong, khong co thi muon binary cua yt-playlist-mp3 (Mac: darwin_arm64, Linux: linux) */
 function findFfmpeg() {
   try {
     return execFileSync('which', ['ffmpeg'], { encoding: 'utf8' }).trim();
   } catch {
-    const local = path.join(ROOT, 'yt-playlist-mp3/.venv/lib/python3.12/site-packages/static_ffmpeg/bin/linux/ffmpeg');
-    return fs.existsSync(local) ? local : null;
+    const bin = path.join(ROOT, 'yt-playlist-mp3/.venv/lib/python3.12/site-packages/static_ffmpeg/bin');
+    const dirs = [`${process.platform}_${process.arch}`, process.platform];
+    return dirs.map((d) => path.join(bin, d, 'ffmpeg')).find((f) => fs.existsSync(f)) || null;
   }
 }
 
