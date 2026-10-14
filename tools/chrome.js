@@ -25,7 +25,8 @@ async function openChrome({ width = 540, height = 960, scale = 1 } = {}) {
   const close = () => {
     try { if (ws) ws.close(); } catch {}
     try { chrome.kill('SIGKILL'); } catch {}
-    fs.rmSync(prof, { recursive: true, force: true });
+    // Chrome vua bi tat co the con ghi do vai file -> thu xoa lai vai lan, khong de loi don dep lam hong lenh
+    try { fs.rmSync(prof, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {}
   };
   try {
     // cong debug Chrome tu chon -> doc tu dong "DevTools listening on ws://..."

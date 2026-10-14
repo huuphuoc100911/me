@@ -1142,7 +1142,12 @@
       align-self: flex-start; margin: 12px 18px 16px; padding: 9px 18px; border-radius: 999px;
       background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; font-size: 0.86rem; font-weight: 600;
     }
-    @media (prefers-reduced-motion: reduce) { .fin-bulbs, .fin-emoji, .fin-play { animation: none; } }
+    .fin-mini { grid-column: 1 / -1; }          /* the thu 5 trai het hang */
+    .fin-mini .fin-art { display: flex; align-items: center; justify-content: center; gap: 2px; background: radial-gradient(circle at 50% 130%, #ffb3c6 0%, #c2416b 45%, #3a1226 100%); }
+    .fin-stk { position: relative; z-index: 1; width: min(96px, 18vw); aspect-ratio: 1; object-fit: contain; animation: finBob 2.6s ease-in-out infinite; }
+    .fin-stk:nth-child(odd) { animation-delay: -1.3s; }
+    @keyframes finBob { 50% { transform: translateY(-7px) rotate(-3deg); } }
+    @media (prefers-reduced-motion: reduce) { .fin-bulbs, .fin-emoji, .fin-play, .fin-stk { animation: none; } }
 
     .footer {
       text-align: center;
@@ -2029,9 +2034,9 @@
     <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
   </div>
 
-  <!-- DIEM NHAN CUOI TRANG: 4 trang dac biet, de danh xem sau cung (dat o day cho khoi loang voi 4 mon qua) -->
+  <!-- DIEM NHAN CUOI TRANG: 5 trang dac biet, de danh xem sau cung (dat o day cho khoi loang voi 4 mon qua) -->
   <section class="finale reveal">
-    <div class="finale-eyebrow">✦ Xem hết rồi? Vẫn còn bốn bất ngờ cuối cùng ✦</div>
+    <div class="finale-eyebrow">✦ Xem hết rồi? Vẫn còn năm bất ngờ cuối cùng ✦</div>
     <div class="finale-grid">
       <a class="fin-card fin-anim" href="chuyen-cua-chung-minh.html">
         <div class="fin-art">
@@ -2065,6 +2070,18 @@
         </div>
         <span class="fin-txt"><b>Phiếu yêu thương</b><small>Cào ra quà thật — em dùng lúc nào anh cũng chiều</small></span>
         <span class="fin-go">Cào ngay ›</span>
+      </a>
+      <a class="fin-card fin-mini" href="qua-nho.html">
+        <div class="fin-art">
+          <span class="fin-tag">Sticker · video 15s · đồ in</span>
+          <img class="fin-stk" src="sticker/nho/01-yeu-em.webp" alt="" loading="lazy">
+          <img class="fin-stk" src="sticker/nho/02-thuong-anh.webp" alt="" loading="lazy">
+          <img class="fin-stk" src="sticker/nho/03-om.webp" alt="" loading="lazy">
+          <img class="fin-stk" src="sticker/nho/05-doi.webp" alt="" loading="lazy">
+          <img class="fin-stk" src="sticker/nho/07-ngu-ngon.webp" alt="" loading="lazy">
+        </div>
+        <span class="fin-txt"><b>Góc quà nhỏ</b><small>Sticker hai đứa để nhắn nhau, video 15 giây đăng story, ảnh polaroid và phiếu yêu thương bằng giấy</small></span>
+        <span class="fin-go">Mở góc quà ›</span>
       </a>
     </div>
   </section>

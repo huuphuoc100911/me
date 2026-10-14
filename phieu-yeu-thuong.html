@@ -249,6 +249,7 @@
 
   // ★ Danh sach phieu — sua / them / bot thoai mai. `id` dung de may nho phieu nao
   //   da cao / da dung: dat moi phieu mot id rieng, sua chu thi giu nguyen id.
+  //   Phieu giay (`npm run doin`) in ma QR theo id: doi id thi phai in lai.
   const COUPONS = [
     { id: 'tra-sua',   icon: '🧋', title: 'Một ly trà sữa',          note: 'Anh bao, em chọn quán, size to nhất, thêm topping tùy thích.' },
     { id: 'an-ngon',   icon: '🍜', title: 'Một bữa ăn ngon',         note: 'Em thèm món gì, anh chở đi ăn món đó.' },
@@ -320,7 +321,7 @@
   }
 
   // ── MO 1 PHIEU + CAO ─────────────────────────────────────────
-  let cur = -1, armed = false, sending = false;
+  let cur = -1, armed = false, sending = false, viaPaper = false;
   const modal = $('modal'), big = $('big');
 
   function openCoupon(i) {
@@ -346,6 +347,7 @@
     }
   }
   function closeCoupon() {
+    viaPaper = false;
     modal.classList.remove('show');
     document.documentElement.style.overflow = '';
     cur = -1;
@@ -468,7 +470,7 @@
     sending = true; btn.disabled = true;
     $('msg').textContent = 'Đang gửi cho anh…';
     const note = $('note').value.trim();
-    const text = `${c.icon} ${c.title}\n${c.note}\n\n${noOf(i)} — em muốn dùng phiếu này 💕` + (note ? `\n\nEm nhắn: ${note}` : '');
+    const text = `${c.icon} ${c.title}\n${c.note}\n\n${noOf(i)} — em muốn dùng phiếu này 💕` + (viaPaper ? ' (quét từ phiếu giấy)' : '') + (note ? `\n\nEm nhắn: ${note}` : '');
     let ok = false;
     try {
       const r = await fetch('api/notify', {
@@ -490,6 +492,18 @@
   });
 
   renderGrid();
+
+  // ── PHIEU GIAY: quet ma QR (phieu-yeu-thuong.html?p=<id>) -> mo thang phieu do ──
+  // Phieu giay da in san loi hua nen khong can cao; mo ra la bam "Dung phieu" duoc luon.
+  const paper = COUPONS.findIndex((c) => c.id === new URLSearchParams(location.search).get('p'));
+  if (paper >= 0) {
+    history.replaceState(null, '', location.pathname);      // tai lai trang thi khong mo lai phieu
+    st(COUPONS[paper].id).r = 1; save();
+    renderGrid();
+    openCoupon(paper);
+    viaPaper = true;
+    if (!st(COUPONS[paper].id).u) $('hint').textContent = 'Phiếu giấy em vừa quét đây 💌';
+  }
 
   // ── NHAC ─────────────────────────────────────────────────────
   const musicEl = $('music');

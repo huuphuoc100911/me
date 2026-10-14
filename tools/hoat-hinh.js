@@ -97,4 +97,5 @@ async function main() {
   } finally { page.close(); }
 }
 
-main().catch((e) => { console.error('\nLoi:', e.message); process.exit(1); });
+module.exports = { findFfmpeg };
+if (require.main === module) main().catch((e) => { console.error('\nLoi:', e.message); process.exit(1); });

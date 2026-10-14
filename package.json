@@ -8,6 +8,9 @@
     "letter": "node tools/letter.js",
     "music": "node tools/music.js",
     "hoathinh": "node tools/hoat-hinh.js",
-    "truyentranh": "node tools/truyen-tranh.js"
+    "truyentranh": "node tools/truyen-tranh.js",
+    "sticker": "node tools/sticker.js",
+    "videongan": "node tools/video-ngan.js",
+    "doin": "node tools/do-in.js"
   }
 }

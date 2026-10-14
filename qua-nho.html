@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Góc quà nhỏ ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Góc quà nhỏ — sticker hai đứa, video 15 giây và đồ in 💝">
+  <meta property="og:description" content="Sticker chibi Thị Huyền & Hữu Phước, video kỷ niệm 1 năm, ảnh polaroid và phiếu yêu thương bằng giấy">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/dichoithang52026.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/qua-nho.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Sticker hai đứa, video 15 giây và đồ in kỷ niệm 1 năm 💝">
+  <meta name="theme-color" content="#10070f">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rose: #ff6b8a;
+      --pink: #ffb3c6;
+      --gold: #f5c842;
+      --gold2: #fde68a;
+      --mut: rgba(255,255,255,0.6);
+      --border: rgba(255,255,255,0.15);
+      --glass: rgba(26,10,20,0.55);
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+    html { background-color: #10070f; overflow-x: hidden; }
+    body {
+      min-height: 100vh; overflow-x: hidden;
+      background: radial-gradient(ellipse at 50% 20%, #3a1226 0%, #1a0a14 50%, #07030a 100%) fixed;
+      color: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { font-family: inherit; }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 20;
+      top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none;
+    }
+    .bar > * { pointer-events: auto; }
+    .pill {
+      height: 40px; min-width: 40px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.85);
+      font: 500 0.82rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 40px; padding: 0; font-size: 1rem; }
+
+    .wrap { max-width: 860px; margin: 0 auto; padding: calc(70px + var(--safe-t)) 16px calc(56px + var(--safe-b)); text-align: center; }
+    .eyebrow { font-family: 'Dancing Script', cursive; font-size: 1.2rem; color: var(--pink); }
+    h1 { margin-top: 2px; font: 700 clamp(1.7rem, 7vw, 2.4rem)/1.15 'Playfair Display', serif; }
+    .lead { margin: 8px auto 0; max-width: 32em; font-size: 0.9rem; line-height: 1.6; color: rgba(255,255,255,0.72); }
+
+    section { margin-top: 48px; }
+    h2 { font: 700 1.9rem/1.1 'Dancing Script', cursive; color: var(--pink); }
+    .sub { margin: 4px auto 0; max-width: 34em; font-size: 0.84rem; line-height: 1.55; color: var(--mut); }
+    .btns { margin-top: 16px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .dl {
+      display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border: 0; cursor: pointer;
+      border-radius: 999px; text-decoration: none; color: #2a0a17; font: 600 0.88rem/1 'Inter';
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+    }
+    .dl.ghost { background: rgba(245,200,66,0.1); color: var(--gold2); border: 1px solid rgba(245,200,66,0.5); }
+
+    /* ── VIDEO 15 GIAY ──────────────────────────────────── */
+    .vid {
+      display: block; margin: 18px auto 0; width: min(300px, 74vw); aspect-ratio: 9 / 16;
+      border-radius: 18px; background: #000; object-fit: cover;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    /* ── STICKER ────────────────────────────────────────── */
+    .stk { margin-top: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    @media (min-width: 640px) { .stk { gap: 16px; } }
+    .stk button {
+      position: relative; aspect-ratio: 1; border: 0; padding: 4px; cursor: pointer; border-radius: 18px;
+      background: radial-gradient(circle at 50% 40%, rgba(255,179,198,0.16), rgba(255,255,255,0.03) 70%);
+      transition: transform 0.2s ease;
+      animation: stIn 0.6s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .stk button:hover { transform: translateY(-3px) rotate(-2deg); }
+    .stk button:active { transform: scale(0.94); }
+    .stk img { display: block; width: 100%; height: 100%; object-fit: contain; -webkit-user-drag: none; }
+    @keyframes stIn { from { opacity: 0; transform: translateY(14px) scale(0.9); } }
+    details {
+      margin: 18px auto 0; max-width: 34em; text-align: left; padding: 12px 16px; border-radius: 14px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.04); font-size: 0.85rem; line-height: 1.6; color: rgba(255,255,255,0.8);
+    }
+    summary { cursor: pointer; font-weight: 600; color: var(--gold2); }
+    details ol { margin: 8px 0 2px 20px; }
+    details code { padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,0.1); font-size: 0.82rem; }
+
+    /* khung xem 1 sticker */
+    .sheet {
+      position: fixed; inset: 0; z-index: 30; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+      padding: calc(56px + var(--safe-t)) 20px calc(24px + var(--safe-b));
+      background: rgba(8,3,6,0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .sheet.show { display: flex; }
+    .sheet img { width: min(320px, 78vw); aspect-ratio: 1; animation: pop 0.35s cubic-bezier(.2,.8,.2,1.2) both; -webkit-touch-callout: default; }
+    @keyframes pop { from { opacity: 0; transform: scale(0.8) rotate(-4deg); } }
+    .sheet .hint { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+    .close {
+      position: fixed; top: calc(12px + var(--safe-t)); right: 14px; z-index: 31;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--glass); color: #fff; font-size: 1.4rem; cursor: pointer;
+    }
+
+    /* ── DO IN ──────────────────────────────────────────── */
+    .prints { margin-top: 18px; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .pcard {
+      display: flex; flex-direction: column; align-items: center; padding: 16px 16px 18px; border-radius: 22px;
+      border: 1px solid rgba(245,200,66,0.4); background: linear-gradient(160deg, rgba(245,200,66,0.1), rgba(255,77,115,0.08));
+    }
+    .pcard img { width: 100%; max-width: 260px; aspect-ratio: 210 / 297; object-fit: cover; border-radius: 6px; background: #fff; box-shadow: 0 16px 40px rgba(0,0,0,0.45); }
+    .pcard b { margin-top: 14px; font: 700 1.15rem 'Playfair Display', serif; color: var(--gold2); }
+    .pcard small { margin-top: 4px; font-size: 0.8rem; line-height: 1.5; color: var(--mut); }
+    .pcard .dl { margin-top: 12px; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: calc(26px + var(--safe-b)); z-index: 50;
+      transform: translateX(-50%) translateY(14px); opacity: 0; pointer-events: none;
+      padding: 11px 20px; border-radius: 999px; background: rgba(255,107,138,0.95); color: #fff;
+      font-size: 0.86rem; font-weight: 500; transition: opacity 0.3s, transform 0.3s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (prefers-reduced-motion: reduce) { .stk button, .sheet img { animation: none; } }
+  </style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+</header>
+
+<main class="wrap">
+  <div class="eyebrow">✦ Quà kỷ niệm 1 năm ✦</div>
+  <h1>Góc quà nhỏ</h1>
+  <p class="lead">Mấy món nhỏ xíu để mang theo trong điện thoại và để in ra cầm trên tay 💝</p>
+
+  <section>
+    <h2>Video 15 giây</h2>
+    <p class="sub">Một năm của hai đứa gói gọn trong 15 giây — để đăng story ngày 18/10.</p>
+    <video class="vid" id="vid" src="video/mot-nam-15s.mp4" poster="video/mot-nam-15s.webp" controls playsinline preload="metadata"></video>
+    <div class="btns">
+      <a class="dl" href="video/mot-nam-15s.mp4" download>⬇ Tải video</a>
+      <a class="dl ghost" href="video/mot-nam-15s-khong-nhac.mp4" download>⬇ Bản không nhạc</a>
+    </div>
+    <p class="sub">Đăng Reels / TikTok thì dùng <b>bản không nhạc</b> rồi chọn nhạc ngay trong app — nhạc tải từ ngoài vào hay bị tắt tiếng.</p>
+  </section>
+
+  <section>
+    <h2>Sticker hai đứa</h2>
+    <p class="sub">Chạm vào sticker để gửi qua Messenger, Zalo… hoặc lưu về máy.</p>
+    <div class="stk" id="stk"></div>
+    <div class="btns"><a class="dl" href="sticker/sticker-hai-dua.zip" download>⬇ Tải cả bộ (.zip)</a></div>
+    <details>
+      <summary>Làm thành bộ sticker Telegram</summary>
+      <ol>
+        <li>Tải cả bộ ở trên rồi giải nén ra 16 file PNG.</li>
+        <li>Mở Telegram, tìm <b>@Stickers</b> (bot chính chủ), gõ <code>/newpack</code> rồi đặt tên bộ.</li>
+        <li>Gửi từng file PNG <b>dạng tệp</b> (không nén), sau mỗi file gửi một emoji hợp với sticker.</li>
+        <li>Gõ <code>/publish</code>, bỏ qua bước chọn icon, đặt tên link — xong, gửi link cho nhau là dùng được.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section>
+    <h2>Đồ in</h2>
+    <p class="sub">Hai tờ A4, in ra rồi cắt theo viền.</p>
+    <div class="prints">
+      <div class="pcard">
+        <img src="do-in/polaroid-a4.webp" alt="Tờ A4 12 ảnh polaroid" loading="lazy">
+        <b>12 ảnh polaroid mini</b>
+        <small>Mỗi tấm một ngày đáng nhớ — dán tường hoặc bỏ hộp quà</small>
+        <a class="dl" href="do-in/polaroid-a4.pdf" download>⬇ Tải PDF</a>
+      </div>
+      <div class="pcard">
+        <img src="do-in/phieu-giay-a4.webp" alt="Tờ A4 phiếu yêu thương bằng giấy" loading="lazy">
+        <b>Phiếu yêu thương bằng giấy</b>
+        <small>10 phiếu cắt rời — quét mã QR trên phiếu là dùng được ngay</small>
+        <a class="dl" href="do-in/phieu-giay-a4.pdf" download>⬇ Tải PDF</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Sticker">
+  <button class="close" id="close" aria-label="Đóng">×</button>
+  <img id="big" alt="">
+  <div class="btns">
+    <button class="dl" id="share" type="button">💌 Gửi sticker</button>
+    <a class="dl ghost" id="save" download>⬇ Lưu ảnh</a>
+  </div>
+  <div class="hint">Hoặc giữ lâu vào hình để lưu</div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script src="js/love-music.js"></script>
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // ── STICKER ──────────────────────────────────────────────────
+  // Danh sach do `npm run sticker` ghi ra (sticker/sticker.json)
+  let list = [], cur = -1, file = null;
+  const sheet = $('sheet');
+  fetch('sticker/sticker.json').then((r) => r.json()).then((j) => {
+    list = j;
+    $('stk').innerHTML = '';
+    list.forEach((s, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.style.animationDelay = `${i * 0.04}s`;
+      b.setAttribute('aria-label', 'Sticker: ' + s.text);
+      b.innerHTML = '<img alt="" loading="lazy">';
+      b.querySelector('img').src = s.nho;
+      b.querySelector('img').alt = s.text;
+      b.addEventListener('click', () => openSticker(i));
+      $('stk').appendChild(b);
+    });
+  }).catch(() => { $('stk').textContent = 'Chưa tải được sticker 🥺'; });
+
+  // Mo sticker: tai san file PNG -> bam "Gui" goi share ngay trong cu cham (iPhone doi vay)
+  function openSticker(i) {
+    cur = i; file = null;
+    const s = list[i];
+    $('big').src = s.png; $('big').alt = s.text;
+    $('save').href = s.png;
+    $('save').setAttribute('download', s.png.split('/').pop());
+    sheet.classList.add('show');
+    document.documentElement.style.overflow = 'hidden';
+    fetch(s.png).then((r) => r.blob()).then((b) => {
+      if (cur === i) file = new File([b], s.png.split('/').pop(), { type: 'image/png' });
+    }).catch(() => {});
+  }
+  function closeSticker() {
+    sheet.classList.remove('show');
+    document.documentElement.style.overflow = '';
+    cur = -1;
+  }
+  $('close').addEventListener('click', closeSticker);
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSticker(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sheet.classList.contains('show')) closeSticker(); });
+  $('share').addEventListener('click', () => {
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file] }).catch(() => {});
+    } else {
+      $('save').click();                     // may tinh / trinh duyet khong chia se duoc file -> tai ve
+      toast('Đã lưu sticker về máy 💕');
+    }
+  });
+
+  // ── NHAC ─────────────────────────────────────────────────────
+  const PLAYLIST = LoveMusic.shuffled();
+  const musicEl = $('music');
+  let track = 0, musicOn = false;
+  const audio = new Audio(PLAYLIST[0]);
+  audio.preload = 'auto';
+  // Doi bai tren CUNG mot phan tu audio: iPhone chi cho phat tiep khong can cham
+  audio.addEventListener('ended', () => {
+    track = (track + 1) % PLAYLIST.length;
+    audio.src = PLAYLIST[track];
+    if (musicOn) audio.play().catch(() => {});
+  });
+  function setMusic(on) {
+    musicOn = on;
+    musicEl.textContent = on ? '🔊' : '🎵';
+    if (!on) { audio.pause(); return; }
+    if (!vid.paused) return;                 // video dang chay co tieng -> doi xem xong
+    audio.volume = 0;
+    audio.play().catch(() => setMusic(false));
+    const t0 = performance.now();
+    const fade = (t) => {
+      const p = clamp01((t - t0) / 3000);
+      audio.volume = 0.5 * p;
+      if (p < 1 && musicOn) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  }
+  musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // video 15 giay co nhac rieng: chay video thi tam dung nhac nen, xong thi phat lai
+  const vid = $('vid');
+  vid.addEventListener('play', () => audio.pause());
+  ['pause', 'ended'].forEach((ev) => vid.addEventListener(ev, () => { if (musicOn) setMusic(true); }));
+  // Bam the tren trang love (cung web) -> Chrome cho phat tieng ngay; bi chan (iPhone,
+  // mo thang link) thi bat o lan cham dau tien
+  setMusic(true);
+  const unlock = (e) => {
+    ['touchend', 'click', 'keydown'].forEach((ev) => document.removeEventListener(ev, unlock, true));
+    if (e.target instanceof Element && e.target.closest('#music, video')) return;   // nut nhac / video tu xu ly
+    if (!musicOn || audio.paused) setMusic(true);
+  };
+  ['touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, unlock, true));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (musicOn) audio.pause(); vid.pause(); }
+    else if (musicOn && vid.paused) audio.play().catch(() => {});
+  });
+  // de thu tren may
+  window.quaDebug = { get musicOn() { return musicOn; }, get musicPaused() { return audio.paused; }, get file() { return file; }, openSticker };
+})();
+</script>
+</body>
+</html>
