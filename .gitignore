@@ -2,5 +2,3 @@ node_modules
 .env
 .vercel
 .DS_Store
-# file PDF de mang ra tiem in (npm run truyentranh)
-in-an/

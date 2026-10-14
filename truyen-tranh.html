@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Truyện tranh của chúng mình ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Một năm của chúng mình — truyện tranh của Thị Huyền & Hữu Phước 📖">
+  <meta property="og:description" content="Lật từng trang chuyện một năm yêu nhau 💕">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/valentine2.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/truyen-tranh.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Truyện tranh một năm của Thị Huyền và Hữu Phước 📖">
+  <meta name="theme-color" content="#10070f">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rose: #ff6b8a;
+      --pink: #ffb3c6;
+      --gold2: #fde68a;
+      --mut: rgba(255,255,255,0.6);
+      --border: rgba(255,255,255,0.15);
+      --glass: rgba(26,10,20,0.55);
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+    html { background-color: #10070f; overflow-x: hidden; }
+    body {
+      min-height: 100vh; overflow-x: hidden;
+      background: radial-gradient(ellipse at 50% 20%, #3a1226 0%, #1a0a14 50%, #07030a 100%) fixed;
+      color: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none; -webkit-user-select: none;
+    }
+    button { font-family: inherit; }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 20;
+      top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none;
+    }
+    .bar > * { pointer-events: auto; }
+    .bar .right { display: flex; gap: 8px; }
+    .pill {
+      height: 40px; min-width: 40px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.85);
+      font: 500 0.82rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 40px; padding: 0; font-size: 1rem; }
+
+    .wrap { max-width: 860px; margin: 0 auto; padding: calc(66px + var(--safe-t)) 16px calc(48px + var(--safe-b)); text-align: center; }
+    .eyebrow { font-family: 'Dancing Script', cursive; font-size: 1.15rem; color: var(--pink); }
+    h1 { margin-top: 2px; font: 700 clamp(1.5rem, 6vw, 2.2rem)/1.15 'Playfair Display', serif; }
+
+    /* ── CUON SACH ──────────────────────────────────────── */
+    .book {
+      position: relative; margin: 16px auto 0;
+      width: min(calc(100vw - 32px), calc((100vh - 200px) * 1000 / 1419), 560px);
+      width: min(calc(100vw - 32px), calc((100svh - 200px) * 1000 / 1419), 560px);
+      aspect-ratio: 1000 / 1419;
+      perspective: 2400px;
+      cursor: pointer; touch-action: pan-y;
+    }
+    .book img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; -webkit-user-drag: none; }
+    .under, .leaf { position: absolute; inset: 0; border-radius: 6px; }
+    .under { box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06); background: #fff; }
+    .book::after {                       /* gay sach ben trai */
+      content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 14px; z-index: 3; pointer-events: none;
+      border-radius: 6px 0 0 6px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0.04) 60%, transparent);
+    }
+    .leaf { transform-origin: left center; transform-style: preserve-3d; z-index: 2; visibility: hidden; will-change: transform; }
+    .leaf .face { position: absolute; inset: 0; border-radius: 6px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .leaf .back { transform: rotateY(180deg); background: linear-gradient(90deg, #f3e3dc, #fff7f2 30%); }
+    .leaf .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35)); opacity: 0; pointer-events: none; }
+
+    .nav { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+    .nav button {
+      width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+      border: 1px solid var(--border); background: var(--glass); color: #fff; font-size: 1.3rem;
+    }
+    .nav button:disabled { opacity: 0.3; cursor: default; }
+    .count { min-width: 110px; font: 500 0.88rem/1 'Inter'; color: var(--mut); font-variant-numeric: tabular-nums; }
+    .hint { margin-top: 8px; font-size: 0.78rem; color: rgba(255,255,255,0.45); }
+    .dl {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 11px 20px;
+      border-radius: 999px; text-decoration: none; color: #2a0a17; font: 600 0.88rem/1 'Inter';
+      background: linear-gradient(135deg, #f5c842, #ff6b8a);
+    }
+
+    /* ── THIEP ──────────────────────────────────────────── */
+    .card-sec { margin-top: 56px; }
+    .card-sec h2 { font: 700 1.9rem/1.1 'Dancing Script', cursive; color: var(--pink); }
+    .card-sec p { margin-top: 4px; font-size: 0.85rem; color: var(--mut); }
+    .tcard {
+      position: relative; margin: 18px auto 0; width: min(300px, 72vw); aspect-ratio: 800 / 1128;
+      perspective: 1600px; cursor: pointer;
+    }
+    .tcard .in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(.4,.1,.2,1); }
+    .tcard.flip .in { transform: rotateY(180deg); }
+    .tcard img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 10px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 18px 44px rgba(0,0,0,0.5); -webkit-user-drag: none; }
+    .tcard img.b { transform: rotateY(180deg); }
+    @media (prefers-reduced-motion: reduce) { .tcard .in { transition: none; } }
+  </style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <div class="right">
+    <a class="pill" href="truyen-tranh/truyen-tranh-mot-nam.pdf" download>⬇ PDF</a>
+    <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="eyebrow">✦ Truyện tranh ✦</div>
+  <h1>Một năm của chúng mình</h1>
+
+  <div class="book" id="book" role="region" aria-label="Truyện tranh — chạm hoặc vuốt để lật trang">
+    <div class="under"><img id="under" alt=""></div>
+    <div class="leaf" id="leaf">
+      <div class="face"><img id="front" alt=""><i class="shade" id="shade"></i></div>
+      <div class="face back"></div>
+    </div>
+  </div>
+  <div class="nav">
+    <button id="prev" aria-label="Trang trước">‹</button>
+    <span class="count" id="count">Bìa</span>
+    <button id="next" aria-label="Trang sau">›</button>
+  </div>
+  <div class="hint">Chạm mép phải để lật tiếp · vuốt sang trái trên điện thoại</div>
+  <a class="dl" href="truyen-tranh/truyen-tranh-mot-nam.pdf" download>⬇ Tải bản in (PDF A5)</a>
+
+  <section class="card-sec">
+    <h2>Thiệp gửi em</h2>
+    <p>Chạm vào thiệp để lật mặt sau</p>
+    <div class="tcard" id="tcard"><div class="in">
+      <img class="f" src="truyen-tranh/thiep-1.webp" alt="Mặt trước thiệp">
+      <img class="b" src="truyen-tranh/thiep-2.webp" alt="Mặt sau thiệp có mã QR">
+    </div></div>
+    <a class="dl" href="truyen-tranh/thiep-qr.pdf" download>⬇ Tải thiệp (PDF A6)</a>
+  </section>
+</main>
+
+<script src="js/love-music.js"></script>
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const DIR = 'truyen-tranh/';
+  const FLIP_MS = 750;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── LAT TRANG ────────────────────────────────────────────────
+  // Anh tung trang do `npm run truyentranh` xuat ra (trang-01.webp...), so trang ghi o trang.json
+  let N = 16, cur = 0, busy = false;
+  const src = (i) => `${DIR}trang-${String(i + 1).padStart(2, '0')}.webp`;
+  const under = $('under'), leaf = $('leaf'), front = $('front'), shade = $('shade');
+  const label = (i) => (i === 0 ? 'Bìa' : i === N - 1 ? 'Bìa sau' : `Trang ${i + 1} / ${N}`);
+  function paint() {
+    $('count').textContent = label(cur);
+    $('prev').disabled = cur === 0;
+    $('next').disabled = cur === N - 1;
+  }
+  function preload() { for (let i = 0; i < N; i++) { const im = new Image(); im.src = src(i); } }
+
+  // Trang sau: to hien tai lat qua trai (quay quanh gay sach), lo ra trang ke phia duoi.
+  // Trang truoc: to cua trang truoc tu ben trai lat nguoc ve, che len.
+  function turn(dir) {
+    const to = cur + dir;
+    if (busy || to < 0 || to >= N) return;
+    busy = true;
+    const done = () => { leaf.style.visibility = 'hidden'; under.src = src(to); cur = to; busy = false; paint(); };
+    if (reduceMotion) { done(); return; }
+    if (dir > 0) { front.src = src(cur); under.src = src(to); }
+    else front.src = src(to);
+    leaf.style.visibility = 'visible';
+    const from = dir > 0 ? 0 : -180, end = dir > 0 ? -180 : 0;
+    const a = leaf.animate([{ transform: `rotateY(${from}deg)` }, { transform: `rotateY(${end}deg)` }],
+      { duration: FLIP_MS, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'forwards' });
+    shade.animate([{ opacity: dir > 0 ? 0 : 0.5 }, { opacity: 0.5, offset: 0.5 }, { opacity: dir > 0 ? 0.5 : 0 }],
+      { duration: FLIP_MS, fill: 'forwards' });
+    a.onfinish = () => { done(); a.cancel(); };
+  }
+  $('next').addEventListener('click', () => turn(1));
+  $('prev').addEventListener('click', () => turn(-1));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') turn(1);
+    else if (e.key === 'ArrowLeft') turn(-1);
+  });
+  // vuot trai/phai; cham nua phai = trang sau, nua trai = trang truoc
+  const book = $('book');
+  let down = null;
+  book.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+  book.addEventListener('pointerup', (e) => {
+    if (!down) return;
+    const dx = e.clientX - down.x, dy = e.clientY - down.y;
+    down = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { turn(dx < 0 ? 1 : -1); return; }
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      const r = book.getBoundingClientRect();
+      turn(e.clientX - r.left > r.width * 0.35 ? 1 : -1);
+    }
+  });
+  book.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  under.src = src(0);
+  paint();
+  fetch(DIR + 'trang.json').then((r) => (r.ok ? r.json() : null)).then((j) => {
+    if (j && j.pages) { N = j.pages; paint(); }
+    preload();
+  }).catch(preload);
+
+  // ── THIEP: cham de lat ───────────────────────────────────────
+  $('tcard').addEventListener('click', () => $('tcard').classList.toggle('flip'));
+
+  // ── NHAC ─────────────────────────────────────────────────────
+  const PLAYLIST = LoveMusic.shuffled();
+  const musicEl = $('music');
+  let track = 0, musicOn = false;
+  const audio = new Audio(PLAYLIST[0]);
+  audio.preload = 'auto';
+  // Doi bai tren CUNG mot phan tu audio: iPhone chi cho phat tiep khong can cham
+  audio.addEventListener('ended', () => {
+    track = (track + 1) % PLAYLIST.length;
+    audio.src = PLAYLIST[track];
+    if (musicOn) audio.play().catch(() => {});
+  });
+  function setMusic(on) {
+    musicOn = on;
+    musicEl.textContent = on ? '🔊' : '🎵';
+    if (!on) { audio.pause(); return; }
+    audio.volume = 0;
+    audio.play().catch(() => setMusic(false));
+    const t0 = performance.now();
+    const fade = (t) => {
+      const p = clamp01((t - t0) / 3000);
+      audio.volume = 0.5 * p;
+      if (p < 1 && musicOn) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  }
+  musicEl.addEventListener('click', () => setMusic(!musicOn));
+  // Bam the tren trang love (cung web) -> Chrome cho phat tieng ngay; bi chan (iPhone,
+  // mo thang link) thi bat o lan cham dau tien
+  setMusic(true);
+  const unlock = (e) => {
+    ['touchend', 'click', 'keydown'].forEach((ev) => document.removeEventListener(ev, unlock, true));
+    if (e.target instanceof Element && e.target.closest('#music')) return;   // nut nhac tu xu ly
+    if (!musicOn || audio.paused) setMusic(true);
+  };
+  ['touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, unlock, true));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (musicOn) audio.pause(); }
+    else if (musicOn) audio.play().catch(() => {});
+  });
+  // de thu tren may
+  window.bookDebug = { get cur() { return cur; }, get N() { return N; }, turn };
+})();
+</script>
+</body>
+</html>

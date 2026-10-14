@@ -1096,7 +1096,6 @@
     }
     @media (hover: hover) { .fin-card:hover { transform: translateY(-3px); box-shadow: 0 20px 54px rgba(255,107,138,0.3); } }
     .fin-art { position: relative; height: 170px; display: grid; place-items: center; overflow: hidden; }
-    .fin-anim { grid-column: 1 / -1; }
     .fin-anim .fin-art { background: url('video/chuyen-cua-chung-minh.webp') center / cover, #2a1550; }
     .fin-anim .fin-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 55%, rgba(10,3,6,0.45)); }
     .fin-play {
@@ -1104,6 +1103,13 @@
       display: grid; place-items: center; padding-left: 4px;
       background: rgba(255,255,255,0.9); color: #e8456b; font-size: 1.5rem;
       box-shadow: 0 8px 26px rgba(0,0,0,0.35); animation: annivBeat 2.4s ease-in-out infinite;
+    }
+    .fin-book .fin-art { background: radial-gradient(circle at 50% 120%, #ffb3c6 0%, #a8325a 45%, #3a1226 100%); }
+    .fin-bookimg {                /* bia truyen tranh dang cuon sach nghieng */
+      position: relative; z-index: 1; height: 138px; aspect-ratio: 1000 / 1419; object-fit: cover;
+      border-radius: 3px 7px 7px 3px;
+      transform: perspective(700px) rotateY(-18deg) rotate(-2deg);
+      box-shadow: -6px 0 0 #e9d6cf, -7px 1px 0 #cdb7b0, 10px 16px 30px rgba(0,0,0,0.5);
     }
     .fin-cinema .fin-art { background: linear-gradient(rgba(10,3,6,0.3), rgba(10,3,6,0.75)), url('images/love/thumbs/primary.webp') center 30% / cover, #2a0b17; }
     .fin-coupon .fin-art {
@@ -2023,9 +2029,9 @@
     <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
   </div>
 
-  <!-- DIEM NHAN CUOI TRANG: 3 trang dac biet, de danh xem sau cung (dat o day cho khoi loang voi 4 mon qua) -->
+  <!-- DIEM NHAN CUOI TRANG: 4 trang dac biet, de danh xem sau cung (dat o day cho khoi loang voi 4 mon qua) -->
   <section class="finale reveal">
-    <div class="finale-eyebrow">✦ Xem hết rồi? Vẫn còn ba bất ngờ cuối cùng ✦</div>
+    <div class="finale-eyebrow">✦ Xem hết rồi? Vẫn còn bốn bất ngờ cuối cùng ✦</div>
     <div class="finale-grid">
       <a class="fin-card fin-anim" href="chuyen-cua-chung-minh.html">
         <div class="fin-art">
@@ -2034,6 +2040,14 @@
         </div>
         <span class="fin-txt"><b>Chuyện của chúng mình</b><small>Một năm của hai đứa, kể lại bằng hoạt hình — có cả bản MP4 để lưu</small></span>
         <span class="fin-go">Xem phim ›</span>
+      </a>
+      <a class="fin-card fin-book" href="truyen-tranh.html">
+        <div class="fin-art">
+          <span class="fin-tag">Có cả bản in 📖</span>
+          <img class="fin-bookimg" src="truyen-tranh/trang-01.webp" alt="" loading="lazy">
+        </div>
+        <span class="fin-txt"><b>Truyện tranh của chúng mình</b><small>Lật từng trang chuyện một năm — kèm thiệp gửi em</small></span>
+        <span class="fin-go">Đọc truyện ›</span>
       </a>
       <a class="fin-card fin-cinema" href="rap-phim.html">
         <div class="fin-art">
