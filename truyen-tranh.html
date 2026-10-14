@@ -100,11 +100,13 @@
     .nav button:disabled { opacity: 0.3; cursor: default; }
     .count { min-width: 110px; font: 500 0.88rem/1 'Inter'; color: var(--mut); font-variant-numeric: tabular-nums; }
     .hint { margin-top: 8px; font-size: 0.78rem; color: rgba(255,255,255,0.45); }
+    .btns { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
     .dl {
-      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 11px 20px;
+      display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px;
       border-radius: 999px; text-decoration: none; color: #2a0a17; font: 600 0.88rem/1 'Inter';
       background: linear-gradient(135deg, #f5c842, #ff6b8a);
     }
+    .dl.ghost { background: rgba(245,200,66,0.1); color: var(--gold2); border: 1px solid rgba(245,200,66,0.5); }
 
     /* ── THIEP ──────────────────────────────────────────── */
     .card-sec { margin-top: 56px; }
@@ -126,7 +128,7 @@
 <header class="bar">
   <a class="pill" href="love.html">‹ Trang tình yêu</a>
   <div class="right">
-    <a class="pill" href="truyen-tranh/truyen-tranh-mot-nam.pdf" download>⬇ PDF</a>
+    <a class="pill" id="pngTop" href="truyen-tranh/trang-01.png" download="truyen-tranh-trang-01.png">⬇ PNG</a>
     <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
   </div>
 </header>
@@ -148,7 +150,10 @@
     <button id="next" aria-label="Trang sau">›</button>
   </div>
   <div class="hint">Chạm mép phải để lật tiếp · vuốt sang trái trên điện thoại</div>
-  <a class="dl" href="truyen-tranh/truyen-tranh-mot-nam.pdf" download>⬇ Tải bản in (PDF A5)</a>
+  <div class="btns">
+    <a class="dl" id="pngPage" href="truyen-tranh/trang-01.png" download="truyen-tranh-trang-01.png">⬇ Tải trang này (PNG)</a>
+    <a class="dl ghost" href="truyen-tranh/truyen-tranh-png.zip" download>⬇ Cả cuốn (.zip)</a>
+  </div>
 
   <section class="card-sec">
     <h2>Thiệp gửi em</h2>
@@ -157,7 +162,10 @@
       <img class="f" src="truyen-tranh/thiep-1.webp" alt="Mặt trước thiệp">
       <img class="b" src="truyen-tranh/thiep-2.webp" alt="Mặt sau thiệp có mã QR">
     </div></div>
-    <a class="dl" href="truyen-tranh/thiep-qr.pdf" download>⬇ Tải thiệp (PDF A6)</a>
+    <div class="btns">
+      <a class="dl" href="truyen-tranh/thiep-1.png" download="thiep-mat-truoc.png">⬇ Mặt trước (PNG)</a>
+      <a class="dl ghost" href="truyen-tranh/thiep-2.png" download="thiep-mat-sau.png">⬇ Mặt sau (PNG)</a>
+    </div>
   </section>
 </main>
 
@@ -177,8 +185,11 @@
   const src = (i) => `${DIR}trang-${String(i + 1).padStart(2, '0')}.webp`;
   const under = $('under'), leaf = $('leaf'), front = $('front'), shade = $('shade');
   const label = (i) => (i === 0 ? 'Bìa' : i === N - 1 ? 'Bìa sau' : `Trang ${i + 1} / ${N}`);
+  // nut tai PNG luon tro toi trang dang xem (anh 300 dpi, `npm run truyentranh` xuat ra)
+  const png = (i) => `trang-${String(i + 1).padStart(2, '0')}.png`;
   function paint() {
     $('count').textContent = label(cur);
+    ['pngTop', 'pngPage'].forEach((id) => { $(id).href = DIR + png(cur); $(id).setAttribute('download', 'truyen-tranh-' + png(cur)); });
     $('prev').disabled = cur === 0;
     $('next').disabled = cur === N - 1;
   }

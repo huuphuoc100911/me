@@ -5,7 +5,8 @@
  *   - Xap phieu yeu thuong bang giay: 10 phieu + bia + cach dung, moi phieu mot ma QR
  *     mo thang phieu do tren web (phieu-yeu-thuong.html?p=<id>) -> bam "Dung phieu" la anh nhan mail
  *
- *   npm run doin     # -> do-in/polaroid-a4.pdf, do-in/phieu-giay-a4.pdf (+ anh xem truoc .webp)
+ *   npm run doin     # -> do-in/polaroid-a4.pdf, do-in/phieu-giay-a4.pdf
+ *                    #    + ban PNG 300 dpi de tai ve (.png) + anh xem truoc (.webp)
  *
  * Loi hua tren phieu lay tu COUPONS trong phieu-yeu-thuong.html (sua o do roi chay lai lenh).
  * Moi to chua le 8-10mm: tiem in in thang A4, khong can tran le.
@@ -45,6 +46,7 @@ const PHIEU = {
 const ROOT = path.join(__dirname, '..');
 const MEDIA = path.join(ROOT, 'images', 'love');
 const OUT = path.join(ROOT, 'do-in');
+const DPI = 300;                  // anh PNG tai ve: A4 2480x3508, du net de in
 
 const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const FONTS = '<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Patrick+Hand&display=swap" rel="stylesheet">';
@@ -140,7 +142,7 @@ async function main() {
   const coupons = readCoupons();
   if (coupons.length !== 10) console.warn(`  ! Co ${coupons.length} phieu (to A4 xep vua 10 phieu + bia + huong dan)`);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'doin-'));
-  const page = await openChrome({ width: 800, height: 1100, scale: 2 });
+  const page = await openChrome({ width: 800, height: 1100, scale: DPI / 96 });
   process.on('SIGINT', () => { page.close(); process.exit(1); });
   try {
     // anh vuong cho polaroid: cat tu dong vao cho "dang chu y" nhat (mat nguoi...), ~440 dpi
@@ -160,10 +162,13 @@ async function main() {
       const r = await page.send('Page.printToPDF', { printBackground: true, preferCSSPageSize: true, marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0 });
       const out = path.join(OUT, name + '.pdf');
       fs.writeFileSync(out, Buffer.from(r.result.data, 'base64'));
-      // anh xem truoc cho trang qua-nho.html
+      // anh PNG de tai ve + anh xem truoc nho cho trang qua-nho.html
       const shot = await page.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: (210 / 25.4) * 96, height: (297 / 25.4) * 96, scale: 1 } });
-      await sharp(Buffer.from(shot.result.data, 'base64')).resize({ width: 1000 }).webp({ quality: 84 }).toFile(path.join(OUT, name + '.webp'));
-      console.log(`  Da ghi ${path.relative(ROOT, out)} (${(fs.statSync(out).size / 1048576).toFixed(1)} MB)`);
+      const buf = Buffer.from(shot.result.data, 'base64');
+      await sharp(buf).withMetadata({ density: DPI }).png({ compressionLevel: 9 }).toFile(path.join(OUT, name + '.png'));
+      await sharp(buf).resize({ width: 1000 }).webp({ quality: 84 }).toFile(path.join(OUT, name + '.webp'));
+      const mb = (f) => (fs.statSync(f).size / 1048576).toFixed(1);
+      console.log(`  Da ghi ${path.relative(ROOT, out)} (${mb(out)} MB) + .png (${mb(path.join(OUT, name + '.png'))} MB)`);
     };
     await pdf(polaroidHtml(imgs), 'polaroid-a4');
     await pdf(couponsHtml(coupons), 'phieu-giay-a4');

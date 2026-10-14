@@ -3,16 +3,19 @@
  * In an cho ngay 18/10: truyen tranh A5 "Mot nam cua chung minh" (16 trang) + thiep QR A6
  *
  *   npm run truyentranh     # -> truyen-tranh/*.pdf (mang ra tiem in) + truyen-tranh/*.webp
+ *                           #    + anh PNG 300 dpi tung trang (trang-01.png...) + truyen-tranh-png.zip
  *
  * Hinh ve lay tu chinh phim hoat hinh (chuyen-cua-chung-minh.html ?xuat&tranh), loi ke
  * va anh that cung lay tu STORY trong trang do — sua phim thi chay lai lenh nay la xong.
  * Moi trang chua le trang 7mm mau trang -> tiem in khong can "tran le", cat thang A5/A6.
- * Anh tung trang (trang-01.webp..., thiep-1/2.webp) de trang truyen-tranh.html lat xem tren web.
+ * Anh tung trang (trang-01.webp..., thiep-1/2.webp) de trang truyen-tranh.html lat xem tren web;
+ * ban PNG cung trang do de tai ve (gui tiem in qua Zalo, luu vao may).
  */
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const sharp = require('sharp');
+const { execFileSync } = require('child_process');
 const { openChrome } = require('./chrome.js');
 
 // ★ Chu tren bia, trang tang va thiep — sua thoai mai
@@ -44,6 +47,7 @@ const OUT = path.join(ROOT, 'truyen-tranh');
 // khoanh khac dep nhat cua canh khong co anh that (ms tinh tu dau canh)
 const MOMENT = { 'mo-dau': 4600, 'to-tinh': 4400, 'ket': 4300 };
 const PANEL = { x: 0, y: 150, width: 540, height: 570 };    // vung tranh trong khung 540x960 cua phim
+const DPI = 300;                                            // anh PNG tai ve: du net de in
 
 const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const FONTS = '<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">';
@@ -201,7 +205,7 @@ async function main() {
     img.card = await shot('card.jpg', by('ky-niem'), 1900, { x: 0, y: 60, width: 540, height: 783 });   // truoc luc ruy bang bay len
 
     fs.mkdirSync(OUT, { recursive: true });
-    // PDF de in + anh tung trang (webp) de xem tren web
+    // PDF de in + anh tung trang: webp de xem tren web, PNG 300 dpi de tai ve
     const pdf = async (html, name, widthMm, snapName, snapPx) => {
       const f = path.join(tmp, name + '.html');
       fs.writeFileSync(f, html);
@@ -209,19 +213,24 @@ async function main() {
       const r = await page.send('Page.printToPDF', { printBackground: true, preferCSSPageSize: true, marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0 });
       const out = path.join(OUT, name + '.pdf');
       fs.writeFileSync(out, Buffer.from(r.result.data, 'base64'));
-      await page.send('Emulation.setDeviceMetricsOverride', { width: Math.ceil((widthMm / 25.4) * 96), height: 900, deviceScaleFactor: 2, mobile: false });
+      await page.send('Emulation.setDeviceMetricsOverride', { width: Math.ceil((widthMm / 25.4) * 96), height: 900, deviceScaleFactor: DPI / 96, mobile: false });
       const rects = await page.ev(`[...document.querySelectorAll('.page')].map((e) => { const b = e.getBoundingClientRect(); return [b.left + scrollX, b.top + scrollY, b.width, b.height]; })`);
       for (let k = 0; k < rects.length; k++) {
         const [x, y, width, height] = rects[k];
         const shot = await page.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x, y, width, height, scale: 1 } });
-        await sharp(Buffer.from(shot.result.data, 'base64')).resize({ width: snapPx }).webp({ quality: 82 })
-          .toFile(path.join(OUT, snapName(k + 1)));
+        const buf = Buffer.from(shot.result.data, 'base64');
+        await sharp(buf).resize({ width: snapPx }).webp({ quality: 82 }).toFile(path.join(OUT, snapName(k + 1)));
+        await sharp(buf).withMetadata({ density: DPI }).png({ compressionLevel: 9 }).toFile(path.join(OUT, snapName(k + 1).replace(/\.webp$/, '.png')));
       }
       console.log(`\n  Da ghi ${path.relative(ROOT, out)} (${(fs.statSync(out).size / 1048576).toFixed(1)} MB) + ${rects.length} anh trang`);
       return rects.length;
     };
     const pages = await pdf(bookHtml(scenes, img), 'truyen-tranh-mot-nam', 148, (k) => `trang-${String(k).padStart(2, '0')}.webp`, 1000);
     fs.writeFileSync(path.join(OUT, 'trang.json'), JSON.stringify({ pages }));   // truyen-tranh.html doc so trang
+    // ca cuon PNG trong 1 file nen de tai mot lan
+    const zip = path.join(OUT, 'truyen-tranh-png.zip');
+    fs.rmSync(zip, { force: true });
+    execFileSync('zip', ['-q', '-j', zip, ...Array.from({ length: pages }, (_, k) => path.join(OUT, `trang-${String(k + 1).padStart(2, '0')}.png`))]);
     await pdf(cardHtml(img), 'thiep-qr', 105, (k) => `thiep-${k}.webp`, 800);
   } finally {
     page.close();
