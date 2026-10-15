@@ -1766,6 +1766,17 @@
     .gallery-item.loaded .g-cap { opacity: 1; }
     .gallery .more-btn { margin-top: 6px; }
 
+    /* ── NUT DAT LAI o chan trang ───────────────────────── */
+    .reset-btn {
+      display: block; margin: 14px auto 0;
+      padding: 7px 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: none;
+      color: rgba(255,255,255,0.4); font-family: inherit; font-size: 0.72rem; cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .reset-btn:hover { color: var(--white); border-color: var(--rose); }
+    .reset-btn.arm { color: var(--pink); border-color: var(--rose); background: rgba(255,77,115,0.12); }
+
     /* ── BI MAT NHO: cham trai tim giua hai ten 5 lan ─────── */
     .header .names-display .sep { cursor: pointer; user-select: none; -webkit-user-select: none; display: inline-block; }
     .header .names-display .sep.tap { animation: annivBeat 0.4s ease; }
@@ -2264,6 +2275,8 @@
   <!-- FOOTER -->
   <div class="footer">
     Made with <span class="heart">❤️</span> · Mãi mãi yêu em
+    <!-- Xoa dau "da xem" cua hop qua (+ hop qua dang do, man chao da hien). Bam 2 lan moi xoa -->
+    <button class="reset-btn" id="resetBtn" type="button">↺ Đặt lại hộp quà</button>
   </div>
 
 </div>
@@ -3972,8 +3985,10 @@ document.getElementById('annivPlay').addEventListener('click', () => { annivHide
     ms = todayMs.find(m => /Kỷ niệm|Sinh nhật/.test(m.name)) || todayMs[0];
     // Moi ngay chi chao mot lan, F5 lai khong hien nua
     try {
-      if (localStorage.getItem('anniv-seen') === todayKey) return;
-      localStorage.setItem('anniv-seen', todayKey);
+      // F5 lien tuc khong chao lai, nhung sau 3 gio (vd sang mo thu, toi mo cung nhau) thi chao lai
+      const [k, t] = (localStorage.getItem('anniv-seen') || '').split('|');
+      if (k === todayKey && Date.now() - (+t || 0) < 3 * 3600 * 1000) return;
+      localStorage.setItem('anniv-seen', todayKey + '|' + Date.now());
     } catch {}
   }
   // doi man tai xong — va doi nhap dung mat khau neu trang dang khoa
@@ -4043,6 +4058,24 @@ function renderGifts() {
 }
 renderGifts();
 $('gifts').addEventListener('click', (e) => { const a = e.target.closest('.gift-btn'); if (a) giftMark(a.dataset.id); });
+
+// Nut "Dat lai" o chan trang: xoa dau "da xem", hop qua dang do, man chao da hien (giu mat khau). Bam 2 lan cho khoi lo tay.
+(() => {
+  const btn = $('resetBtn'), LBL = '↺ Đặt lại hộp quà';
+  let armed = 0;
+  const disarm = () => { clearTimeout(armed); armed = 0; btn.classList.remove('arm'); btn.textContent = LBL; };
+  btn.addEventListener('click', () => {
+    if (!armed) {
+      btn.classList.add('arm'); btn.textContent = 'Bấm lần nữa để xoá hết dấu đã xem';
+      armed = setTimeout(disarm, 4000);
+      return;
+    }
+    disarm();
+    ['love-gifts-open', 'love-tour', 'anniv-seen'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    renderGifts();
+    toast('Đã xoá hết, hộp quà mới tinh 🎁');
+  });
+})();
 
 // Vet sang tren thanh tien do cua moc chi chay khi khoi moc dang tren man hinh
 new IntersectionObserver((es) => es.forEach(e => e.target.classList.toggle('in-view', e.isIntersecting)), { rootMargin: '120px 0px' })
