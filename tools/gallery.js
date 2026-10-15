@@ -21,6 +21,7 @@ const ROOT = path.join(__dirname, '..');
 const DIR = path.join(ROOT, 'images', 'love');
 const THUMBS = path.join(DIR, 'thumbs');
 const MD = path.join(DIR, 'md');
+const NHO = path.join(DIR, 'nho');      // ban nho 240px cho cac o be (xem makeNho)
 const MANIFEST = path.join(DIR, 'images.json');
 
 const THUMB_WIDTH = 700;     // du net cho luoi 3 cot tren man hinh retina
@@ -30,6 +31,8 @@ const THUMB_QUALITY = 72;
 const MD_EDGE = 1600;
 const MD_QUALITY = 80;
 const MD_MIN_BYTES = 350 * 1024;
+const NHO_WIDTH = 240;
+const NHO_QUALITY = 70;
 const FORCE = process.argv.includes('--force');
 
 const isVideo = (f) => /\.(mp4|webm|mov)$/i.test(f);
@@ -169,6 +172,19 @@ function findFfmpeg() {
   }
 }
 
+/**
+ * Ban nho 240px, cung ten voi thumb, nam trong nho/: cho o ghep trai tim (~40px), dai anh chay
+ * (84-150px), anh canh moc va trong lich (48-64px). ~8 KB thay vi ~44 KB, va dien thoai khong
+ * phai giai ma 56 anh 700px cung luc (ton ~190 MB bo nho anh -> nong may).
+ */
+async function makeNho(src, name) {
+  fs.mkdirSync(NHO, { recursive: true });
+  const out = path.join(NHO, name);
+  if (!FORCE && fs.existsSync(out)) return;
+  await sharp(src).rotate().resize({ width: NHO_WIDTH, withoutEnlargement: true })
+    .webp({ quality: NHO_QUALITY }).toFile(out);
+}
+
 async function imageEntry(file, ffmpeg) {
   const src = path.join(DIR, file);
   const thumb = path.join(THUMBS, file.replace(/\.[^.]+$/, '') + '.webp');
@@ -177,6 +193,7 @@ async function imageEntry(file, ffmpeg) {
     await sharp(src).rotate().resize({ width: THUMB_WIDTH, withoutEnlargement: true })
       .webp({ quality: THUMB_QUALITY }).toFile(thumb);
   }
+  await makeNho(src, path.basename(thumb));
   const entry = { f: file, t: 'img', w: meta.width, h: meta.height, thumb: path.basename(thumb) };
 
   const md = path.join(MD, path.basename(thumb));
@@ -210,6 +227,7 @@ async function videoEntry(file, ffmpeg) {
   if (fs.existsSync(thumb)) {
     const m = await sharp(thumb).metadata();
     w = m.width; h = m.height;
+    await makeNho(thumb, path.basename(thumb));     // video: lay tu anh dai dien
   }
   const entry = { f: file, t: 'vid', w, h, thumb: fs.existsSync(thumb) ? path.basename(thumb) : null };
   if (entry.thumb) entry.fp = await fingerprint(thumb);

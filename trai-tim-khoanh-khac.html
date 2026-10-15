@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
+  <script src="js/offline.js" defer></script>
   <title>Trái tim khoảnh khắc ✦ Thị Huyền ❤️ Hữu Phước</title>
   <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
@@ -603,7 +604,8 @@
       const img = document.createElement('img');
       img.alt = '';
       img.decoding = 'async';
-      img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+      // o ghep chi ~40px: ban nho 240px (nho/) la du net, nhe gap 5 lan ban thumbs 700px
+      img.src = MEDIA_DIR + (m.thumb ? 'nho/' + m.thumb : m.f);
       el.appendChild(img);
       el.addEventListener('click', () => {
         if (longPressed) { longPressed = false; return; }     // vua giu lau de lat -> khong mo xem

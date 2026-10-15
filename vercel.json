@@ -8,62 +8,185 @@
   "headers": [
     {
       "source": "/images/love/thumbs/:file*",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=2592000" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
     },
     {
       "source": "/images/love/md/:file*",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=2592000" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/images/love/nho/:file*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/music/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/video/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/sticker/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/truyen-tranh/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/do-in/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/icons/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "doibong.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "doibong.personal.io.vn"
+        }
+      ],
       "destination": "/to10.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "love.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "love.personal.io.vn"
+        }
+      ],
       "destination": "/love.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "soc.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "soc.personal.io.vn"
+        }
+      ],
       "destination": "/soc.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "gia-dinh-nguyen-viet.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "gia-dinh-nguyen-viet.personal.io.vn"
+        }
+      ],
       "destination": "/giapha.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "me.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "me.personal.io.vn"
+        }
+      ],
       "destination": "/me.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "online.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "online.personal.io.vn"
+        }
+      ],
       "destination": "/vtv-online.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "today.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "today.personal.io.vn"
+        }
+      ],
       "destination": "/today.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "worldcup.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "worldcup.personal.io.vn"
+        }
+      ],
       "destination": "/worldcup.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "bongda.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "bongda.personal.io.vn"
+        }
+      ],
       "destination": "/bongda-thanhpho.html"
     },
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "wc-history.personal.io.vn" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "wc-history.personal.io.vn"
+        }
+      ],
       "destination": "/worldcup-history.html"
     },
     {

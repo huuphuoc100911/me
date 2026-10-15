@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
+  <script src="js/offline.js" defer></script>
   <title>Một năm nhìn lại ✦ Thị Huyền ❤️ Hữu Phước</title>
   <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
@@ -749,7 +750,8 @@
       const mixed = shuffle(media), per = Math.ceil(mixed.length / 3);
       const row = (k) => {
         const part = mixed.slice(k * per, (k + 1) * per);
-        const list = (part.length ? part : mixed).map((m) => `<img src="${MEDIA_DIR}${m.thumb ? 'thumbs/' + m.thumb : m.f}" alt="" decoding="async">`).join('');
+        // o 84-150px: ban nho 240px (nho/) la du, 114 o x 8 KB thay vi x 44 KB
+        const list = (part.length ? part : mixed).map((m) => `<img src="${MEDIA_DIR}${m.thumb ? 'nho/' + m.thumb : m.f}" alt="" decoding="async">`).join('');
         return `<div class="mq-row">${list}${list}</div>`;    // nhan doi de chay vong khong dut
       };
       defs.push({

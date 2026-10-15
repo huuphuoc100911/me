@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
+  <script src="js/offline.js" defer></script>
   <title>Tình Yêu Của Chúng Mình 💕</title>
   <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
@@ -90,6 +91,7 @@
       opacity: 0;
       visibility: hidden;
     }
+    .loading-screen.quick .loading-bar-fill { animation-duration: 0.35s; }   /* quay lai tu trang qua: thanh tai chay nhanh */
     .loading-heart {
       font-size: 3.5rem;
       animation: loadingPulse 1s ease-in-out infinite;
@@ -3231,7 +3233,7 @@ function mediaThumb(m) {
   b.title = 'Xem ' + (m.t === 'vid' ? 'video' : 'ảnh');
   const img = document.createElement('img');
   img.alt = '';
-  img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+  img.src = MEDIA_DIR + (m.thumb ? 'nho/' + m.thumb : m.f);     // o 48-64px: ban nho 240px la du
   b.appendChild(img);
   if (m.t === 'vid') b.insertAdjacentHTML('beforeend', '<span class="ms-play">▶</span>');
   b.addEventListener('click', (e) => {
@@ -3713,12 +3715,16 @@ btnTop.addEventListener('click', () => {
 // ── LOADING SCREEN ──────────────────────────────────────────────────────────
 // Khong doi su kien `load` (phai tai xong ca 44 anh thu nho + video -> tren 4G yeu cho
 // rat lau): thanh tai chay 1.5s xong la mo man, anh phia duoi tu hien dan.
+// Lan dau trong phien: 1,6 s cho thanh tai chay. Quay lai tu trang qua (cung phien) thi 0,4 s cho khoi cho.
+let loadQuick = false;
+try { loadQuick = sessionStorage.getItem('love-vao') === '1'; sessionStorage.setItem('love-vao', '1'); } catch {}
+if (loadQuick) document.getElementById('loadingScreen').classList.add('quick');
 setTimeout(() => {
   document.getElementById('loadingScreen').classList.add('hide');
   // 4 the so dem len tu 0 khi thuc su vao tam mat (sau man tai, de khong chay ngam luc chua ai thay)
   const so = new IntersectionObserver((es) => { if (es.some(e => e.isIntersecting)) { so.disconnect(); statsCountUp(); } }, { threshold: 0.35 });
   so.observe(document.querySelector('.stats-grid'));
-}, 1600);
+}, loadQuick ? 400 : 1600);
 
 
 // ── ANH CHIA SE TU SINH ──────────────────────────────────────────────────────
@@ -4031,7 +4037,7 @@ const GIFTS = [
   { id: 'mot-nam',     href: 'mot-nam-nhin-lai.html',      ic: '📊', title: 'Một năm nhìn lại',        sub: 'Hành trình kể bằng những con số, có câu đố' },
   { id: '365-vi-sao',  href: '365-vi-sao.html',            ic: '✦',  title: '365 vì sao',              sub: 'Mỗi ngày bên nhau là một vì sao' },
   { id: 'trai-tim',    href: 'trai-tim-khoanh-khac.html',  ic: '♥',  title: 'Trái tim khoảnh khắc',    sub: 'Ghép từ những khoảnh khắc của chúng mình' },
-  { id: 'rap-phim',    href: 'rap-phim.html',              ic: '🎬', art: 'images/love/thumbs/primary.webp',
+  { id: 'rap-phim',    href: 'rap-phim.html',              ic: '🎬', art: 'images/love/nho/primary.webp',
     title: 'Rạp phim của chúng mình',    sub: 'Suất chiếu đặc biệt, chỉ chiếu cho em' },
   { id: 'la-thu',      href: 'la-thu-niem-phong.html',     ic: '✉',  title: 'Lá thư niêm phong',       sub: 'Chạm vào con dấu để mở thư' },
   { id: 'phieu',       href: 'phieu-yeu-thuong.html',      ic: '🎟', title: 'Phiếu yêu thương',        sub: 'Cào ra quà thật, em dùng lúc nào anh cũng chiều' },
