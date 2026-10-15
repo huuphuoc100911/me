@@ -19,8 +19,10 @@
     kids.forEach((c) => c && e.appendChild(c));
     return e;
   }
-  const tf = (el, v) => el.setAttribute('transform', v);
-  const op = (el, v) => el.setAttribute('opacity', v.toFixed(3));
+  // Gia tri khong doi thi bo qua: moi setAttribute la mot lan bao trinh duyet ve lai (phim ghi
+  // ca tram thuoc tinh moi khung, phan lon la giong khung truoc)
+  const tf = (el, v) => { if (el.__tf !== v) { el.__tf = v; el.setAttribute('transform', v); } };
+  const op = (el, v) => { const s = v.toFixed(3); if (el.__op !== s) { el.__op = s; el.setAttribute('opacity', s); } };
   const show = (el, on) => (on ? el.removeAttribute('display') : el.setAttribute('display', 'none'));
   const HEART = 'M0,6 C-2,-2 -14,-4 -14,-12 C-14,-19 -6,-22 0,-15 C6,-22 14,-19 14,-12 C14,-4 2,-2 0,6Z';
   const DROP = 'M0,-14 C5,-6 9,-1 9,4 A9,9 0 1 1 -9,4 C-9,-1 -5,-6 0,-14Z';
@@ -176,8 +178,8 @@
       const b = 1 - 0.9 * (p.blink || 0);
       tf(eyeL, `translate(-20,${4 + (p.look || 0)}) scale(1,${b.toFixed(2)})`);
       tf(eyeR, `translate(20,${4 + (p.look || 0)}) scale(1,${b.toFixed(2)})`);
-      smile.setAttribute('opacity', p.mouth ? 0 : 1);
-      open.setAttribute('opacity', p.mouth === 'open' ? 1 : 0);
+      op(smile, p.mouth ? 0 : 1);
+      op(open, p.mouth === 'open' ? 1 : 0);
       op(blush, p.blush == null ? 0.5 : p.blush);
       if (!isAnh) { op(hairLong, 1 - (p.short || 0)); op(hairShort, p.short || 0); }
       if (p.eyes || p.lids || p.tears || (p.mouth && p.mouth !== 'open') || st.faced) {        // chi dung toi khi sticker bat bieu cam

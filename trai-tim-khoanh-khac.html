@@ -69,8 +69,7 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: var(--glass);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(26,10,20,0.8);     /* khong backdrop-filter: canvas phia sau ve moi khung, lam mo lai ton GPU */
       color: rgba(255,255,255,0.85);
       font: 500 0.82rem/1 'Inter', sans-serif;
       text-decoration: none; cursor: pointer;
@@ -108,13 +107,20 @@
       font: 600 1rem 'Inter', sans-serif; letter-spacing: 0.04em;
       cursor: pointer;
       opacity: 0;
-      animation: rise 1.2s 2.2s ease forwards, ping 2.4s 3.4s ease-out infinite;
+      position: relative;
+      animation: rise 1.2s 2.2s ease forwards;
+    }
+    /* Vong song lan ra quanh nut: pseudo phong to + mo dan (transform/opacity), khong animate box-shadow */
+    .start::after {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit;
+      border: 2px solid rgba(245,200,66,0.5); opacity: 0; pointer-events: none;
+      animation: ping 2.4s 3.4s ease-out infinite;
     }
     .intro-hint { font-size: 0.75rem; color: var(--mut); opacity: 0; animation: rise 1.2s 2.6s ease forwards; }
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
     @keyframes ping {
-      0%   { box-shadow: 0 0 0 0 rgba(245,200,66,0.45); }
-      100% { box-shadow: 0 0 0 18px rgba(245,200,66,0); }
+      0%   { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.35, 1.9); opacity: 0; }
     }
 
     /* ── TRAI TIM GHEP ANH ──────────────────────────────── */
@@ -224,8 +230,7 @@
     .viewer {
       position: fixed; inset: 0; z-index: 8;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(5,2,6,0.94);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      background: rgba(5,2,6,0.96);
       opacity: 0; visibility: hidden;
       transition: opacity 0.35s ease, visibility 0.35s;
     }
@@ -518,8 +523,17 @@
   const ctx = cv.getContext('2d');
   let W = 0, H = 0;
   let dust = [];
+  // cham bui: hinh tron trang nho ve san, drawImage nhanh hon arc()+fill() nhieu lan
+  const DOT = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 8;
+    const g = c.getContext('2d');
+    const grd = g.createRadialGradient(4, 4, 0, 4, 4, 4);
+    grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.5, 'rgba(255,255,255,0.9)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grd; g.fillRect(0, 0, 8, 8);
+    return c;
+  })();
   function makeDust() {
-    const n = Math.round(Math.min(220, (W * H) / 6500));
+    const n = Math.round(Math.min(160, (W * H) / 8000));
     dust = Array.from({ length: n }, () => ({
       x: Math.random() * W, y: Math.random() * H,
       r: Math.random() * 0.9 + 0.2, a: Math.random() * 0.4 + 0.1,
@@ -528,12 +542,15 @@
   }
   const shoots = [];
   let nextShoot = 2500;
+  // Bui sao chi la nen trang tri: ve 30 khung / giay la du, nhuong CPU cho 66 o anh dang bay
+  let dustFrame = 0;
   function frame(t) {
+    if ((++dustFrame & 1) && !shoots.length) { requestAnimationFrame(frame); return; }
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#fff';
     for (const d of dust) {
       ctx.globalAlpha = d.a * (0.6 + 0.4 * Math.sin(t * 0.001 * d.sp + d.ph));
-      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.283); ctx.fill();
+      const sz = d.r * 2.6;
+      ctx.drawImage(DOT, d.x - sz / 2, d.y - sz / 2, sz, sz);
     }
     if (!reduceMotion) {
       if (t > nextShoot) {

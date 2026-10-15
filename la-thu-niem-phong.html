@@ -71,8 +71,7 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: var(--glass);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(26,10,20,0.8);     /* khong backdrop-filter: canvas phia sau ve lien tuc, lam mo lai ton GPU */
       color: rgba(255,255,255,0.85);
       font: 500 0.82rem/1 'Inter', sans-serif;
       text-decoration: none; cursor: pointer;
@@ -155,13 +154,14 @@
       border: none; background: none; padding: 0;
       cursor: pointer;
     }
-    .seal::after {
+    .seal::after {                 /* vong song lan ra: transform/opacity, khong animate box-shadow (ve lai moi khung) */
       content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2px solid rgba(245,200,66,0.55); opacity: 0;
       animation: ping 2.2s ease-out infinite;
     }
     @keyframes ping {
-      0%   { box-shadow: 0 0 0 0 rgba(245,200,66,0.5); }
-      100% { box-shadow: 0 0 0 18px rgba(245,200,66,0); }
+      0%   { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.55); opacity: 0; }
     }
     .seal-l, .seal-r {
       position: absolute; inset: 0;
@@ -225,9 +225,10 @@
     .w { opacity: 0; }
     .w.in { animation: ink 0.6s ease-out forwards; }
     .w.now { opacity: 1; }
+    /* chi opacity + transform: animate filter blur tren tung chu la moi chu mot lop GPU rieng */
     @keyframes ink {
-      from { opacity: 0; filter: blur(3px); transform: translateY(3px); }
-      to   { opacity: 1; filter: none; transform: none; }
+      from { opacity: 0; transform: translateY(3px); }
+      to   { opacity: 1; transform: none; }
     }
 
     .pp-end {
@@ -294,8 +295,7 @@
       position: fixed; inset: 0; z-index: 9;
       display: flex; align-items: center; justify-content: center;
       padding: calc(16px + var(--safe-t)) 14px calc(16px + var(--safe-b));
-      background: rgba(7,3,10,0.72);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      background: rgba(7,3,10,0.84);
       opacity: 0; visibility: hidden;
       transition: opacity 0.45s ease, visibility 0.45s;
     }
@@ -343,8 +343,7 @@
       transform: translateX(-50%);
       padding: 8px 16px; border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(26,10,20,0.6);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      background: rgba(26,10,20,0.8);
       color: rgba(255,255,255,0.85);
       font: 500 0.76rem 'Inter', sans-serif;
       cursor: pointer;
@@ -360,6 +359,7 @@
       border-radius: 50% 0 50% 0;
       opacity: 0;
       animation: fall linear infinite;
+      will-change: transform, opacity;
     }
     @keyframes fall {
       0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
@@ -479,24 +479,36 @@
   const cv = $('sky');
   const ctx = cv.getContext('2d');
   let W = 0, H = 0, dust = [];
+  // cham bui ve san (drawImage nhanh hon arc()+fill() nhieu lan)
+  const DOT = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 8;
+    const g = c.getContext('2d');
+    const grd = g.createRadialGradient(4, 4, 0, 4, 4, 4);
+    grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.5, 'rgba(255,255,255,0.9)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grd; g.fillRect(0, 0, 8, 8);
+    return c;
+  })();
   function layout() {
     W = innerWidth; H = innerHeight;
     const dpr = Math.min(2, devicePixelRatio || 1);
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const n = Math.round(Math.min(200, (W * H) / 7000));
+    const n = Math.round(Math.min(150, (W * H) / 8500));
     dust = Array.from({ length: n }, () => ({
       x: Math.random() * W, y: Math.random() * H,
       r: Math.random() * 0.9 + 0.2, a: Math.random() * 0.4 + 0.1,
       ph: Math.random() * 6.283, sp: Math.random() * 0.8 + 0.2,
     }));
   }
+  // Bui sao chi la nen: 30 khung / giay la du, nhuong may cho chu dang viet
+  let dustFrame = 0;
   function frame(t) {
+    if (++dustFrame & 1) { requestAnimationFrame(frame); return; }
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#fff';
     for (const d of dust) {
       ctx.globalAlpha = d.a * (0.6 + 0.4 * Math.sin(t * 0.001 * d.sp + d.ph));
-      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.283); ctx.fill();
+      const sz = d.r * 2.6;
+      ctx.drawImage(DOT, d.x - sz / 2, d.y - sz / 2, sz, sz);
     }
     ctx.globalAlpha = 1;
     requestAnimationFrame(frame);
@@ -564,13 +576,13 @@
     if (paperEl.scrollTop + paperEl.clientHeight >= paperEl.scrollHeight - 60) userScrolled = false;
   }, { passive: true });
 
+  // Chi do vi tri moi 450ms: vua ghi class cho chu moi xong ma doc ngay vi tri thi
+  // trinh duyet phai tinh lai bo cuc moi khung hinh
   function follow(now, el) {
     if (userScrolled || now - lastFollow < 450 || !el) return;
+    lastFollow = now;
     const pr = paperEl.getBoundingClientRect(), wr = el.getBoundingClientRect();
-    if (wr.bottom > pr.bottom - 70) {
-      lastFollow = now;
-      paperEl.scrollBy({ top: wr.bottom - pr.bottom + 140, behavior: 'smooth' });
-    }
+    if (wr.bottom > pr.bottom - 70) paperEl.scrollBy({ top: wr.bottom - pr.bottom + 140, behavior: 'smooth' });
   }
 
   function writeTick(now) {

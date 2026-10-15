@@ -58,8 +58,7 @@
       height: 38px; min-width: 38px; padding: 0 14px;
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       border-radius: 999px; border: 1px solid var(--border);
-      background: var(--glass);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(26,10,20,0.8);     /* khong backdrop-filter: san khau phia sau ve moi khung */
       color: rgba(255,255,255,0.88);
       font: 500 0.8rem/1 'Inter', sans-serif;
       text-decoration: none; cursor: pointer;
@@ -158,11 +157,10 @@
       position: fixed; inset: 0; z-index: 20;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
       padding: 24px; text-align: center;
-      background: rgba(10,3,7,0.62);
-      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-      transition: opacity 0.6s ease;
+      background: rgba(10,3,7,0.74);
+      transition: opacity 0.6s ease, visibility 0.6s;
     }
-    .cover.gone { opacity: 0; pointer-events: none; }
+    .cover.gone { opacity: 0; visibility: hidden; pointer-events: none; }   /* visibility hidden: man che khong con ton gi khi da mo */
     .cover .k { font: 600 0.78rem/1 'Inter'; letter-spacing: 3px; text-transform: uppercase; color: var(--pink); }
     .cover h1 { font: 700 clamp(2.4rem, 11vw, 3.6rem)/1.05 'Dancing Script', cursive; }
     .cover p { max-width: 340px; color: rgba(255,255,255,0.75); font-size: 0.95rem; line-height: 1.5; }
@@ -183,15 +181,14 @@
       position: fixed; z-index: 25; left: 12px; right: 12px; bottom: calc(12px + var(--safe-b));
       display: flex; align-items: center; gap: 10px;
       padding: 8px 12px; border-radius: 999px;
-      background: var(--glass); border: 1px solid var(--border);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(26,10,20,0.85); border: 1px solid var(--border);
       opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
       max-width: 520px; margin: 0 auto;
     }
     .hud-on .hud { opacity: 1; pointer-events: auto; }
     .hud button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.12); color: #fff; font-size: 0.9rem; cursor: pointer; flex: none; }
     .hud .prog { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); overflow: hidden; }
-    .hud .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ff6b8a, #fde68a); }
+    .hud .prog i { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, #ff6b8a, #fde68a); }
     .hud .time { font: 500 0.72rem/1 'Inter'; color: rgba(255,255,255,0.75); min-width: 74px; text-align: right; font-variant-numeric: tabular-nums; }
     .export .bar, .export .hud, .export .cover { display: none !important; }
     /* ?xuat&tranh: chi lay hinh ve + anh cho truyen tranh in (tools/truyen-tranh.js) */
@@ -915,33 +912,50 @@
     let i = scenes.findIndex((s) => t < s.start + s.dur);
     if (i < 0) i = scenes.length - 1;
     const sc = scenes[i], lt = t - sc.start;
+    // Moi lan ghi style/class la mot lan trinh duyet phai tinh lai -> chi ghi khi gia tri doi
     scenes.forEach((s, k) => {
       const on = k === i || (k === i - 1 && lt < FADE);
-      s.svg.style.visibility = on ? 'visible' : 'hidden';
+      const vis = on ? 'visible' : 'hidden';
+      if (s.vis !== vis) { s.vis = vis; s.svg.style.visibility = vis; }
       if (!on) return;
-      s.svg.style.opacity = k === i ? (i === 0 ? 1 : eio(seg(lt, 0, FADE))).toFixed(3) : '1';
-      s.svg.style.zIndex = k === i ? 2 : 1;
+      const o = k === i ? (i === 0 ? 1 : eio(seg(lt, 0, FADE))).toFixed(3) : '1', z = k === i ? 2 : 1;
+      if (s.op !== o) { s.op = o; s.svg.style.opacity = o; }
+      if (s.z !== z) { s.z = z; s.svg.style.zIndex = z; }
     });
     if (i > 0 && lt < FADE) { const p = scenes[i - 1]; drawScene(p, t - p.start); }
-    if (i !== curIdx) { $('flash').style.opacity = 0; curIdx = i; }
+    if (i !== curIdx) {
+      $('flash').style.opacity = 0; curIdx = i;
+      dots.forEach((d, k) => { d.className = k < i ? 'on' : k === i ? 'cur' : ''; });
+    }
     drawScene(sc, lt);
 
     // chu: ngay + ten canh, loi ke hien tung chu
     const head = $('head');
-    head.className = 'head' + (sc.hero ? ' hero' : '') + (LIGHT.has(sc.art) ? ' light' : '');
-    $('chip').textContent = sc.date;
-    $('ttl').textContent = sc.title;
+    const headCls = 'head' + (sc.hero ? ' hero' : '') + (LIGHT.has(sc.art) ? ' light' : '');
+    if (head.className !== headCls) head.className = headCls;
+    setText($('chip'), sc.date);
+    setText($('ttl'), sc.title);
     const inP = eo(seg(lt, 150, 750)), outP = i < scenes.length - 1 ? seg(lt, sc.dur - 450, sc.dur) : 0;
-    head.style.opacity = (inP * (1 - outP)).toFixed(3);
-    head.style.transform = `translateY(${((1 - inP) * -14).toFixed(1)}px)`;
-    const n = Math.max(0, Math.floor((lt - 700) / TYPE_MS));
-    const shown = [...sc.text].slice(0, n).join(''), rest = [...sc.text].slice(n).join('');
+    setStyle(head, 'opacity', (inP * (1 - outP)).toFixed(3));
+    setStyle(head, 'transform', `translateY(${((1 - inP) * -14).toFixed(1)}px)`);
+    // loi ke: 3 span (da hien / con tro / chua hien) tao 1 lan moi canh, moi chu moi chi doi textContent
     const say = $('say');
-    const html = esc(shown) + (rest ? '<span class="caret"></span><span class="ghost">' + esc(rest) + '</span>' : '');
-    if (say.innerHTML !== html) say.innerHTML = html;
+    if (sayScene !== sc) {
+      sayScene = sc; sayN = -1;
+      say.innerHTML = '<span></span><span class="caret"></span><span class="ghost"></span>';
+      [sayShown, sayCaret, sayGhost] = say.children;
+      sc.chars = sc.chars || [...sc.text];
+    }
+    const n = Math.min(sc.chars.length, Math.max(0, Math.floor((lt - 700) / TYPE_MS)));
+    if (n !== sayN) {
+      sayN = n;
+      sayShown.textContent = sc.chars.slice(0, n).join('');
+      sayGhost.textContent = sc.chars.slice(n).join('');
+      sayCaret.style.display = n < sc.chars.length ? '' : 'none';
+    }
     const sIn = eo(seg(lt, 300, 800));
-    say.style.opacity = (sIn * (1 - outP)).toFixed(3);
-    say.style.transform = `translateY(${((1 - sIn) * 24).toFixed(1)}px)`;
+    setStyle(say, 'opacity', (sIn * (1 - outP)).toFixed(3));
+    setStyle(say, 'transform', `translateY(${((1 - sIn) * 24).toFixed(1)}px)`);
 
     // anh that dang polaroid: 1 tam to ben phai, nhieu tam xoe quat bay vao lan luot
     const np = sc.photos.length;
@@ -957,26 +971,30 @@
         el.querySelector('b').textContent = np === 1 || k === np - 1 ? sc.date : '';
       }
       el.hidden = false;
-      el.className = 'pola' + (np > 1 ? ' sm' : '') + (np === 4 ? ' sm4' : '') + (vid ? ' vid' : '');
+      const cls = 'pola' + (np > 1 ? ' sm' : '') + (np === 4 ? ' sm4' : '') + (vid ? ' vid' : '');
+      if (el.className !== cls) el.className = cls;
       if (vid) syncClip(v, (lt - at) / 1000);
       const p = seg(lt, at, at + 900), b = back(p);
-      el.style.opacity = (Math.min(1, p * 3) * (1 - outP)).toFixed(3);
-      el.style.zIndex = 4 + k;
+      setStyle(el, 'opacity', (Math.min(1, p * 3) * (1 - outP)).toFixed(3));
+      setStyle(el, 'zIndex', String(4 + k));
+      // left/top co dinh trong canh; moi chuyen dong (ke ca nhun nhe) deu qua transform -> khong tinh lai bo cuc
       if (np === 1) {
-        el.style.left = '338px'; el.style.top = (POLA_TOP[sc.art] || 300) + 'px';
-        el.style.transform = `translate(${((1 - b) * 120).toFixed(1)}px,${((1 - b) * -60).toFixed(1)}px) rotate(${lerp(18, 5, b).toFixed(2)}deg)`;
+        setStyle(el, 'left', '338px'); setStyle(el, 'top', (POLA_TOP[sc.art] || 300) + 'px');
+        setStyle(el, 'transform', `translate(${((1 - b) * 120).toFixed(1)}px,${((1 - b) * -60).toFixed(1)}px) rotate(${lerp(18, 5, b).toFixed(2)}deg)`);
       } else {
         const F = FAN[np], off = k - (np - 1) / 2;
-        const cx = 270 + off * F.dx, top = 214 + Math.abs(off) * 16 + Math.sin(lt * 0.002 + k * 1.7) * 2.5;
-        el.style.left = (cx - (np === 4 ? 68 : 75)).toFixed(1) + 'px'; el.style.top = top.toFixed(1) + 'px';
-        el.style.transform = `translate(${((1 - b) * off * 40).toFixed(1)}px,${((1 - b) * -110).toFixed(1)}px) rotate(${(F.rot[k] + (1 - b) * 16 * (off < 0 ? -1 : 1)).toFixed(2)}deg)`;
+        const cx = 270 + off * F.dx, bob = Math.sin(lt * 0.002 + k * 1.7) * 2.5;
+        setStyle(el, 'left', (cx - (np === 4 ? 68 : 75)).toFixed(1) + 'px'); setStyle(el, 'top', (214 + Math.abs(off) * 16) + 'px');
+        setStyle(el, 'transform', `translate(${((1 - b) * off * 40).toFixed(1)}px,${((1 - b) * -110 + bob).toFixed(1)}px) rotate(${(F.rot[k] + (1 - b) * 16 * (off < 0 ? -1 : 1)).toFixed(2)}deg)`);
       }
     });
 
-    dots.forEach((d, k) => { d.className = k < i ? 'on' : k === i ? 'cur' : ''; });
     // dau phim mo tu den, cuoi phim toi dan
-    $('veil').style.opacity = Math.max(1 - seg(t, 0, 900), seg(t, TOTAL - 1400, TOTAL - 100)).toFixed(3);
+    setStyle($('veil'), 'opacity', Math.max(1 - seg(t, 0, 900), seg(t, TOTAL - 1400, TOTAL - 100)).toFixed(3));
   }
+  const setText = (el, v) => { if (el.textContent !== v) el.textContent = v; };
+  const setStyle = (el, k, v) => { if (el.style[k] !== v) el.style[k] = v; };
+  let sayScene = null, sayShown = null, sayCaret = null, sayGhost = null, sayN = -1;
   function drawScene(s, lt) {
     s.upd(lt, s.dur);
     // anh polaroid hien -> nhan vat dich sang trai nhuong cho
@@ -1040,10 +1058,10 @@
     const t = now();
     if (t >= TOTAL) { finish(); return; }
     renderAt(t);
-    $('progFill').style.width = `${((t / TOTAL) * 100).toFixed(2)}%`;
-    $('time').textContent = `${fmt(t)} / ${fmt(TOTAL)}`;
+    setStyle($('progFill'), 'transform', `scaleX(${(t / TOTAL).toFixed(4)})`);
+    setText($('time'), `${fmt(t)} / ${fmt(TOTAL)}`);
     // nhac nho dan o 3 giay cuoi
-    if (musicOn) audio.volume = 0.7 * (1 - seg(t, TOTAL - 3500, TOTAL));
+    if (musicOn && t > TOTAL - 3500) audio.volume = 0.7 * (1 - seg(t, TOTAL - 3500, TOTAL));
     raf = requestAnimationFrame(loop);
   }
   const fmt = (ms) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };

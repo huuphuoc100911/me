@@ -68,8 +68,7 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: var(--glass);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(26,10,20,0.8);     /* khong backdrop-filter: phim phia sau doi moi khung, lam mo lai ton GPU */
       color: rgba(255,255,255,0.85);
       font: 500 0.82rem/1 'Inter', sans-serif;
       text-decoration: none; cursor: pointer;
@@ -114,10 +113,11 @@
     /* ── CAC CANH PHIM ──────────────────────────────────── */
     .layer { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s ease; }
     .layer.show { opacity: 1; }
-    .layer .bg {
-      position: absolute; inset: -60px;
+    .layer .bg {                   /* nen mo: lop vua man hinh phong to bang transform (GPU), blur nho hon -> nhe hon nhieu */
+      position: absolute; inset: 0;
       background-size: cover; background-position: center;
-      filter: blur(30px) brightness(0.42) saturate(1.2);
+      transform: scale(1.15);
+      filter: blur(16px) brightness(0.42) saturate(1.2);
     }
     .layer .fg {
       position: absolute; inset: 0; width: 100%; height: 100%;
@@ -133,10 +133,9 @@
       position: absolute; left: 50%; bottom: calc(10vh + var(--safe-b));
       transform: translateX(-50%);
       padding: 6px 15px;
-      background: rgba(0,0,0,0.5); border: 1px solid rgba(245,200,66,0.35);
+      background: rgba(0,0,0,0.62); border: 1px solid rgba(245,200,66,0.35);
       color: var(--gold2); font-size: 0.82rem; line-height: 1.35;
       width: max-content; max-width: calc(100vw - 32px); text-align: center; border-radius: 18px;
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       animation: capIn 1s 0.5s both;
     }
     @keyframes capIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -152,7 +151,7 @@
     .card > :nth-child(2) { animation-delay: 0.25s; }
     .card > :nth-child(3) { animation-delay: 0.5s; }
     .card > :nth-child(4) { animation-delay: 0.75s; }
-    @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }   /* khong animate filter blur tren chu gradient */
     .card .k { font: 500 0.76rem/1.4 'Inter', sans-serif; letter-spacing: 0.38em; text-transform: uppercase; color: rgba(253,230,138,0.78); }
     .card .ic { margin-top: 16px; font-size: 3.1rem; line-height: 1; }
     .card .t {
@@ -172,8 +171,9 @@
     .card .stats span { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut); }
 
     /* Hat film + vien toi: cho giong phim chieu rap */
-    .grain {
-      position: absolute; inset: -50%; z-index: 3; pointer-events: none; opacity: 0.08;
+    .grain {                       /* lop hat chi can rong hon man hinh mot chut (nhay toi da 3%) */
+      position: absolute; inset: -6%; z-index: 3; pointer-events: none; opacity: 0.08;
+      will-change: transform;
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
       animation: grain 0.8s steps(5) infinite;
     }
@@ -181,6 +181,8 @@
       0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); }
       60% { transform: translate(-2%, -1%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); }
     }
+    /* chua chieu / dang tam dung thi hat film dung yen */
+    body:not(.playing) .grain, .paused .grain { animation-play-state: paused; }
     .vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6) 100%); }
 
     /* ── THANH DIEU KHIEN (cham man hinh moi hien) ──────── */
@@ -199,7 +201,7 @@
     }
     .hud button.main { width: 48px; height: 48px; background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; border: none; }
     .prog { flex: 1; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.18); overflow: hidden; }
-    .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--rose)); }
+    .prog i { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, var(--gold), var(--rose)); }   /* scaleX: khong tinh lai bo cuc moi khung */
     .time { flex: none; font-size: 0.74rem; color: var(--mut); font-variant-numeric: tabular-nums; }
     .paused-mark {
       position: absolute; inset: 0; z-index: 7; display: none; place-items: center; pointer-events: none;
@@ -251,9 +253,9 @@
       position: fixed; inset: 0; z-index: 15;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
       padding: calc(70px + var(--safe-t)) 18px calc(24px + var(--safe-b));
-      transition: opacity 0.8s ease;
+      transition: opacity 0.8s ease, visibility 0.8s;
     }
-    .ticket-wrap.gone { opacity: 0; pointer-events: none; }
+    .ticket-wrap.gone { opacity: 0; pointer-events: none; visibility: hidden; }   /* an han: chu "xe ve" khong con nhap nhay ngam suot phim */
     .marquee {
       font-family: 'Dancing Script', cursive; font-size: clamp(1.5rem, 6vw, 2rem); color: var(--gold2);
       text-shadow: 0 0 14px rgba(245,200,66,0.6);
@@ -632,7 +634,7 @@
     if (!s || s.type === 'credits' || cache.has(i)) return;
     cache.set(i, makeNode(s));
   }
-  const elapsedBefore = (i) => scenes.slice(0, Math.max(0, i)).reduce((s, x) => s + (x.ms || 0), 0);
+  const elapsedBefore = (i) => { let s = 0; for (let k = 0; k < i; k++) s += scenes[k].ms || 0; return s; };
 
   function startClip(v, i) {
     const s = scenes[i];
@@ -747,13 +749,15 @@
   $('play').addEventListener('click', () => (playing ? pause() : resume()));
   $('next').addEventListener('click', () => { show(idx + 1); showHud(!playing); });
   $('prev').addEventListener('click', () => { show(idx - 1); showHud(!playing); });
+  const progFillEl = $('progFill'), timeEl = $('time');
   (function tick() {
     if (idx >= 0 && scenes[idx] && scenes[idx].type !== 'credits') {
       const sv = scenes[idx].sound && currentVideo();
       const inScene = sv ? sv.currentTime * 1000 : playing ? performance.now() - sceneStart : (scenes[idx].ms - remaining);
       const done = elapsedBefore(idx) + Math.min(scenes[idx].ms, Math.max(0, inScene));
-      $('progFill').style.width = `${(clamp01(done / totalMs) * 100).toFixed(2)}%`;
-      $('time').textContent = `${fmtTime(done)} / ${fmtTime(totalMs)}`;
+      const fill = `scaleX(${clamp01(done / totalMs).toFixed(4)})`, tm = `${fmtTime(done)} / ${fmtTime(totalMs)}`;
+      if (progFillEl.style.transform !== fill) progFillEl.style.transform = fill;
+      if (timeEl.textContent !== tm) timeEl.textContent = tm;      // chi ghi khi chu doi
     }
     requestAnimationFrame(tick);
   })();
@@ -792,7 +796,7 @@
     if (rollAnim) rollAnim.cancel();
     rollAnim = roll.animate([{ transform: `translateY(${V}px)` }, { transform: `translateY(${-H}px)` }], { duration: dur, easing: 'linear', fill: 'forwards' });
     rollAnim.onfinish = () => { $('end').classList.add('show'); document.body.classList.remove('playing'); };
-    $('progFill').style.width = '100%';
+    progFillEl.style.transform = 'scaleX(1)';
   }
   $('again').addEventListener('click', () => {
     if (rollAnim) rollAnim.cancel();

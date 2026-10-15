@@ -56,8 +56,7 @@
       position: fixed; inset: -60px;
       background: #10070f center / cover no-repeat;
       filter: blur(50px) brightness(0.45) saturate(1.2);
-      opacity: 0;
-      transition: background 0.8s ease;
+      display: none;                 /* dien thoai: khong ve (lam mo 50px ca man hinh rat nang) */
     }
 
     /* ── THE STORY ──────────────────────────────────────── */
@@ -84,7 +83,7 @@
       pointer-events: none;
     }
     .bars > span { flex: 1; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.3); overflow: hidden; }
-    .bars > span > i { display: block; height: 100%; width: 0; background: #fff; }
+    .bars > span > i { display: block; height: 100%; width: 100%; background: #fff; transform: scaleX(0); transform-origin: left; }   /* scaleX: khong tinh lai bo cuc moi khung */
 
     .st-head {
       position: absolute; z-index: 5;
@@ -181,8 +180,7 @@
       align-self: flex-start;
       margin-top: 18px; padding: 9px 15px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.16);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.22);
       font-size: 0.92rem; font-weight: 500;
     }
 
@@ -242,9 +240,11 @@
       transform: rotate(-8deg);
       opacity: 0.5;
     }
-    .mq-row { display: flex; gap: 10px; width: max-content; animation: mq 70s linear infinite; }
-    .mq-row:nth-child(2) { animation-duration: 85s; animation-direction: reverse; }
-    .mq-row:nth-child(3) { animation-duration: 78s; }
+    .mq-row { display: flex; gap: 10px; width: max-content; animation: mq 24s linear infinite; }
+    .mq-row:nth-child(2) { animation-duration: 29s; animation-direction: reverse; }
+    .mq-row:nth-child(3) { animation-duration: 26s; }
+    /* man khong hien thi dung hieu ung (3 hang anh + tim dap chay ngam suot ca story thi phi) */
+    .slide:not(.on) .mq-row, .slide:not(.on) .bigheart { animation-play-state: paused; }
     .mq-row img {
       width: clamp(84px, calc(var(--u) * 27), 150px); height: clamp(84px, calc(var(--u) * 27), 150px);
       object-fit: cover; border-radius: 14px; display: block;
@@ -334,6 +334,7 @@
     .after p { margin-top: 10px; font-size: 1rem; opacity: 0.9; animation: up 0.8s 0.3s cubic-bezier(.2,.8,.2,1) both; }
     .after-btns { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; animation: up 0.8s 0.6s cubic-bezier(.2,.8,.2,1) both; }
     .btn {
+      position: relative;
       padding: 12px 20px; border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.3);
       background: rgba(255,255,255,0.1);
@@ -344,9 +345,13 @@
       border-color: rgba(245,200,66,0.6);
       background: linear-gradient(135deg, rgba(245,200,66,0.25), rgba(255,77,115,0.3));
       color: var(--gold2);
+    }
+    .btn.gold::after {               /* vong song lan ra bang transform/opacity, khong animate box-shadow */
+      content: ''; position: absolute; inset: -1px; border-radius: inherit;
+      border: 2px solid rgba(245,200,66,0.5); opacity: 0; pointer-events: none;
       animation: ping 2.4s ease-out infinite;
     }
-    @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(245,200,66,0.45); } 100% { box-shadow: 0 0 0 16px rgba(245,200,66,0); } }
+    @keyframes ping { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.3, 1.8); opacity: 0; } }
 
     .burst { position: fixed; z-index: 9; font-size: 20px; line-height: 1; pointer-events: none; }
 
@@ -369,7 +374,7 @@
       :root { --sh: min(calc(100vh - 40px), 920px); }
       @supports (height: 100dvh) { :root { --sh: min(calc(100dvh - 40px), 920px); } }
       :root { --sw: min(460px, calc(var(--sh) * 9 / 16)); }
-      .backdrop { opacity: 1; }
+      .backdrop { display: block; }
       .story {
         --safe-t: 0px; --safe-b: 0px;
         inset: auto; top: 50%; left: 50%;
@@ -439,8 +444,7 @@
       position: fixed; inset: 0; z-index: 8;
       display: flex; align-items: center; justify-content: center;
       padding: calc(16px + var(--safe-t)) 16px calc(16px + var(--safe-b));
-      background: rgba(7,3,10,0.82);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(7,3,10,0.9);
       opacity: 0; visibility: hidden;
       transition: opacity 0.5s ease, visibility 0.5s;
     }
@@ -739,14 +743,17 @@
     }
 
     if (media.length) {
-      const row = () => {
-        const list = shuffle(media).map((m) => `<img src="${MEDIA_DIR}${m.thumb ? 'thumbs/' + m.thumb : m.f}" alt="" decoding="async">`).join('');
+      // chia deu anh cho 3 hang (moi tam chi xuat hien o 1 hang): 3 x 19 x 2 = 114 anh thay vi 342
+      const mixed = shuffle(media), per = Math.ceil(mixed.length / 3);
+      const row = (k) => {
+        const part = mixed.slice(k * per, (k + 1) * per);
+        const list = (part.length ? part : mixed).map((m) => `<img src="${MEDIA_DIR}${m.thumb ? 'thumbs/' + m.thumb : m.f}" alt="" decoding="async">`).join('');
         return `<div class="mq-row">${list}${list}</div>`;    // nhan doi de chay vong khong dut
       };
       defs.push({
         dur: 7000, bg: '#120812',
         html: `
-          <div class="marquee" aria-hidden="true">${row()}${row()}${row()}</div>
+          <div class="marquee" aria-hidden="true">${row(0)}${row(1)}${row(2)}</div>
           <div class="vignette"></div>
           <div class="kicker a" style="--d:.2s">Chúng mình đã lưu lại</div>
           <div class="huge a" style="--d:.5s">${cnt(media.length, 500)}</div>
@@ -819,6 +826,7 @@
 
     // Gan vao trang
     barsEl.innerHTML = defs.map(() => '<span><i></i></span>').join('');
+    fillEls = null;
     slides = defs.map((d) => {
       const el = document.createElement('section');
       el.className = 'slide ' + (d.cls || '');
@@ -840,7 +848,9 @@
   }
 
   // ── CHUYEN MAN ───────────────────────────────────────────────
-  const fills = () => [...barsEl.querySelectorAll('i')];
+  let fillEls = null;
+  const fills = () => fillEls || (fillEls = [...barsEl.querySelectorAll('i')]);
+  const setFill = (b, p) => { const v = `scaleX(${p})`; if (b.style.transform !== v) b.style.transform = v; };
   let cur = -1, slideStart = 0, paused = false, pausedAt = 0;
 
   function go(i) {
@@ -854,7 +864,7 @@
     void s.el.offsetWidth;                     // ep trinh duyet chay lai hieu ung khi quay lai man cu
     s.el.classList.add('on');
     s.counters.forEach((c) => { c.v = -1; c.el.textContent = '0'; });
-    fills().forEach((b, k) => { b.style.width = k < cur ? '100%' : '0%'; });
+    fills().forEach((b, k) => setFill(b, k < cur ? 1 : 0));
     backdropEl.style.background = s.bg;
     slideStart = performance.now();
     if (paused) pausedAt = slideStart;
@@ -878,7 +888,7 @@
       const s = slides[cur];
       const e = (paused ? pausedAt : now) - slideStart;
       const bar = fills()[cur];
-      if (bar) bar.style.width = `${clamp01(e / s.barDur) * 100}%`;
+      if (bar) setFill(bar, clamp01(e / s.barDur).toFixed(4));
       for (const c of s.counters) {
         const v = Math.round(c.to * (1 - (1 - clamp01((e - c.at) / COUNT_MS)) ** 3));
         if (v !== c.v) { c.v = v; c.el.textContent = v.toLocaleString('vi-VN'); }

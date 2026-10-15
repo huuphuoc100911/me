@@ -20,8 +20,13 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Trang kỷ niệm tình yêu của Thị Huyền và Hữu Phước 💕">
   <meta name="theme-color" content="#1a0a14">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap');
+    /* MUOT TREN DIEN THOAI: khong dung backdrop-filter (moi the mo nen phai lam mo lai
+       moi khung hinh vi sao + tim bay phia sau luon doi); hieu ung lap lai chi dung
+       transform / opacity, khong animate left / width / box-shadow / background-position. */
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -149,7 +154,7 @@
       opacity: 0;
       font-size: 20px;
       animation: floatUp linear infinite;
-      filter: blur(0.5px);
+      will-change: transform, opacity;
     }
     @keyframes floatUp {
       0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 0; }
@@ -165,6 +170,7 @@
       border-radius: 50% 0 50% 0;
       opacity: 0;
       animation: petalFall linear infinite;
+      will-change: transform, opacity;
     }
     @keyframes petalFall {
       0%   { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
@@ -276,8 +282,7 @@
       padding: 8px 22px;
       border: 1px solid var(--border);
       border-radius: 100px;
-      background: var(--soft);
-      backdrop-filter: blur(10px);
+      background: rgba(45,21,37,0.75);
       font-size: 0.82rem;
       color: var(--pink);
       letter-spacing: 1px;
@@ -309,7 +314,7 @@
       animation: giftSweep 3.6s ease-in-out infinite;
       pointer-events: none;
     }
-    @keyframes giftSweep { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+    @keyframes giftSweep { 0%, 55% { transform: translateX(0); } 100% { transform: translateX(475%); } }
     .gift-btn:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 14px 40px rgba(245,200,66,0.22); }
     .gift-ic {
       font-size: 1.6rem; color: var(--gold2);
@@ -385,16 +390,21 @@
       background: linear-gradient(135deg, #fff 0%, var(--gold2) 45%, var(--rose) 100%);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    @property --feat-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
     .feat-frame {                 /* vien vang - hong xoay quanh khung video */
       position: relative; margin-top: 14px;
-      width: 100%; padding: 3px; border-radius: 26px;
-      background: conic-gradient(from var(--feat-a), var(--gold), var(--rose), var(--pink), var(--gold2), var(--gold));
+      width: 100%; padding: 3px; border-radius: 26px; overflow: hidden;
+      background: var(--rose);
       box-shadow: 0 0 40px rgba(255,107,138,0.35), 0 0 90px rgba(245,200,66,0.18);
-      animation: featSpin 6s linear infinite;
     }
-    @keyframes featSpin { to { --feat-a: 360deg; } }
-    .feat-box { position: relative; aspect-ratio: 9 / 16; border-radius: 23px; overflow: hidden; background: #000; }
+    .feat-frame::before {         /* hinh vuong gradient lon hon khung, xoay bang transform (GPU) */
+      content: ''; position: absolute; left: 50%; top: 50%;
+      width: 220%; aspect-ratio: 1; margin: -110% 0 0 -110%;
+      background: conic-gradient(var(--gold), var(--rose), var(--pink), var(--gold2), var(--gold));
+      animation: featSpin 6s linear infinite;
+      will-change: transform;
+    }
+    @keyframes featSpin { to { transform: rotate(360deg); } }
+    .feat-box { position: relative; z-index: 1; aspect-ratio: 9 / 16; border-radius: 23px; overflow: hidden; background: #000; }
     .feat-box video { display: block; width: 100%; height: 100%; object-fit: cover; }
     .feat-card.watching .feat-box video { object-fit: contain; }
     .feat-play {
@@ -404,21 +414,25 @@
       background: radial-gradient(circle at 50% 50%, rgba(10,3,8,0.15), rgba(10,3,8,0.55));
     }
     .feat-play-ic {
+      position: relative;
       width: 78px; height: 78px; border-radius: 50%;
       display: grid; place-items: center; padding-left: 6px;
       font-size: 1.9rem; color: #2a0a17;
       background: linear-gradient(135deg, var(--gold), var(--rose));
-      animation: featPulse 2s ease-out infinite;
     }
-    @keyframes featPulse {
-      0%   { box-shadow: 0 0 0 0 rgba(255,107,138,0.6); }
-      70%  { box-shadow: 0 0 0 22px rgba(255,107,138,0); }
-      100% { box-shadow: 0 0 0 0 rgba(255,107,138,0); }
+    .feat-play-ic::after {        /* vong song lan ra */
+      content: ''; position: absolute; inset: -3px; border-radius: 50%;
+      border: 3px solid rgba(255,107,138,0.6);
+      animation: ringPulse 2s ease-out infinite;
+    }
+    @keyframes ringPulse {
+      0%   { transform: scale(1); opacity: 1; }
+      70%, 100% { transform: scale(1.6); opacity: 0; }
     }
     .feat-play-txt { font-size: 0.86rem; letter-spacing: 0.5px; text-shadow: 0 1px 8px rgba(0,0,0,0.7); }
     .feat-card.watching .feat-play { display: none; }
     .feat-sub { margin-top: 14px; font-size: 0.82rem; letter-spacing: 2px; color: var(--mut); }
-    @media (prefers-reduced-motion: reduce) { .feat-frame, .feat-play-ic { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .feat-frame::before, .feat-play-ic::after { animation: none; } }
 
     @media (max-width: 520px) {
       .gifts { margin-top: -10px; }
@@ -440,7 +454,7 @@
       border-radius: 24px;
       padding: 32px 24px;
       text-align: center;
-      backdrop-filter: blur(16px);
+      background-color: rgba(45,21,37,0.55);
       position: relative;
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -490,7 +504,7 @@
       border-radius: 28px;
       padding: 40px 32px;
       text-align: center;
-      backdrop-filter: blur(20px);
+      background-color: rgba(45,21,37,0.55);
       position: relative;
       overflow: hidden;
     }
@@ -575,7 +589,7 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 28px 32px;
-      backdrop-filter: blur(12px);
+      background-color: rgba(45,21,37,0.55);
     }
     .progress-head {
       display: flex;
@@ -601,19 +615,24 @@
       height: 100%;
       border-radius: 100px;
       background: linear-gradient(90deg, var(--rose2), var(--gold), var(--rose));
-      background-size: 200% 100%;
-      animation: shimmer 2s linear infinite;
-      transition: width 1s ease;
       position: relative;
+      overflow: hidden;
+    }
+    /* vet sang luot qua (transform, khong ve lai gradient moi khung) */
+    .progress-fill::before, .milestone .ms-progress-fill::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,0.45), transparent 80%);
+      animation: shimmer 2s linear infinite;
     }
     @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
     }
     .progress-fill::after {
       content: '';
       position: absolute;
-      right: -1px; top: 50%;
+      right: 0; top: 50%;
       transform: translateY(-50%);
       width: 18px; height: 18px;
       border-radius: 50%;
@@ -637,7 +656,7 @@
       background: linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(255,107,138,0.08) 100%);
       border: 1px solid rgba(245,200,66,0.25);
       border-radius: 24px;
-      backdrop-filter: blur(12px);
+      background-color: rgba(45,21,37,0.55);
       position: relative;
     }
     .quote-mark {
@@ -683,7 +702,7 @@
       background: linear-gradient(135deg, rgba(255,107,138,0.08) 0%, rgba(245,200,66,0.06) 100%);
       border: 1px solid rgba(255,107,138,0.25);
       border-radius: 24px;
-      backdrop-filter: blur(14px);
+      background-color: rgba(45,21,37,0.55);
       position: relative;
       overflow: hidden;
     }
@@ -779,19 +798,11 @@
 
     .gallery-item.loading {
       min-height: 120px;
-      background: linear-gradient(100deg,
-        rgba(255,255,255,0.08) 30%,
-        rgba(255,107,138,0.28) 50%,
-        rgba(255,255,255,0.08) 70%) var(--soft);
-      background-size: 240% 100%;
-      animation: skeletonShimmer 1.6s ease-in-out infinite;
+      background: rgba(255,107,138,0.16);
+      animation: skeletonPulse 1.4s ease-in-out infinite;
     }
     .gallery-item.loading .play-icon { opacity: 0; }
-    /* Ten rieng — trung ten "shimmer" se de len hieu ung cua thanh tien do */
-    @keyframes skeletonShimmer {
-      from { background-position: 180% 0; }
-      to   { background-position: -80% 0; }
-    }
+    @keyframes skeletonPulse { 50% { opacity: 0.45; } }
 
     /* Tai loi -> hien dau hieu thay vi o trong */
     .gallery-item.failed {
@@ -846,7 +857,6 @@
       align-items: center;
       justify-content: center;
       cursor: zoom-out;
-      backdrop-filter: blur(8px);
     }
     .lightbox.active { display: flex; }
     .lightbox img,
@@ -879,7 +889,6 @@
       border: 1px solid rgba(255,255,255,0.18);
       border-radius: 999px;
       cursor: pointer;
-      backdrop-filter: blur(10px);
       transition: background 0.2s ease, color 0.2s ease;
     }
     .lb-tool:hover { background: rgba(255,107,138,0.3); color: #fff; }
@@ -968,7 +977,7 @@
       background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 16px;
-      backdrop-filter: blur(8px);
+      background-color: rgba(45,21,37,0.55);
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
     .milestone:hover { transform: translateX(6px); border-color: rgba(255,107,138,0.4); }
@@ -994,9 +1003,8 @@
       height: 100%;
       border-radius: 100px;
       background: linear-gradient(90deg, var(--rose2), var(--gold));
-      background-size: 200% 100%;
-      animation: shimmer 2s linear infinite;
-      transition: width 1s ease;
+      position: relative;
+      overflow: hidden;
     }
     .milestone .ms-progress-pct {
       font-size: 0.65rem;
@@ -1052,7 +1060,6 @@
       color: var(--gold2);
       font-size: 0.82rem;
       text-align: center;
-      backdrop-filter: blur(10px);
       pointer-events: none;
     }
 
@@ -1073,7 +1080,6 @@
       opacity: 0;
       transform: translateY(4px);
       transition: opacity 0.2s ease, transform 0.2s ease;
-      backdrop-filter: blur(10px);
     }
     .milestone:not(.reached):hover .ms-badge::after,
     .milestone:not(.reached).show-tooltip .ms-badge::after {
@@ -1165,9 +1171,8 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: rgba(255,107,138,0.2);
+      background: rgba(120,40,70,0.75);
       border: 1px solid rgba(255,107,138,0.4);
-      backdrop-filter: blur(12px);
       color: var(--pink);
       font-size: 1.3rem;
       cursor: pointer;
@@ -1198,9 +1203,8 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: rgba(255,107,138,0.2);
+      background: rgba(120,40,70,0.75);
       border: 1px solid rgba(255,107,138,0.4);
-      backdrop-filter: blur(12px);
       color: var(--pink);
       font-size: 1.3rem;
       cursor: pointer;
@@ -1210,16 +1214,18 @@
       justify-content: center;
       transition: background 0.2s ease, transform 0.2s ease;
     }
+    .music-btn::after {           /* vong song khi dang phat (transform thay cho box-shadow) */
+      content: ''; position: absolute; inset: -1px; border-radius: 50%;
+      border: 2px solid rgba(255,107,138,0.5); opacity: 0;
+    }
+    .music-btn.playing::after { animation: ringPulse 1.5s ease-out infinite; }
     .music-btn:hover {
       background: rgba(255,107,138,0.5);
       transform: scale(1.1);
     }
-    .music-btn.playing {
-      animation: musicPulse 1.5s ease-in-out infinite;
-    }
     @keyframes musicPulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(255,107,138,0.3); }
-      50% { box-shadow: 0 0 0 10px rgba(255,107,138,0); }
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
     }
 
     /* ── MUSIC PROMPT ──────────────────────────────────── */
@@ -1231,7 +1237,6 @@
       border: 1px solid rgba(255,107,138,0.5);
       border-radius: 16px;
       padding: 14px 20px;
-      backdrop-filter: blur(16px);
       cursor: pointer;
       z-index: 101;
       display: none;
@@ -1246,7 +1251,7 @@
       transform: translateY(-2px);
     }
     .music-prompt .prompt-icon {
-      font-size: 1.6rem;
+      font-size: 1.6rem; display: inline-block;
       animation: musicPulse 1.5s ease-in-out infinite;
     }
     .music-prompt .prompt-text {
@@ -1359,7 +1364,6 @@
     .card-view {
       position: fixed; inset: 0; z-index: 9996;
       background: rgba(10,4,9,0.94);
-      backdrop-filter: blur(10px);
       display: none;
       align-items: center; justify-content: center;
       flex-direction: column; gap: 16px;
@@ -1416,7 +1420,6 @@
     .ltr-view {
       position: fixed; inset: 0; z-index: 9997;
       background: rgba(10,4,9,0.93);
-      backdrop-filter: blur(10px);
       display: none;
       align-items: center; justify-content: center;
       padding: 22px;
@@ -1598,7 +1601,6 @@
       border: 1px solid rgba(255,255,255,0.22);
       background: rgba(255,255,255,0.1);
       color: #fff; font-size: 1.05rem; cursor: pointer;
-      backdrop-filter: blur(10px);
       display: flex; align-items: center; justify-content: center;
     }
     .ss-btn:hover { background: rgba(244,63,94,0.35); }
@@ -1618,7 +1620,7 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 24px 28px;
-      backdrop-filter: blur(12px);
+      background-color: rgba(45,21,37,0.55);
     }
     .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
     .cal-nav {
@@ -2224,12 +2226,20 @@ function drawStars(t) {
 }
 resize();
 initStars();
-window.addEventListener('resize', () => { resize(); initStars(); });
+// Tren dien thoai, thanh dia chi an/hien khi cuon lam chieu cao doi lien tuc: chi doi
+// kich thuoc canvas, KHONG sinh lai sao (sao nhay loan). Xoay ngang (doi chieu rong) thi moi sinh lai.
+let starsW = canvas.width;
+window.addEventListener('resize', () => {
+  resize();
+  if (canvas.width !== starsW) { starsW = canvas.width; initStars(); }
+});
 
 // ── FLOATING HEARTS ─────────────────────────────────────────────────────────
 const heartEmojis = ['❤️','💕','💖','💗','💓','🌹','✨'];
 const layer = document.getElementById('heartLayer');
-for (let i = 0; i < 22; i++) {
+// 16 tim + 12 canh hoa: moi phan tu dang bay la mot lop GPU + mot lan tinh style moi khung,
+// nhieu qua thi dien thoai nong; chung nay van day man hinh
+for (let i = 0; i < 16; i++) {
   const h = document.createElement('div');
   h.className = 'fheart';
   h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
@@ -2250,7 +2260,7 @@ for (let i = 0; i < 22; i++) {
 
 // ── PETALS ───────────────────────────────────────────────────────────────────
 const petalColors = ['#ff6b8a','#ffb3c6','#f5c842','#ff4d73','#fde68a'];
-for (let i = 0; i < 18; i++) {
+for (let i = 0; i < 12; i++) {
   const p = document.createElement('div');
   p.className = 'petal';
   const px  = (Math.random() - 0.5) * 200;
@@ -2561,9 +2571,19 @@ function pop(el, val) {
 }
 
 // ── MAIN TICK ─────────────────────────────────────────────────────────────────
-function tick(t) {
-  const now = Date.now();
+// So lieu (ngay, gio, dem nguoc, thanh tien do...) chi doi theo giay -> cap nhat 1 lan / giay.
+// Truoc day moi khung hinh deu ghi lai ca chuc o chu + innerHTML -> trinh duyet tinh lai
+// bo cuc 60 lan / giay du khong co gi doi, dien thoai nong va giat.
+const numEls = {
+  days: document.getElementById('daysElapsed'), breakdown: document.getElementById('daysBreakdown'),
+  hb: document.getElementById('heartbeats'), hours: document.getElementById('hoursElapsed'), mins: document.getElementById('minutesElapsed'),
+  cdD: document.getElementById('cdDays'), cdH: document.getElementById('cdHours'), cdM: document.getElementById('cdMins'), cdS: document.getElementById('cdSecs'),
+  next: document.getElementById('nextMilestone'), fill: document.getElementById('progressFill'), pct: document.getElementById('pctText'),
+};
+const setText = (el, v) => { if (el.textContent !== v) el.textContent = v; };
+let lastNextHtml = null;
 
+function updateNumbers(now) {
   // ── Elapsed since START ──────────────────────────────────
   const elapsedMs  = Math.max(0, now - START);
   const totalSecs  = elapsedMs / 1000;
@@ -2571,13 +2591,13 @@ function tick(t) {
   const totalHours = totalMins / 60;
   const totalDays  = Math.floor(totalHours / 24);
 
-  document.getElementById('daysElapsed').textContent    = totalDays.toLocaleString();
-  document.getElementById('daysBreakdown').textContent  = ymdText(START, now);
+  setText(numEls.days, totalDays.toLocaleString());
+  setText(numEls.breakdown, ymdText(START, now));
   // ~100,000 nhịp tim/ngày (trung bình)
   const heartbeats = Math.floor(totalDays * 100000 + (totalHours % 24) * 4167);
-  document.getElementById('heartbeats').textContent     = heartbeats.toLocaleString();
-  document.getElementById('hoursElapsed').textContent   = Math.floor(totalHours).toLocaleString();
-  document.getElementById('minutesElapsed').textContent = Math.floor(totalMins).toLocaleString();
+  setText(numEls.hb, heartbeats.toLocaleString());
+  setText(numEls.hours, Math.floor(totalHours).toLocaleString());
+  setText(numEls.mins, Math.floor(totalMins).toLocaleString());
 
   // ── Countdown to moc tron nam ke tiep ────────────────────
   const anniv = annivTarget(now);
@@ -2588,35 +2608,44 @@ function tick(t) {
     const h  = Math.floor((diff % 86400000) / 3600000);
     const m  = Math.floor((diff % 3600000) / 60000);
     const s  = Math.floor((diff % 60000) / 1000);
-    pop(document.getElementById('cdDays'),  pad(d, 2));   // 15 -> "15", 7 -> "07", 350 -> "350"
-    pop(document.getElementById('cdHours'), pad(h, 2));
-    pop(document.getElementById('cdMins'),  pad(m, 2));
-    pop(document.getElementById('cdSecs'),  pad(s, 2));
+    pop(numEls.cdD, pad(d, 2));   // 15 -> "15", 7 -> "07", 350 -> "350"
+    pop(numEls.cdH, pad(h, 2));
+    pop(numEls.cdM, pad(m, 2));
+    pop(numEls.cdS, pad(s, 2));
   } else {
-    ['cdDays','cdHours','cdMins','cdSecs'].forEach(id => document.getElementById(id).textContent = '00');
+    [numEls.cdD, numEls.cdH, numEls.cdM, numEls.cdS].forEach(el => setText(el, '00'));
   }
 
-  // ── Moc ke tiep ───────────────────────────────────────────
+  // ── Moc ke tiep (chi ghi lai khi chu doi) ─────────────────
   const next = milestones.find(m => m.ts > now);
-  document.getElementById('nextMilestone').innerHTML = next
+  const nextHtml = next
     ? `Mốc kế tiếp: <b>${next.icon} ${escHtml(next.name)}</b> · ${escHtml(next.date)} — <span class="nm-when">${relDays(next.ts)}</span>`
     : '';
+  if (nextHtml !== lastNextHtml) { lastNextHtml = nextHtml; numEls.next.innerHTML = nextHtml; }
 
   // ── Progress bar ──────────────────────────────────────────
   const span = anniv.ts - anniv.prevTs;
   const pct  = Math.min(100, Math.max(0, ((now - anniv.prevTs) / span) * 100));
-  document.getElementById('progressFill').style.width = pct.toFixed(3) + '%';
-  document.getElementById('pctText').textContent = pct.toFixed(1) + '%';
+  numEls.fill.style.width = pct.toFixed(3) + '%';
+  setText(numEls.pct, pct.toFixed(1) + '%');
 
   // ── Milestone progress bars ────────────────────────────────
   upcomingEls.forEach(el => {
     const p = Math.min(99.9, Math.max(0, ((now - START) / (el.ts - START)) * 100));
     el.fill.style.width = p.toFixed(3) + '%';
-    el.pct.textContent  = p.toFixed(1) + '%';
+    setText(el.pct, p.toFixed(1) + '%');
   });
+}
 
-  // ── Stars ─────────────────────────────────────────────────
-  drawStars(t / 1000);
+// Sao: ve 30 khung / giay la du (sao chi lap lanh cham), va khong ve khi cong mat khau /
+// man tai con che kin (khong ai thay)
+let lastSec = -1, starFrame = 0;
+const docEl = document.documentElement;
+function tick(t) {
+  const now = Date.now();
+  const sec = Math.floor(now / 1000);
+  if (sec !== lastSec) { lastSec = sec; updateNumbers(now); }
+  if ((++starFrame & 1) === 0 && !docEl.classList.contains('gate-on')) drawStars(t / 1000);
   requestAnimationFrame(tick);
 }
 
@@ -3307,11 +3336,11 @@ btnTop.addEventListener('click', () => {
 });
 
 // ── LOADING SCREEN ──────────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('loadingScreen').classList.add('hide');
-  }, 1600);
-});
+// Khong doi su kien `load` (phai tai xong ca 44 anh thu nho + video -> tren 4G yeu cho
+// rat lau): thanh tai chay 1.5s xong la mo man, anh phia duoi tu hien dan.
+setTimeout(() => {
+  document.getElementById('loadingScreen').classList.add('hide');
+}, 1600);
 
 
 // ── ANH CHIA SE TU SINH ──────────────────────────────────────────────────────
