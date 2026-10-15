@@ -289,12 +289,15 @@
     }
     .badge strong { color: var(--gold2); }
 
-    /* ── QUA KY NIEM (nut sang trang dac biet) ─────────────── */
+    /* ── HOP QUA: 9 trang dac biet xep theo thu tu nen xem (GIFTS o script cuoi trang) ── */
+    .giftbox { width: 100%; max-width: 700px; text-align: center; }
+    .giftbox .section-title { margin-bottom: 6px; }
+    .giftbox-sub { font-size: 0.82rem; color: var(--mut); margin-bottom: 18px; line-height: 1.5; }
+    .giftbox-sub b { color: var(--gold2); font-weight: 600; }
     .gifts {
-      width: 100%; max-width: 700px;
+      width: 100%;
       display: grid; gap: 12px;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));   /* may tinh 2 cot deu, dien thoai 1 cot */
-      margin-top: -16px;          /* bam sat huy hieu ngay phia tren */
     }
     .gift-btn {
       position: relative; overflow: hidden;
@@ -316,20 +319,30 @@
     }
     @keyframes giftSweep { 0%, 55% { transform: translateX(0); } 100% { transform: translateX(475%); } }
     .gift-btn:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 14px 40px rgba(245,200,66,0.22); }
-    .gift-ic {
-      font-size: 1.6rem; color: var(--gold2);
-      text-shadow: 0 0 14px rgba(245,200,66,0.7);
-      animation: annivBeat 2.4s ease-in-out infinite;
+    .gift-n {
+      flex: none; width: 22px; height: 22px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 0.68rem; font-weight: 700; color: #2a0a17;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
     }
-    .gift-txt { flex: 1; display: flex; flex-direction: column; text-align: left; }
-    .gift-txt b { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold2); }
+    .gift-ic {
+      flex: none; width: 46px; height: 46px; display: grid; place-items: center;
+      font-size: 1.5rem; color: var(--gold2);
+      text-shadow: 0 0 14px rgba(245,200,66,0.7);
+    }
+    .gift-ic img { width: 46px; height: 46px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(245,200,66,0.4); display: block; }
+    .gift-ic.stk img { object-fit: contain; border: none; }
+    .gift-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: left; }
+    .gift-txt b { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--gold2); }
     .gift-txt small { margin-top: 2px; font-size: 0.74rem; color: var(--mut); }
-    .gift-go { font-size: 1.5rem; color: var(--gold2); }
+    .gift-go { font-size: 1.5rem; color: var(--gold2); white-space: nowrap; }
+    /* da xem roi thi diu lai, de mon chua xem noi bat */
+    .gift-btn.done { border-color: rgba(255,255,255,0.18); background: rgba(45,21,37,0.55); box-shadow: none; }
+    .gift-btn.done::after { animation: none; }
+    .gift-btn.done .gift-n { background: rgba(255,255,255,0.18); color: var(--white); }
+    .gift-btn.done .gift-go { font-size: 0.74rem; color: var(--mut); }
     .gifts[hidden] { display: none; }
-    .gifts.gifts-open .gift-btn { animation: giftIn 0.6s cubic-bezier(.2,.8,.2,1) both; }
-    .gifts.gifts-open .gift-btn:nth-child(2) { animation-delay: 0.1s; }
-    .gifts.gifts-open .gift-btn:nth-child(3) { animation-delay: 0.2s; }
-    .gifts.gifts-open .gift-btn:nth-child(4) { animation-delay: 0.3s; }
+    .gifts.gifts-open .gift-btn { animation: giftIn 0.6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 0.07s); }
     @keyframes giftIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
 
     /* Khoa 4 mon qua: nhap dung mat khau moi hien */
@@ -1088,72 +1101,6 @@
     }
 
     /* ── FOOTER ──────────────────────────────────────────── */
-    /* ── DIEM NHAN CUOI TRANG ───────────────────────────── */
-    .finale { width: 100%; max-width: 700px; text-align: center; }
-    .finale-eyebrow { font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: var(--pink); }
-    .finale-grid { margin-top: 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    .fin-card {
-      position: relative; display: flex; flex-direction: column; overflow: hidden;
-      border-radius: 22px; text-decoration: none; color: var(--white);
-      border: 1px solid rgba(245,200,66,0.5);
-      background: linear-gradient(160deg, rgba(245,200,66,0.14), rgba(255,77,115,0.12));
-      box-shadow: 0 16px 44px rgba(245,200,66,0.16);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    @media (hover: hover) { .fin-card:hover { transform: translateY(-3px); box-shadow: 0 20px 54px rgba(255,107,138,0.3); } }
-    .fin-art { position: relative; height: 170px; display: grid; place-items: center; overflow: hidden; }
-    .fin-anim .fin-art { background: url('video/chuyen-cua-chung-minh.webp') center / cover, #2a1550; }
-    .fin-anim .fin-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 55%, rgba(10,3,6,0.45)); }
-    .fin-play {
-      position: relative; z-index: 1; width: 62px; height: 62px; border-radius: 50%;
-      display: grid; place-items: center; padding-left: 4px;
-      background: rgba(255,255,255,0.9); color: #e8456b; font-size: 1.5rem;
-      box-shadow: 0 8px 26px rgba(0,0,0,0.35); animation: annivBeat 2.4s ease-in-out infinite;
-    }
-    .fin-book .fin-art { background: radial-gradient(circle at 50% 120%, #ffb3c6 0%, #a8325a 45%, #3a1226 100%); }
-    .fin-bookimg {                /* bia truyen tranh dang cuon sach nghieng */
-      position: relative; z-index: 1; height: 138px; aspect-ratio: 1000 / 1419; object-fit: cover;
-      border-radius: 3px 7px 7px 3px;
-      transform: perspective(700px) rotateY(-18deg) rotate(-2deg);
-      box-shadow: -6px 0 0 #e9d6cf, -7px 1px 0 #cdb7b0, 10px 16px 30px rgba(0,0,0,0.5);
-    }
-    .fin-cinema .fin-art { background: linear-gradient(rgba(10,3,6,0.3), rgba(10,3,6,0.75)), url('images/love/thumbs/primary.webp') center 30% / cover, #2a0b17; }
-    .fin-coupon .fin-art {
-      background:
-        radial-gradient(circle at 20% 15%, rgba(255,255,255,0.55) 0 2px, transparent 3px) 0 0 / 22px 22px,
-        linear-gradient(135deg, #f8dd7a 0%, #d9a53a 35%, #fbe7a1 55%, #c98f2a 100%);
-    }
-    .fin-bulbs {                  /* den bong vien bang hieu rap phim */
-      position: absolute; inset: 9px; pointer-events: none;
-      background:
-        radial-gradient(circle, #ffe9a8 0 2.5px, transparent 3.5px) top left / 16px 12px repeat-x,
-        radial-gradient(circle, #ffe9a8 0 2.5px, transparent 3.5px) bottom left / 16px 12px repeat-x,
-        radial-gradient(circle, #ffe9a8 0 2.5px, transparent 3.5px) top left / 12px 16px repeat-y,
-        radial-gradient(circle, #ffe9a8 0 2.5px, transparent 3.5px) top right / 12px 16px repeat-y;
-      filter: drop-shadow(0 0 4px #f5c842);
-      animation: finBulbs 1.2s steps(2) infinite;
-    }
-    @keyframes finBulbs { 50% { opacity: 0.4; } }
-    .fin-emoji { font-size: 3.4rem; line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45)); animation: annivBeat 2.4s ease-in-out infinite; }
-    .fin-tag {
-      position: absolute; left: 16px; top: 16px; z-index: 1;
-      padding: 5px 11px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.04em;
-      background: rgba(0,0,0,0.5); color: var(--gold2);
-    }
-    .fin-coupon .fin-tag { left: 12px; top: 12px; background: rgba(61,22,34,0.8); }
-    .fin-txt { padding: 14px 18px 0; display: flex; flex-direction: column; text-align: left; }
-    .fin-txt b { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--gold2); }
-    .fin-txt small { margin-top: 3px; font-size: 0.8rem; color: var(--mut); }
-    .fin-go {
-      align-self: flex-start; margin: 12px 18px 16px; padding: 9px 18px; border-radius: 999px;
-      background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17; font-size: 0.86rem; font-weight: 600;
-    }
-    .fin-mini { grid-column: 1 / -1; }          /* the thu 5 trai het hang */
-    .fin-mini .fin-art { display: flex; align-items: center; justify-content: center; gap: 2px; background: radial-gradient(circle at 50% 130%, #ffb3c6 0%, #c2416b 45%, #3a1226 100%); }
-    .fin-stk { position: relative; z-index: 1; width: min(96px, 18vw); aspect-ratio: 1; object-fit: contain; animation: finBob 2.6s ease-in-out infinite; }
-    .fin-stk:nth-child(odd) { animation-delay: -1.3s; }
-    @keyframes finBob { 50% { transform: translateY(-7px) rotate(-3deg); } }
-    @media (prefers-reduced-motion: reduce) { .fin-bulbs, .fin-emoji, .fin-play, .fin-stk { animation: none; } }
 
     .footer {
       text-align: center;
@@ -1519,7 +1466,7 @@
     .anniv-btn.ghost:hover { color: var(--white); border-color: var(--rose); }
 
     /* Phao giay roi */
-    .confetti { position: absolute; top: -20px; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: confettiFall linear infinite; }
+    .confetti { position: absolute; top: -20px; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: confettiFall linear infinite; pointer-events: none; }
     @keyframes confettiFall {
       0%   { opacity: 0; transform: translateY(-10vh) rotate(0deg); }
       8%   { opacity: 1; }
@@ -1534,18 +1481,18 @@
     }
 
     /* ── TRINH CHIEU ANH ─────────────────────────────────── */
-    .slideshow-btn {
+    .slideshow-btn {            /* nut chinh cua phan anh: trinh chieu hay hon luoi */
       margin: 0;                  /* khoang cach do .card-maker lo bang gap */
-      padding: 11px 24px;
-      border-radius: 999px;
-      border: 1px solid rgba(245,200,66,0.45);
-      background: rgba(245,200,66,0.12);
-      color: var(--gold2);
-      font-family: inherit; font-size: 0.86rem; font-weight: 600;
+      padding: 13px 28px;
+      border-radius: 999px; border: none;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      color: #2a0a17;
+      font-family: inherit; font-size: 0.92rem; font-weight: 700;
       cursor: pointer;
-      transition: background 0.25s ease, transform 0.2s ease;
+      box-shadow: 0 10px 30px rgba(245,200,66,0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .slideshow-btn:hover { background: rgba(245,200,66,0.25); transform: translateY(-1px); }
+    .slideshow-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 36px rgba(245,200,66,0.35); }
 
     .slideshow {
       position: fixed; inset: 0; z-index: 9999;
@@ -1715,6 +1662,268 @@
       .stat-card .stat-number { font-size: 1.6rem; }
       .badge { padding: 5px 10px; font-size: 0.65rem; }
     }
+
+    /* ── NUT "XEM CUNG NHAU" (duoi huy hieu ngay) ─────────── */
+    .tour-cta {
+      position: relative; margin-top: -12px;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 22px 12px 16px; border-radius: 999px;
+      border: 1px solid rgba(245,200,66,0.55);
+      background: linear-gradient(135deg, rgba(245,200,66,0.2), rgba(255,77,115,0.18));
+      color: var(--white); font-family: inherit; cursor: pointer; text-align: left;
+      box-shadow: 0 10px 34px rgba(245,200,66,0.14);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .tour-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(245,200,66,0.26); }
+    .tour-cta .cta-ic { font-size: 1.5rem; line-height: 1; animation: annivBeat 2.4s ease-in-out infinite; }
+    .tour-cta b { display: block; font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--gold2); }
+    .tour-cta small { display: block; font-size: 0.74rem; color: var(--mut); margin-top: 1px; }
+    .tour-cta .cta-go { font-size: 1.4rem; color: var(--gold2); }
+    .tour-cta::after {            /* vong song lan ra (transform + opacity) */
+      content: ''; position: absolute; inset: -1px; border-radius: inherit;
+      border: 1px solid rgba(245,200,66,0.7); pointer-events: none;
+      animation: ping 2.6s ease-out infinite;
+    }
+    @keyframes ping { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.12, 1.6); opacity: 0; } }
+
+    /* ── MOC NHO: chi hien moc co chuyen + 3 moc sap toi, con lai sau nut "Xem tat ca" ── */
+    .milestone.ms-more { display: none; }
+    .milestones.all .milestone.ms-more { display: flex; }
+    .milestones.all .milestone.ms-sum { display: none; }       /* dong gom "tron N thang" nhuong cho tung moc */
+    .milestones:not(.in-view) .ms-progress-fill::before { animation-play-state: paused; }   /* khuat man hinh thi vet sang dung */
+    .more-btn {
+      margin: 14px auto 0; display: block;
+      padding: 10px 22px; border-radius: 999px;
+      border: 1px solid var(--border); background: rgba(45,21,37,0.55);
+      color: var(--mut); font-family: inherit; font-size: 0.82rem; cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .more-btn:hover { color: var(--white); border-color: var(--rose); }
+    .more-btn[hidden] { display: none; }
+
+    /* ── DO EM ──────────────────────────────────────────── */
+    .quiz-card {
+      width: 100%; max-width: 600px;
+      padding: 28px 26px; border-radius: 22px;
+      border: 1px solid rgba(245,200,66,0.35);
+      background: linear-gradient(135deg, rgba(245,200,66,0.1), rgba(255,107,138,0.08));
+      background-color: rgba(45,21,37,0.6);
+      text-align: center;
+    }
+    .quiz-card[hidden] { display: none; }
+    .quiz-card .section-title { margin-bottom: 4px; }
+    .quiz-sub { font-size: 0.78rem; color: var(--mut); letter-spacing: 0.06em; }
+    .quiz-q { margin-top: 16px; font-family: 'Playfair Display', serif; font-size: 1.15rem; line-height: 1.5; min-height: 3.4em; }
+    .quiz-opts { margin-top: 14px; display: grid; gap: 10px; }
+    .quiz-opt {
+      padding: 12px 16px; border-radius: 14px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.06);
+      color: var(--white); font-family: inherit; font-size: 0.95rem; cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .quiz-opt:hover { border-color: var(--rose); }
+    .quiz-opt.right { background: linear-gradient(135deg, #22c55e, #15803d); border-color: transparent; }
+    .quiz-opt.wrong { background: rgba(255,77,115,0.35); border-color: rgba(255,77,115,0.7); animation: glShake 0.45s ease; }
+    .quiz-opts.done .quiz-opt { pointer-events: none; }
+    .quiz-opts.done .quiz-opt:not(.right):not(.wrong) { opacity: 0.45; }
+    .quiz-fb { margin-top: 14px; min-height: 1.5em; font-size: 0.92rem; color: var(--gold2); }
+    .quiz-foot { margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.78rem; color: var(--mut); }
+    .quiz-next {
+      padding: 9px 18px; border-radius: 999px; border: none;
+      background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17;
+      font-family: inherit; font-size: 0.84rem; font-weight: 700; cursor: pointer;
+    }
+    .quiz-next[hidden] { display: none; }
+    .quiz-card.end .quiz-opts { display: none; }
+    .quiz-score { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: var(--gold2); margin-bottom: 6px; }
+
+    /* ── LICH KY NIEM thu gon: bam dong dau moi mo ────────── */
+    .cal-toggle {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      padding: 0; border: none; background: none;
+      color: var(--white); font-family: inherit; cursor: pointer; text-align: left;
+    }
+    .cal-toggle .ct-ic { font-size: 1.6rem; line-height: 1; }
+    .cal-toggle .ct-txt { flex: 1; min-width: 0; }
+    .cal-toggle .ct-title { display: block; font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: var(--pink); line-height: 1.1; }
+    .cal-toggle .ct-sub { display: block; font-size: 0.76rem; color: var(--mut); margin-top: 3px; }
+    .cal-toggle .ct-chev { font-size: 1.1rem; color: var(--mut); transition: transform 0.3s ease; }
+    .calendar-card.open .ct-chev { transform: rotate(180deg); }
+    .cal-body { display: none; margin-top: 18px; }
+    .calendar-card.open .cal-body { display: block; }
+
+    /* ── ANH NOI BAT: FAVORITES hien san, con lai sau "Xem tat ca" ── */
+    .gallery-item.g-more { display: none; }
+    .gallery.all .gallery-item.g-more { display: block; }
+    .g-cap {
+      position: absolute; left: 8px; bottom: 8px; max-width: calc(100% - 16px);
+      padding: 4px 9px; border-radius: 999px;
+      background: rgba(13,6,16,0.72); color: var(--gold2);
+      font-size: 0.66rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      pointer-events: none; opacity: 0; transition: opacity 0.6s ease;
+    }
+    .gallery-item.loaded .g-cap { opacity: 1; }
+    .gallery .more-btn { margin-top: 6px; }
+
+    /* ── BI MAT NHO: cham trai tim giua hai ten 5 lan ─────── */
+    .header .names-display .sep { cursor: pointer; user-select: none; -webkit-user-select: none; display: inline-block; }
+    .header .names-display .sep.tap { animation: annivBeat 0.4s ease; }
+
+    /* ── XEM CUNG NHAU: 6 buoc toan man hinh, moi buoc mot cham ── */
+    .tour {
+      position: fixed; inset: 0; z-index: 9990;   /* duoi trinh chieu / anh to (9998+) va man chuc mung */
+      display: none;
+      background: radial-gradient(ellipse at 50% 30%, #4a1730 0%, #1a0a14 55%, #0a0409 100%);
+      color: var(--white); overflow: hidden;
+    }
+    .tour.show { display: block; }
+    html.tour-on { overflow: hidden; }
+    .tour-top {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+    }
+    .tour-dots { display: flex; gap: 7px; }
+    .tour-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.22); transition: background 0.3s ease, transform 0.3s ease; }
+    .tour-dots i.done { background: rgba(245,200,66,0.55); }
+    .tour-dots i.on { background: var(--gold); transform: scale(1.35); }
+    .tour-x {
+      width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border);
+      background: rgba(26,10,20,0.8); color: var(--mut); font-size: 1.3rem; line-height: 1; cursor: pointer;
+    }
+    .tc {
+      position: absolute; inset: 0; display: none;
+      flex-direction: column;
+      padding: 70px 22px 100px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      text-align: center;
+    }
+    .tc.on { display: flex; animation: tcIn 0.6s ease both; }
+    .tc-in { margin: auto; width: 100%; display: flex; flex-direction: column; align-items: center; }   /* can giua, tran thi cuon duoc */
+    @keyframes tcIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    .tc-q { font-family: 'Dancing Script', cursive; font-size: 2rem; color: var(--pink); line-height: 1.25; max-width: 560px; }
+    .tc-sub { margin-top: 10px; font-size: 0.9rem; color: var(--mut); max-width: 460px; line-height: 1.5; }
+    .tc-count { margin-top: 26px; }
+    .tc-count[hidden] { display: none; }
+    .tc-big {
+      font-family: 'Playfair Display', serif; font-weight: 700; line-height: 1;
+      font-size: clamp(4.5rem, 24vw, 8rem);
+      background: linear-gradient(135deg, #fff 0%, var(--gold2) 45%, var(--rose) 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .tc-lbl { margin-top: 8px; font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--mut); }
+    .tc-hint {
+      position: absolute; left: 0; right: 0; bottom: max(34px, env(safe-area-inset-bottom));
+      font-size: 0.82rem; color: var(--mut); pointer-events: none;
+      animation: hintBlink 2s ease-in-out infinite;
+    }
+    .tc-hint[hidden] { display: none; }
+    @keyframes hintBlink { 50% { opacity: 0.35; } }
+    .tc-next, .tc-btn {
+      display: inline-block; padding: 14px 32px; border-radius: 999px; border: none;
+      background: linear-gradient(135deg, var(--gold), var(--rose)); color: #2a0a17;
+      font-family: inherit; font-size: 0.95rem; font-weight: 700; text-decoration: none; cursor: pointer;
+      box-shadow: 0 10px 30px rgba(245,200,66,0.3);
+    }
+    .tc-next {
+      position: absolute; left: 50%; bottom: max(26px, env(safe-area-inset-bottom)); z-index: 3;
+      transform: translateX(-50%); white-space: nowrap;
+      animation: tcIn 0.5s ease both;
+    }
+    .tc-next[hidden] { display: none; }
+    .tc-btn { margin-top: 26px; }
+    .tc-ghost {
+      margin-top: 16px; background: none; border: none; color: var(--mut);
+      font-family: inherit; font-size: 0.86rem; cursor: pointer;
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+    /* buoc 2: bon con so, moi cham hien mot dong */
+    .tn-list { margin-top: 22px; width: 100%; max-width: 420px; display: grid; gap: 10px; }
+    .tn {
+      display: flex; align-items: center; gap: 14px; text-align: left;
+      padding: 14px 18px; border-radius: 16px;
+      border: 1px solid var(--border); background: rgba(45,21,37,0.6);
+      opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .tn.on { opacity: 1; transform: none; }
+    .tn-ic { font-size: 1.6rem; flex: none; }
+    .tn b { display: block; font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold2); line-height: 1.1; }
+    .tn small { display: block; font-size: 0.78rem; color: var(--mut); margin-top: 2px; }
+    /* buoc 3: dai moc nho, vuot ngang */
+    .tc-wide { padding-left: 0; padding-right: 0; }
+    .tc-wide .tc-q, .tc-wide .tc-sub { padding: 0 22px; }
+    .tm-strip {
+      margin-top: 22px; width: 100%; display: flex; gap: 14px;
+      overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 12vw 14px;
+      scrollbar-width: none;
+    }
+    .tm-strip::-webkit-scrollbar { display: none; }
+    .tm {
+      flex: 0 0 76vw; max-width: 340px; scroll-snap-align: center;
+      border-radius: 22px; overflow: hidden; text-align: left;
+      border: 1px solid rgba(245,200,66,0.35); background: rgba(45,21,37,0.7);
+    }
+    .tm img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+    .tm-noimg { aspect-ratio: 4 / 3; display: grid; place-items: center; font-size: 3.4rem; background: radial-gradient(circle at 50% 40%, rgba(255,107,138,0.25), transparent 70%); }
+    .tm-body { padding: 14px 16px 16px; }
+    .tm-name { font-weight: 600; font-size: 0.98rem; }
+    .tm-date { margin-top: 4px; font-size: 0.76rem; color: var(--mut); }
+    /* buoc 5: thu go chu */
+    .tc-letter {
+      margin-top: 22px; width: 100%; max-width: 560px; min-height: 13em; text-align: left;
+      font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; line-height: 1.85;
+      color: rgba(255,255,255,0.88); white-space: pre-line;
+    }
+    .tc-sign { margin-top: 16px; font-family: 'Dancing Script', cursive; font-size: 1.35rem; color: var(--gold2); animation: tcIn 0.6s ease both; }
+    .tc-sign[hidden] { display: none; }
+    /* buoc 6: hop qua 9 mon, chi mon ke tiep sang */
+    .tg-grid { margin-top: 22px; width: 100%; max-width: 420px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .tg {
+      position: relative; aspect-ratio: 1; border-radius: 18px; padding: 6px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+      border: 1px solid var(--border); background: rgba(45,21,37,0.6); color: var(--white);
+      font-family: inherit; cursor: pointer;
+      transition: transform 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+    }
+    .tg .tg-ic { font-size: 2rem; line-height: 1; }
+    .tg small { font-size: 0.62rem; line-height: 1.2; color: var(--mut); }
+    .tg.locked { opacity: 0.4; }
+    .tg.locked .tg-ic { filter: grayscale(1); }
+    .tg.next { border-color: var(--gold); background: linear-gradient(135deg, rgba(245,200,66,0.22), rgba(255,77,115,0.18)); }
+    .tg.next .tg-ic { animation: annivBeat 1.6s ease-in-out infinite; }
+    .tg.next small { color: var(--gold2); }
+    .tg.next::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; border: 2px solid var(--gold); animation: ping 1.8s ease-out infinite; pointer-events: none; }
+    .tg.open { border-color: rgba(245,200,66,0.5); background: rgba(245,200,66,0.08); }
+    .tg.open small { color: var(--gold2); }
+    .tg.sel { transform: scale(1.06); border-color: var(--gold); }
+    .tg.pop { animation: tgPop 0.5s cubic-bezier(.2,.8,.2,1); }
+    @keyframes tgPop { 0% { transform: scale(0.6) rotate(-8deg); } 60% { transform: scale(1.15) rotate(3deg); } 100% { transform: scale(1.06); } }
+    .tg.shake { animation: glShake 0.45s ease; }
+    .tg-detail {
+      margin-top: 18px; width: 100%; max-width: 420px; padding: 16px 18px 18px;
+      border-radius: 20px; border: 1px solid rgba(245,200,66,0.45);
+      background: linear-gradient(135deg, rgba(245,200,66,0.14), rgba(255,77,115,0.12));
+      animation: tcIn 0.4s ease both;
+    }
+    .tg-detail[hidden] { display: none; }
+    .tg-d-ic { font-size: 2.6rem; line-height: 1; }
+    .tg-d-ic img { width: 84px; height: 84px; object-fit: cover; border-radius: 14px; border: 1px solid rgba(245,200,66,0.4); }
+    .tg-d-ic.stk img { object-fit: contain; border: none; }
+    .tg-detail b { display: block; margin-top: 8px; font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold2); }
+    .tg-detail small { display: block; margin-top: 3px; font-size: 0.8rem; color: var(--mut); }
+    .tg-detail .tc-btn { margin-top: 14px; padding: 12px 28px; }
+    @media (max-width: 520px) {
+      .gift-btn { padding: 11px 14px 11px 12px; gap: 10px; border-radius: 14px; }
+      .gift-txt b { font-size: 0.95rem; }
+      .tour-cta { padding: 10px 18px 10px 14px; gap: 10px; }
+      .tour-cta b { font-size: 0.95rem; }
+      .tour-cta small { font-size: 0.7rem; }
+      .quiz-card { padding: 22px 16px; border-radius: 18px; }
+      .quiz-q { font-size: 1.02rem; }
+      .tc-q { font-size: 1.6rem; }
+      .tc-letter { font-size: 0.92rem; min-height: 14em; }
+      .tg .tg-ic { font-size: 1.7rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { .tour-cta::after, .tg.next::after, .tg.next .tg-ic, .tour-cta .cta-ic { animation: none; } }
   </style>
 </head>
 <body>
@@ -1757,128 +1966,12 @@
     <div class="badge" id="annivBadge">Kỷ niệm 1 năm: <strong>18/10/2026</strong></div>
   </div>
 
-  <!-- QUA KY NIEM — nhap dung mat khau moi hien 4 nut, moi trang dac biet la mot nut -->
-  <form class="gift-lock" id="giftLock" autocomplete="off">
-    <div class="gl-ic" id="giftLockIc">🔒</div>
-    <div class="gl-title">4 món quà đang chờ em</div>
-    <div class="gl-sub">Nhập mật khẩu để mở nhé 💕</div>
-    <div class="gl-row">
-      <input id="giftPass" type="password" placeholder="Mật khẩu" aria-label="Mật khẩu"
-             autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go">
-      <button type="submit">Mở khóa</button>
-    </div>
-    <div class="gl-msg" id="giftMsg" aria-live="polite"></div>
-  </form>
-  <div class="gifts" id="gifts" hidden>
-    <a class="gift-btn" href="365-vi-sao.html">
-      <span class="gift-ic">✦</span>
-      <span class="gift-txt"><b>365 vì sao</b><small>Món quà kỷ niệm 1 năm</small></span>
-      <span class="gift-go">›</span>
-    </a>
-    <a class="gift-btn" href="trai-tim-khoanh-khac.html">
-      <span class="gift-ic">♥</span>
-      <span class="gift-txt"><b>Trái tim khoảnh khắc</b><small>Ghép từ những khoảnh khắc của chúng mình</small></span>
-      <span class="gift-go">›</span>
-    </a>
-    <a class="gift-btn" href="mot-nam-nhin-lai.html">
-      <span class="gift-ic">▶&#xFE0E;</span>
-      <span class="gift-txt"><b>Một năm nhìn lại</b><small>Hành trình kể bằng những con số</small></span>
-      <span class="gift-go">›</span>
-    </a>
-    <a class="gift-btn" href="la-thu-niem-phong.html">
-      <span class="gift-ic">✉&#xFE0E;</span>
-      <span class="gift-txt"><b>Lá thư niêm phong</b><small>Chạm vào con dấu để mở thư</small></span>
-      <span class="gift-go">›</span>
-    </a>
-  </div>
-  <script>
-  // Khoa bang mat khau. Chi la khoa nhe tren trinh duyet: trong ma chi co ma bam cua
-  // mat khau (khong lo chu that), mo dung mot lan thi may nho, lan sau khoi go.
-  // Doi mat khau: mo trang nay, F12 > Console, go  giftHash('mat-khau-moi')
-  // roi dan ket qua vao GIFT_HASH. Go hoa/thuong, co dau hay dau cach deu duoc.
-  //
-  // ★ LOCK_PAGE = true : hoi mat khau ngay sau man "Dang tai tinh yeu", nhap dung moi
-  //                      vao trang; 4 mon qua mo san.
-  //   LOCK_PAGE = false: nhu truoc — trang mo, chi khoa 4 mon qua.
-  // window.loveUnlocked: Promise xong khi da vao duoc trang (man ky niem doi cai nay).
-  (() => {
-    const LOCK_PAGE = true;
-    const GIFT_HASH = 'cmqzm1mwhu';
-    const KEY = LOCK_PAGE ? 'love-key' : 'gifts-key';
-    const WRONG = ['Chưa đúng rồi 🥺 Thử lại nha', 'Sai nữa rồi nè 😝', 'Gần đúng rồi đó… chắc vậy 🙈'];
-    const norm = (v) => v.trim().toLowerCase().normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/\s+/g, '');
-    window.giftHash = (str, seed = 1810) => {          // cyrb53 — bam 53 bit, chay ca khi khong co https
-      let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-      const v = norm(str);
-      for (let i = 0; i < v.length; i++) {
-        const ch = v.charCodeAt(i);
-        h1 = Math.imul(h1 ^ ch, 2654435761);
-        h2 = Math.imul(h2 ^ ch, 1597334677);
-      }
-      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-      return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
-    };
-
-    const lock = document.getElementById('giftLock'), gifts = document.getElementById('gifts');
-    const input = document.getElementById('giftPass'), msg = document.getElementById('giftMsg');
-    const gate = document.getElementById('gate');
-    let unlock;
-    window.loveUnlocked = new Promise((r) => { unlock = r; });
-
-    const show = (animate) => {
-      lock.hidden = true;
-      gifts.hidden = false;
-      if (animate) gifts.classList.add('gifts-open');
-    };
-    const openPage = (animate) => {
-      document.documentElement.classList.remove('gate-on');
-      if (!animate) { gate.hidden = true; unlock(false); return; }
-      gate.classList.add('gate-open');                  // mo dan ra
-      setTimeout(() => { gate.hidden = true; }, 700);
-      unlock(true);
-    };
-    let saved = false;
-    try { saved = localStorage.getItem(KEY) === GIFT_HASH; } catch (e) {}
-
-    if (LOCK_PAGE) {
-      show(false);                                      // 4 mon qua mo san
-      if (saved) openPage(false);
-      else {
-        gate.querySelector('.gate-box').appendChild(lock);   // dua o mat khau ra cong vao trang
-        lock.hidden = false;
-        lock.querySelector('.gl-title').textContent = 'Trang này chỉ dành cho em';
-        lock.querySelector('.gl-sub').textContent = 'Nhập mật khẩu để vào nhé 💕';
-        gate.hidden = false;
-        document.documentElement.classList.add('gate-on');
-      }
-    } else {
-      gate.hidden = true;
-      unlock(false);
-      if (saved) show(false);
-    }
-
-    let wrong = 0;
-    lock.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (giftHash(input.value) === GIFT_HASH) {
-        try { localStorage.setItem(KEY, GIFT_HASH); } catch (err) {}
-        input.blur();
-        msg.textContent = '';
-        document.getElementById('giftLockIc').textContent = '🔓';
-        lock.classList.add('opening');
-        setTimeout(() => (LOCK_PAGE ? openPage(true) : show(true)), 450);
-        return;
-      }
-      msg.textContent = input.value.trim() ? WRONG[wrong++ % WRONG.length] : 'Em nhập mật khẩu trước đã nha 💕';
-      lock.classList.remove('shake');
-      void lock.offsetWidth;                            // chay lai hieu ung rung
-      lock.classList.add('shake');
-      input.select();
-    });
-  })();
-  </script>
+  <!-- XEM CUNG NHAU: hanh trinh 6 buoc, moi buoc mot cham (script cuoi trang) -->
+  <button class="tour-cta" id="tourCta" type="button">
+    <span class="cta-ic">✨</span>
+    <span><b>Xem cùng nhau</b><small>Hành trình một năm, chạm từng bước · có hộp quà ở cuối</small></span>
+    <span class="cta-go">›</span>
+  </button>
 
   <!-- VIDEO NOI BAT — doi video / chu o FEATURED trong phan GALLERY cua script -->
   <section class="feat" id="feat" hidden>
@@ -1980,15 +2073,141 @@
     <div class="letter-grid" id="letterGrid"></div>
   </div>
 
-  <!-- MILESTONES -->
+  <!-- HOP QUA: 9 trang dac biet, theo thu tu nen xem cung nhau (GIFTS o script cuoi trang).
+       Mat khau: LOCK_PAGE = true thi o nhap nam o cong vao trang; = false thi nam o day, mo khoa moi hien qua -->
+  <section class="giftbox reveal" id="giftbox">
+    <div class="section-title">Hộp quà của em 🎁</div>
+    <div class="giftbox-sub" id="giftboxSub"></div>
+  <form class="gift-lock" id="giftLock" autocomplete="off">
+    <div class="gl-ic" id="giftLockIc">🔒</div>
+    <div class="gl-title">4 món quà đang chờ em</div>
+    <div class="gl-sub">Nhập mật khẩu để mở nhé 💕</div>
+    <div class="gl-row">
+      <input id="giftPass" type="password" placeholder="Mật khẩu" aria-label="Mật khẩu"
+             autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button type="submit">Mở khóa</button>
+    </div>
+    <div class="gl-msg" id="giftMsg" aria-live="polite"></div>
+  </form>
+    <div class="gifts" id="gifts" hidden></div>
+  </section>
+  <script>
+  // Khoa bang mat khau. Chi la khoa nhe tren trinh duyet: trong ma chi co ma bam cua
+  // mat khau (khong lo chu that), mo dung mot lan thi may nho, lan sau khoi go.
+  // Doi mat khau: mo trang nay, F12 > Console, go  giftHash('mat-khau-moi')
+  // roi dan ket qua vao GIFT_HASH. Go hoa/thuong, co dau hay dau cach deu duoc.
+  //
+  // ★ LOCK_PAGE = true : hoi mat khau ngay sau man "Dang tai tinh yeu", nhap dung moi
+  //                      vao trang; 4 mon qua mo san.
+  //   LOCK_PAGE = false: nhu truoc — trang mo, chi khoa 4 mon qua.
+  // window.loveUnlocked: Promise xong khi da vao duoc trang (man ky niem doi cai nay).
+  (() => {
+    const LOCK_PAGE = true;
+    const GIFT_HASH = 'cmqzm1mwhu';
+    const KEY = LOCK_PAGE ? 'love-key' : 'gifts-key';
+    const WRONG = ['Chưa đúng rồi 🥺 Thử lại nha', 'Sai nữa rồi nè 😝', 'Gần đúng rồi đó… chắc vậy 🙈'];
+    const norm = (v) => v.trim().toLowerCase().normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/\s+/g, '');
+    window.giftHash = (str, seed = 1810) => {          // cyrb53 — bam 53 bit, chay ca khi khong co https
+      let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+      const v = norm(str);
+      for (let i = 0; i < v.length; i++) {
+        const ch = v.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+    };
+
+    const lock = document.getElementById('giftLock'), gifts = document.getElementById('gifts');
+    const input = document.getElementById('giftPass'), msg = document.getElementById('giftMsg');
+    const gate = document.getElementById('gate');
+    let unlock;
+    window.loveUnlocked = new Promise((r) => { unlock = r; });
+
+    const show = (animate) => {
+      lock.hidden = true;
+      gifts.hidden = false;
+      if (animate) gifts.classList.add('gifts-open');
+    };
+    const openPage = (animate) => {
+      document.documentElement.classList.remove('gate-on');
+      if (!animate) { gate.hidden = true; unlock(false); return; }
+      gate.classList.add('gate-open');                  // mo dan ra
+      setTimeout(() => { gate.hidden = true; }, 700);
+      unlock(true);
+    };
+    let saved = false;
+    try { saved = localStorage.getItem(KEY) === GIFT_HASH; } catch (e) {}
+
+    if (LOCK_PAGE) {
+      show(false);                                      // 4 mon qua mo san
+      if (saved) openPage(false);
+      else {
+        gate.querySelector('.gate-box').appendChild(lock);   // dua o mat khau ra cong vao trang
+        lock.hidden = false;
+        lock.querySelector('.gl-title').textContent = 'Trang này chỉ dành cho em';
+        lock.querySelector('.gl-sub').textContent = 'Nhập mật khẩu để vào nhé 💕';
+        gate.hidden = false;
+        document.documentElement.classList.add('gate-on');
+      }
+    } else {
+      gate.hidden = true;
+      unlock(false);
+      if (saved) show(false);
+    }
+
+    let wrong = 0;
+    lock.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (giftHash(input.value) === GIFT_HASH) {
+        try { localStorage.setItem(KEY, GIFT_HASH); } catch (err) {}
+        input.blur();
+        msg.textContent = '';
+        document.getElementById('giftLockIc').textContent = '🔓';
+        lock.classList.add('opening');
+        setTimeout(() => (LOCK_PAGE ? openPage(true) : show(true)), 450);
+        return;
+      }
+      msg.textContent = input.value.trim() ? WRONG[wrong++ % WRONG.length] : 'Em nhập mật khẩu trước đã nha 💕';
+      lock.classList.remove('shake');
+      void lock.offsetWidth;                            // chay lai hieu ung rung
+      lock.classList.add('shake');
+      input.select();
+    });
+  })();
+  </script>
+
+  <!-- MILESTONES: moc co chuyen + 3 moc sap toi; con lai sau nut "Xem tat ca" -->
   <div class="milestones reveal">
     <div class="section-title">Những cột mốc đáng nhớ ✨</div>
     <div class="milestone-list" id="milestoneList"></div>
+    <button class="more-btn" id="msMore" type="button" hidden>Xem tất cả</button>
+  </div>
+
+  <!-- DO EM: cau hoi lay tu moc ky niem (QUIZ o script cuoi trang) -->
+  <div class="quiz-card reveal" id="quiz">
+    <div class="section-title">Đố em 🧐</div>
+    <div class="quiz-sub" id="quizSub"></div>
+    <div class="quiz-q" id="quizQ"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-fb" id="quizFb"></div>
+    <div class="quiz-foot">
+      <span id="quizScore"></span>
+      <button class="quiz-next" id="quizNext" type="button" hidden>Câu tiếp ›</button>
+    </div>
   </div>
 
   <!-- LICH KY NIEM -->
   <div class="calendar-card reveal">
-    <div class="section-title">Lịch kỷ niệm 📅</div>
+    <button class="cal-toggle" id="calToggle" type="button" aria-expanded="false">
+      <span class="ct-ic">📅</span>
+      <span class="ct-txt"><span class="ct-title">Lịch kỷ niệm</span><span class="ct-sub" id="ctSub"></span></span>
+      <span class="ct-chev">▾</span>
+    </button>
+    <div class="cal-body">
     <div class="cal-head">
       <button class="cal-nav" id="calPrev" aria-label="Tháng trước">‹</button>
       <div class="cal-title" id="calTitle"></div>
@@ -2003,6 +2222,7 @@
       <span class="cal-legend">Số nhỏ là ngày âm lịch</span>
     </div>
     <div class="cal-detail" id="calDetail"></div>
+    </div>
   </div>
 
   <div class="divider">
@@ -2015,10 +2235,11 @@
   <div class="gallery reveal">
     <div class="section-title">Khoảnh khắc của chúng mình 📸</div>
     <div class="card-maker">
-      <button class="slideshow-btn" id="ssStart">▶ Trình chiếu kèm nhạc</button>
+      <button class="slideshow-btn" id="ssStart">▶ Xem khoảnh khắc kèm nhạc</button>
       <button class="card-make-btn" id="cardMake">🖼 Tạo ảnh chia sẻ</button>
     </div>
     <div class="gallery-masonry" id="galleryMasonry"></div>
+    <button class="more-btn" id="galMore" type="button" hidden>Xem tất cả</button>
   </div>
 
   <!-- LIGHTBOX -->
@@ -2035,58 +2256,6 @@
     <video id="lbVideo" src="" controls playsinline style="display:none"></video>
     <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
   </div>
-
-  <!-- DIEM NHAN CUOI TRANG: 5 trang dac biet, de danh xem sau cung (dat o day cho khoi loang voi 4 mon qua) -->
-  <section class="finale reveal">
-    <div class="finale-eyebrow">✦ Xem hết rồi? Vẫn còn năm bất ngờ cuối cùng ✦</div>
-    <div class="finale-grid">
-      <a class="fin-card fin-anim" href="chuyen-cua-chung-minh.html">
-        <div class="fin-art">
-          <span class="fin-tag">Phim hoạt hình ✨</span>
-          <span class="fin-play">▶</span>
-        </div>
-        <span class="fin-txt"><b>Chuyện của chúng mình</b><small>Một năm của hai đứa, kể lại bằng hoạt hình — có cả bản MP4 để lưu</small></span>
-        <span class="fin-go">Xem phim ›</span>
-      </a>
-      <a class="fin-card fin-book" href="truyen-tranh.html">
-        <div class="fin-art">
-          <span class="fin-tag">Có cả bản in 📖</span>
-          <img class="fin-bookimg" src="truyen-tranh/trang-01.webp" alt="" loading="lazy">
-        </div>
-        <span class="fin-txt"><b>Truyện tranh của chúng mình</b><small>Lật từng trang chuyện một năm — kèm thiệp gửi em</small></span>
-        <span class="fin-go">Đọc truyện ›</span>
-      </a>
-      <a class="fin-card fin-cinema" href="rap-phim.html">
-        <div class="fin-art">
-          <div class="fin-bulbs" aria-hidden="true"></div>
-          <span class="fin-tag">Suất chiếu đặc biệt</span>
-          <span class="fin-emoji">🎬</span>
-        </div>
-        <span class="fin-txt"><b>Rạp phim của chúng mình</b><small>Bộ phim một năm của hai đứa — chỉ chiếu cho em</small></span>
-        <span class="fin-go">Vào rạp ›</span>
-      </a>
-      <a class="fin-card fin-coupon" href="phieu-yeu-thuong.html">
-        <div class="fin-art">
-          <span class="fin-tag">Những phiếu đang chờ em</span>
-          <span class="fin-emoji">🎟️</span>
-        </div>
-        <span class="fin-txt"><b>Phiếu yêu thương</b><small>Cào ra quà thật — em dùng lúc nào anh cũng chiều</small></span>
-        <span class="fin-go">Cào ngay ›</span>
-      </a>
-      <a class="fin-card fin-mini" href="qua-nho.html">
-        <div class="fin-art">
-          <span class="fin-tag">Sticker · video 15s · đồ in</span>
-          <img class="fin-stk" src="sticker/nho/01-yeu-em.webp" alt="" loading="lazy">
-          <img class="fin-stk" src="sticker/nho/02-thuong-anh.webp" alt="" loading="lazy">
-          <img class="fin-stk" src="sticker/nho/03-om.webp" alt="" loading="lazy">
-          <img class="fin-stk" src="sticker/nho/05-doi.webp" alt="" loading="lazy">
-          <img class="fin-stk" src="sticker/nho/07-ngu-ngon.webp" alt="" loading="lazy">
-        </div>
-        <span class="fin-txt"><b>Góc quà nhỏ</b><small>Sticker hai đứa để nhắn nhau, video 15 giây đăng story, ảnh polaroid và phiếu yêu thương bằng giấy</small></span>
-        <span class="fin-go">Mở góc quà ›</span>
-      </a>
-    </div>
-  </section>
 
   <!-- FOOTER -->
   <div class="footer">
@@ -2126,7 +2295,7 @@
     <div class="anniv-dates" id="annivDates"></div>
     <div class="anniv-days"><b id="annivDays">0</b><span>NGÀY BÊN NHAU</span></div>
     <div class="anniv-actions">
-      <button class="anniv-btn" id="annivPlay">Xem lại kỷ niệm 💕</button>
+      <button class="anniv-btn" id="annivPlay">Xem cùng nhau 💕</button>
       <button class="anniv-btn ghost" id="annivClose">Vào trang</button>
     </div>
   </div>
@@ -2145,6 +2314,68 @@
     <button class="ss-btn big" id="ssPlay" aria-label="Tạm dừng">⏸</button>
     <button class="ss-btn" id="ssNext" aria-label="Sau">›</button>
   </div>
+</div>
+
+<!-- XEM CUNG NHAU: 6 buoc toan man hinh (script cuoi trang) -->
+<div class="tour" id="tour">
+  <div class="tour-top">
+    <div class="tour-dots" id="tourDots"></div>
+    <button class="tour-x" id="tourX" type="button" aria-label="Thoát">×</button>
+  </div>
+  <section class="tc" id="tc0" data-step="0">
+    <div class="tc-in">
+      <div class="tc-q" id="t0Q"></div>
+      <div class="tc-count" id="t0Count" hidden>
+        <div class="tc-big" id="t0Num">0</div>
+        <div class="tc-lbl">ngày bên nhau</div>
+        <div class="tc-sub" id="t0Sub"></div>
+      </div>
+    </div>
+    <div class="tc-hint" id="t0Hint">Chạm vào màn hình 💕</div>
+  </section>
+  <section class="tc" id="tc1" data-step="1">
+    <div class="tc-in">
+      <div class="tc-q">Và trong từng ấy ngày…</div>
+      <div class="tn-list" id="tnList"></div>
+    </div>
+    <div class="tc-hint" id="t1Hint">Chạm để hiện từng con số 💕</div>
+  </section>
+  <section class="tc tc-wide" id="tc2" data-step="2">
+    <div class="tc-in">
+      <div class="tc-q">Những ngày anh không quên</div>
+      <div class="tc-sub">Vuốt ngang để xem từng mốc ›</div>
+      <div class="tm-strip" id="tmStrip"></div>
+    </div>
+  </section>
+  <section class="tc" id="tc3" data-step="3">
+    <div class="tc-in">
+      <div class="tc-q">Và những khoảnh khắc anh đã giữ lại</div>
+      <div class="tc-sub" id="t3Sub"></div>
+      <button class="tc-btn" id="tourSs" type="button">▶ Xem ảnh kèm nhạc</button>
+      <button class="tc-ghost" id="tourSsSkip" type="button">Để sau, xem tiếp ›</button>
+    </div>
+  </section>
+  <section class="tc" id="tc4" data-step="4">
+    <div class="tc-in">
+      <div class="tc-q">Lời anh muốn nói</div>
+      <div class="tc-letter" id="tcLetter"></div>
+      <div class="tc-sign" id="tcSign" hidden>— Hữu Phước gửi Thị Huyền 💗</div>
+    </div>
+    <div class="tc-hint" id="t4Hint">Chạm để hiện hết chữ</div>
+  </section>
+  <section class="tc" id="tc5" data-step="5">
+    <div class="tc-in">
+      <div class="tc-q" id="t5Q">Còn một điều nữa…</div>
+      <div class="tc-sub" id="t5Sub"></div>
+      <div class="tg-grid" id="tgGrid"></div>
+      <div class="tg-detail" id="tgDetail" hidden>
+        <div class="tg-d-ic" id="tgDIc"></div>
+        <b id="tgDTitle"></b><small id="tgDSub"></small>
+        <a class="tc-btn" id="tgDGo" href="#">Mở quà ›</a>
+      </div>
+    </div>
+  </section>
+  <button class="tc-next" id="tourNext" type="button" hidden>Tiếp ›</button>
 </div>
 
 <!-- THONG BAO NHO -->
@@ -2312,6 +2543,25 @@ const shownMilestones = milestones.filter(m => m.ts <= now0 + 400 * DAY);
 
 const upcomingEls = []; // track upcoming milestones for live update
 
+// Hien san: moc da den co chuyen (khong tinh "tron N thang" — gom thanh 1 dong) + 3 moc sap toi gan nhat.
+// Con lai (ms-more) chi hien khi bam "Xem tat ca". Trang ngan lai ma khong mat gi.
+const upcoming3 = shownMilestones.filter(m => m.ts > now0).slice(0, 3);
+const reachedMonths = shownMilestones.filter(m => m.type === 'month' && now0 >= m.ts);
+const lastMonth = reachedMonths[reachedMonths.length - 1];
+const isHighlight = (m) => (now0 >= m.ts ? m.type !== 'month' : upcoming3.includes(m));
+function monthSummaryRow() {
+  const div = document.createElement('div');
+  div.className = 'milestone reached ms-sum';
+  div.innerHTML = `
+    <div class="ms-icon">🌷</div>
+    <div class="ms-info">
+      <div class="ms-name">Tròn ${reachedMonths.length} tháng bên nhau</div>
+      <div class="ms-date">${escHtml(reachedMonths[0].date)} → ${escHtml(lastMonth.date)} · ${reachedMonths.length} mốc tròn tháng</div>
+    </div>
+    <div class="ms-badge">✓ Đã đến</div>`;
+  return div;
+}
+
 shownMilestones.forEach(m => {
   const reached  = now0 >= m.ts;
   const daysLeft = reached ? 0 : Math.ceil((m.ts - now0) / 86400000);
@@ -2322,7 +2572,7 @@ shownMilestones.forEach(m => {
   const pct  = reached ? 100 : Math.min(99.9, Math.max(0, ((now0 - START) / span) * 100));
 
   const div = document.createElement('div');
-  div.className = 'milestone' + (reached ? ' reached' : '');
+  div.className = 'milestone' + (reached ? ' reached' : '') + (isHighlight(m) ? '' : ' ms-more');
   div.dataset.key = m.key;
 
   const progressHtml = !reached ? `
@@ -2344,6 +2594,7 @@ shownMilestones.forEach(m => {
   `;
 
   mlList.appendChild(div);
+  if (m === lastMonth) mlList.appendChild(monthSummaryRow());   // dong gom cac moc tron thang, dung cho cua moc cuoi
 
   // Bấm vào ô milestone để show/hide tooltip
   if (!reached) {
@@ -2361,6 +2612,17 @@ shownMilestones.forEach(m => {
     });
   }
 });
+
+// Nut "Xem tat ca N moc" / "Thu gon"
+(() => {
+  const btn = document.getElementById('msMore'), block = document.querySelector('.milestones');
+  const nMore = mlList.querySelectorAll('.ms-more').length;
+  if (!nMore) return;
+  btn.hidden = false;
+  const lbl = () => (btn.textContent = block.classList.contains('all') ? 'Thu gọn ▴' : `Xem tất cả ${shownMilestones.length} mốc ▾`);
+  lbl();
+  btn.addEventListener('click', () => { block.classList.toggle('all'); lbl(); if (!block.classList.contains('all')) block.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
+})();
 
 // Bấm ra ngoài thì ẩn tooltip
 document.addEventListener('click', (e) => {
@@ -2447,6 +2709,9 @@ function renderCalendar() {
     );
   }
   calGrid.innerHTML = cells.join('');
+  // dong tom tat tren nut mo lich (lich thu gon mac dinh)
+  const nEv = Object.keys(msByDay).filter(k => k.startsWith(`${calY}-${pad2(calM + 1)}-`)).length;
+  document.getElementById('ctSub').textContent = `Tháng ${calM + 1}, ${calY} · ${nEv ? nEv + ' mốc' : 'không có mốc'} · âm lịch ${thangAm}`;
 }
 
 function showDay(key) {
@@ -2492,6 +2757,10 @@ document.getElementById('calToday').addEventListener('click', () => {
 
 renderCalendar();
 showDay(todayKey);
+document.getElementById('calToggle').addEventListener('click', () => {
+  const open = document.querySelector('.calendar-card').classList.toggle('open');
+  document.getElementById('calToggle').setAttribute('aria-expanded', open);
+});
 
 /** Khoang cach giua 2 moc theo lich that (khong quy uoc thang 30 ngay) */
 function ymdBetween(fromTs, toTs) {
@@ -2570,6 +2839,36 @@ function pop(el, val) {
   }
 }
 
+/** 4 con so chinh tai thoi diem now — dung chung cho the so, so dem len va che do xem cung nhau */
+function statsValues(now) {
+  const h = Math.max(0, now - START) / 3600000;
+  const days = Math.floor(h / 24);
+  // ~100.000 nhip tim / ngay (trung binh)
+  return { days, hb: Math.floor(days * 100000 + (h % 24) * 4167), hours: Math.floor(h), mins: Math.floor(h * 60) };
+}
+/** Chay so tu 0 len `to` trong `ms` (nhanh truoc cham sau) -> Promise xong */
+function countUp(el, to, ms, fmt = (n) => n.toLocaleString()) {
+  return new Promise((done) => {
+    const t0 = performance.now();
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(Math.round(to * e));
+      if (p < 1) requestAnimationFrame(step); else done();
+    };
+    requestAnimationFrame(step);
+  });
+}
+// Lan dau cuon toi 4 the so thi so dem len tu 0 cho co cam giac; trong luc do vong tick khong ghi de
+let countingUntil = 0;
+function statsCountUp() {
+  // Con man tai / cong mat khau che thi doi, khong thi dem len ma khong ai thay
+  if (docEl.classList.contains('gate-on') || !document.getElementById('loadingScreen').classList.contains('hide')) { setTimeout(statsCountUp, 300); return; }
+  const v = statsValues(Date.now()), DUR = 1800;
+  countingUntil = Date.now() + DUR + 200;
+  countUp(numEls.days, v.days, DUR); countUp(numEls.hb, v.hb, DUR);
+  countUp(numEls.hours, v.hours, DUR); countUp(numEls.mins, v.mins, DUR);
+}
+
 // ── MAIN TICK ─────────────────────────────────────────────────────────────────
 // So lieu (ngay, gio, dem nguoc, thanh tien do...) chi doi theo giay -> cap nhat 1 lan / giay.
 // Truoc day moi khung hinh deu ghi lai ca chuc o chu + innerHTML -> trinh duyet tinh lai
@@ -2585,19 +2884,14 @@ let lastNextHtml = null;
 
 function updateNumbers(now) {
   // ── Elapsed since START ──────────────────────────────────
-  const elapsedMs  = Math.max(0, now - START);
-  const totalSecs  = elapsedMs / 1000;
-  const totalMins  = totalSecs / 60;
-  const totalHours = totalMins / 60;
-  const totalDays  = Math.floor(totalHours / 24);
-
-  setText(numEls.days, totalDays.toLocaleString());
   setText(numEls.breakdown, ymdText(START, now));
-  // ~100,000 nhịp tim/ngày (trung bình)
-  const heartbeats = Math.floor(totalDays * 100000 + (totalHours % 24) * 4167);
-  setText(numEls.hb, heartbeats.toLocaleString());
-  setText(numEls.hours, Math.floor(totalHours).toLocaleString());
-  setText(numEls.mins, Math.floor(totalMins).toLocaleString());
+  if (now >= countingUntil) {                 // dang chay so dem len thi de yen
+    const v = statsValues(now);
+    setText(numEls.days, v.days.toLocaleString());
+    setText(numEls.hb, v.hb.toLocaleString());
+    setText(numEls.hours, v.hours.toLocaleString());
+    setText(numEls.mins, v.mins.toLocaleString());
+  }
 
   // ── Countdown to moc tron nam ke tiep ────────────────────
   const anniv = annivTarget(now);
@@ -2645,7 +2939,7 @@ function tick(t) {
   const now = Date.now();
   const sec = Math.floor(now / 1000);
   if (sec !== lastSec) { lastSec = sec; updateNumbers(now); }
-  if ((++starFrame & 1) === 0 && !docEl.classList.contains('gate-on')) drawStars(t / 1000);
+  if ((++starFrame & 1) === 0 && !docEl.classList.contains('gate-on') && !docEl.classList.contains('tour-on')) drawStars(t / 1000);
   requestAnimationFrame(tick);
 }
 
@@ -2662,6 +2956,14 @@ const FEATURED = [
   { f: 'primary.mp4',             title: 'Sinh nhật đầu tiên có em',  sub: '09 · 10 · 2026' },
 ];
 const isFeatured = (m) => FEATURED.some(x => x.f === m.f);
+// ★ Anh noi bat: hien san tren trang theo DUNG thu tu nay (nen xep theo thoi gian, moi moc mot tam),
+//   co chu thich ngay / moc ngay duoi o. Con lai nam sau nut "Xem tat ca" (va chi tai khi bam).
+//   Danh sach rong hoac khong khop tam nao -> hien het nhu cu.
+const FAVORITES = [
+  '24-08-25.jpg', 'anhsinhnhatemvsbanthan.jpg', 'muadong2025.jpg', 'chupphotobook.jpg',
+  'aodoidautiencuaanhvsem.jpg', 'valentine-anhemratthich.jpg', 'quavalentine.jpg', 'anhemditructhang42026.jpg',
+  'dichoithang52026.jpg', 'le2:9.jpg', 'hienmau-em-10lan-anh-15lan.jpg', 'emngaysinhnhatanh.jpg',
+];
 const galleryEl = document.getElementById('galleryMasonry');
 let galleryImages = [];          // [{f, t, w, h, thumb}]
 let currentLbIndex = 0;
@@ -2684,16 +2986,39 @@ function reveal(item) { item.classList.remove('loading'); item.classList.add('lo
 // la an toan nhat. Muon nhe hon thi giam THUMB_WIDTH trong tools/gallery.js.
 // Phong xa: sau 6 giay o nao con "dang cho" thi cu hien ra, khong de trang.
 function failsafeReveal() {
-  document.querySelectorAll('.gallery-item.loading').forEach(reveal);
+  document.querySelectorAll('.gallery-item.loading').forEach(it => { if (!it.querySelector('img[data-src]')) reveal(it); });
+}
+
+/** Chu thich ngan tren o anh noi bat: ten moc cung ngay, khong co thi ngay / thang */
+function shortCaption(m) {
+  if (m.d) {
+    const e = (msByDay[m.d] || [])[0];
+    if (e) return `${e.icon} ${e.name.replace(/\s*[🎉💕]+\s*$/, '')}`;
+    const [y, mo, d] = m.d.split('-').map(Number);
+    return '📅 ' + fmtVN(new Date(y, mo - 1, d));
+  }
+  return m.sl ? '🗓️ ' + m.sl : '';
+}
+/** O "xem tat ca" chi tai anh khi duoc mo ra */
+function galleryLoad(item) {
+  const img = item.querySelector('img');
+  if (!img.dataset.src) return;
+  img.src = img.dataset.src; delete img.dataset.src;
+  if (img.complete && img.naturalWidth) reveal(item);
 }
 
 function buildGallery(list) {
-  galleryImages = shuffle(list.filter(m => !isFeatured(m)));   // video noi bat da co khung rieng o tren
+  const pool = list.filter(m => !isFeatured(m));               // video noi bat da co khung rieng o tren
+  const favs = FAVORITES.map(f => pool.find(m => m.f === f)).filter(Boolean);
+  const favSet = new Set(favs.map(m => m.f));
+  galleryImages = favs.concat(shuffle(pool.filter(m => !favSet.has(m.f))));   // noi bat truoc, con lai tron
+  const nShown = favs.length || galleryImages.length;
   galleryEl.innerHTML = '';
 
   galleryImages.forEach((m, i) => {
     const item = document.createElement('div');
-    item.className = 'gallery-item loading';
+    const more = i >= nShown;                                   // nam sau nut "Xem tat ca"
+    item.className = 'gallery-item loading' + (more ? ' g-more' : '');
     // Giu dung ty le khung ngay tu dau -> khong bi giat layout khi anh hien ra
     if (m.w && m.h) item.style.aspectRatio = `${m.w} / ${m.h}`;
 
@@ -2703,9 +3028,17 @@ function buildGallery(list) {
     img.fetchPriority = i < 6 ? 'high' : 'low';   // 6 o dau uu tien, con lai tai dan
     img.addEventListener('load',  () => reveal(item));
     img.addEventListener('error', () => { item.classList.remove('loading'); item.classList.add('failed'); });
-    img.src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
-    if (img.complete && img.naturalWidth) reveal(item);   // anh da nam trong bo nho dem
+    const src = MEDIA_DIR + (m.thumb ? 'thumbs/' + m.thumb : m.f);
+    if (more) img.dataset.src = src;                            // chi tai khi bam "Xem tat ca"
+    else {
+      img.src = src;
+      if (img.complete && img.naturalWidth) reveal(item);       // anh da nam trong bo nho dem
+    }
     item.appendChild(img);
+    if (!more) {
+      const cap = shortCaption(m);
+      if (cap) { const c = document.createElement('span'); c.className = 'g-cap'; c.textContent = cap; item.appendChild(c); }
+    }
 
     if (m.t === 'vid') {
       const play = document.createElement('span');
@@ -2740,6 +3073,17 @@ function buildGallery(list) {
     galleryEl.appendChild(item);
   });
   setTimeout(failsafeReveal, 6000);
+
+  const moreBtn = document.getElementById('galMore');
+  const all = `Xem tất cả ${galleryImages.length} ảnh & video ▾`;
+  moreBtn.hidden = galleryImages.length <= nShown;
+  moreBtn.textContent = all;
+  moreBtn.onclick = () => {
+    const open = galleryEl.parentElement.classList.toggle('all');
+    if (open) { galleryEl.querySelectorAll('.g-more').forEach(galleryLoad); setTimeout(failsafeReveal, 6000); }
+    else galleryEl.parentElement.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    moreBtn.textContent = open ? 'Thu gọn ▴' : all;
+  };
 }
 
 // ── VIDEO NOI BAT ────────────────────────────────────────────────────────────
@@ -2762,13 +3106,19 @@ function featDuck(on) {
   }
 }
 
-/** Video con hien tren man hinh thi chay khong tieng, khuat han thi dung */
+/** Video nao hien nhieu nhat tren man hinh thi chay khong tieng (moi luc chi MOT cai, cho nhe may
+ *  va do ton mang), cai kia dung; khuat han thi dung */
 function featSync() {
+  let best = null, bestA = 0;
   featCards.forEach((c) => {
     if (c.watching) return;
     const r = c.video.getBoundingClientRect();
-    const onScreen = r.bottom > 0 && r.top < innerHeight;
-    if (onScreen && !featCalm()) { c.video.preload = 'auto'; c.video.play().catch(() => {}); }
+    const vis = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+    if (vis > bestA) { bestA = vis; best = c; }
+  });
+  featCards.forEach((c) => {
+    if (c.watching) return;
+    if (c === best && !featCalm()) { c.video.preload = 'auto'; c.video.play().catch(() => {}); }
     else c.video.pause();
   });
 }
@@ -3176,6 +3526,7 @@ function ssClose() {
   if (ssMusicWasOff) stopMusic();      // tra lai trang thai nhac truoc khi mo
   ssWakeLock?.release?.().catch(() => {});
   ssWakeLock = null;
+  if (typeof tourAfterSs === 'function') tourAfterSs();   // dang xem cung nhau thi sang buoc ke tiep
 }
 
 function ssTogglePause() {
@@ -3226,7 +3577,7 @@ const MUSIC_OFF_KEY = 'love-music-off';
 // Mot phan tu audio dung suot: iPhone chi cho phat tiep bai sau (khong can cham)
 // neu van la phan tu da duoc mo khoa boi lan cham dau
 const bgMusic = new Audio();
-bgMusic.preload = 'auto';
+bgMusic.preload = 'none';         // chi tai khi phat duoc — khong tranh mang voi anh luc moi vao trang
 bgMusic.volume = 0.4;
 let musicPlaying = false;
 let lastSongIndex = -1;
@@ -3261,7 +3612,10 @@ function playSong() {
     if (t !== playToken) return false;                 // da co lan phat moi hon
     // Bi chan vi chua cham vao trang -> tra nut ve 🎵, cho lan cham dau. Loi khac
     // (AbortError khi trinh chieu vua tam dung nhac) thi giu nguyen trang thai.
-    if (err && err.name === 'NotAllowedError') { musicPlaying = false; setMusicUi(false); }
+    if (err && err.name === 'NotAllowedError') {
+      musicPlaying = false; setMusicUi(false);
+      bgMusic.removeAttribute('src'); bgMusic.load();   // huy tai bai nhac (3-4 MB) khi chua duoc phep phat
+    }
     return false;
   });
 }
@@ -3340,6 +3694,9 @@ btnTop.addEventListener('click', () => {
 // rat lau): thanh tai chay 1.5s xong la mo man, anh phia duoi tu hien dan.
 setTimeout(() => {
   document.getElementById('loadingScreen').classList.add('hide');
+  // 4 the so dem len tu 0 khi thuc su vao tam mat (sau man tai, de khong chay ngam luc chua ai thay)
+  const so = new IntersectionObserver((es) => { if (es.some(e => e.isIntersecting)) { so.disconnect(); statsCountUp(); } }, { threshold: 0.35 });
+  so.observe(document.querySelector('.stats-grid'));
 }, 1600);
 
 
@@ -3554,8 +3911,8 @@ fetch('data/letters.json')
 const annivEl = document.getElementById('anniv');
 const CONFETTI_COLORS = ['#ff6b8a', '#ffb3c6', '#f5c842', '#fde68a', '#ff4d73', '#ffffff'];
 
-function annivConfetti(n) {
-  annivEl.querySelectorAll('.confetti').forEach(c => c.remove());
+function annivConfetti(n, into = annivEl) {
+  into.querySelectorAll('.confetti').forEach(c => c.remove());
   const frag = document.createDocumentFragment();
   for (let i = 0; i < n; i++) {
     const c = document.createElement('i');
@@ -3571,7 +3928,7 @@ function annivConfetti(n) {
       height: ${Math.random() * 7 + 9}px;`;
     frag.appendChild(c);
   }
-  annivEl.appendChild(frag);
+  into.appendChild(frag);
 }
 
 function annivShow(ms) {
@@ -3592,7 +3949,7 @@ function annivHide() {
 }
 
 document.getElementById('annivClose').addEventListener('click', annivHide);
-document.getElementById('annivPlay').addEventListener('click', () => { annivHide(); ssOpen(0); });
+document.getElementById('annivPlay').addEventListener('click', () => { annivHide(); tourOpen(0); });   // tourOpen: script cuoi trang
 
 (function initAnniv() {
   const xemTruoc = new URLSearchParams(location.search).has('xem-truoc');
@@ -3632,6 +3989,325 @@ const revealObserver = new IntersectionObserver((entries) => {
 // nam mai o opacity 0, nhin nhu trang trong. rootMargin lo cam giac hien dan.
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+</script>
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+//  HOP QUA 9 MON · XEM CUNG NHAU · DO EM · BI MAT NHO
+//  Dat sau script chinh de dung lai milestones, galleryImages, ssOpen, toast, annivConfetti...
+// ══════════════════════════════════════════════════════════════════════════════
+const $ = (id) => document.getElementById(id);
+
+// ── HOP QUA ──────────────────────────────────────────────────────────────────
+// ★ 9 trang dac biet, xep theo thu tu nen xem cung nhau (cam xuc tang dan, ket bang
+//   mon mang ve duoc). Doi thu tu / ten / mo ta o day. art = anh nho ben trai (khong co thi dung ic).
+const GIFTS = [
+  { id: 'hoat-hinh',   href: 'chuyen-cua-chung-minh.html', ic: '🎞', art: 'video/chuyen-cua-chung-minh.webp',
+    title: 'Chuyện của chúng mình',      sub: 'Phim hoạt hình một năm của hai đứa, có cả bản MP4 để lưu' },
+  { id: 'truyen-tranh', href: 'truyen-tranh.html',          ic: '📖', art: 'truyen-tranh/trang-01.webp',
+    title: 'Truyện tranh của chúng mình', sub: 'Lật từng trang chuyện một năm, có cả bản in' },
+  { id: 'mot-nam',     href: 'mot-nam-nhin-lai.html',      ic: '📊', title: 'Một năm nhìn lại',        sub: 'Hành trình kể bằng những con số, có câu đố' },
+  { id: '365-vi-sao',  href: '365-vi-sao.html',            ic: '✦',  title: '365 vì sao',              sub: 'Mỗi ngày bên nhau là một vì sao' },
+  { id: 'trai-tim',    href: 'trai-tim-khoanh-khac.html',  ic: '♥',  title: 'Trái tim khoảnh khắc',    sub: 'Ghép từ những khoảnh khắc của chúng mình' },
+  { id: 'rap-phim',    href: 'rap-phim.html',              ic: '🎬', art: 'images/love/thumbs/primary.webp',
+    title: 'Rạp phim của chúng mình',    sub: 'Suất chiếu đặc biệt, chỉ chiếu cho em' },
+  { id: 'la-thu',      href: 'la-thu-niem-phong.html',     ic: '✉',  title: 'Lá thư niêm phong',       sub: 'Chạm vào con dấu để mở thư' },
+  { id: 'phieu',       href: 'phieu-yeu-thuong.html',      ic: '🎟', title: 'Phiếu yêu thương',        sub: 'Cào ra quà thật, em dùng lúc nào anh cũng chiều' },
+  { id: 'qua-nho',     href: 'qua-nho.html',               ic: '🧸', art: 'sticker/nho/01-yeu-em.webp', stk: true,
+    title: 'Góc quà nhỏ',               sub: 'Sticker hai đứa, video 15 giây, polaroid và phiếu giấy' },
+];
+const GIFT_KEY = 'love-gifts-open';           // may nho nhung mon da mo -> hop qua sang mon ke tiep
+function giftsOpened() { try { const l = JSON.parse(localStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
+function giftMark(id) { const l = giftsOpened(); if (l.includes(id)) return; l.push(id); try { localStorage.setItem(GIFT_KEY, JSON.stringify(l)); } catch {} }
+function giftIcHtml(g, cls) {
+  return g.art ? `<span class="${cls}${g.stk ? ' stk' : ''}"><img src="${g.art}" alt="" loading="lazy"></span>` : `<span class="${cls}">${g.ic}</span>`;
+}
+function renderGifts() {
+  const opened = giftsOpened();
+  const n = GIFTS.filter(g => opened.includes(g.id)).length;
+  $('gifts').innerHTML = GIFTS.map((g, i) => {
+    const done = opened.includes(g.id);
+    return `<a class="gift-btn${done ? ' done' : ''}" href="${g.href}" data-id="${g.id}" style="--i:${i}">
+      <span class="gift-n">${i + 1}</span>${giftIcHtml(g, 'gift-ic')}
+      <span class="gift-txt"><b>${g.title}</b><small>${g.sub}</small></span>
+      <span class="gift-go">${done ? 'Đã xem ✓' : '›'}</span></a>`;
+  }).join('');
+  $('giftboxSub').innerHTML = !n
+    ? `<b>${GIFTS.length} món quà</b> đang chờ em · xem theo thứ tự hay chọn món em thích đều được`
+    : n < GIFTS.length ? `Em đã mở <b>${n}/${GIFTS.length}</b> món · còn ${GIFTS.length - n} món đang chờ`
+    : `Em đã mở <b>hết ${GIFTS.length} món</b> rồi · nhưng anh vẫn còn cả đời để yêu em 💗`;
+}
+renderGifts();
+$('gifts').addEventListener('click', (e) => { const a = e.target.closest('.gift-btn'); if (a) giftMark(a.dataset.id); });
+
+// Vet sang tren thanh tien do cua moc chi chay khi khoi moc dang tren man hinh
+new IntersectionObserver((es) => es.forEach(e => e.target.classList.toggle('in-view', e.isIntersecting)), { rootMargin: '120px 0px' })
+  .observe(document.querySelector('.milestones'));
+
+// ── XEM CUNG NHAU ────────────────────────────────────────────────────────────
+// Trang bien thanh 6 buoc toan man hinh, moi buoc mot cham: hoi -> so ngay dem len ->
+// 4 con so -> dai moc nho -> trinh chieu anh -> thu go chu -> hop qua mo lan luot.
+// Mo bang nut "Xem cung nhau", dia chi ?xem-cung-nhau, hoac tu man chuc mung dung ngay.
+// Dang o hop qua ma sang trang qua thi may nho (TOUR_KEY, 2 gio) -> quay lai la hop qua mo tiep.
+const tourEl = $('tour'), tourNext = $('tourNext');
+const TOUR_KEY = 'love-tour', TOUR_STEPS = 6, TOUR_REMEMBER_MS = 2 * 3600 * 1000;
+let tourStep = -1, tourTimer = null, tourSsPending = false;
+const tourSave = (o) => { try { o ? localStorage.setItem(TOUR_KEY, JSON.stringify(Object.assign({ t: Date.now() }, o))) : localStorage.removeItem(TOUR_KEY); } catch {} };
+const tourLoad = () => { try { return JSON.parse(localStorage.getItem(TOUR_KEY) || 'null'); } catch { return null; } };
+
+function tourOpen(step = 0) {
+  tourEl.classList.add('show');
+  document.documentElement.classList.add('tour-on');   // dung ve sao nen + khoa cuon trang
+  document.body.style.overflow = 'hidden';
+  tourGo(step);
+}
+function tourClose() {
+  clearInterval(tourTimer);
+  tourEl.classList.remove('show');
+  document.documentElement.classList.remove('tour-on');
+  document.body.style.overflow = '';
+  tourEl.querySelectorAll('.confetti').forEach(c => c.remove());
+  tourSave(null);
+  tourStep = -1;
+  renderGifts();
+}
+function tourGo(i) {
+  clearInterval(tourTimer);
+  tourEl.querySelectorAll('.confetti').forEach(c => c.remove());
+  tourStep = i;
+  tourEl.querySelectorAll('.tc').forEach(s => s.classList.toggle('on', +s.dataset.step === i));
+  $('tourDots').innerHTML = Array.from({ length: TOUR_STEPS }, (_, k) => `<i class="${k < i ? 'done' : k === i ? 'on' : ''}"></i>`).join('');
+  tourNext.hidden = true;
+  tourNext.textContent = 'Tiếp ›';
+  tourSave({ on: true, step: i });
+  TOUR_STEP_FN[i]();
+}
+tourNext.addEventListener('click', () => (tourStep >= TOUR_STEPS - 1 ? tourClose() : tourGo(tourStep + 1)));
+$('tourX').addEventListener('click', tourClose);
+$('tourCta').addEventListener('click', () => tourOpen(0));
+
+// Buoc 1: hoi -> cham -> so ngay dem len + phao giay
+let t0Busy = false;
+function tourStep0() {
+  const now = Date.now(), a = annivTarget(now), isDay = a.ts - now <= 0;
+  $('t0Q').textContent = isDay ? 'Em có nhớ hôm nay là ngày gì không?' : 'Em có nhớ tụi mình bên nhau được bao lâu rồi không?';
+  $('t0Sub').textContent = isDay ? `Tròn ${a.n} năm rồi đó 🌹` : `kể từ ${fmtVN(new Date(START))}`;
+  $('t0Count').hidden = true; $('t0Hint').hidden = false; $('t0Num').textContent = '0'; t0Busy = false;
+}
+$('tc0').addEventListener('click', async () => {
+  if (t0Busy || !$('t0Count').hidden) return;
+  t0Busy = true;
+  $('t0Hint').hidden = true; $('t0Count').hidden = false;
+  await countUp($('t0Num'), statsValues(Date.now()).days, 2400, (n) => n.toLocaleString('vi-VN'));
+  annivConfetti(60, tourEl);
+  tourNext.hidden = false;
+});
+
+// Buoc 2: bon con so, moi cham hien mot dong
+let t1Rows = [], t1Shown = 0;
+function tourStep1() {
+  const v = statsValues(Date.now());
+  t1Rows = [
+    ['💓', v.hb, 'nhịp tim đã đập vì em'],
+    ['⏰', v.hours, 'giờ có nhau'],
+    ['💌', v.mins, 'phút yêu thương'],
+    ['📸', galleryImages.length + featCards.length, 'khoảnh khắc anh đã giữ lại'],
+  ];
+  $('tnList').innerHTML = t1Rows.map(r => `<div class="tn"><span class="tn-ic">${r[0]}</span><span><b>0</b><small>${r[2]}</small></span></div>`).join('');
+  t1Shown = 0; $('t1Hint').hidden = false;
+}
+$('tc1').addEventListener('click', () => {
+  if (t1Shown >= t1Rows.length) return;
+  const el = $('tnList').children[t1Shown];
+  el.classList.add('on');
+  countUp(el.querySelector('b'), t1Rows[t1Shown][1], 1300, (n) => n.toLocaleString('vi-VN'));
+  if (++t1Shown >= t1Rows.length) { $('t1Hint').hidden = true; tourNext.hidden = false; }
+});
+
+// Buoc 3: dai moc da den co chuyen, moi moc mot tam anh cung ngay (neu co)
+function tourStep2() {
+  const now = Date.now();
+  const list = milestones.filter(m => m.ts <= now && m.type !== 'month');
+  $('tmStrip').innerHTML = list.map(m => {
+    const ms = mediaByDay[m.key] || [];
+    const md = ms.find(x => x.t !== 'vid') || ms[0];
+    const pic = md ? `<img src="${MEDIA_DIR}${md.thumb ? 'thumbs/' + md.thumb : md.f}" alt="" loading="lazy">` : `<div class="tm-noimg">${m.icon}</div>`;
+    return `<div class="tm">${pic}<div class="tm-body"><div class="tm-name">${m.icon} ${escHtml(m.name)}</div><div class="tm-date">${escHtml(m.date)} · ${relDays(m.ts)}</div></div></div>`;
+  }).join('');
+  $('tmStrip').scrollLeft = 0;
+  tourNext.hidden = false;
+}
+
+// Buoc 4: trinh chieu anh kem nhac (dong trinh chieu -> sang buoc 5)
+function tourStep3() {
+  $('t3Sub').textContent = `${galleryImages.length} ảnh và video, có nhạc nền · chạm × để dừng bất cứ lúc nào`;
+}
+$('tourSs').addEventListener('click', () => { tourSsPending = true; ssOpen(0); });
+$('tourSsSkip').addEventListener('click', () => tourGo(4));
+window.tourAfterSs = () => { if (tourSsPending) { tourSsPending = false; tourGo(4); } };
+
+// Buoc 5: thu hien tung chu; cham thi hien het
+const LETTER_TEXT = document.querySelector('.love-letter .letter-body').innerText.trim();
+let t4Done = false;
+function tourStep4() {
+  const el = $('tcLetter');
+  el.textContent = ''; $('tcSign').hidden = true; $('t4Hint').hidden = false; t4Done = false;
+  let i = 0;
+  tourTimer = setInterval(() => { el.textContent = LETTER_TEXT.slice(0, ++i); if (i >= LETTER_TEXT.length) tourLetterDone(); }, 30);
+}
+function tourLetterDone() {
+  if (t4Done) return;
+  t4Done = true;
+  clearInterval(tourTimer);
+  $('tcLetter').textContent = LETTER_TEXT; $('tcSign').hidden = false; $('t4Hint').hidden = true;
+  tourNext.textContent = 'Còn một điều nữa… ›'; tourNext.hidden = false;
+}
+$('tc4').addEventListener('click', tourLetterDone);
+
+// Buoc 6: hop qua — chi mon ke tiep sang; mo xong quay lai thi mon sau sang
+let tgSel = -1;
+function tourStep5() {
+  const opened = giftsOpened();
+  const nextIdx = GIFTS.findIndex(g => !opened.includes(g.id));
+  const n = GIFTS.filter(g => opened.includes(g.id)).length;
+  $('tgGrid').innerHTML = GIFTS.map((g, i) => {
+    const st = opened.includes(g.id) ? 'open' : i === nextIdx ? 'next' : 'locked';
+    return `<button class="tg ${st}" type="button" data-i="${i}"><span class="tg-ic">${st === 'open' ? g.ic : '🎁'}</span><small>${st === 'open' ? g.title : st === 'next' ? 'Chạm để mở' : 'Chưa tới lượt'}</small></button>`;
+  }).join('');
+  $('tgDetail').hidden = true; tgSel = -1;
+  if (nextIdx < 0) {
+    $('t5Q').textContent = 'Hết quà rồi…';
+    $('t5Sub').textContent = 'nhưng anh vẫn còn cả đời để yêu em 💗 Chạm vào món nào để xem lại.';
+    tourNext.textContent = 'Về trang ›'; tourNext.hidden = false;
+  } else {
+    $('t5Q').textContent = n ? 'Món tiếp theo đang sáng' : 'Còn một điều nữa…';
+    $('t5Sub').textContent = n
+      ? `Em đã mở ${n}/${GIFTS.length} món. Xem xong quay lại đây, món kế tiếp sẽ sáng lên.`
+      : `${GIFTS.length} món quà anh chuẩn bị cho em. Mở từng món, xem xong quay lại đây là món kế tiếp sáng lên.`;
+  }
+}
+$('tgGrid').addEventListener('click', (e) => {
+  const b = e.target.closest('.tg');
+  if (!b) return;
+  const i = +b.dataset.i, g = GIFTS[i];
+  if (b.classList.contains('locked')) {
+    b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+    toast('Mở món đang sáng trước đã nha 💕');
+    return;
+  }
+  if (b.classList.contains('next')) {
+    b.classList.remove('next'); b.classList.add('open', 'pop');
+    b.querySelector('.tg-ic').textContent = g.ic; b.querySelector('small').textContent = g.title;
+    annivConfetti(40, tourEl);
+  }
+  $('tgGrid').querySelectorAll('.tg.sel').forEach(x => x.classList.remove('sel'));
+  b.classList.add('sel'); tgSel = i;
+  $('tgDIc').innerHTML = g.art ? `<img src="${g.art}" alt="">` : g.ic;
+  $('tgDIc').classList.toggle('stk', !!g.stk);
+  $('tgDTitle').textContent = `${i + 1}. ${g.title}`; $('tgDSub').textContent = g.sub;
+  $('tgDGo').href = g.href;
+  $('tgDetail').hidden = false;
+  $('tgDetail').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+});
+$('tgDGo').addEventListener('click', () => { if (tgSel >= 0) giftMark(GIFTS[tgSel].id); tourSave({ on: true, step: 5 }); });
+
+const TOUR_STEP_FN = [tourStep0, tourStep1, tourStep2, tourStep3, tourStep4, tourStep5];
+
+// Tu mo: ?xem-cung-nhau (tu dau) hoac vua tu trang qua quay lai (hop qua)
+(() => {
+  const url = new URL(location.href);
+  const want = url.searchParams.has('xem-cung-nhau');
+  const saved = tourLoad();
+  const resume = saved && saved.on && Date.now() - (saved.t || 0) < TOUR_REMEMBER_MS;
+  if (!want && !resume) { if (saved) tourSave(null); return; }
+  if (want) { url.searchParams.delete('xem-cung-nhau'); history.replaceState(null, '', url.pathname + url.search + url.hash); }
+  const step = want ? 0 : Math.min(TOUR_STEPS - 1, Math.max(0, saved.step | 0));
+  window.loveUnlocked.then((wasLocked) => setTimeout(() => tourOpen(step), wasLocked ? 500 : 1800));
+})();
+// Quay lai bang nut Back (trang lay tu bo nho dem) thi ve lai dung trang thai hop qua
+window.addEventListener('pageshow', (e) => { if (!e.persisted) return; renderGifts(); if (tourStep === 5) tourStep5(); });
+
+// ── DO EM ────────────────────────────────────────────────────────────────────
+// Cau hoi lay tu moc ky niem (js/milestones.js) nen khong phai sua tay khi doi moc.
+// Them cau: push vao danh sach { q, a, wrong: [2 dap an sai] }.
+const QUIZ = (() => {
+  const by = (re) => milestones.find(m => re.test(m.name));
+  const d = (m) => m && m.date;
+  const days = statsValues(Date.now()).days;
+  const list = [
+    { q: 'Tụi mình chính thức yêu nhau vào ngày nào?', a: fmtVN(new Date(START)), wrong: [d(by(/Sinh nhật em/)), d(by(/Sinh nhật anh/))] },
+    { q: 'Lần đầu tiên tụi mình cùng đi hiến máu là ngày nào?', a: d(by(/hiến máu/)), wrong: [d(by(/Valentine/)), d(by(/hiến máu lần 2/))] },
+    { q: 'Tròn 100 ngày bên nhau rơi vào ngày nào?', a: d(by(/Tròn 100 ngày/)), wrong: [d(by(/Tròn 3 tháng/)), d(by(/Năm mới/))] },
+    { q: 'Tới hôm nay tụi mình đã bên nhau bao nhiêu ngày rồi?', a: `${days} ngày`, wrong: [`${days - 31} ngày`, `${days + 45} ngày`] },
+  ];
+  return list.filter(x => x.a && x.wrong.every(w => w && w !== x.a));
+})();
+const QUIZ_OK = ['Đúng rồi 🎉', 'Chuẩn luôn 💕', 'Người yêu anh giỏi ghê 😍', 'Quá đỉnh 🥰'];
+const quizEl = $('quiz');
+let qi = 0, qScore = 0;
+function quizShow() {
+  const q = QUIZ[qi];
+  $('quizSub').textContent = `Câu ${qi + 1} / ${QUIZ.length}`;
+  $('quizQ').textContent = q.q;
+  $('quizOpts').className = 'quiz-opts';
+  $('quizOpts').innerHTML = shuffle([q.a, ...q.wrong]).map(o => `<button class="quiz-opt" type="button">${escHtml(o)}</button>`).join('');
+  $('quizFb').textContent = ''; $('quizNext').hidden = true;
+  $('quizScore').textContent = `Đúng ${qScore} / ${qi}`;
+}
+$('quizOpts').addEventListener('click', (e) => {
+  const b = e.target.closest('.quiz-opt');
+  if (!b || $('quizOpts').classList.contains('done')) return;
+  const q = QUIZ[qi], ok = b.textContent === q.a;
+  $('quizOpts').classList.add('done');
+  if (ok) { b.classList.add('right'); qScore++; $('quizFb').textContent = QUIZ_OK[qi % QUIZ_OK.length]; }
+  else {
+    b.classList.add('wrong');
+    [...$('quizOpts').children].find(x => x.textContent === q.a).classList.add('right');
+    $('quizFb').textContent = `Hụt rồi 😝 Đáp án là ${q.a}`;
+  }
+  $('quizScore').textContent = `Đúng ${qScore} / ${qi + 1}`;
+  $('quizNext').textContent = qi + 1 < QUIZ.length ? 'Câu tiếp ›' : 'Xem kết quả ›';
+  $('quizNext').hidden = false;
+});
+$('quizNext').addEventListener('click', () => {
+  if (quizEl.classList.contains('end')) { quizEl.classList.remove('end'); qi = 0; qScore = 0; quizShow(); return; }
+  if (++qi < QUIZ.length) { quizShow(); return; }
+  quizEl.classList.add('end');
+  $('quizSub').textContent = 'Kết quả';
+  $('quizQ').innerHTML = `<div class="quiz-score">${qScore} / ${QUIZ.length}</div>` +
+    (qScore === QUIZ.length ? 'Đúng hết luôn, đúng là người yêu anh 😍' : qScore * 2 >= QUIZ.length ? 'Cũng nhớ kha khá đó nha 🥰' : 'Thôi để anh nhớ giùm em vậy 😝');
+  $('quizFb').textContent = '';
+  $('quizScore').textContent = '';
+  $('quizNext').textContent = 'Chơi lại ↻';
+});
+if (QUIZ.length) quizShow(); else quizEl.hidden = true;
+
+// ── BI MAT NHO: cham trai tim giua hai ten 5 lan -> mua tim + mot cau nhan ────
+const SECRETS = ['Bí mật nhỏ: anh yêu em nhiều hơn em nghĩ 💗', 'Em vừa tìm ra trái tim thứ năm rồi đó 🥰', 'Ngày nào anh cũng thầm cảm ơn vì có em 🌹'];
+function heartBurst() {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 26; i++) {
+    const h = document.createElement('div');
+    h.className = 'fheart';
+    h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+    h.style.cssText = `left:${Math.random() * 100}%; font-size:${Math.random() * 22 + 14}px; --tx:${(Math.random() - 0.5) * 160}px; --rot:${(Math.random() - 0.5) * 360}deg; --sc:${Math.random() * 0.8 + 0.6}; animation-duration:${Math.random() * 1.5 + 2.2}s; animation-delay:${Math.random() * 0.5}s; animation-iteration-count:1;`;
+    frag.appendChild(h);
+    setTimeout(() => h.remove(), 4500);
+  }
+  layer.appendChild(frag);
+}
+(() => {
+  const sep = document.querySelector('.header .names-display .sep');
+  let taps = [], shown = 0;
+  sep.addEventListener('click', () => {
+    const t = Date.now();
+    taps = taps.filter(x => t - x < 4000); taps.push(t);
+    sep.classList.remove('tap'); void sep.offsetWidth; sep.classList.add('tap');
+    if (taps.length < 5) return;
+    taps = [];
+    heartBurst();
+    toast(SECRETS[shown++ % SECRETS.length]);
+  });
+})();
 </script>
 </body>
 </html>
