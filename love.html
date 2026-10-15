@@ -1756,7 +1756,7 @@
     .calendar-card.open .cal-body { display: block; }
 
     /* ── ANH NOI BAT: FAVORITES hien san, con lai sau "Xem tat ca" ── */
-    .gallery-more { display: none; margin-top: 10px; }
+    .gallery-more { display: none; }
     .gallery.all .gallery-more { display: block; }
     .g-cap {
       position: absolute; left: 8px; bottom: 8px; max-width: calc(100% - 16px);
@@ -2254,9 +2254,10 @@
       <button class="card-make-btn" id="cardMake">🖼 Tạo ảnh chia sẻ</button>
     </div>
     <div class="gallery-masonry" id="galleryMasonry"></div>
-    <button class="more-btn" id="galMore" type="button" hidden>Xem tất cả</button>
-    <!-- 43 tam con lai: luoi RIENG duoi nut, de bam "Xem tat ca" thi luoi tren khong xep lai, man hinh dung yen, keo xuong la thay -->
+    <!-- 43 tam con lai: luoi RIENG, hien ra dung cho nut 'Xem tat ca' dang dung (luoi tren khong xep lai,
+         man hinh dung yen, keo xuong la thay); nut doi thanh 'Thu gon' va nam sau het anh -->
     <div class="gallery-masonry gallery-more" id="galleryMore"></div>
+    <button class="more-btn" id="galMore" type="button" hidden>Xem tất cả</button>
   </div>
 
   <!-- LIGHTBOX -->
