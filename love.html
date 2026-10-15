@@ -769,13 +769,11 @@
       width: 100%;
       max-width: 700px;
     }
-    .gallery-masonry {
-      columns: 3;
-      column-gap: 10px;
-    }
+    /* Cot xep bang JS (galLayout / galPlace): moi o vao cot dang thap nhat. "Xem tat ca" chi noi
+       o moi xuong duoi (lap vao cot ngan), o cu khong doi cho, man hinh khong nhay. */
+    .gallery-masonry { display: flex; gap: 10px; align-items: flex-start; }
+    .gcol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
     .gallery-item {
-      break-inside: avoid;
-      margin-bottom: 10px;
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--border);
@@ -855,8 +853,8 @@
       }
     }
     @media (max-width: 520px) {
-      .gallery-masonry { columns: 2; column-gap: 8px; }
-      .gallery-item { border-radius: 12px; margin-bottom: 8px; }
+      .gallery-masonry, .gcol { gap: 8px; }
+      .gallery-item { border-radius: 12px; }
       .gallery-item .play-icon { font-size: 2rem; }
     }
 
@@ -1758,8 +1756,6 @@
     .calendar-card.open .cal-body { display: block; }
 
     /* ── ANH NOI BAT: FAVORITES hien san, con lai sau "Xem tat ca" ── */
-    .gallery-more { display: none; }
-    .gallery.all .gallery-more { display: block; }
     .g-cap {
       position: absolute; left: 8px; bottom: 8px; max-width: calc(100% - 16px);
       padding: 4px 9px; border-radius: 999px;
@@ -2256,9 +2252,7 @@
       <button class="card-make-btn" id="cardMake">🖼 Tạo ảnh chia sẻ</button>
     </div>
     <div class="gallery-masonry" id="galleryMasonry"></div>
-    <!-- 43 tam con lai: luoi RIENG, hien ra dung cho nut 'Xem tat ca' dang dung (luoi tren khong xep lai,
-         man hinh dung yen, keo xuong la thay); nut doi thanh 'Thu gon' va nam sau het anh -->
-    <div class="gallery-masonry gallery-more" id="galleryMore"></div>
+    <!-- "Xem tat ca": 43 tam con lai noi vao cot thap nhat ngay duoi 12 tam noi bat; nut doi thanh "Thu gon" nam sau het anh -->
     <button class="more-btn" id="galMore" type="button" hidden>Xem tất cả</button>
   </div>
 
@@ -2987,7 +2981,35 @@ const FAVORITES = [
   'dichoithang52026.jpg', 'le2:9.jpg', 'hienmau-em-10lan-anh-15lan.jpg', 'emngaysinhnhatanh.jpg',
 ];
 const galleryEl = document.getElementById('galleryMasonry');
-const galleryMoreEl = document.getElementById('galleryMore');   // luoi "xem tat ca", nam duoi nut
+let galItems = [];                 // o anh theo dung thu tu galleryImages (ca o chua hien)
+let galShown = 0;                  // dang hien bao nhieu o (12 noi bat, hoac tat ca)
+let galCols = [], galColH = [];    // cac cot va chieu cao uoc (tong ty le cao/rong)
+const galColCount = () => (matchMedia('(max-width: 520px)').matches ? 2 : 3);
+
+/** Dat o vao cot dang thap nhat. Chieu cao uoc theo ty le anh (cot rong bang nhau) nen khong phai do DOM. */
+function galPlace(item) {
+  let k = 0;
+  for (let c = 1; c < galColH.length; c++) if (galColH[c] < galColH[k] - 0.01) k = c;
+  galCols[k].appendChild(item);
+  galColH[k] += item.__ratio + 0.03;   // + khe giua cac o
+}
+/** Dung lai cac cot va xep galShown o dau tien (lan dau, thu gon, xoay ngang doi so cot) */
+function galLayout() {
+  const n = galColCount();
+  galleryEl.innerHTML = '';
+  galCols = []; galColH = [];
+  for (let c = 0; c < n; c++) {
+    const col = document.createElement('div');
+    col.className = 'gcol';
+    galleryEl.appendChild(col); galCols.push(col); galColH.push(0);
+  }
+  for (let i = 0; i < galShown; i++) galPlace(galItems[i]);
+}
+{
+  const mq = matchMedia('(max-width: 520px)');
+  const onChange = () => { if (galItems.length) galLayout(); };
+  if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
+}
 let galleryImages = [];          // [{f, t, w, h, thumb}]
 let currentLbIndex = 0;
 
@@ -3036,14 +3058,14 @@ function buildGallery(list) {
   const favSet = new Set(favs.map(m => m.f));
   galleryImages = favs.concat(shuffle(pool.filter(m => !favSet.has(m.f))));   // noi bat truoc, con lai tron
   const nShown = favs.length || galleryImages.length;
-  galleryEl.innerHTML = ''; galleryMoreEl.innerHTML = '';
 
-  galleryImages.forEach((m, i) => {
+  galItems = galleryImages.map((m, i) => {
     const item = document.createElement('div');
     const more = i >= nShown;                                   // nam sau nut "Xem tat ca"
-    item.className = 'gallery-item loading' + (more ? ' g-more' : '');
+    item.className = 'gallery-item loading';
     // Giu dung ty le khung ngay tu dau -> khong bi giat layout khi anh hien ra
     if (m.w && m.h) item.style.aspectRatio = `${m.w} / ${m.h}`;
+    item.__ratio = m.w && m.h ? m.h / m.w : 1;                  // de xep cot (galPlace)
 
     const img = document.createElement('img');
     img.alt = 'Kỷ niệm ' + (i + 1);
@@ -3093,8 +3115,10 @@ function buildGallery(list) {
     item.addEventListener('click', () => {
       if (!item.classList.contains('failed')) openLightbox(i);
     });
-    (more ? galleryMoreEl : galleryEl).appendChild(item);
+    return item;
   });
+  galShown = nShown;
+  galLayout();
   setTimeout(failsafeReveal, 6000);
 
   const moreBtn = document.getElementById('galMore');
@@ -3102,10 +3126,18 @@ function buildGallery(list) {
   moreBtn.hidden = galleryImages.length <= nShown;
   moreBtn.textContent = all;
   moreBtn.onclick = () => {
-    const open = galleryEl.parentElement.classList.toggle('all');
-    if (open) { galleryMoreEl.querySelectorAll('.gallery-item').forEach(galleryLoad); setTimeout(failsafeReveal, 6000); }
-    else moreBtn.scrollIntoView({ block: 'center', behavior: 'instant' });   // thu gon: giu nut truoc mat, khong nhay
-    moreBtn.textContent = open ? 'Thu gọn ▴' : all;
+    if (galShown < galItems.length) {
+      // mo: o moi noi vao cot thap nhat (lap cho trong), o cu dung yen, vi tri cuon khong doi
+      for (let i = galShown; i < galItems.length; i++) { galleryLoad(galItems[i]); galPlace(galItems[i]); }
+      galShown = galItems.length;
+      setTimeout(failsafeReveal, 6000);
+      moreBtn.textContent = 'Thu gọn ▴';
+    } else {
+      galShown = nShown;
+      galLayout();
+      moreBtn.scrollIntoView({ block: 'center', behavior: 'instant' });   // thu gon: giu nut truoc mat, khong nhay
+      moreBtn.textContent = all;
+    }
   };
 }
 
