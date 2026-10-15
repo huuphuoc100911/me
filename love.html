@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
   <script src="js/offline.js" defer></script>
@@ -34,7 +34,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* mo tu man hinh chinh iPhone (viewport-fit=cover): tranh tai tho va thanh home */
+      /* mo tu man hinh chinh iPhone: lui khoi thanh trang thai / thanh home (xem ghi chu display-mode ben duoi) */
       --safe-t:  env(safe-area-inset-top, 0px);
       --safe-b:  env(safe-area-inset-bottom, 0px);
       --rose:    #ff6b8a;
@@ -50,6 +50,11 @@
       --border:  rgba(255,255,255,0.15);
       --mut:     rgba(255,255,255,0.55);
     }
+
+    /* App man hinh chinh iPhone: KHONG dung viewport-fit=cover (iOS 26 tinh viewport thieu dung phan thanh trang
+       thai -> dai nen o day khong ve duoc). Trang xep duoi thanh trang thai, dai tren la mau nen html. Khong cover
+       thi env() = 0 nhung noi dung van cham day man hinh -> nut/khung o day lui it nhat 34px (thanh home iPhone). */
+    @media (display-mode: standalone) { :root { --safe-b: max(env(safe-area-inset-bottom, 0px), 34px); } }
 
     html { scroll-behavior: smooth; background-color: #1a0a14; }   /* keo qua dau/cuoi trang (iPhone) khong lo nen trang */
 

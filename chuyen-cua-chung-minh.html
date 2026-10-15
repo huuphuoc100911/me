@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
   <script src="js/offline.js" defer></script>
@@ -35,6 +35,11 @@
       --safe-t: env(safe-area-inset-top, 0px);
       --safe-b: env(safe-area-inset-bottom, 0px);
     }
+
+    /* App man hinh chinh iPhone: KHONG dung viewport-fit=cover (iOS 26 tinh viewport thieu dung phan thanh trang
+       thai -> dai nen o day khong ve duoc). Trang xep duoi thanh trang thai, dai tren la mau nen html. Khong cover
+       thi env() = 0 nhung noi dung van cham day man hinh -> nut/khung o day lui it nhat 34px (thanh home iPhone). */
+    @media (display-mode: standalone) { :root { --safe-b: max(env(safe-area-inset-bottom, 0px), 34px); } }
     html, body { height: 100%; overflow: hidden; }
     html { background-color: #14060d; }
     body {
@@ -216,8 +221,8 @@
   <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
   <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
   <div class="pola" hidden><img alt=""><video muted playsinline preload="auto"></video><i class="vtag">▶</i><b></b></div>
-  <!-- do safe-area (tai tho / thanh home) cho fit(): env() chi doc duoc qua CSS -->
-  <div id="safeProbe" style="position:fixed;left:-9999px;top:0;width:0;height:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);pointer-events:none" aria-hidden="true"></div>
+  <!-- do --safe-t / --safe-b (thanh home, 34px trong app man hinh chinh) cho fit(): env() chi doc duoc qua CSS -->
+  <div id="safeProbe" style="position:fixed;left:-9999px;top:0;width:0;height:0;padding-top:var(--safe-t);padding-bottom:var(--safe-b);pointer-events:none" aria-hidden="true"></div>
   <div class="say" id="say"></div>
   <div class="flash" id="flash"></div>
   <div class="veil" id="veil"></div>
@@ -332,7 +337,8 @@
   };
 
   // ── PHONG NEN DUNG CHUNG ─────────────────────────────────────
-  function sky(svg, defs, top, bottom) { svg.appendChild(S('rect', { width: W, height: H, fill: grad(defs, [[0, top], [1, bottom]]) })); }
+  // dataset.sky: mau mep tren cua troi -> to nen html (dai thanh trang thai trong app man hinh chinh) cung mau
+  function sky(svg, defs, top, bottom) { svg.dataset.sky = top; svg.appendChild(S('rect', { width: W, height: H, fill: grad(defs, [[0, top], [1, bottom]]) })); }
   function stars(svg, n, maxY = 620) {
     const list = [];
     for (let i = 0; i < n; i++) {
@@ -935,6 +941,8 @@
     if (i !== curIdx) {
       $('flash').style.opacity = 0; curIdx = i;
       preloadScene(i + 1); preloadScene(i + 2);
+      // dai thanh trang thai (nen html) cung mau troi canh dang chieu; man bat dau / ket thuc thi tra ve mau toi
+      document.documentElement.style.backgroundColor = document.body.classList.contains('playing') ? (sc.svg.dataset.sky || '') : '';
       dots.forEach((d, k) => { d.className = k < i ? 'on' : k === i ? 'cur' : ''; });
     }
     drawScene(sc, lt);
@@ -1127,6 +1135,7 @@
     stopClips();
     audio.pause();
     document.body.classList.remove('playing', 'hud-on');
+    document.documentElement.style.backgroundColor = '';
     $('endCover').classList.remove('gone');
   }
   let hudTimer = 0;

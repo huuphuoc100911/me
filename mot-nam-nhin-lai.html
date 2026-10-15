@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
   <script src="js/offline.js" defer></script>
@@ -39,6 +39,11 @@
       --safe-t: env(safe-area-inset-top, 0px);
       --safe-b: env(safe-area-inset-bottom, 0px);
     }
+
+    /* App man hinh chinh iPhone: KHONG dung viewport-fit=cover (iOS 26 tinh viewport thieu dung phan thanh trang
+       thai -> dai nen o day khong ve duoc). Trang xep duoi thanh trang thai, dai tren la mau nen html. Khong cover
+       thi env() = 0 nhung noi dung van cham day man hinh -> nut/khung o day lui it nhat 34px (thanh home iPhone). */
+    @media (display-mode: standalone) { :root { --safe-b: max(env(safe-area-inset-bottom, 0px), 34px); } }
 
     html, body { height: 100%; overflow: hidden; }
     /* Mau nen DAC: Safari iPhone lay mau nay to vung thanh trang thai va duoi day */
