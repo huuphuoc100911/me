@@ -83,12 +83,12 @@
     .export .stage { left: 0; top: 0; border-radius: 0; box-shadow: none; }
     .stage svg.scene { position: absolute; inset: 0; width: 540px; height: 960px; }
 
-    .dots { position: absolute; top: 26px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 5; }
+    .dots { position: absolute; top: calc(26px + var(--cy, 0px)); left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 5; }
     .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); box-shadow: 0 0 4px rgba(0,0,0,0.25); }
     .dots i.on { background: #fff; }
     .dots i.cur { width: 22px; border-radius: 4px; background: #fff; }
 
-    .head { position: absolute; top: 52px; left: 24px; right: 24px; text-align: center; z-index: 5; }
+    .head { position: absolute; top: calc(52px + var(--cy, 0px)); left: calc(24px + var(--cx, 0px)); right: calc(24px + var(--cx, 0px)); text-align: center; z-index: 5; }
     .chip {
       display: inline-block; padding: 6px 14px; border-radius: 999px;
       background: rgba(255,255,255,0.9); color: #b8325a;
@@ -105,7 +105,7 @@
     .head.hero .ttl { font-size: 66px; margin-top: 16px; }
 
     .say {
-      position: absolute; left: 22px; right: 22px; bottom: 56px; z-index: 6;
+      position: absolute; left: calc(22px + var(--cx, 0px)); right: calc(22px + var(--cx, 0px)); bottom: calc(56px + var(--cy, 0px)); z-index: 6;
       padding: 18px 22px 20px;
       background: rgba(255,250,246,0.94); color: #3b2430;
       border: 2px solid #ffc2d1; border-radius: 22px;
@@ -129,6 +129,7 @@
       border-radius: 3px;
     }
     .pola img, .pola video { display: block; width: 160px; height: 172px; object-fit: cover; background: #eee; }
+    .pola video { transform: translateZ(0); }   /* lop rieng: tranh soc ngang mong tren iPhone */
     .pola video { background: #111; }
     .pola.vid img, .pola:not(.vid) video, .pola:not(.vid) .vtag { display: none; }
     .vtag {                              /* nhan "anh dong" goc anh tu video */
@@ -986,11 +987,13 @@
       setStyle(el, 'zIndex', String(4 + k));
       // left/top co dinh trong canh; moi chuyen dong (ke ca nhun nhe) deu qua transform -> khong tinh lai bo cuc
       if (np === 1) {
-        setStyle(el, 'left', '338px'); setStyle(el, 'top', (POLA_TOP[sc.art] || 300) + 'px');
+        // man dien thoai dai bi cat hai mep (cropX): dich tam anh vao trong cho khoi mat goc phai
+        setStyle(el, 'left', Math.min(338, W - cropX - 186).toFixed(0) + 'px'); setStyle(el, 'top', (POLA_TOP[sc.art] || 300) + 'px');
         setStyle(el, 'transform', `translate(${((1 - b) * 120).toFixed(1)}px,${((1 - b) * -60).toFixed(1)}px) rotate(${lerp(18, 5, b).toFixed(2)}deg)`);
       } else {
         const F = FAN[np], off = k - (np - 1) / 2;
-        const cx = 270 + off * F.dx, bob = Math.sin(lt * 0.002 + k * 1.7) * 2.5;
+        const dx = Math.min(F.dx, (190 - cropX) / ((np - 1) / 2));   // quat hep lai khi hai mep bi cat
+        const cx = 270 + off * dx, bob = Math.sin(lt * 0.002 + k * 1.7) * 2.5;
         setStyle(el, 'left', (cx - (np === 4 ? 68 : 75)).toFixed(1) + 'px'); setStyle(el, 'top', (214 + Math.abs(off) * 16) + 'px');
         setStyle(el, 'transform', `translate(${((1 - b) * off * 40).toFixed(1)}px,${((1 - b) * -110 + bob).toFixed(1)}px) rotate(${(F.rot[k] + (1 - b) * 16 * (off < 0 ? -1 : 1)).toFixed(2)}deg)`);
       }
@@ -1012,10 +1015,24 @@
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   // ── CO GIAN SAN KHAU VUA MAN HINH ───────────────────────────
+  // Phu kin man hinh nhu story: dien thoai dai hon 9:16 thi phong vua chieu cao, cat bot hai mep (toi da
+  // MAX_CX don vi moi ben; iPhone 15 Pro can ~49), may tinh rong thi cat tren/duoi. Khong con dai den o
+  // day man hinh. Cac lop chu trong khung (dots, head, say) lui vao theo --cx / --cy de khong bi cat.
+  // May tinh / man rong: chi cat toi da MAX_CY tren-duoi, con lai de hai ben toi nhu truoc (khong cat mat noi dung).
+  const MAX_CX = 60, MAX_CY = 40;
+  let cropX = 0;                               // don vi khung; renderAt dung de thu hep quat polaroid cho khoi bi cat
   function fit() {
-    if (EXPORT) { stage.style.transform = 'none'; return; }
-    const s = Math.min(innerWidth / W, innerHeight / H);
+    if (EXPORT) { stage.style.transform = 'none'; cropX = 0; return; }
+    const fitS = Math.min(innerWidth / W, innerHeight / H);
+    const cxAt = (k) => Math.max(0, (W * k - innerWidth) / 2 / k), cyAt = (k) => Math.max(0, (H * k - innerHeight) / 2 / k);
+    let s = Math.max(innerWidth / W, innerHeight / H);
+    if (cxAt(s) > MAX_CX) s = innerWidth / (W - 2 * MAX_CX);
+    if (cyAt(s) > MAX_CY) s = innerHeight / (H - 2 * MAX_CY);
+    s = Math.max(s, fitS);
+    cropX = cxAt(s);
     stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+    stage.style.setProperty('--cx', cropX.toFixed(1) + 'px');
+    stage.style.setProperty('--cy', cyAt(s).toFixed(1) + 'px');
   }
   addEventListener('resize', fit);
   fit();

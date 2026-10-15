@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung 10 trang -->
   <script src="js/chan-zoom.js" defer></script>
   <script src="js/offline.js" defer></script>
@@ -34,6 +34,9 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
+      /* mo tu man hinh chinh iPhone (viewport-fit=cover): tranh tai tho va thanh home */
+      --safe-t:  env(safe-area-inset-top, 0px);
+      --safe-b:  env(safe-area-inset-bottom, 0px);
       --rose:    #ff6b8a;
       --rose2:   #ff4d73;
       --pink:    #ffb3c6;
@@ -189,7 +192,7 @@
       position: relative;
       z-index: 1;
       min-height: 100vh;
-      padding: 40px 20px 60px;
+      padding: calc(40px + var(--safe-t)) 20px calc(60px + var(--safe-b));
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -422,8 +425,10 @@
       will-change: transform;
     }
     @keyframes featSpin { to { transform: rotate(360deg); } }
-    .feat-box { position: relative; z-index: 1; aspect-ratio: 9 / 16; border-radius: 23px; overflow: hidden; background: #000; }
-    .feat-box video { display: block; width: 100%; height: 100%; object-fit: cover; }
+    /* Khong de khung cha cat goc video (overflow hidden): tren iPhone, video cao hon ~2000 px man hinh bi cat
+       qua mat na -> lop video chia doi, hien mot soc ngang mong o giua. Bo goc tren chinh the video + lop rieng. */
+    .feat-box { position: relative; z-index: 1; aspect-ratio: 9 / 16; border-radius: 23px; background: #000; }
+    .feat-box video { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 23px; background: #000; transform: translateZ(0); }
     .feat-card.watching .feat-box video { object-fit: contain; }
     .feat-play {
       position: absolute; inset: 0;
@@ -921,7 +926,7 @@
     /* Thong bao nho hien giua man hinh */
     .toast {
       position: fixed;
-      left: 50%; bottom: 80px;
+      left: 50%; bottom: calc(80px + var(--safe-b));
       transform: translateX(-50%) translateY(16px);
       z-index: 10000;
       padding: 12px 22px;
@@ -1116,7 +1121,7 @@
     /* ── BACK TO TOP ────────────────────────────────────── */
     .back-to-top {
       position: fixed;
-      bottom: 24px;
+      bottom: calc(24px + var(--safe-b));
       right: 24px;
       width: 48px;
       height: 48px;
@@ -1148,7 +1153,7 @@
     /* ── MUSIC BUTTON ───────────────────────────────────── */
     .music-btn {
       position: fixed;
-      bottom: 24px;
+      bottom: calc(24px + var(--safe-b));
       left: 24px;
       width: 48px;
       height: 48px;
@@ -1217,19 +1222,19 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     @media (max-width: 520px) {
-      .music-prompt { bottom: 66px; left: 16px; padding: 10px 14px; max-width: 190px; border-radius: 12px; }
+      .music-prompt { bottom: calc(66px + var(--safe-b)); left: 16px; padding: 10px 14px; max-width: 190px; border-radius: 12px; }
       .music-prompt .prompt-icon { font-size: 1.3rem; }
       .music-prompt .prompt-text { font-size: 0.7rem; }
     }
     @media (max-width: 520px) {
-      .music-btn, .back-to-top { width: 42px; height: 42px; font-size: 1.1rem; bottom: 16px; }
+      .music-btn, .back-to-top { width: 42px; height: 42px; font-size: 1.1rem; bottom: calc(16px + var(--safe-b)); }
       .music-btn { left: 16px; }
       .back-to-top { right: 16px; }
     }
 
     /* ── RESPONSIVE — Tablet ────────────────────────────── */
     @media (max-width: 768px) {
-      .wrapper { padding: 30px 16px 50px; gap: 36px; }
+      .wrapper { padding: calc(30px + var(--safe-t)) 16px calc(50px + var(--safe-b)); gap: 36px; }
       .header h1 { font-size: clamp(2rem, 5vw, 3rem); }
       .header .names-display { font-size: clamp(1rem, 2.5vw, 1.3rem); }
       .stat-card { padding: 24px 18px; border-radius: 20px; }
@@ -1242,7 +1247,7 @@
 
     /* ── RESPONSIVE — Mobile ─────────────────────────────── */
     @media (max-width: 520px) {
-      .wrapper { padding: 20px 12px 40px; gap: 28px; }
+      .wrapper { padding: calc(20px + var(--safe-t)) 12px calc(40px + var(--safe-b)); gap: 28px; }
       .header { padding-top: 12px; }
       .header .eyebrow { font-size: 1.2rem; }
       .header h1 { font-size: 1.8rem; }
@@ -1543,7 +1548,7 @@
       font-size: 2rem; cursor: pointer; line-height: 1;
     }
     .ss-controls {
-      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      position: absolute; bottom: calc(26px + var(--safe-b)); left: 50%; transform: translateX(-50%);
       z-index: 3; display: flex; gap: 10px; align-items: center;
     }
     .ss-btn {
@@ -1937,6 +1942,14 @@
       .tg .tg-ic { font-size: 1.7rem; }
     }
     @media (prefers-reduced-motion: reduce) { .tour-cta::after, .tg.next::after, .tg.next .tg-ic, .tour-cta .cta-ic { animation: none; } }
+
+    /* Mo tu man hinh chinh iPhone: cac lop toan man hinh tranh tai tho / thanh home */
+    .lightbox { padding-top: var(--safe-t); padding-bottom: var(--safe-b); }
+    .lb-counter { bottom: calc(18px + var(--safe-b)); }
+    .ss-count { top: calc(16px + var(--safe-t)); }
+    .ss-close { top: calc(10px + var(--safe-t)); }
+    /* iPhone: video cao (anh to, trinh chieu) tach lop rieng -> khong soc ngang mong o giua */
+    .lightbox video, .ss-layer video { transform: translateZ(0); }
   </style>
 </head>
 <body>

@@ -246,6 +246,7 @@
     }
     /* Khung co san dung ty le (--r tu images.json) nen ban nho hien ngay lam nen
        trong luc tai ban lon — khong con o den cho tai xong */
+    .vw-stage video { transform: translateZ(0); }   /* lop rieng: tranh soc ngang mong tren iPhone */
     .vw-stage img, .vw-stage video {
       --r: 1;
       width: min(100cqw, 100cqh * var(--r)); height: auto;
