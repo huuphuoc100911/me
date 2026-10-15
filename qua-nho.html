@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <meta property="og:title" content="Góc quà nhỏ — sticker hai đứa, video 15 giây và đồ in 💝">
+  <meta property="og:title" content="Góc quà nhỏ — sticker hai đứa, video ngắn và đồ in 💝">
   <meta property="og:description" content="Sticker chibi Thị Huyền & Hữu Phước, video kỷ niệm 1 năm, ảnh polaroid và phiếu yêu thương bằng giấy">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://love.personal.io.vn/images/love/dichoithang52026.jpg">
   <meta property="og:url" content="https://love.personal.io.vn/qua-nho.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="description" content="Sticker hai đứa, video 15 giây và đồ in kỷ niệm 1 năm 💝">
+  <meta name="description" content="Sticker hai đứa, video ngắn và đồ in kỷ niệm 1 năm 💝">
   <meta name="theme-color" content="#10070f">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -167,12 +167,12 @@
   <p class="lead">Mấy món nhỏ xíu để mang theo trong điện thoại và để in ra cầm trên tay 💝</p>
 
   <section>
-    <h2>Video 15 giây</h2>
-    <p class="sub">Một năm của hai đứa gói gọn trong 15 giây — để đăng story ngày 18/10.</p>
-    <video class="vid" id="vid" src="video/mot-nam-15s.mp4" poster="video/mot-nam-15s.webp" controls playsinline preload="metadata"></video>
+    <h2>Video ngắn</h2>
+    <p class="sub">Một năm của hai đứa gói gọn trong 21 giây — để đăng story ngày 18/10.</p>
+    <video class="vid" id="vid" src="video/mot-nam-ngan.mp4" poster="video/mot-nam-ngan.webp" controls playsinline preload="metadata"></video>
     <div class="btns">
-      <a class="dl" href="video/mot-nam-15s.mp4" download>⬇ Tải video</a>
-      <a class="dl ghost" href="video/mot-nam-15s-khong-nhac.mp4" download>⬇ Bản không nhạc</a>
+      <a class="dl" href="video/mot-nam-ngan.mp4" download>⬇ Tải video</a>
+      <a class="dl ghost" href="video/mot-nam-ngan-khong-nhac.mp4" download>⬇ Bản không nhạc</a>
     </div>
     <p class="sub">Đăng Reels / TikTok thì dùng <b>bản không nhạc</b> rồi chọn nhạc ngay trong app — nhạc tải từ ngoài vào hay bị tắt tiếng.</p>
   </section>
@@ -317,7 +317,7 @@
     requestAnimationFrame(fade);
   }
   musicEl.addEventListener('click', () => setMusic(!musicOn));
-  // video 15 giay co nhac rieng: chay video thi tam dung nhac nen, xong thi phat lai
+  // video ngan co nhac rieng: chay video thi tam dung nhac nen, xong thi phat lai
   const vid = $('vid');
   vid.addEventListener('play', () => audio.pause());
   ['pause', 'ended'].forEach((ev) => vid.addEventListener(ev, () => { if (musicOn) setMusic(true); }));
