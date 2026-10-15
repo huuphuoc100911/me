@@ -53,6 +53,7 @@
       background: radial-gradient(ellipse at 20% 30%, #3d1525 0%, #1a0a14 40%, #0d0610 100%);
       color: var(--white);
       overflow-x: hidden;
+      overflow-anchor: none;    /* mo "Xem tat ca" (anh, moc) thi trinh duyet KHONG tu doi vi tri cuon — Chrome tung neo vao chan trang va nhay xuong cuoi */
     }
 
     /* ── LOADING SCREEN ─────────────────────────────────── */
@@ -1753,8 +1754,8 @@
     .calendar-card.open .cal-body { display: block; }
 
     /* ── ANH NOI BAT: FAVORITES hien san, con lai sau "Xem tat ca" ── */
-    .gallery-item.g-more { display: none; }
-    .gallery.all .gallery-item.g-more { display: block; }
+    .gallery-more { display: none; margin-top: 10px; }
+    .gallery.all .gallery-more { display: block; }
     .g-cap {
       position: absolute; left: 8px; bottom: 8px; max-width: calc(100% - 16px);
       padding: 4px 9px; border-radius: 999px;
@@ -1827,8 +1828,9 @@
     .tc-next {
       position: absolute; left: 50%; bottom: max(26px, env(safe-area-inset-bottom)); z-index: 3;
       transform: translateX(-50%); white-space: nowrap;
-      animation: tcIn 0.5s ease both;
+      animation: tcNextIn 0.5s ease both;   /* khong dung tcIn: no ket thuc bang transform: none -> mat can giua, nut lech phai */
     }
+    @keyframes tcNextIn { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
     .tc-next[hidden] { display: none; }
     .tc-btn { margin-top: 26px; }
     .tc-ghost {
@@ -2240,6 +2242,8 @@
     </div>
     <div class="gallery-masonry" id="galleryMasonry"></div>
     <button class="more-btn" id="galMore" type="button" hidden>Xem tất cả</button>
+    <!-- 43 tam con lai: luoi RIENG duoi nut, de bam "Xem tat ca" thi luoi tren khong xep lai, man hinh dung yen, keo xuong la thay -->
+    <div class="gallery-masonry gallery-more" id="galleryMore"></div>
   </div>
 
   <!-- LIGHTBOX -->
@@ -2965,6 +2969,7 @@ const FAVORITES = [
   'dichoithang52026.jpg', 'le2:9.jpg', 'hienmau-em-10lan-anh-15lan.jpg', 'emngaysinhnhatanh.jpg',
 ];
 const galleryEl = document.getElementById('galleryMasonry');
+const galleryMoreEl = document.getElementById('galleryMore');   // luoi "xem tat ca", nam duoi nut
 let galleryImages = [];          // [{f, t, w, h, thumb}]
 let currentLbIndex = 0;
 
@@ -3013,7 +3018,7 @@ function buildGallery(list) {
   const favSet = new Set(favs.map(m => m.f));
   galleryImages = favs.concat(shuffle(pool.filter(m => !favSet.has(m.f))));   // noi bat truoc, con lai tron
   const nShown = favs.length || galleryImages.length;
-  galleryEl.innerHTML = '';
+  galleryEl.innerHTML = ''; galleryMoreEl.innerHTML = '';
 
   galleryImages.forEach((m, i) => {
     const item = document.createElement('div');
@@ -3070,7 +3075,7 @@ function buildGallery(list) {
     item.addEventListener('click', () => {
       if (!item.classList.contains('failed')) openLightbox(i);
     });
-    galleryEl.appendChild(item);
+    (more ? galleryMoreEl : galleryEl).appendChild(item);
   });
   setTimeout(failsafeReveal, 6000);
 
@@ -3080,8 +3085,8 @@ function buildGallery(list) {
   moreBtn.textContent = all;
   moreBtn.onclick = () => {
     const open = galleryEl.parentElement.classList.toggle('all');
-    if (open) { galleryEl.querySelectorAll('.g-more').forEach(galleryLoad); setTimeout(failsafeReveal, 6000); }
-    else galleryEl.parentElement.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (open) { galleryMoreEl.querySelectorAll('.gallery-item').forEach(galleryLoad); setTimeout(failsafeReveal, 6000); }
+    else moreBtn.scrollIntoView({ block: 'center', behavior: 'instant' });   // thu gon: giu nut truoc mat, khong nhay
     moreBtn.textContent = open ? 'Thu gọn ▴' : all;
   };
 }
