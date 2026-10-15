@@ -194,8 +194,17 @@
     ['pngTop', 'pngPage'].forEach((id) => { $(id).href = DIR + png(cur); $(id).setAttribute('download', 'truyen-tranh-' + png(cur)); });
     $('prev').disabled = cur === 0;
     $('next').disabled = cur === N - 1;
+    preloadAround();
   }
-  function preload() { for (let i = 0; i < N; i++) { const im = new Image(); im.src = src(i); } }
+  // Chi tai truoc trang ke ben (1 truoc, 2 sau) thay vi ca 16 trang (0,9 MB) luc mo
+  const fetched = new Set();
+  function preloadAround() {
+    for (let i = Math.max(0, cur - 1); i <= Math.min(N - 1, cur + 2); i++) {
+      if (fetched.has(i)) continue;
+      fetched.add(i);
+      const im = new Image(); im.src = src(i);
+    }
+  }
 
   // Trang sau: to hien tai lat qua trai (quay quanh gay sach), lo ra trang ke phia duoi.
   // Trang truoc: to cua trang truoc tu ben trai lat nguoc ve, che len.
@@ -241,8 +250,7 @@
   paint();
   fetch(DIR + 'trang.json').then((r) => (r.ok ? r.json() : null)).then((j) => {
     if (j && j.pages) { N = j.pages; paint(); }
-    preload();
-  }).catch(preload);
+  }).catch(() => {});
 
   // ── THIEP: cham de lat ───────────────────────────────────────
   $('tcard').addEventListener('click', () => $('tcard').classList.toggle('flip'));

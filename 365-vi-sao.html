@@ -1655,7 +1655,10 @@
       });
       Object.values(byMonth).forEach(shuffle);
       pool = shuffle(list.filter((m) => !m.d));
-      warmThumbs(list.filter((m) => m.d));     // anh khong ngay (sao thuong) tai luc mo the, do ton mang luc moi vao
+      // Chi tai truoc tam DAU cua cac ngay dac biet (chom Thien Binh + moc da den, ~10 tam); con lai tai luc
+      // mo the (co khung cho). Tai het 41 tam (2 MB) luc moi vao lam 4G nghen 4-5 giay khi tim dang ghep.
+      const dacBiet = new Set(Milestones.build().filter((m) => m.type !== 'month' && m.ts <= Date.now()).map((m) => m.key));
+      warmThumbs(Object.keys(mediaByDay).filter((k) => dacBiet.has(k)).map((k) => mediaByDay[k][0]));
     })
     .catch(() => {});
 

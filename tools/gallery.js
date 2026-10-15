@@ -24,8 +24,8 @@ const MD = path.join(DIR, 'md');
 const NHO = path.join(DIR, 'nho');      // ban nho 240px cho cac o be (xem makeNho)
 const MANIFEST = path.join(DIR, 'images.json');
 
-const THUMB_WIDTH = 700;     // du net cho luoi 3 cot tren man hinh retina
-const THUMB_QUALITY = 72;
+const THUMB_WIDTH = 560;     // luoi 2-3 cot tren dien thoai (o ~180px CSS x DPR 3); 700/q72 truoc day nang gan gap doi
+const THUMB_QUALITY = 65;    // Doi 2 so nay thi xoa images/love/thumbs/*.webp roi chay lai, va doi CACHE trong sw-love.js
 // Ban vua de xem toan man hinh tren dien thoai: anh goc 1-2 MB tai lau, ban nay
 // ~150-300 KB ma van net. Anh goc da nho san thi khong can.
 const MD_EDGE = 1600;

@@ -835,17 +835,19 @@
       const el = document.createElement('section');
       el.className = 'slide ' + (d.cls || '');
       if (d.bg) el.style.background = d.bg;
+      // anh nen KHONG gan ngay (slide an van duoc dung khung -> trinh duyet tai het 6 tam md luc mo):
+      // prefetchSlide gan khi slide sap toi
       el.innerHTML = (d.photo
-        ? `<div class="ph" style="background-image:url('${d.photo}')"></div><div class="shade ${d.shade || ''}"></div>`
+        ? `<div class="ph"></div><div class="shade ${d.shade || ''}"></div>`
         : '') + d.html;
       storyEl.appendChild(el);
-      if (d.photo) { const pre = new Image(); pre.src = d.photo; }         // tai san anh nen
       return {
-        el, dur: d.dur, barDur: d.barDur || d.dur, onEnter: d.onEnter,
+        el, dur: d.dur, barDur: d.barDur || d.dur, onEnter: d.onEnter, photo: d.photo,
         bg: d.photo ? `#10070f url("${d.photo}") center / cover no-repeat` : d.bg,
         counters: [...el.querySelectorAll('[data-count]')].map((c) => ({ el: c, to: +c.dataset.count, at: +c.dataset.at, v: -1 })),
       };
     });
+    slides.slice(0, 2).forEach(prefetchSlide);   // 2 slide dau tai ngay, con lai tai dan khi dang xem (go)
     wireAsk();
     slides.forEach((sl) => sl.el.querySelectorAll('.quiz-opt').forEach((b) =>
       b.addEventListener('click', () => answerQuiz(sl, b))));
@@ -857,12 +859,21 @@
   const setFill = (b, p) => { const v = `scaleX(${p})`; if (b.style.transform !== v) b.style.transform = v; };
   let cur = -1, slideStart = 0, paused = false, pausedAt = 0;
 
+  /** Anh nen (md, ~150 KB/tam) chi gan vao slide khi sap toi — tai het 6 tam luc mo lam 4G nghen */
+  function prefetchSlide(s) {
+    if (!s || !s.photo || s.pre) return;
+    s.pre = new Image(); s.pre.src = s.photo;
+    const ph = s.el.querySelector('.ph');
+    if (ph) ph.style.backgroundImage = `url('${s.photo}')`;
+  }
+
   function go(i) {
     if (!slides.length) return;
     i = Math.max(0, Math.min(slides.length - 1, i));
     if (i === cur) return;                     // dau/cuoi danh sach: dung yen, khong lam lai man dang xem
     if (cur >= 0) slides[cur].el.classList.remove('on');
     cur = i;
+    prefetchSlide(slides[cur]); prefetchSlide(slides[cur + 1]); prefetchSlide(slides[cur + 2]);   // luon di truoc 2 slide
     const s = slides[cur];
     s.el.classList.remove('on');
     void s.el.offsetWidth;                     // ep trinh duyet chay lai hieu ung khi quay lai man cu

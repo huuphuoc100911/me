@@ -878,9 +878,12 @@
   const isVid = (f) => /\.(mp4|mov|webm)$/i.test(f);
   const clipOf = (f) => 'video/clips/' + encodeURIComponent(f.replace(/\.[^.]+$/, '') + '.mp4').replace(/%3A/gi, ':');
   const CLIP_S = 6;
-  const photoLoads = scenes.flatMap((s) => s.photos).map((f) => new Promise((ok) => {
-    const im = new Image(); im.onload = im.onerror = () => ok(); im.src = thumbOf(f);
-  }));
+  const photoLoad = (f) => new Promise((ok) => { const im = new Image(); im.onload = im.onerror = () => ok(); im.src = thumbOf(f); });
+  const loadedScene = new Set();
+  const preloadScene = (k) => { const s = scenes[k]; if (!s || loadedScene.has(k)) return []; loadedScene.add(k); return s.photos.map(photoLoad); };
+  // Xem tren web: chi tai anh 2 canh dau, canh sau tai dan khi phim chay (renderAt, luon di truoc 2 canh) — do ton
+  // mang luc moi vao (14 anh = 1,4 MB). Xuat MP4: tai het truoc de khong canh nao bi trong anh.
+  const photoLoads = EXPORT ? scenes.flatMap((_, k) => preloadScene(k)) : [...preloadScene(0), ...preloadScene(1)];
   // xuat MP4: tai truoc ca cac doan video
   const clipLoads = () => scenes.flatMap((s) => s.photos).filter(isVid).map((f) => new Promise((ok) => {
     const v = document.createElement('video'); v.muted = true; v.preload = 'auto';
@@ -928,6 +931,7 @@
     if (i > 0 && lt < FADE) { const p = scenes[i - 1]; drawScene(p, t - p.start); }
     if (i !== curIdx) {
       $('flash').style.opacity = 0; curIdx = i;
+      preloadScene(i + 1); preloadScene(i + 2);
       dots.forEach((d, k) => { d.className = k < i ? 'on' : k === i ? 'cur' : ''; });
     }
     drawScene(sc, lt);

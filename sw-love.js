@@ -11,7 +11,7 @@
  *
  * Doi ten CACHE khi THAY FILE CUNG TEN (vd nen lai nhac, lam lai anh thu nho) de xoa cache cu.
  */
-const CACHE = 'love-v1';
+const CACHE = 'love-v2';   // v2: anh thu nho lam lai 560px
 const SHELL = [
   '/love.html', '/365-vi-sao.html', '/trai-tim-khoanh-khac.html', '/mot-nam-nhin-lai.html', '/la-thu-niem-phong.html',
   '/rap-phim.html', '/chuyen-cua-chung-minh.html', '/truyen-tranh.html', '/phieu-yeu-thuong.html', '/qua-nho.html',

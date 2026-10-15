@@ -192,13 +192,13 @@
     <p class="sub">Hai tờ A4 (ảnh PNG nét 300 dpi) — in đúng khổ A4 rồi cắt theo viền.</p>
     <div class="prints">
       <div class="pcard">
-        <img src="do-in/polaroid-a4.webp" alt="Tờ A4 12 ảnh polaroid" loading="lazy">
+        <img data-src="do-in/polaroid-a4.webp" alt="Tờ A4 12 ảnh polaroid" loading="lazy">
         <b>12 ảnh polaroid mini</b>
         <small>Mỗi tấm một ngày đáng nhớ — dán tường hoặc bỏ hộp quà</small>
         <a class="dl" href="do-in/polaroid-a4.png" download>⬇ Tải ảnh PNG</a>
       </div>
       <div class="pcard">
-        <img src="do-in/phieu-giay-a4.webp" alt="Tờ A4 phiếu yêu thương bằng giấy" loading="lazy">
+        <img data-src="do-in/phieu-giay-a4.webp" alt="Tờ A4 phiếu yêu thương bằng giấy" loading="lazy">
         <b>Phiếu yêu thương bằng giấy</b>
         <small>10 phiếu cắt rời — quét mã QR trên phiếu là dùng được ngay</small>
         <a class="dl" href="do-in/phieu-giay-a4.png" download>⬇ Tải ảnh PNG</a>
@@ -330,6 +330,19 @@
   });
   // de thu tren may
   window.quaDebug = { get musicOn() { return musicOn; }, get musicPaused() { return audio.paused; }, get file() { return file; }, openSticker };
+})();
+</script>
+<script>
+// Hai anh xem truoc to A4 (311 KB) nam cuoi trang: chi tai khi cuon gan toi (loading="lazy" cua Chrome
+// tren 4G van tai truoc ca 2500px nen khong do)
+(() => {
+  const imgs = [...document.querySelectorAll('img[data-src]')];
+  if (!('IntersectionObserver' in window)) { imgs.forEach((i) => { i.src = i.dataset.src; }); return; }
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.src = e.target.dataset.src; delete e.target.dataset.src; io.unobserve(e.target);
+  }), { rootMargin: '300px 0px' });
+  imgs.forEach((i) => io.observe(i));
 })();
 </script>
 </body>

@@ -3748,15 +3748,18 @@ btnTop.addEventListener('click', () => {
 // Khong doi su kien `load` (phai tai xong ca 44 anh thu nho + video -> tren 4G yeu cho
 // rat lau): thanh tai chay 1.5s xong la mo man, anh phia duoi tu hien dan.
 // Lan dau trong phien: 1,6 s cho thanh tai chay. Quay lai tu trang qua (cung phien) thi 0,4 s cho khoi cho.
+// Tinh tu LUC BAT DAU MO TRANG (performance.now), khong phai tu luc script chay: tren 4G rieng HTML + font
+// da mat ~1,7 s, dem tu luc do thi man tai keo dai 3,3 s.
 let loadQuick = false;
 try { loadQuick = sessionStorage.getItem('love-vao') === '1'; sessionStorage.setItem('love-vao', '1'); } catch {}
 if (loadQuick) document.getElementById('loadingScreen').classList.add('quick');
+const loadDelay = Math.max(150, (loadQuick ? 400 : 1600) - performance.now());
 setTimeout(() => {
   document.getElementById('loadingScreen').classList.add('hide');
   // 4 the so dem len tu 0 khi thuc su vao tam mat (sau man tai, de khong chay ngam luc chua ai thay)
   const so = new IntersectionObserver((es) => { if (es.some(e => e.isIntersecting)) { so.disconnect(); statsCountUp(); } }, { threshold: 0.35 });
   so.observe(document.querySelector('.stats-grid'));
-}, loadQuick ? 400 : 1600);
+}, loadDelay);
 
 
 // ── ANH CHIA SE TU SINH ──────────────────────────────────────────────────────
