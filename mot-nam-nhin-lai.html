@@ -1161,28 +1161,30 @@
     if (noTries >= NO_TEXTS.length) { no.textContent = 'Có 💕'; no.style.transform = ''; return; }
     no.textContent = NO_TEXTS[noTries];
 
-    // Nhay toi cho con trong trong khung story: xa con tro (khong nam lai duoi chuot
-    // nen bam hut) va khong de len nut "Co chu"
+    // Nhay toi cho con trong trong khung story: xa con tro (khong nam lai duoi chuot nen bam hut),
+    // khong de len nut "Co chu" va KHONG de len chu (kicker + cau hoi). Tren dien thoai chu chiem gan het
+    // phan duoi khung nen cho trong chu yeu la phan anh phia tren chu (duoi thanh tien do + tieu de).
     const box = storyEl.getBoundingClientRect();
     const yes = $('yesBtn').getBoundingClientRect();
-    const w = no.offsetWidth, h = no.offsetHeight, M = 14;
+    const w = no.offsetWidth, h = no.offsetHeight, M = 14, G = 10;
     const baseX = yes.right + 12 + w / 2, baseY = (yes.top + yes.bottom) / 2;   // cho goc canh nut "Co"
     const px = e.clientX || baseX, py = e.clientY || baseY;
+    const avoid = [yes, ...no.closest('.slide').querySelectorAll('.kicker, .ask')].map((r) => r.getBoundingClientRect ? r.getBoundingClientRect() : r);
+    const hits = (x, y) => avoid.some((r) => r.width > 0 && x + w / 2 > r.left - G && x - w / 2 < r.right + G && y + h / 2 > r.top - G && y - h / 2 < r.bottom + G);
     const minX = box.left + M + w / 2, maxX = box.right - M - w / 2;
-    const minY = Math.max(box.top + 80, baseY - 220) + h / 2, maxY = box.bottom - M - h / 2;
+    const minY = box.top + 80 + h / 2, maxY = box.bottom - M - h / 2;
     const far = Math.max(w, h) + 40;
     let best = null, bestD = -1;
-    for (let k = 0; k < 40; k++) {
+    for (let k = 0; k < 80; k++) {
       const x = minX + Math.random() * Math.max(0, maxX - minX);
       const y = minY + Math.random() * Math.max(0, maxY - minY);
-      const hitsYes = x + w / 2 > yes.left - 10 && x - w / 2 < yes.right + 10 &&
-        y + h / 2 > yes.top - 10 && y - h / 2 < yes.bottom + 10;
-      if (hitsYes) continue;
+      if (hits(x, y)) continue;
       const d = Math.hypot(x - px, y - py);
       if (d > far) { best = [x, y]; break; }
       if (d > bestD) { bestD = d; best = [x, y]; }
     }
-    if (!best) best = [baseX, baseY];
+    // khong con cho trong (man rat nho): nam ngay tren khoi chu, sat thanh tieu de
+    if (!best) { const top = Math.min(...avoid.map((r) => r.top)); best = [Math.min(maxX, Math.max(minX, px < (box.left + box.right) / 2 ? maxX : minX)), Math.max(minY, top - G - h / 2)]; }
     no.style.transform = `translate(${best[0] - baseX}px, ${best[1] - baseY}px) rotate(${(Math.random() - 0.5) * 16}deg)`;
   }
 
