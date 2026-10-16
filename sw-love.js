@@ -14,7 +14,7 @@
 const CACHE = 'love-v2';   // v2: anh thu nho lam lai 560px
 const SHELL = [
   '/love.html', '/365-vi-sao.html', '/trai-tim-khoanh-khac.html', '/mot-nam-nhin-lai.html', '/la-thu-niem-phong.html',
-  '/rap-phim.html', '/chuyen-cua-chung-minh.html', '/truyen-tranh.html', '/phieu-yeu-thuong.html', '/qua-nho.html',
+  '/rap-phim.html', '/chuyen-cua-chung-minh.html', '/truyen-tranh.html', '/phieu-yeu-thuong.html', '/qua-nho.html', '/mon-qua-cuoi.html',
   '/js/lunar.js', '/js/milestones.js', '/js/letters.js', '/js/love-music.js', '/js/chibi.js', '/js/chan-zoom.js', '/js/offline.js',
   '/images/love/images.json', '/data/letters.json', '/sticker/sticker.json', '/truyen-tranh/trang.json', '/manifest-love.json',
 ];

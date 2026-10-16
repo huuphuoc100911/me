@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- Chan phong to (pinch / cham doi) tren dien thoai — js/chan-zoom.js dung chung cac trang love -->
+  <script src="js/chan-zoom.js" defer></script>
+  <script src="js/offline.js" defer></script>
+  <!-- Ten trang, tieu de, anh xem truoc deu KHONG nhac toi mon qua: em mo link / thay dia chi cung khong lo bi mat -->
+  <title>Món quà cuối cùng ✦ Thị Huyền ❤️ Hữu Phước</title>
+  <link rel="icon" href="/icons/love/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/love/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta property="og:title" content="Món quà cuối cùng — dành cho Thị Huyền 🎁">
+  <meta property="og:description" content="Một món quà nhỏ đang chờ em mở 🤍">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://love.personal.io.vn/images/love/valentine2.jpg">
+  <meta property="og:url" content="https://love.personal.io.vn/mon-qua-cuoi.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Món quà cuối cùng Hữu Phước dành cho Thị Huyền 🤍">
+  <meta name="theme-color" content="#12060c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:   #ff6b8a;
+      --rose2:  #ff4d73;
+      --pink:   #ffb3c6;
+      --gold:   #f5c842;
+      --gold2:  #fde68a;
+      --champ:  #f3d9a4;          /* vang sam panh: chu nho, vien */
+      --white:  #fff;
+      --mut:    rgba(255,255,255,0.6);
+      --border: rgba(255,255,255,0.15);
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* App man hinh chinh iPhone: KHONG dung viewport-fit=cover (iOS 26 tinh viewport thieu dung phan thanh trang
+       thai -> dai nen o day khong ve duoc). Khong cover thi env() = 0 nhung noi dung van cham day man hinh ->
+       nut / khung o day lui it nhat 34px (thanh home iPhone). */
+    @media (display-mode: standalone) { :root { --safe-b: max(env(safe-area-inset-bottom, 0px), 34px); } }
+
+    html, body { height: 100%; overflow: hidden; }
+    /* Mau nen DAC: Safari iPhone lay mau nay to vung thanh trang thai va duoi day */
+    html { background-color: #12060c; }
+    body {
+      background: radial-gradient(ellipse at 50% 46%, #46152e 0%, #240a1b 42%, #0b0308 100%);
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      user-select: none; -webkit-user-select: none;
+    }
+
+    /* ── NEN: dom sang mo + bui sao (chi transform / opacity) ── */
+    .bokeh { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+    .bokeh i {
+      position: absolute; border-radius: 50%; opacity: var(--o, 0.5);
+      background: radial-gradient(circle, rgba(255,222,170,0.55) 0%, rgba(255,170,200,0.16) 42%, rgba(255,170,200,0) 70%);
+      animation: drift var(--t, 14s) ease-in-out infinite alternate;
+    }
+    @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(var(--dx), var(--dy)) scale(var(--s, 1.2)); } }
+    .bokeh b {
+      position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff;
+      animation: tw var(--t, 3s) ease-in-out infinite; animation-delay: var(--dl, 0s);
+    }
+    @keyframes tw { 0%, 100% { opacity: 0.12; transform: scale(0.6); } 50% { opacity: 0.9; transform: scale(1); } }
+
+    /* ── THANH TREN ─────────────────────────────────────── */
+    .bar {
+      position: fixed; z-index: 6;
+      top: calc(12px + var(--safe-t)); left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none;
+    }
+    .bar > * { pointer-events: auto; }
+    .pill {
+      height: 40px; min-width: 40px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(26,10,20,0.8);     /* khong backdrop-filter */
+      color: rgba(255,255,255,0.85);
+      font: 500 0.82rem/1 'Inter', sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .pill:hover { background: rgba(255,77,115,0.25); border-color: rgba(255,107,138,0.5); }
+    .pill.icon { width: 40px; padding: 0; font-size: 1rem; }
+    .pill.on { border-color: rgba(255,107,138,0.5); }
+
+    /* ── SAN KHAU ───────────────────────────────────────── */
+    .stage {
+      position: fixed; inset: 0; z-index: 2;
+      display: flex; flex-direction: column; align-items: center;
+      padding: calc(66px + var(--safe-t)) 16px calc(16px + var(--safe-b));
+    }
+    .head { position: relative; flex: none; width: 100%; max-width: 520px; min-height: 108px; text-align: center; }
+    .head > div { position: absolute; left: 0; right: 0; top: 0; transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.2,.8,.2,1); }
+    .h-show { opacity: 0; transform: translateY(14px); }
+    .named .h-intro { opacity: 0; transform: translateY(-10px); }
+    .named .h-show { opacity: 1; transform: none; }
+    .kicker { font: 600 0.68rem/1.4 'Inter', sans-serif; letter-spacing: 0.3em; text-transform: uppercase; color: var(--champ); opacity: 0.88; }
+    .t-intro {
+      margin-top: 8px;
+      font: 700 clamp(2.4rem, 11.5vw, 3.3rem)/1.05 'Dancing Script', cursive;
+      color: #ffe3ea; text-shadow: 0 0 24px rgba(255,107,138,0.45);
+    }
+    .t-name {
+      margin-top: 8px;
+      font: 700 clamp(2rem, 9.6vw, 2.9rem)/1.12 'Playfair Display', serif;
+      background: linear-gradient(100deg, #f7e7c4 0%, #ffffff 26%, #e9c46a 50%, #fff6dc 70%, #d9a94e 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .t-name .tw { -webkit-text-fill-color: var(--gold2); color: var(--gold2); font-size: 0.5em; vertical-align: 0.9em; display: inline-block; animation: tw 2.4s ease-in-out infinite; }
+    .t-sub { margin-top: 4px; font: italic 400 1rem/1.4 'Playfair Display', serif; color: rgba(255,230,236,0.82); }
+
+    .scene { position: relative; flex: 1 1 auto; width: 100%; max-width: 560px; min-height: 230px; }
+    .scene canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; transform: translateY(70px) scale(0.45);
+      touch-action: none; cursor: grab;
+    }
+    .revealed .scene canvas { opacity: 1; transform: none; transition: opacity 1.1s ease, transform 1.7s cubic-bezier(.16,1,.3,1); }
+    .halo {
+      position: absolute; left: 50%; top: var(--by, 44%); width: min(94vw, 460px); aspect-ratio: 1.35;
+      transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+      background: radial-gradient(ellipse, rgba(255,190,150,0.3) 0%, rgba(255,107,138,0.13) 38%, rgba(255,107,138,0) 70%);
+    }
+    /* tia sang tu trong hop: lop tinh xoay cham (transform), chi chay khi da mo hop */
+    .rays-wrap {
+      position: absolute; left: 50%; top: var(--by, 45%); width: min(150vw, 680px); aspect-ratio: 1;
+      transform: translate(-50%, -50%) scale(0.2); opacity: 0; pointer-events: none;
+    }
+    .opening .rays-wrap { opacity: 0.95; transform: translate(-50%, -50%) scale(1); transition: opacity 1s ease 0.55s, transform 1.8s cubic-bezier(.16,1,.3,1) 0.55s; }
+    .settled .rays-wrap { opacity: 0.4; transition: opacity 2.6s ease; }
+    .rays {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: repeating-conic-gradient(from 0deg, rgba(255,226,170,0) 0deg 7deg, rgba(255,226,170,0.2) 10deg 12deg, rgba(255,226,170,0) 15deg 22deg);
+      -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0,0,0,0.55) 30%, transparent 66%);
+              mask-image: radial-gradient(circle, #000 0%, rgba(0,0,0,0.55) 30%, transparent 66%);
+      animation: spin 70s linear infinite; animation-play-state: paused;
+    }
+    .opening .rays { animation-play-state: running; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── HOP QUA ────────────────────────────────────────── */
+    .box {
+      position: absolute; left: 50%; top: var(--by, 47%); z-index: 3;
+      width: var(--bw, 170px); height: calc(var(--bw, 170px) * 0.92);
+      transform: translate(-50%, -50%); cursor: pointer; outline: none;
+    }
+    .box[hidden] { display: none; }
+    .box-glow {
+      position: absolute; left: 50%; top: 52%; width: 250%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(255,214,160,0.55) 0%, rgba(255,120,160,0.17) 36%, rgba(255,120,160,0) 66%);
+      transform: translate(-50%, -50%) scale(var(--g, 0.8)); opacity: var(--go, 0.5);
+      transition: transform 0.5s cubic-bezier(.2,.8,.2,1), opacity 0.5s ease;
+    }
+    .box-shadow {
+      position: absolute; left: 12%; right: 12%; bottom: -13%; height: 13%; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 70%);
+      animation: bobS 3.2s ease-in-out infinite;
+    }
+    @keyframes bobS { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.85); opacity: 0.55; } }
+    .box-float { position: absolute; inset: 0; animation: bob 3.2s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-10px) rotate(1.2deg); } }
+    .box-shake { position: absolute; inset: 0; }
+    .box.tap1 .box-shake { animation: wig1 0.5s ease; }
+    .box.tap2 .box-shake { animation: wig2 0.6s ease; }
+    .box.nope .box-shake { animation: nope 0.5s ease; }
+    @keyframes wig1 { 15% { transform: rotate(-6deg) scale(1.04); } 35% { transform: rotate(5deg) scale(1.04); } 55% { transform: rotate(-3deg); } 75% { transform: rotate(2deg); } }
+    @keyframes wig2 { 12% { transform: translateY(-16px) rotate(-8deg) scale(1.07); } 30% { transform: translateY(-10px) rotate(7deg) scale(1.07); } 48% { transform: translateY(-4px) rotate(-6deg); } 66% { transform: rotate(4deg); } 84% { transform: rotate(-2deg); } }
+    @keyframes nope { 20% { transform: translateX(-8px) rotate(-3deg); } 40% { transform: translateX(7px) rotate(3deg); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+
+    .box-body {
+      position: absolute; left: 5%; right: 5%; top: 31%; bottom: 0; overflow: hidden;
+      border-radius: 10px 10px 16px 16px;
+      background: linear-gradient(140deg, #e8507a 0%, #b9244f 46%, #7a1033 100%);
+      box-shadow: inset 0 -14px 22px rgba(0,0,0,0.28), inset 0 2px 0 rgba(255,255,255,0.18), 0 22px 36px rgba(0,0,0,0.45);
+    }
+    .box-body::before, .box-lid::before {      /* ruy bang doc */
+      content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 17%; transform: translateX(-50%);
+      background: linear-gradient(90deg, #a87a2a, #f9e2a2 32%, #f0c75a 52%, #fff2c6 64%, #9e6f22);
+    }
+    .box-body::after {                           /* vet sang xien tren nhung */
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.14) 40%, transparent 52%);
+    }
+    .rib-h {                                      /* ruy bang ngang */
+      position: absolute; left: 0; right: 0; top: 40%; height: 15%;
+      background: linear-gradient(180deg, #a87a2a, #f9e2a2 32%, #f0c75a 52%, #fff2c6 64%, #9e6f22);
+    }
+    .box-lid {
+      position: absolute; left: 0; right: 0; top: 18%; height: 17%; overflow: hidden;
+      border-radius: 9px;
+      background: linear-gradient(180deg, #f2668c 0%, #c62e5a 55%, #981c43 100%);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.32), inset 0 2px 0 rgba(255,255,255,0.25);
+    }
+    .bow { position: absolute; left: 50%; top: -6%; width: 66%; transform: translateX(-50%); transform-origin: 50% 70%; }
+    .bow svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .lock {
+      position: absolute; left: 50%; top: 58%; width: 24px; height: 24px; border-radius: 50%;
+      transform: translate(-50%, -50%); display: none; place-items: center;
+      background: #2a0f1d; border: 1.5px solid var(--gold); font-size: 11px; line-height: 1;
+    }
+    .locked .lock { display: grid; }
+
+    /* mo hop: no bay, nap bay, than hop chim xuong. Moi transform deu viet day du (no can giu translateX(-50%)) */
+    .box.open .box-float, .box.open .box-shadow { animation: none; }
+    .box.open .bow { transform: translateX(-50%) translate(-34%, -240%) rotate(-38deg) scale(0.8); opacity: 0; transition: transform 0.9s cubic-bezier(.3,.6,.3,1), opacity 0.7s ease 0.25s; }
+    .box.open .lock { display: none; }
+    .box.open .box-lid { transform: translate(38%, -330%) rotate(28deg); opacity: 0; transition: transform 1s cubic-bezier(.3,.7,.2,1) 0.25s, opacity 0.6s ease 0.6s; }
+    .box.open .box-body { transform: translateY(45%) scale(0.9); opacity: 0; transition: transform 1s ease 0.95s, opacity 0.8s ease 1.05s; }
+    .box.open .box-shadow { opacity: 0; transition: opacity 0.6s ease 0.9s; }
+    .box.open .box-glow { --g: 1.6; --go: 0; transition: transform 0.7s ease 0.3s, opacity 1.6s ease 0.9s; }
+
+    .burst { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+    .spk {
+      position: absolute; left: var(--x); top: var(--y); z-index: 4;
+      font-size: var(--fs, 14px); line-height: 1; font-style: normal; color: var(--c, #fff); pointer-events: none;
+      animation: spk var(--t, 1.3s) cubic-bezier(.15,.7,.3,1) forwards;
+    }
+    @keyframes spk {
+      0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 1; }
+      70% { opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s, 1)) rotate(var(--r, 90deg)); opacity: 0; }
+    }
+    .flash {
+      position: fixed; inset: 0; z-index: 5; pointer-events: none; opacity: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255,248,230,0.95), rgba(255,220,200,0.45) 38%, rgba(255,220,200,0) 72%);
+    }
+    .flash.go { animation: flash 1.2s ease-out; }
+    @keyframes flash { 0% { opacity: 0; } 16% { opacity: 1; } 100% { opacity: 0; } }
+
+    /* ── CHAN TRANG ─────────────────────────────────────── */
+    .foot { position: relative; flex: none; width: 100%; max-width: 520px; min-height: 112px; text-align: center; transition: opacity 0.4s ease; }
+    .foot > div { position: absolute; left: 0; right: 0; top: 0; }
+    .hint { font: 500 0.92rem/1.45 'Inter', sans-serif; color: rgba(255,230,236,0.8); animation: hintBeat 2.4s ease-in-out infinite; }
+    @keyframes hintBeat { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+    .cd { display: block; margin-top: 6px; font: 600 0.8rem/1.4 'Inter', sans-serif; color: var(--champ); letter-spacing: 0.04em; }
+    .f-intro { transition: opacity 0.6s ease; }
+    .revealed .f-intro { opacity: 0; pointer-events: none; }
+    .f-show { opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.2,.8,.2,1); }
+    .settled .f-show { opacity: 1; transform: none; pointer-events: auto; }
+    .tip { font: 400 0.8rem/1.4 'Inter', sans-serif; color: rgba(255,230,236,0.7); }
+    .tip.first { font-weight: 600; font-size: 0.86rem; color: var(--gold2); animation: hintBeat 2s ease-in-out infinite; }
+    .prog { margin-top: 2px; font: 500 0.78rem/1.4 'Inter', sans-serif; color: var(--mut); }
+    .prog b { color: var(--gold2); font-weight: 600; }
+    .f-show .btn { margin-top: 10px; }
+    .card-on .foot { opacity: 0; pointer-events: none; }
+    .card-on .foot * { pointer-events: none !important; }
+
+    .btn {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 48px; padding: 0 24px; border-radius: 999px; border: none;
+      font: 600 0.95rem/1.2 'Inter', sans-serif; color: #3a1608; text-decoration: none; cursor: pointer;
+      background: linear-gradient(135deg, #fff1c9 0%, #f5c842 45%, #e7a93a 100%);
+      box-shadow: 0 10px 26px rgba(245,200,66,0.28), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+    .btn.ghost { background: rgba(255,255,255,0.07); color: #fff; border: 1px solid rgba(255,255,255,0.22); box-shadow: none; }
+    .btn.pulse::after {
+      content: ''; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--gold);
+      animation: ping 1.8s ease-out infinite; pointer-events: none;
+    }
+    @keyframes ping { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.16, 1.5); opacity: 0; } }
+
+    /* ── THE KY NIEM (cham mot hat) ─────────────────────── */
+    .card {
+      position: fixed; z-index: 7; left: 50%; bottom: calc(14px + var(--safe-b));
+      width: min(calc(100vw - 24px), 460px);
+      display: flex; gap: 14px; align-items: center;
+      padding: 14px 40px 14px 14px; border-radius: 22px;
+      background: linear-gradient(160deg, rgba(62,22,43,0.98), rgba(30,10,22,0.98));
+      border: 1px solid rgba(243,217,164,0.3);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+      transform: translate(-50%, calc(100% + 40px)); visibility: hidden;
+      transition: transform 0.5s cubic-bezier(.2,.8,.2,1), visibility 0.5s;
+    }
+    .card.show { transform: translate(-50%, 0); visibility: visible; }
+    .card .ph {
+      flex: none; width: 92px; height: 112px; border-radius: 10px; overflow: hidden;
+      display: grid; place-items: center; font-size: 2.6rem;
+      background: linear-gradient(160deg, #5a1f3b, #2a0f1d);
+      box-shadow: 0 0 0 3px #fffaf2, 0 8px 18px rgba(0,0,0,0.45);
+      transform: rotate(-3deg);
+    }
+    .card .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card .tx { flex: 1; min-width: 0; text-align: left; }
+    .card .dt { font: 600 0.66rem/1.3 'Inter', sans-serif; letter-spacing: 0.2em; color: var(--champ); }
+    .card h3 { margin-top: 5px; font: 700 1.16rem/1.2 'Playfair Display', serif; color: #fff; }
+    .card p { margin-top: 6px; font: 400 0.86rem/1.45 'Inter', sans-serif; color: rgba(255,235,240,0.88); }
+    .card .x {
+      position: absolute; top: 4px; right: 4px; width: 38px; height: 38px;
+      border: 0; background: none; color: rgba(255,255,255,0.6); font-size: 1.4rem; line-height: 1; cursor: pointer;
+    }
+    .card .n { position: absolute; right: 14px; bottom: 9px; font: 500 0.64rem/1 'Inter', sans-serif; color: var(--mut); }
+
+    /* ── LA THU ─────────────────────────────────────────── */
+    .letter {
+      position: fixed; inset: 0; z-index: 9;
+      display: flex; align-items: center; justify-content: center;
+      padding: calc(16px + var(--safe-t)) 14px calc(16px + var(--safe-b));
+      background: rgba(12,4,9,0.9);
+      opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0.6s;
+    }
+    .letter.show { opacity: 1; visibility: visible; }
+    .paper {
+      position: relative; width: min(100%, 440px); max-height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 30px 24px 22px; border-radius: 6px;
+      background: linear-gradient(180deg, #fffaf2 0%, #fbefdc 100%);
+      color: #3d1622; box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+      transform: translateY(30px) scale(0.96); transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
+      user-select: text; -webkit-user-select: text;
+    }
+    .letter.show .paper { transform: none; }
+    .paper .x {
+      position: absolute; top: 6px; right: 6px; width: 38px; height: 38px;
+      border: 0; background: none; color: rgba(61,22,34,0.5); font-size: 1.4rem; cursor: pointer;
+    }
+    .paper .orn { text-align: center; font-size: 0.7rem; letter-spacing: 0.6em; color: #c8922e; }
+    .paper .ln { opacity: 0; transform: translateY(8px); }
+    .letter.show .paper .ln { animation: lnIn 0.9s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: var(--d); }
+    @keyframes lnIn { to { opacity: 1; transform: none; } }
+    .paper .greet { margin-top: 12px; font: 700 1.55rem/1.25 'Dancing Script', cursive; color: #8a2a43; }
+    .paper p { margin-top: 12px; font: 400 0.98rem/1.65 'Inter', sans-serif; color: #3d1622; }
+    .paper .sign { margin-top: 16px; text-align: right; font: 700 1.5rem/1.2 'Dancing Script', cursive; color: #8a2a43; }
+    .paper .pola { width: 72%; margin: 6px auto 4px; padding: 8px 8px 26px; background: #fff; box-shadow: 0 8px 22px rgba(61,22,34,0.25); transform: rotate(-2deg); }
+    .paper .pola img { display: block; width: 100%; height: auto; }
+    .paper .acts { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .paper .btn.ghost { color: #8a2a43; border-color: rgba(138,42,67,0.3); background: transparent; }
+
+    /* ── KHOANH KHAC DEO VONG ───────────────────────────── */
+    .finale {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+      padding: calc(24px + var(--safe-t)) 24px calc(24px + var(--safe-b)); text-align: center;
+      background: radial-gradient(circle at 50% 42%, #2c0d1e 0%, #0b0308 62%, #050103 100%);
+      opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s;
+    }
+    .finale.show { opacity: 1; visibility: visible; }
+    .beat {
+      width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; font-size: 2.8rem;
+      background: radial-gradient(circle, rgba(255,107,138,0.5), rgba(255,107,138,0.12) 45%, rgba(255,107,138,0) 70%);
+      animation: beat 1.3s ease-in-out infinite;
+    }
+    @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.14); } 30% { transform: scale(1); } 45% { transform: scale(1.09); } }
+    .f-line { min-height: 2.6em; font: 700 clamp(1.8rem, 8.6vw, 2.6rem)/1.25 'Dancing Script', cursive; color: #ffe3ea; transition: opacity 0.6s ease, transform 0.6s ease; }
+    .f-line.out { opacity: 0; transform: translateY(-8px); }
+    .f-small { min-height: 1.5em; font: 500 0.84rem/1.5 'Inter', sans-serif; color: var(--champ); letter-spacing: 0.05em; transition: opacity 0.8s ease; }
+    .f-acts { min-height: 108px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .f-acts .btn { transition: opacity 0.7s ease, transform 0.7s cubic-bezier(.2,.8,.2,1); }
+    .f-acts .btn[hidden] { display: none; }
+    .f-acts .btn.in { animation: btnIn 0.8s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes btnIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .fburst { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+
+    .toast {
+      position: fixed; left: 50%; top: calc(60px + var(--safe-t)); z-index: 12;
+      max-width: calc(100vw - 32px); padding: 10px 18px; border-radius: 999px;
+      background: rgba(26,10,20,0.95); border: 1px solid rgba(245,200,66,0.35);
+      color: var(--gold2); font: 500 0.86rem/1.4 'Inter', sans-serif; text-align: center;
+      opacity: 0; visibility: hidden; transform: translate(-50%, -8px);
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+    }
+    .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+    @media (max-height: 640px) {
+      .stage { padding-top: calc(58px + var(--safe-t)); }
+      .head { min-height: 92px; }
+      .t-intro { font-size: 2.3rem; }
+      .t-name { font-size: 1.85rem; }
+      .t-sub { font-size: 0.9rem; }
+      .tip:not(.first) { display: none; }
+      .foot { min-height: 86px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bokeh i, .bokeh b, .box-float, .box-shadow, .rays, .hint, .beat, .btn.pulse::after { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bokeh" id="bokeh" aria-hidden="true"></div>
+
+<header class="bar">
+  <a class="pill" href="love.html">‹ Trang tình yêu</a>
+  <button class="pill icon" id="music" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">🎵</button>
+</header>
+
+<main class="stage" id="stage">
+  <div class="head">
+    <div class="h-intro">
+      <div class="kicker">Món quà cuối cùng</div>
+      <h1 class="t-intro">Dành cho em</h1>
+    </div>
+    <div class="h-show" aria-live="polite">
+      <div class="kicker" id="kDate"></div>
+      <h2 class="t-name"><span id="gName"></span> <span class="tw" aria-hidden="true">✦</span></h2>
+      <p class="t-sub" id="gSub"></p>
+    </div>
+  </div>
+
+  <div class="scene" id="scene">
+    <div class="halo" aria-hidden="true"></div>
+    <div class="rays-wrap" aria-hidden="true"><div class="rays"></div></div>
+    <canvas id="bv" aria-label="Chiếc vòng tay: kéo để xoay, chạm vào từng hạt để xem kỷ niệm"></canvas>
+    <div class="box" id="box" role="button" tabindex="0" aria-label="Mở hộp quà">
+      <div class="box-glow"></div>
+      <div class="box-shadow"></div>
+      <div class="box-float"><div class="box-shake">
+        <div class="box-body"><span class="rib-h"></span></div>
+        <div class="box-lid"></div>
+        <div class="bow">
+          <svg viewBox="0 0 120 74" aria-hidden="true">
+            <defs>
+              <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fff3c8"/><stop offset=".35" stop-color="#f5c842"/><stop offset=".7" stop-color="#c8922e"/><stop offset="1" stop-color="#fbe3a0"/>
+              </linearGradient>
+              <linearGradient id="gGold2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dc8a"/><stop offset="1" stop-color="#a87422"/></linearGradient>
+            </defs>
+            <path d="M56 46 L38 72 L46 70 L50 74 L60 50Z" fill="url(#gGold2)"/>
+            <path d="M64 46 L82 72 L74 70 L70 74 L60 50Z" fill="url(#gGold2)"/>
+            <path d="M60 42 C46 18, 14 8, 8 26 C4 40, 24 52, 60 44Z" fill="url(#gGold)"/>
+            <path d="M60 42 C74 18, 106 8, 112 26 C116 40, 96 52, 60 44Z" fill="url(#gGold)"/>
+            <path d="M58 42 C44 30, 26 24, 18 28" stroke="rgba(140,90,20,.45)" stroke-width="2" fill="none"/>
+            <path d="M62 42 C76 30, 94 24, 102 28" stroke="rgba(140,90,20,.45)" stroke-width="2" fill="none"/>
+            <ellipse cx="60" cy="43" rx="9" ry="8" fill="url(#gGold2)"/>
+            <ellipse cx="58" cy="40" rx="3.5" ry="2.5" fill="rgba(255,255,255,.6)"/>
+          </svg>
+          <span class="lock" aria-hidden="true">🔒</span>
+        </div>
+      </div></div>
+    </div>
+    <div class="burst" id="burst"></div>
+  </div>
+
+  <div class="foot">
+    <div class="f-intro"><p class="hint" id="hint">Chạm vào hộp quà ✨</p></div>
+    <div class="f-show">
+      <p class="tip first" id="tip">✨ Chạm vào một hạt trên vòng thử xem</p>
+      <p class="prog">Đã xem <b id="seenN">0</b>/<span id="allN">10</span> kỷ niệm</p>
+      <button class="btn" id="letterBtn" type="button">Đọc lời anh nhắn 💌</button>
+    </div>
+  </div>
+</main>
+
+<div class="flash" id="flash"></div>
+
+<div class="card" id="card" role="dialog" aria-live="polite">
+  <div class="ph" id="cPh"></div>
+  <div class="tx">
+    <div class="dt" id="cDt"></div>
+    <h3 id="cTt"></h3>
+    <p id="cTx"></p>
+  </div>
+  <button class="x" id="cX" type="button" aria-label="Đóng">×</button>
+  <span class="n" id="cN"></span>
+</div>
+
+<div class="letter" id="letter"><div class="paper" id="paper"></div></div>
+
+<div class="finale" id="finale">
+  <div class="fburst" id="fburst"></div>
+  <div class="beat" id="beat">🤍</div>
+  <div class="f-line" id="fLine"></div>
+  <div class="f-small" id="fSmall"></div>
+  <div class="f-acts">
+    <button class="btn" id="finDone" type="button" hidden></button>
+    <button class="btn" id="finAgain" type="button" hidden>Ngắm vòng lần nữa ✨</button>
+    <a class="btn ghost" id="finHome" href="love.html" hidden>‹ Về trang tình yêu</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/love-music.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  // ═══ ★ SUA O DAY ════════════════════════════════════════════════════════════
+  const GIFT = {
+    name: 'Vòng tay Hapas',
+    date: '18 · 10 · 2026 · Kỷ niệm 1 năm',
+    sub: 'Một vòng tròn — không có điểm kết thúc',
+    // Truoc luc nay hop qua khoa (em cham chi thay "chua toi ngay" + dem nguoc) de khoi lo bat ngo.
+    // Anh xem thu: them ?xem-truoc vao cuoi dia chi. Mo luon thi de ''.
+    openFrom: '2026-10-18T00:00:00',
+    // Anh that cua chiec vong (tuy chon), vd 'images/love/vong-tay.jpg' — hien tren la thu. '' = khong co.
+    photo: '',
+  };
+  const LETTER = {
+    greet: 'Gửi em — cô gái áo xanh năm ấy,',
+    lines: [
+      'Anh chọn cho em một chiếc vòng, vì vòng tròn thì không có điểm kết thúc. Anh mong chuyện của mình cũng vậy.',
+      'Một năm qua, mỗi ngày bên em là một hạt nhỏ: lần đầu hiến máu, ngày em gật đầu, ngọn nến sinh nhật, pháo hoa giao thừa… Anh xâu tất cả lại thành chiếc vòng này.',
+      'Từ giờ em đeo nó đi đâu cũng được. Chỉ cần nhìn xuống cổ tay là nhớ: lúc nào cũng có anh ở đây, nắm tay em.',
+      'Năm thứ hai, mình xâu thêm thật nhiều hạt nữa nhé.',
+    ],
+    sign: 'Yêu em — Hữu Phước',
+  };
+  // Khoanh khac deo vong that (nut cuoi la thu): tung dong hien lan luot
+  const FINALE = {
+    btn: 'Đưa tay đây, anh đeo cho em 🤍',
+    close: 'Nhắm mắt lại nhé…',
+    hand: 'Đưa tay đây cho anh 🤍',
+    done: 'Anh đeo xong rồi ✨',
+    open: 'Mở mắt ra nào…',
+    big: 'Hợp với em lắm 💗',
+    small: 'Chúc mừng một năm của chúng mình · 18.10.2026',
+  };
+  // Moi hat tren vong la mot ky niem (theo thu tu thoi gian). kind = kieu hat ve tren canvas
+  // (hat: pink / pearl / gold / tet / ruby / topaz — mat day treo: drop / heartGem / roseHeart / disc).
+  // photo = ten anh trong images/love/thumbs (khong duoi), '' = hien bieu tuong.
+  const CHARMS = [
+    { kind: 'drop',      ic: '🩸', date: '24 · 08 · 2025', title: 'Lần đầu đi hiến máu', photo: '24-08-25',
+      text: 'Chủ nhật đỏ ở Huế. Lúc ấy anh chưa biết, cô gái áo xanh đứng cạnh sẽ là cả thế giới của anh.' },
+    { kind: 'heartGem',  ic: '💘', date: '18 · 10 · 2025', title: 'Ngày đầu yêu nhau', photo: '',
+      text: 'Em gật đầu. Từ hôm ấy, “anh” và “em” trở thành “chúng mình”.' },
+    { kind: 'pink',      ic: '🎂', date: '23 · 10 · 2025', title: 'Sinh nhật em', photo: 'anhsinhnhatemvsbanthan',
+      text: 'Mới yêu được năm ngày. Ngọn nến đầu tiên anh được cùng em thổi.' },
+    { kind: 'pearl',     ic: '⛄', date: '12 · 2025', title: 'Giáng Sinh đầu tiên', photo: 'chupphotobook',
+      text: 'Hai đứa chen nhau vào buồng chụp ảnh, đội mũ Noel và cười không ngớt.' },
+    { kind: 'gold',      ic: '💯', date: '26 · 01 · 2026', title: 'Tròn 100 ngày', photo: '100days',
+      text: 'Chưa nhiều, nhưng đủ để anh biết anh muốn đi cùng em thật lâu.' },
+    { kind: 'roseHeart', ic: '💝', date: '14 · 02 · 2026', title: 'Valentine đầu tiên', photo: 'valentine2',
+      text: 'Một bó hoa, hộp sô-cô-la chữ LOVE, và nụ cười của em đẹp hơn tất cả.' },
+    { kind: 'tet',       ic: '🧧', date: '17 · 02 · 2026', title: 'Tết đầu tiên', photo: 'phaohoagiaothua',
+      text: 'Pháo hoa giao thừa nở rực trời, còn anh thì chỉ mải nhìn em.' },
+    { kind: 'ruby',      ic: '🩸', date: '06 · 09 · 2026', title: 'Hiến máu lần 2', photo: 'hienmau-em-10lan-anh-15lan',
+      text: 'Em 10 lần, anh 15 lần — mình lại cùng nhau gửi đi những giọt máu cho người cần.' },
+    { kind: 'topaz',     ic: '🎂', date: '09 · 10 · 2026', title: 'Sinh nhật anh', photo: 'quasinhnhatanh-dacbiet',
+      text: 'Bánh kem, gấu bông, một buổi xem phim. Nhưng món quà lớn nhất vẫn là em.' },
+    { kind: 'disc',      ic: '🤍', date: '18 · 10 · 2026', title: 'Tròn 1 năm', photo: 'aodoidautiencuaanhvsem',
+      text: 'Áo đôi, và em hiến tóc lần 2 cho các chiến binh K — đúng ngày kỷ niệm.' },
+  ];
+  // ════════════════════════════════════════════════════════════════════════════
+
+  const $ = (id) => document.getElementById(id);
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TAU = Math.PI * 2;
+  const wrapPi = (x) => { x = (x + Math.PI) % TAU; if (x < 0) x += TAU; return x - Math.PI; };
+  const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch {} };
+
+  const stage = $('stage'), scene = $('scene'), boxEl = $('box'), hintEl = $('hint');
+  $('gName').textContent = GIFT.name; $('gSub').textContent = GIFT.sub; $('kDate').textContent = GIFT.date;
+  $('allN').textContent = CHARMS.length;
+
+  let toastT = 0;
+  function toast(msg, ms = 2600) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms);
+  }
+
+  // ── NEN: dom sang + bui sao ─────────────────────────────────────────────────
+  (() => {
+    const host = $('bokeh'); let html = '';
+    const n1 = reduceMotion ? 6 : 13, n2 = reduceMotion ? 10 : 26;
+    for (let i = 0; i < n1; i++) {
+      const s = 40 + Math.random() * 120;
+      html += `<i style="left:${(Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 100).toFixed(1)}%;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;margin:${(-s / 2).toFixed(0)}px 0 0 ${(-s / 2).toFixed(0)}px;--o:${(0.18 + Math.random() * 0.4).toFixed(2)};--dx:${((Math.random() - 0.5) * 120).toFixed(0)}px;--dy:${((Math.random() - 0.5) * 120).toFixed(0)}px;--s:${(0.8 + Math.random() * 0.6).toFixed(2)};--t:${(10 + Math.random() * 12).toFixed(1)}s"></i>`;
+    }
+    for (let i = 0; i < n2; i++) {
+      html += `<b style="left:${(Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 100).toFixed(1)}%;--t:${(2 + Math.random() * 3).toFixed(1)}s;--dl:${(-Math.random() * 4).toFixed(1)}s"></b>`;
+    }
+    host.innerHTML = html;
+  })();
+
+  // ── NHAC NEN + CHUONG ───────────────────────────────────────────────────────
+  const FIRST_SONG = 'music/love/yeu-em-hon-moi-ngay.mp3';
+  const PLAYLIST = LoveMusic.SONGS.includes(FIRST_SONG)
+    ? [FIRST_SONG, ...LoveMusic.shuffled().filter((s) => s !== FIRST_SONG)] : LoveMusic.shuffled();
+  const musicEl = $('music');
+  let track = 0, musicOn = false, userOff = false;
+  try { userOff = sessionStorage.getItem('love-music-off') === '1'; } catch {}
+  const audio = new Audio(PLAYLIST[0]);
+  audio.preload = 'auto';
+  audio.addEventListener('ended', () => {          // doi bai tren CUNG phan tu audio (iPhone cho phat tiep)
+    track = (track + 1) % PLAYLIST.length; audio.src = PLAYLIST[track];
+    if (musicOn) audio.play().catch(() => {});
+  });
+  function setMusic(on) {
+    musicOn = on;
+    musicEl.textContent = on ? '🔊' : '🎵';
+    musicEl.classList.toggle('on', on);
+    if (!on) { audio.pause(); return; }
+    audio.volume = 0;
+    audio.play().catch(() => setMusic(false));
+    const t0 = performance.now();
+    const fade = (t) => { const p = clamp01((t - t0) / 3000); audio.volume = 0.45 * p; if (p < 1 && musicOn) requestAnimationFrame(fade); };
+    requestAnimationFrame(fade);
+  }
+  musicEl.addEventListener('click', () => {
+    const on = !musicOn; userOff = !on;
+    try { on ? sessionStorage.removeItem('love-music-off') : sessionStorage.setItem('love-music-off', '1'); } catch {}
+    setMusic(on);
+  });
+  const wantMusic = () => { if (!musicOn && !userOff) setMusic(true); };
+  if (!userOff) setMusic(true);                   // vao tu trang love (cung web) thuong duoc phat ngay
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (musicOn) audio.pause(); return; }
+    if (musicOn) audio.play().catch(() => {});
+    if (opened) keepAwake();
+  });
+
+  // Tieng chuong ngan (tu tong hop bang Web Audio, khong dung file): chi keu khi dang bat nhac
+  let actx = null;
+  function chime(notes, { gap = 0.08, vol = 0.06, dur = 1.8 } = {}) {
+    if (!musicOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      const t0 = actx.currentTime + 0.02;
+      notes.forEach((f, i) => {
+        const t = t0 + i * gap;
+        [[1, 1, 1], [2.76, 0.32, 0.6], [5.4, 0.1, 0.35]].forEach(([m, v, d]) => {   // cac hoa am cua tieng chuong
+          const o = actx.createOscillator(), g = actx.createGain();
+          o.type = 'sine'; o.frequency.value = f * m;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(vol * v, t + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur * d);
+          o.connect(g); g.connect(actx.destination);
+          o.start(t); o.stop(t + dur * d + 0.05);
+        });
+      });
+    } catch {}
+  }
+  const SCALE = [1318.5, 1480, 1661.2, 1975.5, 2217.5, 2637, 2960, 3322.4, 3951, 4434.9];   // ngu cung Mi truong
+
+  // ── GIU MAN HINH SANG ───────────────────────────────────────────────────────
+  let wakeLock = null, opened = false;
+  async function keepAwake() {
+    if (document.hidden || (wakeLock && !wakeLock.released)) return;
+    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {}
+  }
+
+  // ── PHAO SANG (kim tuyen bay ra) ────────────────────────────────────────────
+  const GLYPHS = ['✦', '✧', '✦', '•', '♥', '✦'];
+  const COLORS = ['#fff6dc', '#f5c842', '#ffb3c6', '#ffffff', '#ff8fab', '#fde68a'];
+  function burst(host, n, x, y, r0 = 60, r1 = 200, fs = [10, 22]) {
+    if (reduceMotion || !n) return;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('i'); s.className = 'spk';
+      const a = Math.random() * TAU, d = r0 + Math.random() * (r1 - r0);
+      s.textContent = GLYPHS[i % GLYPHS.length];
+      s.style.cssText = `--x:${x.toFixed(0)}px;--y:${y.toFixed(0)}px;--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d - 30).toFixed(0)}px;` +
+        `--r:${((Math.random() - 0.5) * 400).toFixed(0)}deg;--s:${(0.6 + Math.random() * 0.8).toFixed(2)};--t:${(1 + Math.random() * 0.9).toFixed(2)}s;` +
+        `--fs:${(fs[0] + Math.random() * (fs[1] - fs[0])).toFixed(0)}px;--c:${COLORS[i % COLORS.length]}`;
+      s.addEventListener('animationend', () => s.remove());
+      frag.appendChild(s);
+    }
+    host.appendChild(frag);
+  }
+  const boxCenter = () => { const r = boxEl.getBoundingClientRect(), s = scene.getBoundingClientRect(); return [r.left - s.left + r.width / 2, r.top - s.top + r.height * 0.32]; };
+
+  // ═══ HOP QUA: cham 3 lan moi mo ═══════════════════════════════════════════
+  const preview = /[?&]xem-truoc\b/.test(location.search);
+  const openAt = GIFT.openFrom ? new Date(GIFT.openFrom).getTime() : 0;
+  const locked = () => !preview && openAt && Date.now() < openAt;
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const openLabel = openAt ? (() => { const d = new Date(openAt); return `${pad2(d.getDate())} · ${pad2(d.getMonth() + 1)}`; })() : '';
+  if (locked()) boxEl.classList.add('locked');
+
+  let taps = 0, opening = false, cdTimer = 0;
+  function countdownText() {
+    let s = Math.max(0, Math.floor((openAt - Date.now()) / 1000));
+    const d = Math.floor(s / 86400); s -= d * 86400;
+    const h = Math.floor(s / 3600); s -= h * 3600;
+    const m = Math.floor(s / 60); s -= m * 60;
+    return d ? `còn ${d} ngày ${h} giờ ${pad2(m)} phút` : h ? `còn ${h} giờ ${pad2(m)} phút ${pad2(s)} giây` : `còn ${m} phút ${pad2(s)} giây`;
+  }
+  function showLock() {
+    hintEl.innerHTML = `Hộp này khoá tới ${openLabel} nha 🤫<span class="cd" id="cd">${countdownText()}</span>`;
+    clearInterval(cdTimer);
+    cdTimer = setInterval(() => {
+      if (!locked()) {
+        clearInterval(cdTimer); boxEl.classList.remove('locked');
+        hintEl.textContent = 'Tới giờ rồi! Chạm vào hộp quà ✨'; return;
+      }
+      const el = $('cd'); if (el) el.textContent = countdownText();
+    }, 1000);
+  }
+  function restartClass(el, cls) { el.classList.remove('tap1', 'tap2', 'nope'); void el.offsetWidth; el.classList.add(cls); }
+
+  function tapBox() {
+    if (opening) return;
+    wantMusic();
+    if (locked()) {
+      restartClass(boxEl, 'nope'); vibrate(30);
+      chime([659.3], { vol: 0.05, dur: 0.6 });
+      showLock();
+      return;
+    }
+    taps++;
+    vibrate(12);
+    const [bx0, by0] = boxCenter();
+    if (taps < 3) {
+      restartClass(boxEl, taps === 1 ? 'tap1' : 'tap2');
+      boxEl.style.setProperty('--g', taps === 1 ? '1' : '1.25');
+      boxEl.style.setProperty('--go', taps === 1 ? '0.72' : '0.95');
+      burst($('burst'), taps * 7, bx0, by0, 30, 90 + taps * 30, [8, 15]);
+      chime([SCALE[taps === 1 ? 0 : 2], SCALE[taps === 1 ? 3 : 5]], { gap: 0.09, vol: 0.05, dur: 1.2 });
+      hintEl.textContent = taps === 1 ? 'Thêm lần nữa…' : 'Sắp mở rồi… 💓';
+      return;
+    }
+    openBox(bx0, by0);
+  }
+  boxEl.addEventListener('click', (e) => { e.stopPropagation(); tapBox(); });
+  boxEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapBox(); } });
+  scene.addEventListener('click', () => { if (!opening && !boxEl.hidden) tapBox(); });   // hop nho: cham quanh hop cung tinh
+
+  function openBox(bx0, by0) {
+    opening = true; opened = true;
+    clearInterval(cdTimer);
+    keepAwake();
+    stage.classList.add('opening');
+    boxEl.classList.remove('tap1', 'tap2', 'nope');
+    boxEl.classList.add('open');
+    vibrate([18, 50, 28]);
+    chime([SCALE[0], SCALE[2], SCALE[3], SCALE[5], SCALE[7], SCALE[8]], { gap: 0.1, vol: 0.055, dur: 2.4 });
+    const T = reduceMotion ? 0.3 : 1;
+    setTimeout(() => {
+      const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+      burst($('burst'), 46, bx0, by0 + 20, 70, Math.min(260, scene.clientWidth * 0.6), [10, 24]);
+    }, 650 * T);
+    setTimeout(() => { startBracelet(); stage.classList.add('revealed'); }, 900 * T);
+    setTimeout(() => stage.classList.add('named'), 1800 * T);
+    setTimeout(() => { boxEl.hidden = true; }, 2600 * T);
+    setTimeout(() => {
+      stage.classList.add('settled');
+    }, 3500 * T);
+  }
+
+  // ═══ CHIEC VONG 3D (canvas) ═══════════════════════════════════════════════
+  // Vong nam nghieng (TILT), xoay quanh truc cua no; chieu phoi canh roi xoay ca vong nghieng ROLL tren man hinh.
+  // Ve bang sprite ve san (drawImage), sap xep sau -> truoc moi khung. Day xich ran (snake chain) = cac doan
+  // ngan xoay theo tiep tuyen; hat = cau; mat day treo dung lac theo con lac khi vong quay.
+  const bv = $('bv'), g2 = bv.getContext('2d');
+  const TILT = 0.6, SIN_T = Math.sin(TILT), COS_T = Math.cos(TILT);
+  const ROLL = -0.12, SIN_R = Math.sin(ROLL), COS_R = Math.cos(ROLL);
+  const A_SPEC = 1.15;                       // goc phan chieu anh sang (hoi lech phai phia truoc)
+  const AUTO_V = reduceMotion ? 0.12 : 0.3;  // toc do tu xoay (rad/giay)
+  const N = 132;                             // so doan day xich
+  let BW = 0, BH = 0, DPR = 1, R = 120, u = 0.8, CX = 0, CY = 0, CY0 = 0, FOC = 500, SP = 2;
+
+  const BEADS = {
+    pink:  { facet: true,  stops: ['#ffe8f1', '#ff8fb8', '#d63b77', '#6e1035'] },
+    pearl: { pearl: true,  stops: ['#ffffff', '#f7f0ea', '#dcd1c9', '#958a84'] },
+    gold:  { metal: true,  stops: ['#fff7d6', '#f2cc6b', '#b8862b', '#5e3f0c'] },
+    tet:   { enamel: true, stops: ['#ffa497', '#e0302f', '#9e1416', '#4d0507'] },
+    ruby:  { facet: true,  stops: ['#ffc8cf', '#f0435d', '#a8122e', '#4b0412'] },
+    topaz: { facet: true,  stops: ['#eaf8ff', '#8fd0f5', '#3d8fcf', '#163f6e'] },
+  };
+  const DANGLES = { drop: { w: 22, h: 30 }, heartGem: { w: 33, h: 30 }, roseHeart: { w: 30, h: 27 }, disc: { w: 30, h: 30 } };
+  const BEAD_D = 40, RING_L = 6.5;           // duong kinh hat, khoang tu diem moc toi mat day (don vi u)
+  const LV = [0.42, 0.54, 0.66, 0.78, 0.9, 1];
+  const lvIdx = (b) => { let k = 0; for (let i = 1; i < LV.length; i++) if (Math.abs(LV[i] - b) < Math.abs(LV[k] - b)) k = i; return k; };
+  const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
+  function darken(g, W, H, level) {
+    if (level > 0.999) return;
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = 'source-atop'; g.fillStyle = `rgba(16,5,11,${(1 - level).toFixed(3)})`; g.fillRect(0, 0, W, H);
+    g.restore();
+  }
+  function rr(g, x, y, w, h, r) {
+    g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+  }
+  function heartPath(g, cx, top, w, h) {
+    g.beginPath();
+    g.moveTo(cx, top + h * 0.28);
+    g.bezierCurveTo(cx, top + h * 0.08, cx - w * 0.08, top, cx - w * 0.26, top);
+    g.bezierCurveTo(cx - w * 0.5, top, cx - w * 0.5, top + h * 0.3, cx - w * 0.5, top + h * 0.33);
+    g.bezierCurveTo(cx - w * 0.5, top + h * 0.56, cx - w * 0.2, top + h * 0.78, cx, top + h);
+    g.bezierCurveTo(cx + w * 0.2, top + h * 0.78, cx + w * 0.5, top + h * 0.56, cx + w * 0.5, top + h * 0.33);
+    g.bezierCurveTo(cx + w * 0.5, top + h * 0.3, cx + w * 0.5, top, cx + w * 0.26, top);
+    g.bezierCurveTo(cx + w * 0.08, top, cx, top + h * 0.08, cx, top + h * 0.28);
+    g.closePath();
+  }
+  function dropPath(g, cx, top, w, h) {
+    const r = w / 2, cy = top + h - r;
+    g.beginPath();
+    g.moveTo(cx, top);
+    g.bezierCurveTo(cx + w * 0.14, top + h * 0.2, cx + r, cy - r * 0.9, cx + r, cy);
+    g.arc(cx, cy, r, 0, Math.PI);
+    g.bezierCurveTo(cx - r, cy - r * 0.9, cx - w * 0.14, top + h * 0.2, cx, top);
+    g.closePath();
+  }
+  const silverLin = (g, x0, y0, x1, y1) => {
+    const gr = g.createLinearGradient(x0, y0, x1, y1);
+    gr.addColorStop(0, '#fbfcfd'); gr.addColorStop(0.25, '#d5d9df'); gr.addColorStop(0.5, '#979da6'); gr.addColorStop(0.7, '#eef0f3'); gr.addColorStop(1, '#7c828b');
+    return gr;
+  };
+
+  /** Doan day xich ran: ong kim loai bong, van xoan cheo */
+  function linkSprite(level) {
+    const w = 15 * u, h = 9 * u, W = Math.ceil(w * SP), H = Math.ceil(h * SP), c = mk(W, H), g = c.getContext('2d');
+    g.save(); rr(g, 0, 0, W, H, H / 2); g.clip();
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, '#7d838c'); gr.addColorStop(0.16, '#e9edf2'); gr.addColorStop(0.3, '#ffffff'); gr.addColorStop(0.5, '#a9b0b9');
+    gr.addColorStop(0.72, '#5f656e'); gr.addColorStop(0.88, '#b6bcc4'); gr.addColorStop(1, '#4f545c');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.lineWidth = Math.max(1, SP * 0.5);
+    const step = 2.8 * u * SP;
+    for (let x = -H; x < W + H; x += step) {
+      g.strokeStyle = 'rgba(40,44,52,0.3)'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + H * 0.9, H); g.stroke();
+      g.strokeStyle = 'rgba(255,255,255,0.22)'; g.beginPath(); g.moveTo(x + step * 0.45, 0); g.lineTo(x + step * 0.45 + H * 0.9, H); g.stroke();
+    }
+    darken(g, W, H, level);
+    g.restore();
+    return { cv: c, w, h };
+  }
+  /** Khoen nho noi mat day voi day xich */
+  function ringSprite(level) {
+    const s = 10 * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
+    g.lineWidth = S * 0.2; g.strokeStyle = silverLin(g, 0, 0, S, S);
+    g.beginPath(); g.arc(m, m, m * 0.72, 0, TAU); g.stroke();
+    darken(g, S, S, level);
+    return { cv: c, w: s, h: s };
+  }
+  function facets(g, r, n = 9) {
+    const P = (a, k) => [r + Math.cos(a) * r * k, r + Math.sin(a) * r * k];
+    g.lineWidth = Math.max(1, r * 0.035);
+    for (let i = 0; i < n; i++) {
+      const a0 = (i / n) * TAU - 0.3, a1 = ((i + 1) / n) * TAU - 0.3;
+      g.beginPath(); g.moveTo(...P(a0, 0.48)); g.lineTo(...P(a0, 1.05)); g.lineTo(...P(a1, 1.05)); g.lineTo(...P(a1, 0.48)); g.closePath();
+      g.fillStyle = i % 2 ? 'rgba(255,255,255,0.17)' : 'rgba(0,0,0,0.16)'; g.fill();
+      g.strokeStyle = 'rgba(255,255,255,0.24)'; g.stroke();
+    }
+    g.beginPath();
+    for (let i = 0; i < n; i++) { const p = P((i / n) * TAU - 0.3, 0.48); i ? g.lineTo(...p) : g.moveTo(...p); }
+    g.closePath(); g.fillStyle = 'rgba(255,255,255,0.1)'; g.fill(); g.stroke();
+  }
+  /** Hat cau: pha le mai giac / ngoc trai / vang khac van / men do vien vang */
+  function beadSprite(spec, level) {
+    const d = BEAD_D * u, S = Math.ceil(d * SP), r = S / 2, c = mk(S, S), g = c.getContext('2d');
+    g.save(); g.beginPath(); g.arc(r, r, r - 0.5, 0, TAU); g.clip();
+    const s = spec.stops;
+    let gr = g.createRadialGradient(r * 0.7, r * 0.62, r * 0.05, r, r, r);
+    gr.addColorStop(0, s[0]); gr.addColorStop(0.38, s[1]); gr.addColorStop(0.78, s[2]); gr.addColorStop(1, s[3]);
+    g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    if (spec.facet) facets(g, r);
+    if (spec.pearl) {
+      gr = g.createLinearGradient(0, 0, S, S);
+      gr.addColorStop(0, 'rgba(255,190,220,0.22)'); gr.addColorStop(0.5, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(170,215,255,0.22)');
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    }
+    if (spec.metal) {             // vang khac ranh ngang + cham hoa
+      g.strokeStyle = 'rgba(110,70,10,0.4)'; g.lineWidth = Math.max(1, r * 0.06);
+      for (const k of [-0.42, 0, 0.42]) { g.beginPath(); g.ellipse(r, r + k * r, r * Math.sqrt(1 - k * k), r * 0.22 * Math.sqrt(1 - k * k), 0, 0, Math.PI); g.stroke(); }
+      g.fillStyle = 'rgba(255,248,220,0.6)';
+      for (const [a, k] of [[-2.4, 0.62], [-0.8, 0.62], [0.8, 0.7], [2.3, 0.7]]) { g.beginPath(); g.arc(r + Math.cos(a) * r * k, r + Math.sin(a) * r * k * 0.5 + r * 0.2, r * 0.07, 0, TAU); g.fill(); }
+    }
+    if (spec.enamel) {            // men do + hai dai vang + hoa van
+      g.lineWidth = r * 0.16; g.strokeStyle = '#f1c65a';
+      for (const k of [-0.5, 0.5]) { g.beginPath(); g.ellipse(r + k * r * 0.9, r, r * 0.22, r * 0.98, 0, 0, TAU); g.stroke(); }
+      g.fillStyle = '#ffe08a'; g.beginPath(); g.arc(r, r, r * 0.17, 0, TAU); g.fill();
+    }
+    gr = g.createRadialGradient(r * 0.64, r * 0.54, 0, r * 0.64, r * 0.54, r * 0.52);        // dom sang
+    gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    gr = g.createRadialGradient(r * 1.3, r * 1.4, r * 0.2, r * 1.3, r * 1.4, r * 0.9);         // anh hong hat len mep duoi
+    gr.addColorStop(0, 'rgba(255,215,228,0.3)'); gr.addColorStop(1, 'rgba(255,215,228,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    darken(g, S, S, level);
+    g.restore();
+    return { cv: c, w: d, h: d };
+  }
+  /** Mat day treo; front = mat truoc (co da / chu khac), mat sau tron */
+  function dangleSprite(kind, level, front) {
+    const D = DANGLES[kind], w = D.w * u, h = D.h * u, pad = 2 * u;
+    const W = Math.ceil((w + pad * 2) * SP), H = Math.ceil((h + pad * 2) * SP), c = mk(W, H), g = c.getContext('2d');
+    g.scale(SP, SP); g.translate(pad, pad);
+    const cx = w / 2;
+    const shape = () => (kind === 'drop' ? dropPath(g, cx, 0, w, h) : kind === 'disc' ? (g.beginPath(), g.arc(cx, h / 2, w / 2, 0, TAU)) : heartPath(g, cx, 0, w, h));
+    let gr;
+    if (kind === 'drop') {
+      gr = g.createRadialGradient(cx - w * 0.15, h * 0.55, 0, cx, h * 0.62, w * 0.7);
+      gr.addColorStop(0, '#ffd3d9'); gr.addColorStop(0.35, '#ff5a6e'); gr.addColorStop(0.75, '#b8132e'); gr.addColorStop(1, '#4f0510');
+    } else if (kind === 'roseHeart') {
+      gr = g.createLinearGradient(0, 0, w, h);
+      gr.addColorStop(0, '#ffe7dc'); gr.addColorStop(0.3, '#f4b9a3'); gr.addColorStop(0.6, '#c27a64'); gr.addColorStop(0.8, '#f2c2ae'); gr.addColorStop(1, '#8a4a3b');
+    } else gr = silverLin(g, 0, 0, w, h);
+    shape(); g.fillStyle = gr; g.fill();
+    g.save(); shape(); g.clip();
+    if (kind === 'heartGem' && front) {                  // tim bac dinh da hong
+      heartPath(g, cx, h * 0.2, w * 0.58, h * 0.58);
+      const gg = g.createRadialGradient(cx - w * 0.08, h * 0.38, 0, cx, h * 0.5, w * 0.36);
+      gg.addColorStop(0, '#fff0f6'); gg.addColorStop(0.35, '#ff8fb8'); gg.addColorStop(0.8, '#d63b77'); gg.addColorStop(1, '#7a1240');
+      g.fillStyle = gg; g.fill();
+      g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 0.5 * u;
+      for (const [x1, y1] of [[cx - w * 0.2, h * 0.3], [cx + w * 0.2, h * 0.3], [cx, h * 0.72], [cx - w * 0.26, h * 0.45], [cx + w * 0.26, h * 0.45]]) { g.beginPath(); g.moveTo(cx, h * 0.46); g.lineTo(x1, y1); g.stroke(); }
+      heartPath(g, cx, h * 0.2, w * 0.58, h * 0.58); g.strokeStyle = 'rgba(120,124,132,0.9)'; g.lineWidth = 0.9 * u; g.stroke();
+    } else if (kind === 'heartGem' || kind === 'roseHeart') {   // van khac vien trong
+      heartPath(g, cx, h * 0.13, w * 0.74, h * 0.74);
+      g.strokeStyle = kind === 'roseHeart' ? 'rgba(120,58,44,0.45)' : 'rgba(90,96,106,0.45)'; g.lineWidth = 0.8 * u; g.stroke();
+      if (front && kind === 'roseHeart') { heartPath(g, cx + 0.5 * u, h * 0.13 + 0.6 * u, w * 0.74, h * 0.74); g.strokeStyle = 'rgba(255,240,232,0.55)'; g.lineWidth = 0.5 * u; g.stroke(); }
+    } else if (kind === 'drop') {                         // mat cat doc cua giot pha le + chup bac
+      g.strokeStyle = 'rgba(255,255,255,0.3)'; g.lineWidth = 0.5 * u;
+      for (const k of [-0.28, 0, 0.28]) { g.beginPath(); g.moveTo(cx, 0); g.quadraticCurveTo(cx + k * w * 1.4, h * 0.6, cx + k * w * 0.9, h); g.stroke(); }
+      const sg = silverLin(g, cx - w * 0.2, 0, cx + w * 0.2, h * 0.16);
+      g.fillStyle = sg; rr(g, cx - w * 0.2, -1 * u, w * 0.4, h * 0.17, 1.5 * u); g.fill();
+    } else if (kind === 'disc') {                         // the tron khac so 1
+      g.beginPath(); g.arc(cx, h / 2, w * 0.4, 0, TAU); g.strokeStyle = 'rgba(90,96,106,0.4)'; g.lineWidth = 0.7 * u; g.stroke();
+      if (front) {
+        g.font = `700 ${(19 * u).toFixed(2)}px 'Playfair Display', Georgia, serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillStyle = 'rgba(255,255,255,0.75)'; g.fillText('1', cx + 0.5 * u, h * 0.47 + 0.6 * u);
+        g.fillStyle = 'rgba(70,74,84,0.85)'; g.fillText('1', cx, h * 0.47);
+        heartPath(g, cx + w * 0.2, h * 0.62, w * 0.16, h * 0.14); g.fillStyle = '#e8507a'; g.fill();
+      }
+    }
+    // vet sang cheo tren kim loai
+    const sh = g.createLinearGradient(0, 0, w, h);
+    sh.addColorStop(0.2, 'rgba(255,255,255,0)'); sh.addColorStop(0.34, 'rgba(255,255,255,0.45)'); sh.addColorStop(0.46, 'rgba(255,255,255,0)');
+    g.fillStyle = sh; g.fillRect(0, 0, w, h);
+    g.restore();
+    shape(); g.lineWidth = 0.8 * u; g.strokeStyle = kind === 'drop' ? 'rgba(90,8,22,0.7)' : 'rgba(60,64,72,0.55)'; g.stroke();
+    darken(g, W, H, level * (front ? 1 : 0.86));
+    return { cv: c, w: w + pad * 2, h: h + pad * 2, pad };
+  }
+  function glintSprite() {
+    const s = 46 * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
+    let gr = g.createRadialGradient(m, m, 0, m, m, m * 0.42);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,250,235,0.55)'); gr.addColorStop(1, 'rgba(255,240,220,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    const ray = (len, wid, rot) => {
+      g.save(); g.translate(m, m); g.rotate(rot);
+      const lg = g.createLinearGradient(-len, 0, len, 0);
+      lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(0.5, 'rgba(255,255,255,0.95)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = lg; g.beginPath(); g.moveTo(-len, 0); g.lineTo(0, -wid); g.lineTo(len, 0); g.lineTo(0, wid); g.closePath(); g.fill();
+      g.restore();
+    };
+    ray(m, S * 0.035, 0); ray(m, S * 0.035, Math.PI / 2); ray(m * 0.5, S * 0.022, Math.PI / 4); ray(m * 0.5, S * 0.022, -Math.PI / 4);
+    return { cv: c, w: s, h: s };
+  }
+  function softSprite(stops, s) {
+    const S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
+    const gr = g.createRadialGradient(m, m, 0, m, m, m);
+    stops.forEach(([o, col]) => gr.addColorStop(o, col));
+    g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    return { cv: c, w: s, h: s };
+  }
+
+  let SPR = null;
+  function makeSprites() {
+    SP = DPR * 1.45;
+    SPR = {
+      link: LV.map(linkSprite), ring: LV.map(ringSprite), bead: {}, dangle: {},
+      glint: glintSprite(),
+      glow: softSprite([[0, 'rgba(255,214,160,0.75)'], [0.35, 'rgba(255,120,160,0.3)'], [1, 'rgba(255,120,160,0)']], 110 * u),
+      shadow: softSprite([[0, 'rgba(255,150,175,0.26)'], [0.5, 'rgba(255,107,138,0.08)'], [1, 'rgba(255,107,138,0)']], 100 * u),
+    };
+    for (const k in BEADS) SPR.bead[k] = LV.map((l) => beadSprite(BEADS[k], l));
+    for (const k in DANGLES) SPR.dangle[k] = { f: LV.map((l) => dangleSprite(k, l, true)), b: LV.map((l) => dangleSprite(k, l, false)) };
+  }
+
+  // Phan tu ve: N doan day + cac hat. Doan day nam trong hat (xau qua lo) thi an.
+  const chain = Array.from({ length: N }, (_, i) => ({ t: 0, i, th: (i / N) * TAU, x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, ang: 0, lv: 5, hide: false }));
+  const charms = CHARMS.map((c, k) => ({
+    t: 1, k, c, th: (k / CHARMS.length) * TAU, dangle: !!DANGLES[c.kind],
+    x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, lv: 5, phi: 0, om: 0, px: null, pvx: 0, hx: 0, hy: 0, hr: 0,
+    twAt: 0, twNext: performance.now() + 1500 + Math.random() * 5000,
+  }));
+  chain.forEach((s) => { s.hide = charms.some((c) => !c.dangle && Math.abs(wrapPi(s.th - c.th)) < 0.1); });
+  const items = [...chain, ...charms];
+
+  function proj(o, a) {
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const d = R * sa * COS_T, p = FOC / (FOC - d);
+    const x = R * ca * p, y = R * sa * SIN_T * p;
+    o.x = CX + x * COS_R - y * SIN_R; o.y = CY + x * SIN_R + y * COS_R; o.p = p; o.d = d; o.sa = sa; o.a = a;
+  }
+  const shade = (sa, sp) => Math.min(1, 0.42 + 0.58 * Math.pow((sa + 1) / 2, 0.85) + 0.22 * sp);
+  const spec = (a) => { const x = wrapPi(a - A_SPEC); return Math.exp(-(x * x) / 0.05); };
+
+  function layout() {
+    const r = scene.getBoundingClientRect();
+    BW = r.width; BH = r.height; DPR = Math.min(2, window.devicePixelRatio || 1);
+    bv.width = Math.round(BW * DPR); bv.height = Math.round(BH * DPR);
+    R = Math.max(70, Math.min(BW / 2.4, BH / 1.72, 190));
+    u = R / 150; CX = BW / 2; CY = CY0 = BH / 2 - 0.21 * R; FOC = 4.2 * R;
+    scene.style.setProperty('--bw', Math.round(Math.max(130, Math.min(190, R * 1.15))) + 'px');
+    scene.style.setProperty('--by', Math.round(CY + 0.12 * R) + 'px');
+    makeSprites();
+  }
+
+  let rot = 0, rotV = 0, target = null, spinIn = null, dragging = false, raf = 0, last = 0, paused = false;
+  let selK = -1;
+  const rot0 = Math.PI / 2 - charms[charms.length - 1].th;   // the "1" (tron 1 nam) quay ra truoc
+
+  function startBracelet() {
+    if (raf) return;
+    rot = rot0 - 4.6;
+    spinIn = { t0: performance.now(), dur: reduceMotion ? 600 : 2600, from: rot0 - 4.6 };
+    last = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+  const easeOut = (q) => 1 - Math.pow(1 - q, 3);
+
+  const glints = [];
+  function frame(now) {
+    raf = requestAnimationFrame(frame);
+    if (paused) { last = now; return; }
+    const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000)); last = now;
+
+    // ── quay
+    if (spinIn) {
+      const q = clamp01((now - spinIn.t0) / spinIn.dur);
+      rot = spinIn.from + (rot0 - spinIn.from) * easeOut(q);
+      if (q >= 1) { spinIn = null; rotV = 0; }
+    } else if (dragging) {
+      // rot doi trong pointermove
+    } else if (target != null) {
+      const diff = wrapPi(target - rot);
+      rot += diff * Math.min(1, dt * 5);
+      rotV = 0;
+    } else {
+      rotV += (AUTO_V - rotV) * Math.min(1, dt * 0.9);
+      rot += rotV * dt;
+    }
+
+    // vong lo lung: nhun nhe len xuong
+    CY = CY0 + Math.sin(now / 900) * 3.5 * u;
+    // ── chieu day xich
+    for (const s of chain) proj(s, s.th + rot);
+    for (let i = 0; i < N; i++) {
+      const s = chain[i], pv = chain[(i + N - 1) % N], nx = chain[(i + 1) % N];
+      let ang = Math.atan2(nx.y - pv.y, nx.x - pv.x);
+      if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;   // dai sang cua ong luon o phia tren
+      s.ang = ang; s.lv = lvIdx(shade(s.sa, s.sa > 0 ? spec(s.a) : 0));
+    }
+    // ── chieu hat + con lac mat day
+    for (const c of charms) {
+      proj(c, c.th + rot);
+      c.lv = lvIdx(shade(c.sa, c.sa > 0 ? spec(c.a) : 0));
+      if (c.dangle) {
+        const vx = c.px == null ? 0 : (c.x - c.px) / dt;
+        const ax = c.px == null ? 0 : (vx - c.pvx) / dt;
+        c.px = c.x; c.pvx = vx;
+        const L = 18 * u;
+        c.om += (-38 * Math.sin(c.phi) + (Math.max(-4000, Math.min(4000, ax)) / L) * Math.cos(c.phi) * 0.06 - 1.8 * c.om) * dt;
+        c.om = Math.max(-12, Math.min(12, c.om));
+        c.phi = Math.max(-1.2, Math.min(1.2, c.phi + c.om * dt));
+        const D = DANGLES[c.c.kind], l = (RING_L + D.h / 2) * u * c.p;
+        c.hx = c.x - Math.sin(c.phi) * l; c.hy = c.y + Math.cos(c.phi) * l; c.hr = Math.max(D.w, D.h) * 0.5 * u * c.p + 10;
+        c.d += 1;
+      } else { c.hx = c.x; c.hy = c.y; c.hr = BEAD_D * 0.5 * u * c.p + 10; c.d += 0.24 * R; }   // hat luon phu len doan day sat no: day nhu xau qua lo hat
+    }
+    items.sort((A, B) => A.d - B.d);
+
+    // ── ve
+    g2.setTransform(1, 0, 0, 1, 0, 0);
+    g2.clearRect(0, 0, bv.width, bv.height);
+    g2.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const sh = SPR.shadow;
+    g2.drawImage(sh.cv, CX - R * 1.05, CY0 + R * 0.86, R * 2.1, R * 0.32);
+    glints.length = 0;
+    for (const it of items) {
+      if (it.t === 0) {
+        if (it.hide) continue;
+        const s = SPR.link[it.lv], w = s.w * it.p, h = s.h * it.p, co = Math.cos(it.ang), sn = Math.sin(it.ang);
+        g2.setTransform(DPR * co, DPR * sn, -DPR * sn, DPR * co, DPR * it.x, DPR * it.y);
+        g2.drawImage(s.cv, -w / 2, -h / 2, w, h);
+        if (it.i % 11 === 0 && it.sa > 0.15) { const sp = spec(it.a); if (sp > 0.25) glints.push([it.x, it.y - 1.5 * u * it.p, sp * 0.55 * it.p]); }
+        continue;
+      }
+      const c = it;
+      g2.setTransform(DPR, 0, 0, DPR, 0, 0);
+      if (c.k === selK) {
+        const gl = SPR.glow, s = gl.w * c.p * (0.95 + 0.1 * Math.sin(now / 260));
+        g2.globalAlpha = 0.85; g2.drawImage(gl.cv, c.hx - s / 2, c.hy - s / 2, s, s); g2.globalAlpha = 1;
+      }
+      // lap lanh ngau nhien
+      if (now > c.twNext) { c.twAt = now; c.twNext = now + 2600 + Math.random() * 6000; }
+      const tw = clamp01(1 - Math.abs((now - c.twAt) / 320 - 1));
+      const gs = c.sa > -0.1 ? Math.max(spec(c.a), tw * 0.8) : 0;
+      if (c.dangle) {
+        const D = SPR.dangle[c.c.kind], spr = (c.sa >= 0 ? D.f : D.b)[c.lv], rg = SPR.ring[c.lv];
+        const co = Math.cos(c.phi), sn = Math.sin(c.phi), p = c.p;
+        g2.setTransform(DPR * co * p, DPR * sn * p, -DPR * sn * p, DPR * co * p, DPR * c.x, DPR * c.y);
+        g2.drawImage(rg.cv, -rg.w / 2, -rg.w * 0.25, rg.w, rg.h);
+        const fx = Math.max(0.16, Math.abs(c.sa)) * p;
+        g2.setTransform(DPR * co * fx, DPR * sn * fx, -DPR * sn * p, DPR * co * p, DPR * c.x, DPR * c.y);
+        g2.drawImage(spr.cv, -spr.w / 2, RING_L * u - spr.pad, spr.w, spr.h);
+        if (gs > 0.2) glints.push([c.hx - 3 * u * p, c.hy - 4 * u * p, gs * p]);
+      } else {
+        const s = SPR.bead[c.c.kind][c.lv], w = s.w * c.p;
+        g2.drawImage(s.cv, c.x - w / 2, c.y - w / 2, w, w);
+        if (gs > 0.2) glints.push([c.x - w * 0.18, c.y - w * 0.2, gs * c.p]);
+      }
+    }
+    // tia lap lanh (cong sang)
+    g2.setTransform(DPR, 0, 0, DPR, 0, 0);
+    g2.globalCompositeOperation = 'lighter';
+    const gl = SPR.glint;
+    for (const [x, y, k] of glints) {
+      const s = gl.w * (0.35 + 0.75 * k);
+      g2.globalAlpha = Math.min(1, k * 1.1);
+      g2.drawImage(gl.cv, x - s / 2, y - s / 2, s, s);
+    }
+    g2.globalAlpha = 1; g2.globalCompositeOperation = 'source-over';
+  }
+
+  // ── keo de xoay, cham de xem ky niem ───────────────────────────────────────
+  let downX = 0, downY = 0, lastX = 0, lastT = 0, moved = 0, dragV = 0;
+  bv.addEventListener('pointerdown', (e) => {
+    if (!stage.classList.contains('revealed')) return;
+    dragging = true; moved = 0; downX = lastX = e.clientX; downY = e.clientY; lastT = performance.now(); dragV = 0;
+    spinIn = null;
+    try { bv.setPointerCapture(e.pointerId); } catch {}
+  });
+  bv.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, now = performance.now();
+    moved = Math.max(moved, Math.hypot(e.clientX - downX, e.clientY - downY));
+    lastX = e.clientX;
+    if (moved < 6) return;
+    target = null;
+    const dr = -dx / (R * 1.05);
+    rot += dr;
+    dragV = dragV * 0.5 + 0.5 * (dr / Math.max(0.008, (now - lastT) / 1000));
+    lastT = now;
+  });
+  const endDrag = (e, cancel) => {
+    if (!dragging) return;
+    dragging = false;
+    if (cancel) return;
+    if (moved < 8) { tapAt(e.clientX, e.clientY); return; }
+    rotV = performance.now() - lastT > 120 ? 0 : Math.max(-9, Math.min(9, dragV));   // vuot nhanh: vong quay tiep roi cham dan
+  };
+  bv.addEventListener('pointerup', (e) => endDrag(e, false));
+  bv.addEventListener('pointercancel', (e) => endDrag(e, true));
+
+  function tapAt(clientX, clientY) {
+    const r = bv.getBoundingClientRect(), x = clientX - r.left, y = clientY - r.top;
+    let best = null, bestS = Infinity;
+    for (const c of charms) {
+      if (c.sa < -0.45) continue;                          // hat o mat sau vong: bi che
+      const d = Math.hypot(x - c.hx, y - c.hy);
+      if (d > c.hr) continue;
+      const s = d - c.d * 0.05;                            // hai hat chong nhau: uu tien hat gan hon
+      if (s < bestS) { bestS = s; best = c; }
+    }
+    if (best) openCard(best.k);
+    else if (selK >= 0) closeCard();
+  }
+
+  // ── THE KY NIEM ────────────────────────────────────────────────────────────
+  const card = $('card'), seen = new Set();
+  let allSeenToast = false;
+  function openCard(k) {
+    const c = CHARMS[k], ch = charms[k];
+    selK = k;
+    target = rot + wrapPi(Math.PI / 2 - ch.th - rot);          // quay hat do ra chinh giua phia truoc
+    chime([SCALE[k % SCALE.length], SCALE[(k + 2) % SCALE.length] * 2], { gap: 0.07, vol: 0.05, dur: 1.4 });
+    vibrate(10);
+    $('cDt').textContent = c.date; $('cTt').textContent = c.title; $('cTx').textContent = c.text;
+    $('cN').textContent = `${k + 1}/${CHARMS.length}`;
+    const ph = $('cPh');
+    ph.innerHTML = '';
+    if (c.photo) {
+      const img = new Image(); img.alt = ''; img.decoding = 'async';
+      img.onerror = () => { ph.textContent = c.ic; };
+      img.src = `images/love/thumbs/${c.photo}.webp`;
+      ph.appendChild(img);
+    } else ph.textContent = c.ic;
+    card.classList.add('show'); stage.classList.add('card-on');
+    const tip = $('tip'); if (tip.classList.contains('first')) { tip.classList.remove('first'); tip.textContent = 'Mỗi hạt là một kỷ niệm · chạm để xem · kéo để xoay'; }
+    seen.add(k);
+    $('seenN').textContent = seen.size;
+    if (seen.size === CHARMS.length && !allSeenToast) {
+      allSeenToast = true;
+      setTimeout(() => toast(`Đủ ${CHARMS.length} kỷ niệm rồi — anh còn một lời nhắn nữa 💌`, 3400), 900);
+      $('letterBtn').classList.add('pulse');
+    }
+    // tai truoc anh hat ke tiep cho lan cham sau hien ngay
+    const nx = CHARMS[(k + 1) % CHARMS.length]; if (nx.photo) { const pre = new Image(); pre.src = `images/love/thumbs/${nx.photo}.webp`; }
+  }
+  function closeCard() {
+    selK = -1; target = null; rotV = 0;
+    card.classList.remove('show'); stage.classList.remove('card-on');
+  }
+  $('cX').addEventListener('click', closeCard);
+
+  // ── LA THU ─────────────────────────────────────────────────────────────────
+  const letter = $('letter'), paper = $('paper');
+  function buildLetter() {
+    let d = 0.25;
+    const ln = (html, cls = '') => { const s = `<div class="ln ${cls}" style="--d:${d.toFixed(2)}s">${html}</div>`; d += 0.6; return s; };
+    paper.innerHTML = '<button class="x" id="ltX" type="button" aria-label="Đóng">×</button><div class="orn">✦ ✦ ✦</div>' +
+      (GIFT.photo ? ln(`<div class="pola"><img src="${esc(GIFT.photo)}" alt=""></div>`) : '') +
+      ln(esc(LETTER.greet), 'greet') +
+      LETTER.lines.map((t) => ln(`<p>${esc(t)}</p>`)).join('') +
+      ln(esc(LETTER.sign), 'sign') +
+      ln(`<div class="acts"><button class="btn" id="handBtn" type="button">${esc(FINALE.btn)}</button><button class="btn ghost" id="ltBack" type="button">Ngắm vòng thêm chút</button></div>`);
+    $('ltX').addEventListener('click', closeLetter);
+    $('ltBack').addEventListener('click', closeLetter);
+    $('handBtn').addEventListener('click', () => { closeLetter(); setTimeout(openFinale, 350); });
+  }
+  function openLetter() {
+    if (!paper.firstChild) buildLetter();
+    closeCard();
+    paper.scrollTop = 0;
+    letter.classList.add('show');
+    $('letterBtn').classList.remove('pulse');
+    chime([SCALE[3], SCALE[5]], { gap: 0.12, vol: 0.04, dur: 1.6 });
+  }
+  function closeLetter() { letter.classList.remove('show'); }
+  $('letterBtn').addEventListener('click', openLetter);
+  letter.addEventListener('click', (e) => { if (e.target === letter) closeLetter(); });
+
+  // ── KHOANH KHAC DEO VONG ───────────────────────────────────────────────────
+  const fin = $('finale'), fLine = $('fLine'), fSmall = $('fSmall'), beat = $('beat');
+  let finT = [];
+  const later = (fn, ms) => finT.push(setTimeout(fn, ms));
+  function setLine(txt) {
+    fLine.classList.add('out');
+    later(() => { fLine.textContent = txt; fLine.classList.remove('out'); }, 450);
+  }
+  function showBtn(id, txt) { const b = $(id); if (txt) b.textContent = txt; b.hidden = false; b.classList.remove('in'); void b.offsetWidth; b.classList.add('in'); }
+  function openFinale() {
+    finT.forEach(clearTimeout); finT = [];
+    ['finDone', 'finAgain', 'finHome'].forEach((id) => { $(id).hidden = true; });
+    fLine.textContent = ''; fSmall.textContent = ''; beat.textContent = '🤍';
+    fin.classList.add('show');
+    paused = true;                                    // vong bi che kin: ngung ve
+    keepAwake();
+    later(() => setLine(FINALE.close), 500);
+    later(() => setLine(FINALE.hand), 3300);
+    later(() => showBtn('finDone', FINALE.done), 6000);
+  }
+  $('finDone').addEventListener('click', () => {
+    $('finDone').hidden = true;
+    vibrate([20, 60, 20, 60, 40]);
+    chime([SCALE[0], SCALE[2], SCALE[3], SCALE[5], SCALE[7], SCALE[8], SCALE[9]], { gap: 0.11, vol: 0.055, dur: 2.6 });
+    setLine(FINALE.open);
+    later(() => {
+      beat.textContent = '💗';
+      const r = fin.getBoundingClientRect();
+      burst($('fburst'), 60, r.width / 2, r.height * 0.36, 80, Math.min(320, r.width * 0.75), [12, 26]);
+      setLine(FINALE.big);
+      later(() => { fSmall.textContent = FINALE.small; }, 700);
+      later(() => { showBtn('finAgain'); showBtn('finHome'); }, 1600);
+    }, 1900);
+  });
+  $('finAgain').addEventListener('click', () => {
+    finT.forEach(clearTimeout); finT = [];
+    fin.classList.remove('show'); paused = false;
+    rotV = 0; target = null;
+  });
+
+  // ── KHOI DONG ──────────────────────────────────────────────────────────────
+  layout();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { makeSprites(); });   // so "1" tren the can font Playfair
+  let rsT = 0;
+  addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(layout, 150); });
+
+  // Kiem thu tu dong (khong anh huong nguoi xem): toa do cac hat tren man hinh
+  window.vtDebug = {
+    charms: () => { const r = bv.getBoundingClientRect(); return charms.map((c) => ({ k: c.k, x: r.left + c.hx, y: r.top + c.hy, front: c.sa })); },
+    state: () => ({ revealed: stage.classList.contains('revealed'), settled: stage.classList.contains('settled'), sel: selK, seen: seen.size, rot, paused, locked: !!locked() }),
+  };
+})();
+</script>
+</body>
+</html>

@@ -302,7 +302,7 @@
     }
     .badge strong { color: var(--gold2); }
 
-    /* ── HOP QUA: 9 trang dac biet xep theo thu tu nen xem (GIFTS o script cuoi trang) ── */
+    /* ── HOP QUA: 10 trang dac biet xep theo thu tu nen xem (GIFTS o script cuoi trang) ── */
     .giftbox { width: 100%; max-width: 700px; text-align: center; }
     .giftbox .section-title { margin-bottom: 6px; }
     .giftbox-sub { font-size: 0.82rem; color: var(--mut); margin-bottom: 18px; line-height: 1.5; }
@@ -355,6 +355,11 @@
     .gift-btn.done .gift-n { background: rgba(255,255,255,0.18); color: var(--white); }
     .gift-btn.done .gift-go { font-size: 0.74rem; color: var(--mut); }
     .gifts[hidden] { display: none; }
+    /* mon cuoi (qua that): vien vang dam, nam rieng mot hang (may tinh 2 cot) */
+    .gifts .gift-btn.final { grid-column: 1 / -1; border-color: rgba(245,200,66,0.9); background: linear-gradient(135deg, rgba(245,200,66,0.26), rgba(255,77,115,0.24)); box-shadow: 0 12px 40px rgba(245,200,66,0.26); }
+    .gift-btn.final .gift-ic { font-size: 1.9rem; }
+    .gift-btn.final .gift-txt b { font-size: 1.14rem; }
+    .gifts .gift-btn.final.done { border-color: rgba(245,200,66,0.45); background: rgba(45,21,37,0.6); box-shadow: none; }
     .gifts.gifts-open .gift-btn { animation: giftIn 0.6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 0.07s); }
     @keyframes giftIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
 
@@ -1898,7 +1903,7 @@
     }
     .tc-sign { margin-top: 16px; font-family: 'Dancing Script', cursive; font-size: 1.35rem; color: var(--gold2); animation: tcIn 0.6s ease both; }
     .tc-sign[hidden] { display: none; }
-    /* buoc 6: hop qua 9 mon, chi mon ke tiep sang */
+    /* buoc 6: hop qua 10 mon (9 o + mon cuoi ca hang), chi mon ke tiep sang */
     .tg-grid { margin-top: 22px; width: 100%; max-width: 420px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .tg {
       position: relative; aspect-ratio: 1; border-radius: 18px; padding: 6px;
@@ -1910,6 +1915,9 @@
     .tg .tg-ic { font-size: 2rem; line-height: 1; }
     .tg small { font-size: 0.62rem; line-height: 1.2; color: var(--mut); }
     .tg.locked { opacity: 0.4; }
+    /* mon cuoi: o dai ca hang duoi luoi 3x3 */
+    .tg.final { grid-column: 1 / -1; aspect-ratio: auto; min-height: 76px; flex-direction: row; gap: 12px; border-color: rgba(245,200,66,0.5); }
+    .tg.final small { font-size: 0.78rem; }
     .tg.locked .tg-ic { filter: grayscale(1); }
     .tg.next { border-color: var(--gold); background: linear-gradient(135deg, rgba(245,200,66,0.22), rgba(255,77,115,0.18)); }
     .tg.next .tg-ic { animation: annivBeat 1.6s ease-in-out infinite; }
@@ -2104,7 +2112,7 @@
     <div class="letter-grid" id="letterGrid"></div>
   </div>
 
-  <!-- HOP QUA: 9 trang dac biet, theo thu tu nen xem cung nhau (GIFTS o script cuoi trang).
+  <!-- HOP QUA: 10 trang dac biet, theo thu tu nen xem cung nhau (GIFTS o script cuoi trang).
        Mat khau: LOCK_PAGE = true thi o nhap nam o cong vao trang; = false thi nam o day, mo khoa moi hien qua -->
   <section class="giftbox reveal" id="giftbox">
     <div class="section-title">Hộp quà của em 🎁</div>
@@ -4080,8 +4088,9 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 const $ = (id) => document.getElementById(id);
 
 // ── HOP QUA ──────────────────────────────────────────────────────────────────
-// ★ 9 trang dac biet, xep theo thu tu nen xem cung nhau (cam xuc tang dan, ket bang
-//   mon mang ve duoc). Doi thu tu / ten / mo ta o day. art = anh nho ben trai (khong co thi dung ic).
+// ★ 10 trang dac biet, xep theo thu tu nen xem cung nhau (cam xuc tang dan, ket bang
+//   mon mang ve duoc, cuoi cung la qua that). Doi thu tu / ten / mo ta o day. art = anh nho ben trai (khong co thi dung ic).
+//   final: mon chot (noi bat, chiem ca hang). Ten / mo ta mon cuoi KHONG noi la qua gi de giu bat ngo.
 const GIFTS = [
   { id: 'hoat-hinh',   href: 'chuyen-cua-chung-minh.html', ic: '🎞', art: 'video/chuyen-cua-chung-minh.webp',
     title: 'Chuyện của chúng mình',      sub: 'Phim hoạt hình một năm của hai đứa, có cả bản MP4 để lưu' },
@@ -4096,6 +4105,8 @@ const GIFTS = [
   { id: 'phieu',       href: 'phieu-yeu-thuong.html',      ic: '🎟', title: 'Phiếu yêu thương',        sub: 'Cào ra quà thật, em dùng lúc nào anh cũng chiều' },
   { id: 'qua-nho',     href: 'qua-nho.html',               ic: '🧸', art: 'sticker/nho/01-yeu-em.webp', stk: true,
     title: 'Góc quà nhỏ',               sub: 'Sticker hai đứa, video ngắn, polaroid và phiếu giấy' },
+  { id: 'mon-qua-cuoi', href: 'mon-qua-cuoi.html',       ic: '💝', final: true,
+    title: 'Món quà cuối cùng',         sub: 'Để dành mở sau cùng nha — anh đang chờ em ở đó 🤍' },
 ];
 const GIFT_KEY = 'love-gifts-open';           // may nho nhung mon da mo -> hop qua sang mon ke tiep
 function giftsOpened() { try { const l = JSON.parse(localStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
@@ -4108,7 +4119,7 @@ function renderGifts() {
   const n = GIFTS.filter(g => opened.includes(g.id)).length;
   $('gifts').innerHTML = GIFTS.map((g, i) => {
     const done = opened.includes(g.id);
-    return `<a class="gift-btn${done ? ' done' : ''}" href="${g.href}" data-id="${g.id}" style="--i:${i}">
+    return `<a class="gift-btn${done ? ' done' : ''}${g.final ? ' final' : ''}" href="${g.href}" data-id="${g.id}" style="--i:${i}">
       <span class="gift-n">${i + 1}</span>${giftIcHtml(g, 'gift-ic')}
       <span class="gift-txt"><b>${g.title}</b><small>${g.sub}</small></span>
       <span class="gift-go">${done ? 'Đã xem ✓' : '›'}</span></a>`;
@@ -4271,7 +4282,7 @@ function tourStep5() {
   const n = GIFTS.filter(g => opened.includes(g.id)).length;
   $('tgGrid').innerHTML = GIFTS.map((g, i) => {
     const st = opened.includes(g.id) ? 'open' : i === nextIdx ? 'next' : 'locked';
-    return `<button class="tg ${st}" type="button" data-i="${i}"><span class="tg-ic">${st === 'open' ? g.ic : '🎁'}</span><small>${st === 'open' ? g.title : st === 'next' ? 'Chạm để mở' : 'Chưa tới lượt'}</small></button>`;
+    return `<button class="tg ${st}${g.final ? ' final' : ''}" type="button" data-i="${i}"><span class="tg-ic">${st === 'open' ? g.ic : '🎁'}</span><small>${st === 'open' ? g.title : st === 'next' ? 'Chạm để mở' : 'Chưa tới lượt'}</small></button>`;
   }).join('');
   $('tgDetail').hidden = true; tgSel = -1;
   if (nextIdx < 0) {
