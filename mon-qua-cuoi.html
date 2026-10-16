@@ -116,10 +116,10 @@
     .t-name {
       margin-top: 8px;
       font: 700 clamp(2rem, 9.6vw, 2.9rem)/1.12 'Playfair Display', serif;
-      background: linear-gradient(100deg, #f7e7c4 0%, #ffffff 26%, #e9c46a 50%, #fff6dc 70%, #d9a94e 100%);
+      background: linear-gradient(100deg, #e9eef6 0%, #ffffff 24%, #b4bfd2 50%, #ffffff 70%, #a6b1c4 100%);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .t-name .tw { -webkit-text-fill-color: var(--gold2); color: var(--gold2); font-size: 0.5em; vertical-align: 0.9em; display: inline-block; animation: tw 2.4s ease-in-out infinite; }
+    .t-name .tw { -webkit-text-fill-color: #f2f5fb; color: #f2f5fb; font-size: 0.5em; vertical-align: 0.9em; display: inline-block; animation: tw 2.4s ease-in-out infinite; }
     .t-sub { margin-top: 4px; font: italic 400 1rem/1.4 'Playfair Display', serif; color: rgba(255,230,236,0.82); }
 
     .scene { position: relative; flex: 1 1 auto; width: 100%; max-width: 560px; min-height: 230px; }
@@ -143,7 +143,7 @@
     .settled .rays-wrap { opacity: 0.4; transition: opacity 2.6s ease; }
     .rays {
       width: 100%; height: 100%; border-radius: 50%;
-      background: repeating-conic-gradient(from 0deg, rgba(255,226,170,0) 0deg 7deg, rgba(255,226,170,0.2) 10deg 12deg, rgba(255,226,170,0) 15deg 22deg);
+      background: repeating-conic-gradient(from 0deg, rgba(255,240,236,0) 0deg 7deg, rgba(255,240,236,0.2) 10deg 12deg, rgba(255,240,236,0) 15deg 22deg);
       -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0,0,0,0.55) 30%, transparent 66%);
               mask-image: radial-gradient(circle, #000 0%, rgba(0,0,0,0.55) 30%, transparent 66%);
       animation: spin 70s linear infinite; animation-play-state: paused;
@@ -160,7 +160,7 @@
     .box[hidden] { display: none; }
     .box-glow {
       position: absolute; left: 50%; top: 52%; width: 250%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle, rgba(255,214,160,0.55) 0%, rgba(255,120,160,0.17) 36%, rgba(255,120,160,0) 66%);
+      background: radial-gradient(circle, rgba(255,240,232,0.55) 0%, rgba(255,140,175,0.17) 36%, rgba(255,140,175,0) 66%);
       transform: translate(-50%, -50%) scale(var(--g, 0.8)); opacity: var(--go, 0.5);
       transition: transform 0.5s cubic-bezier(.2,.8,.2,1), opacity 0.5s ease;
     }
@@ -183,12 +183,12 @@
     .box-body {
       position: absolute; left: 5%; right: 5%; top: 31%; bottom: 0; overflow: hidden;
       border-radius: 10px 10px 16px 16px;
-      background: linear-gradient(140deg, #e8507a 0%, #b9244f 46%, #7a1033 100%);
-      box-shadow: inset 0 -14px 22px rgba(0,0,0,0.28), inset 0 2px 0 rgba(255,255,255,0.18), 0 22px 36px rgba(0,0,0,0.45);
+      background: linear-gradient(150deg, #ffffff 0%, #f3f1ec 45%, #d6d1c7 100%);
+      box-shadow: inset 0 -14px 22px rgba(60,40,50,0.18), inset 0 2px 0 rgba(255,255,255,0.9), 0 22px 36px rgba(0,0,0,0.45);
     }
     .box-body::before, .box-lid::before {      /* ruy bang doc */
       content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 17%; transform: translateX(-50%);
-      background: linear-gradient(90deg, #a87a2a, #f9e2a2 32%, #f0c75a 52%, #fff2c6 64%, #9e6f22);
+      background: linear-gradient(90deg, #0f1733, #33457a 30%, #1f2d58 52%, #4a5f99 64%, #111a38);
     }
     .box-body::after {                           /* vet sang xien tren nhung */
       content: ''; position: absolute; inset: 0;
@@ -196,20 +196,20 @@
     }
     .rib-h {                                      /* ruy bang ngang */
       position: absolute; left: 0; right: 0; top: 40%; height: 15%;
-      background: linear-gradient(180deg, #a87a2a, #f9e2a2 32%, #f0c75a 52%, #fff2c6 64%, #9e6f22);
+      background: linear-gradient(180deg, #0f1733, #33457a 30%, #1f2d58 52%, #4a5f99 64%, #111a38);
     }
     .box-lid {
       position: absolute; left: 0; right: 0; top: 18%; height: 17%; overflow: hidden;
       border-radius: 9px;
-      background: linear-gradient(180deg, #f2668c 0%, #c62e5a 55%, #981c43 100%);
-      box-shadow: 0 8px 12px rgba(0,0,0,0.32), inset 0 2px 0 rgba(255,255,255,0.25);
+      background: linear-gradient(180deg, #ffffff 0%, #f1eee8 60%, #dad5cc 100%);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.28), inset 0 2px 0 rgba(255,255,255,0.9), inset 0 -2px 0 rgba(150,140,130,0.35);
     }
     .bow { position: absolute; left: 50%; top: -6%; width: 66%; transform: translateX(-50%); transform-origin: 50% 70%; }
     .bow svg { display: block; width: 100%; height: auto; overflow: visible; }
     .lock {
       position: absolute; left: 50%; top: 58%; width: 24px; height: 24px; border-radius: 50%;
       transform: translate(-50%, -50%); display: none; place-items: center;
-      background: #2a0f1d; border: 1.5px solid var(--gold); font-size: 11px; line-height: 1;
+      background: #fff; border: 1.5px solid #233263; font-size: 11px; line-height: 1;
     }
     .locked .lock { display: grid; }
 
@@ -273,12 +273,12 @@
     }
     @keyframes ping { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.16, 1.5); opacity: 0; } }
 
-    /* ── THE KY NIEM (cham mot hat) ─────────────────────── */
+    /* ── THE KY NIEM (cham mot vien da) ─────────────────── */
     .card {
       position: fixed; z-index: 7; left: 50%; bottom: calc(14px + var(--safe-b));
       width: min(calc(100vw - 24px), 460px);
       display: flex; gap: 14px; align-items: center;
-      padding: 14px 40px 14px 14px; border-radius: 22px;
+      padding: 14px 40px 26px 14px; border-radius: 22px;
       background: linear-gradient(160deg, rgba(62,22,43,0.98), rgba(30,10,22,0.98));
       border: 1px solid rgba(243,217,164,0.3);
       box-shadow: 0 20px 50px rgba(0,0,0,0.55);
@@ -302,7 +302,7 @@
       position: absolute; top: 4px; right: 4px; width: 38px; height: 38px;
       border: 0; background: none; color: rgba(255,255,255,0.6); font-size: 1.4rem; line-height: 1; cursor: pointer;
     }
-    .card .n { position: absolute; right: 14px; bottom: 9px; font: 500 0.64rem/1 'Inter', sans-serif; color: var(--mut); }
+    .card .n { position: absolute; right: 6px; bottom: 4px; padding: 6px 8px; border: 0; background: none; font: 600 0.7rem/1 'Inter', sans-serif; color: var(--gold2); cursor: pointer; }
 
     /* ── LA THU ─────────────────────────────────────────── */
     .letter {
@@ -412,7 +412,7 @@
   <div class="scene" id="scene">
     <div class="halo" aria-hidden="true"></div>
     <div class="rays-wrap" aria-hidden="true"><div class="rays"></div></div>
-    <canvas id="bv" aria-label="Chiếc vòng tay: kéo để xoay, chạm vào từng hạt để xem kỷ niệm"></canvas>
+    <canvas id="bv" aria-label="Chiếc vòng tay: kéo để xoay, chạm vào hàng đá để xem kỷ niệm"></canvas>
     <div class="box" id="box" role="button" tabindex="0" aria-label="Mở hộp quà">
       <div class="box-glow"></div>
       <div class="box-shadow"></div>
@@ -423,18 +423,18 @@
           <svg viewBox="0 0 120 74" aria-hidden="true">
             <defs>
               <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#fff3c8"/><stop offset=".35" stop-color="#f5c842"/><stop offset=".7" stop-color="#c8922e"/><stop offset="1" stop-color="#fbe3a0"/>
+                <stop offset="0" stop-color="#5a70ad"/><stop offset=".35" stop-color="#233263"/><stop offset=".7" stop-color="#121b3a"/><stop offset="1" stop-color="#3f548f"/>
               </linearGradient>
-              <linearGradient id="gGold2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dc8a"/><stop offset="1" stop-color="#a87422"/></linearGradient>
+              <linearGradient id="gGold2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33457a"/><stop offset="1" stop-color="#0c1229"/></linearGradient>
             </defs>
             <path d="M56 46 L38 72 L46 70 L50 74 L60 50Z" fill="url(#gGold2)"/>
             <path d="M64 46 L82 72 L74 70 L70 74 L60 50Z" fill="url(#gGold2)"/>
             <path d="M60 42 C46 18, 14 8, 8 26 C4 40, 24 52, 60 44Z" fill="url(#gGold)"/>
             <path d="M60 42 C74 18, 106 8, 112 26 C116 40, 96 52, 60 44Z" fill="url(#gGold)"/>
-            <path d="M58 42 C44 30, 26 24, 18 28" stroke="rgba(140,90,20,.45)" stroke-width="2" fill="none"/>
-            <path d="M62 42 C76 30, 94 24, 102 28" stroke="rgba(140,90,20,.45)" stroke-width="2" fill="none"/>
+            <path d="M58 42 C44 30, 26 24, 18 28" stroke="rgba(255,255,255,.22)" stroke-width="2" fill="none"/>
+            <path d="M62 42 C76 30, 94 24, 102 28" stroke="rgba(255,255,255,.22)" stroke-width="2" fill="none"/>
             <ellipse cx="60" cy="43" rx="9" ry="8" fill="url(#gGold2)"/>
-            <ellipse cx="58" cy="40" rx="3.5" ry="2.5" fill="rgba(255,255,255,.6)"/>
+            <ellipse cx="58" cy="40" rx="3.5" ry="2.5" fill="rgba(255,255,255,.35)"/>
           </svg>
           <span class="lock" aria-hidden="true">🔒</span>
         </div>
@@ -446,7 +446,7 @@
   <div class="foot">
     <div class="f-intro"><p class="hint" id="hint">Chạm vào hộp quà ✨</p></div>
     <div class="f-show">
-      <p class="tip first" id="tip">✨ Chạm vào một hạt trên vòng thử xem</p>
+      <p class="tip first" id="tip">✨ Chạm vào hàng đá thử xem</p>
       <p class="prog">Đã xem <b id="seenN">0</b>/<span id="allN">10</span> kỷ niệm</p>
       <button class="btn" id="letterBtn" type="button">Đọc lời anh nhắn 💌</button>
     </div>
@@ -463,7 +463,7 @@
     <p id="cTx"></p>
   </div>
   <button class="x" id="cX" type="button" aria-label="Đóng">×</button>
-  <span class="n" id="cN"></span>
+  <button class="n" id="cN" type="button"></button>
 </div>
 
 <div class="letter" id="letter"><div class="paper" id="paper"></div></div>
@@ -491,7 +491,7 @@
   const GIFT = {
     name: 'Vòng tay Hapas',
     date: '18 · 10 · 2026 · Kỷ niệm 1 năm',
-    sub: 'Một vòng tròn — không có điểm kết thúc',
+    sub: 'Musee Tennis — lấp lánh như những ngày có em',
     // Khoa hop qua toi mot thoi diem (em cham chi thay "chua toi ngay" + dem nguoc), vd '2026-10-18T00:00:00';
     // xem thu khi dang khoa: them ?xem-truoc. '' = mo luon (nguoi dung bo khoa 2026-10-16).
     openFrom: '',
@@ -501,10 +501,11 @@
   const LETTER = {
     greet: 'Gửi em — cô gái áo xanh năm ấy,',
     lines: [
-      'Anh chọn cho em một chiếc vòng, vì vòng tròn thì không có điểm kết thúc. Anh mong chuyện của mình cũng vậy.',
-      'Một năm qua, mỗi ngày bên em là một hạt nhỏ: lần đầu hiến máu, ngày em gật đầu, ngọn nến sinh nhật, pháo hoa giao thừa… Anh xâu tất cả lại thành chiếc vòng này.',
+      'Anh chọn chiếc vòng này vì hàng đá nhỏ của nó lấp lánh y như những ngày có em: ngày nào cũng sáng, không ngày nào giống ngày nào.',
+      'Một năm qua là từng viên đá như thế: lần đầu hiến máu, ngày em gật đầu, ngọn nến sinh nhật, pháo hoa giao thừa… Anh gom tất cả lại, đeo lên cổ tay em.',
+      'Vòng có nút trượt để nới hay siết cho vừa — như hai đứa mình, có lúc nhường nhau một chút, nhưng vẫn luôn là một vòng tròn.',
       'Từ giờ em đeo nó đi đâu cũng được. Chỉ cần nhìn xuống cổ tay là nhớ: lúc nào cũng có anh ở đây, nắm tay em.',
-      'Năm thứ hai, mình xâu thêm thật nhiều hạt nữa nhé.',
+      'Năm thứ hai, mình cùng thêm thật nhiều viên đá sáng nữa nhé.',
     ],
     sign: 'Yêu em — Hữu Phước',
   };
@@ -518,29 +519,28 @@
     big: 'Hợp với em lắm 💗',
     small: 'Chúc mừng một năm của chúng mình · 18.10.2026',
   };
-  // Moi hat tren vong la mot ky niem (theo thu tu thoi gian). kind = kieu hat ve tren canvas
-  // (hat: pink / pearl / gold / tet / ruby / topaz — mat day treo: drop / heartGem / roseHeart / disc).
-  // photo = ten anh trong images/love/thumbs (khong duoi), '' = hien bieu tuong.
-  const CHARMS = [
-    { kind: 'drop',      ic: '🩸', date: '24 · 08 · 2025', title: 'Lần đầu đi hiến máu', photo: '24-08-25',
+  // Moi ky niem gan voi mot doan trong hang da (trai -> phai theo thoi gian; 40 vien chia deu cho cac ky niem).
+  // photo = ten anh trong images/love/thumbs (khong duoi), '' = hien bieu tuong ic.
+  const MEMORIES = [
+    { ic: '🩸', date: '24 · 08 · 2025', title: 'Lần đầu đi hiến máu', photo: '24-08-25',
       text: 'Chủ nhật đỏ ở Huế. Lúc ấy anh chưa biết, cô gái áo xanh đứng cạnh sẽ là cả thế giới của anh.' },
-    { kind: 'heartGem',  ic: '💘', date: '18 · 10 · 2025', title: 'Ngày đầu yêu nhau', photo: '',
+    { ic: '💘', date: '18 · 10 · 2025', title: 'Ngày đầu yêu nhau', photo: '',
       text: 'Em gật đầu. Từ hôm ấy, “anh” và “em” trở thành “chúng mình”.' },
-    { kind: 'pink',      ic: '🎂', date: '23 · 10 · 2025', title: 'Sinh nhật em', photo: 'anhsinhnhatemvsbanthan',
+    { ic: '🎂', date: '23 · 10 · 2025', title: 'Sinh nhật em', photo: 'anhsinhnhatemvsbanthan',
       text: 'Mới yêu được năm ngày. Ngọn nến đầu tiên anh được cùng em thổi.' },
-    { kind: 'pearl',     ic: '⛄', date: '12 · 2025', title: 'Giáng Sinh đầu tiên', photo: 'chupphotobook',
+    { ic: '⛄', date: '12 · 2025', title: 'Giáng Sinh đầu tiên', photo: 'chupphotobook',
       text: 'Hai đứa chen nhau vào buồng chụp ảnh, đội mũ Noel và cười không ngớt.' },
-    { kind: 'gold',      ic: '💯', date: '26 · 01 · 2026', title: 'Tròn 100 ngày', photo: '100days',
+    { ic: '💯', date: '26 · 01 · 2026', title: 'Tròn 100 ngày', photo: '100days',
       text: 'Chưa nhiều, nhưng đủ để anh biết anh muốn đi cùng em thật lâu.' },
-    { kind: 'roseHeart', ic: '💝', date: '14 · 02 · 2026', title: 'Valentine đầu tiên', photo: 'valentine2',
+    { ic: '💝', date: '14 · 02 · 2026', title: 'Valentine đầu tiên', photo: 'valentine2',
       text: 'Một bó hoa, hộp sô-cô-la chữ LOVE, và nụ cười của em đẹp hơn tất cả.' },
-    { kind: 'tet',       ic: '🧧', date: '17 · 02 · 2026', title: 'Tết đầu tiên', photo: 'phaohoagiaothua',
+    { ic: '🧧', date: '17 · 02 · 2026', title: 'Tết đầu tiên', photo: 'phaohoagiaothua',
       text: 'Pháo hoa giao thừa nở rực trời, còn anh thì chỉ mải nhìn em.' },
-    { kind: 'ruby',      ic: '🩸', date: '06 · 09 · 2026', title: 'Hiến máu lần 2', photo: 'hienmau-em-10lan-anh-15lan',
+    { ic: '🩸', date: '06 · 09 · 2026', title: 'Hiến máu lần 2', photo: 'hienmau-em-10lan-anh-15lan',
       text: 'Em 10 lần, anh 15 lần — mình lại cùng nhau gửi đi những giọt máu cho người cần.' },
-    { kind: 'topaz',     ic: '🎂', date: '09 · 10 · 2026', title: 'Sinh nhật anh', photo: 'quasinhnhatanh-dacbiet',
+    { ic: '🎂', date: '09 · 10 · 2026', title: 'Sinh nhật anh', photo: 'quasinhnhatanh-dacbiet',
       text: 'Bánh kem, gấu bông, một buổi xem phim. Nhưng món quà lớn nhất vẫn là em.' },
-    { kind: 'disc',      ic: '🤍', date: '18 · 10 · 2026', title: 'Tròn 1 năm', photo: 'aodoidautiencuaanhvsem',
+    { ic: '🤍', date: '18 · 10 · 2026', title: 'Tròn 1 năm', photo: 'aodoidautiencuaanhvsem',
       text: 'Áo đôi, và em hiến tóc lần 2 cho các chiến binh K — đúng ngày kỷ niệm.' },
   ];
   // ════════════════════════════════════════════════════════════════════════════
@@ -555,7 +555,7 @@
 
   const stage = $('stage'), scene = $('scene'), boxEl = $('box'), hintEl = $('hint');
   $('gName').textContent = GIFT.name; $('gSub').textContent = GIFT.sub; $('kDate').textContent = GIFT.date;
-  $('allN').textContent = CHARMS.length;
+  $('allN').textContent = MEMORIES.length;
 
   let toastT = 0;
   function toast(msg, ms = 2600) {
@@ -744,30 +744,24 @@
   }
 
   // ═══ CHIEC VONG 3D (canvas) ═══════════════════════════════════════════════
-  // Vong nam nghieng (TILT), xoay quanh truc cua no; chieu phoi canh roi xoay ca vong nghieng ROLL tren man hinh.
-  // Ve bang sprite ve san (drawImage), sap xep sau -> truoc moi khung. Day xich ran (snake chain) = cac doan
-  // ngan xoay theo tiep tuyen; hat = cau; mat day treo dung lac theo con lac khi vong quay.
+  // Ve theo mau that Hapas Musee Tennis (ma bach kim): nua duoi la hang da CZ tron gan chau vuong, hai ben la
+  // day hop (box chain) chay len nut truot oval o dinh, hai duoi day thong xuong co bi bac o dau.
+  // Vong nghieng TILT, quay quanh truc cua no; chieu phoi canh roi nghieng ca vong ROLL tren man hinh.
+  // Ve bang sprite ve san (drawImage), sap xep sau -> truoc moi khung. Dung yen thi dua nhe quanh goc dep nhat.
   const bv = $('bv'), g2 = bv.getContext('2d');
   const TILT = 0.6, SIN_T = Math.sin(TILT), COS_T = Math.cos(TILT);
-  const ROLL = -0.12, SIN_R = Math.sin(ROLL), COS_R = Math.cos(ROLL);
-  const A_SPEC = 1.15;                       // goc phan chieu anh sang (hoi lech phai phia truoc)
-  const AUTO_V = reduceMotion ? 0.12 : 0.3;  // toc do tu xoay (rad/giay)
-  const N = 132;                             // so doan day xich
+  const ROLL = -0.1, SIN_R = Math.sin(ROLL), COS_R = Math.cos(ROLL);
+  const A_SPEC = 1.2;                                   // goc phan chieu anh sang (hoi lech phai phia truoc)
+  const SWAY = reduceMotion ? 0.18 : 0.5;               // bien do dua nhe khi khong ai cham
+  const TH_C = Math.PI / 2, STONE_ARC = 3.5, NS = 34;   // hang da: giua phia truoc, 34 vien
+  const TH_S = TH_C + Math.PI, CHAIN_ARC = TAU - STONE_ARC, NL = 84;   // nut truot o dinh; 84 mat day hop
+  const STONE = 15, LINK_W = 6.6, LINK_H = 5.4, SL_W = 26, SL_H = 15, BALL = 8.5, TAIL_STEP = 5;   // don vi u
   let BW = 0, BH = 0, DPR = 1, R = 120, u = 0.8, CX = 0, CY = 0, CY0 = 0, FOC = 500, SP = 2;
 
-  const BEADS = {
-    pink:  { facet: true,  stops: ['#ffe8f1', '#ff8fb8', '#d63b77', '#6e1035'] },
-    pearl: { pearl: true,  stops: ['#ffffff', '#f7f0ea', '#dcd1c9', '#958a84'] },
-    gold:  { metal: true,  stops: ['#fff7d6', '#f2cc6b', '#b8862b', '#5e3f0c'] },
-    tet:   { enamel: true, stops: ['#ffa497', '#e0302f', '#9e1416', '#4d0507'] },
-    ruby:  { facet: true,  stops: ['#ffc8cf', '#f0435d', '#a8122e', '#4b0412'] },
-    topaz: { facet: true,  stops: ['#eaf8ff', '#8fd0f5', '#3d8fcf', '#163f6e'] },
-  };
-  const DANGLES = { drop: { w: 22, h: 30 }, heartGem: { w: 33, h: 30 }, roseHeart: { w: 30, h: 27 }, disc: { w: 30, h: 30 } };
-  const BEAD_D = 40, RING_L = 6.5;           // duong kinh hat, khoang tu diem moc toi mat day (don vi u)
   const LV = [0.42, 0.54, 0.66, 0.78, 0.9, 1];
   const lvIdx = (b) => { let k = 0; for (let i = 1; i < LV.length; i++) if (Math.abs(LV[i] - b) < Math.abs(LV[k] - b)) k = i; return k; };
   const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
+  const upright = (a) => (a > Math.PI / 2 ? a - Math.PI : a < -Math.PI / 2 ? a + Math.PI : a);   // vet sang luon o phia tren
   function darken(g, W, H, level) {
     if (level > 0.999) return;
     g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
@@ -778,162 +772,104 @@
     g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
     g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
   }
-  function heartPath(g, cx, top, w, h) {
-    g.beginPath();
-    g.moveTo(cx, top + h * 0.28);
-    g.bezierCurveTo(cx, top + h * 0.08, cx - w * 0.08, top, cx - w * 0.26, top);
-    g.bezierCurveTo(cx - w * 0.5, top, cx - w * 0.5, top + h * 0.3, cx - w * 0.5, top + h * 0.33);
-    g.bezierCurveTo(cx - w * 0.5, top + h * 0.56, cx - w * 0.2, top + h * 0.78, cx, top + h);
-    g.bezierCurveTo(cx + w * 0.2, top + h * 0.78, cx + w * 0.5, top + h * 0.56, cx + w * 0.5, top + h * 0.33);
-    g.bezierCurveTo(cx + w * 0.5, top + h * 0.3, cx + w * 0.5, top, cx + w * 0.26, top);
-    g.bezierCurveTo(cx + w * 0.08, top, cx, top + h * 0.08, cx, top + h * 0.28);
-    g.closePath();
-  }
-  function dropPath(g, cx, top, w, h) {
-    const r = w / 2, cy = top + h - r;
-    g.beginPath();
-    g.moveTo(cx, top);
-    g.bezierCurveTo(cx + w * 0.14, top + h * 0.2, cx + r, cy - r * 0.9, cx + r, cy);
-    g.arc(cx, cy, r, 0, Math.PI);
-    g.bezierCurveTo(cx - r, cy - r * 0.9, cx - w * 0.14, top + h * 0.2, cx, top);
-    g.closePath();
-  }
-  const silverLin = (g, x0, y0, x1, y1) => {
+  const platinum = (g, x0, y0, x1, y1) => {             // bach kim: bac hoi lanh
     const gr = g.createLinearGradient(x0, y0, x1, y1);
-    gr.addColorStop(0, '#fbfcfd'); gr.addColorStop(0.25, '#d5d9df'); gr.addColorStop(0.5, '#979da6'); gr.addColorStop(0.7, '#eef0f3'); gr.addColorStop(1, '#7c828b');
+    gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.25, '#dfe4ec'); gr.addColorStop(0.5, '#9ea6b3'); gr.addColorStop(0.72, '#f2f4f8'); gr.addColorStop(1, '#7f8794');
     return gr;
   };
 
-  /** Doan day xich ran: ong kim loai bong, van xoan cheo */
+  /** Mat day hop (box chain): hop vuong nho, lo toi o giua */
   function linkSprite(level) {
-    const w = 15 * u, h = 9 * u, W = Math.ceil(w * SP), H = Math.ceil(h * SP), c = mk(W, H), g = c.getContext('2d');
-    g.save(); rr(g, 0, 0, W, H, H / 2); g.clip();
+    const w = LINK_W * u, h = LINK_H * u, W = Math.ceil(w * SP), H = Math.ceil(h * SP), c = mk(W, H), g = c.getContext('2d');
+    const r = Math.min(W, H) * 0.18;
+    rr(g, 0.5, 0.5, W - 1, H - 1, r);
     const gr = g.createLinearGradient(0, 0, 0, H);
-    gr.addColorStop(0, '#7d838c'); gr.addColorStop(0.16, '#e9edf2'); gr.addColorStop(0.3, '#ffffff'); gr.addColorStop(0.5, '#a9b0b9');
-    gr.addColorStop(0.72, '#5f656e'); gr.addColorStop(0.88, '#b6bcc4'); gr.addColorStop(1, '#4f545c');
-    g.fillStyle = gr; g.fillRect(0, 0, W, H);
-    g.lineWidth = Math.max(1, SP * 0.5);
-    const step = 2.8 * u * SP;
-    for (let x = -H; x < W + H; x += step) {
-      g.strokeStyle = 'rgba(40,44,52,0.3)'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + H * 0.9, H); g.stroke();
-      g.strokeStyle = 'rgba(255,255,255,0.22)'; g.beginPath(); g.moveTo(x + step * 0.45, 0); g.lineTo(x + step * 0.45 + H * 0.9, H); g.stroke();
-    }
+    gr.addColorStop(0, '#f6f8fb'); gr.addColorStop(0.35, '#ffffff'); gr.addColorStop(0.62, '#b9c0cb'); gr.addColorStop(1, '#858c99');
+    g.fillStyle = gr; g.fill();
+    g.strokeStyle = 'rgba(80,86,98,0.45)'; g.lineWidth = Math.max(1, SP * 0.3); g.stroke();
+    rr(g, W * 0.32, H * 0.32, W * 0.36, H * 0.36, r * 0.5); g.fillStyle = 'rgba(70,78,92,0.32)'; g.fill();
     darken(g, W, H, level);
-    g.restore();
     return { cv: c, w, h };
   }
-  /** Khoen nho noi mat day voi day xich */
-  function ringSprite(level) {
-    const s = 10 * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
-    g.lineWidth = S * 0.2; g.strokeStyle = silverLin(g, 0, 0, S, S);
-    g.beginPath(); g.arc(m, m, m * 0.72, 0, TAU); g.stroke();
+  /** Mot vien da CZ tron trong chau vuong 4 chau (front) / mat sau cua chau (back) */
+  function stoneSprite(level, front) {
+    const s = STONE * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
+    rr(g, S * 0.04, S * 0.04, S * 0.92, S * 0.92, S * 0.2);
+    g.fillStyle = platinum(g, 0, 0, S, S); g.fill();
+    g.strokeStyle = 'rgba(70,76,88,0.55)'; g.lineWidth = Math.max(1, S * 0.03); g.stroke();
+    if (front) {
+      g.beginPath(); g.arc(m, m, S * 0.43, 0, TAU); g.fillStyle = '#596170'; g.fill();          // o dat da
+      const r = S * 0.39;
+      g.save(); g.beginPath(); g.arc(m, m, r, 0, TAU); g.clip();
+      let gr = g.createRadialGradient(m - r * 0.25, m - r * 0.3, r * 0.05, m, m, r);
+      gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.45, '#eef2f7'); gr.addColorStop(0.8, '#b8c2cf'); gr.addColorStop(1, '#8792a1');
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+      for (let i = 0; i < 16; i++) {                                                             // mat cat hinh sao
+        const a0 = (i / 16) * TAU, a1 = ((i + 1) / 16) * TAU;
+        g.beginPath();
+        g.moveTo(m + Math.cos(a0) * r * 0.42, m + Math.sin(a0) * r * 0.42);
+        g.lineTo(m + Math.cos(a0) * r * 1.05, m + Math.sin(a0) * r * 1.05);
+        g.lineTo(m + Math.cos(a1) * r * 1.05, m + Math.sin(a1) * r * 1.05);
+        g.closePath();
+        g.fillStyle = i % 2 ? 'rgba(255,255,255,0.5)' : 'rgba(80,92,110,0.28)'; g.fill();
+      }
+      g.beginPath();                                                                             // mat ban bat giac
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * TAU + TAU / 16, x = m + Math.cos(a) * r * 0.46, y = m + Math.sin(a) * r * 0.46; i ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.closePath(); g.fillStyle = 'rgba(255,255,255,0.35)'; g.fill();
+      g.strokeStyle = 'rgba(255,255,255,0.6)'; g.lineWidth = Math.max(0.6, S * 0.012); g.stroke();
+      for (const [dx, dy, col] of [[-0.3, 0.2, 'rgba(255,120,170,0.55)'], [0.28, -0.1, 'rgba(120,190,255,0.55)'], [0.05, 0.35, 'rgba(255,230,120,0.5)'], [-0.15, -0.32, 'rgba(160,255,210,0.4)']]) {
+        g.beginPath(); g.arc(m + dx * r, m + dy * r, r * 0.11, 0, TAU); g.fillStyle = col; g.fill();   // lua tan sac cua CZ
+      }
+      gr = g.createRadialGradient(m - r * 0.35, m - r * 0.4, 0, m - r * 0.35, m - r * 0.4, r * 0.55);
+      gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+      g.restore();
+      for (const a of [0.785, 2.356, 3.927, 5.498]) {                                              // 4 chau giu da
+        const x = m + Math.cos(a) * S * 0.4, y = m + Math.sin(a) * S * 0.4, pr = S * 0.085;
+        const pg = g.createRadialGradient(x - pr * 0.3, y - pr * 0.3, 0, x, y, pr);
+        pg.addColorStop(0, '#ffffff'); pg.addColorStop(0.6, '#c3cad5'); pg.addColorStop(1, '#6d7480');
+        g.beginPath(); g.arc(x, y, pr, 0, TAU); g.fillStyle = pg; g.fill();
+      }
+    } else {
+      g.beginPath(); g.arc(m, m, S * 0.14, 0, TAU); g.fillStyle = '#7a8291'; g.fill();             // lo nho sau chau
+    }
+    darken(g, S, S, front ? level : Math.min(1, level + 0.12));   // mat sau chau bac: sang nhu kim loai
+    return { cv: c, w: s, h: s };
+  }
+  /** Nut truot oval (bolo) o dinh vong */
+  function sliderSprite(level, front) {
+    const w = SL_W * u, h = SL_H * u, W = Math.ceil(w * SP), H = Math.ceil(h * SP), c = mk(W, H), g = c.getContext('2d');
+    const cx = W / 2, cy = H / 2, oval = (kx, ky) => { g.beginPath(); g.ellipse(cx, cy, W * kx, H * ky, 0, 0, TAU); };
+    oval(0.48, 0.46); g.fillStyle = platinum(g, 0, 0, W, H); g.fill();
+    g.strokeStyle = 'rgba(70,76,88,0.6)'; g.lineWidth = Math.max(1, SP * 0.4); g.stroke();
+    if (front) {
+      g.save(); oval(0.36, 0.3); g.clip();
+      const gr = g.createRadialGradient(cx - W * 0.1, cy - H * 0.1, 0, cx, cy, W * 0.36);
+      gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.5, '#eef1f6'); gr.addColorStop(1, '#a9b3c1');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = Math.max(0.6, SP * 0.25);
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * TAU; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a) * W * 0.4, cy + Math.sin(a) * H * 0.34); g.stroke(); }
+      g.restore();
+      oval(0.36, 0.3); g.strokeStyle = 'rgba(90,96,108,0.7)'; g.lineWidth = Math.max(1, SP * 0.5); g.stroke();
+    } else { oval(0.3, 0.2); g.fillStyle = 'rgba(70,76,88,0.35)'; g.fill(); }
+    g.save(); oval(0.48, 0.46); g.clip();
+    const sh = g.createLinearGradient(0, 0, 0, H); sh.addColorStop(0, 'rgba(255,255,255,0.5)'); sh.addColorStop(0.4, 'rgba(255,255,255,0)');
+    g.fillStyle = sh; g.fillRect(0, 0, W, H * 0.5); g.restore();
+    darken(g, W, H, level);
+    return { cv: c, w, h };
+  }
+  function ballSprite(level) {
+    const s = BALL * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
+    const gr = g.createRadialGradient(m * 0.7, m * 0.6, 0, m, m, m);
+    gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.4, '#dfe4ec'); gr.addColorStop(0.8, '#8d95a2'); gr.addColorStop(1, '#5d6470');
+    g.beginPath(); g.arc(m, m, m - 0.5, 0, TAU); g.fillStyle = gr; g.fill();
     darken(g, S, S, level);
     return { cv: c, w: s, h: s };
   }
-  function facets(g, r, n = 9) {
-    const P = (a, k) => [r + Math.cos(a) * r * k, r + Math.sin(a) * r * k];
-    g.lineWidth = Math.max(1, r * 0.035);
-    for (let i = 0; i < n; i++) {
-      const a0 = (i / n) * TAU - 0.3, a1 = ((i + 1) / n) * TAU - 0.3;
-      g.beginPath(); g.moveTo(...P(a0, 0.48)); g.lineTo(...P(a0, 1.05)); g.lineTo(...P(a1, 1.05)); g.lineTo(...P(a1, 0.48)); g.closePath();
-      g.fillStyle = i % 2 ? 'rgba(255,255,255,0.17)' : 'rgba(0,0,0,0.16)'; g.fill();
-      g.strokeStyle = 'rgba(255,255,255,0.24)'; g.stroke();
-    }
-    g.beginPath();
-    for (let i = 0; i < n; i++) { const p = P((i / n) * TAU - 0.3, 0.48); i ? g.lineTo(...p) : g.moveTo(...p); }
-    g.closePath(); g.fillStyle = 'rgba(255,255,255,0.1)'; g.fill(); g.stroke();
-  }
-  /** Hat cau: pha le mai giac / ngoc trai / vang khac van / men do vien vang */
-  function beadSprite(spec, level) {
-    const d = BEAD_D * u, S = Math.ceil(d * SP), r = S / 2, c = mk(S, S), g = c.getContext('2d');
-    g.save(); g.beginPath(); g.arc(r, r, r - 0.5, 0, TAU); g.clip();
-    const s = spec.stops;
-    let gr = g.createRadialGradient(r * 0.7, r * 0.62, r * 0.05, r, r, r);
-    gr.addColorStop(0, s[0]); gr.addColorStop(0.38, s[1]); gr.addColorStop(0.78, s[2]); gr.addColorStop(1, s[3]);
-    g.fillStyle = gr; g.fillRect(0, 0, S, S);
-    if (spec.facet) facets(g, r);
-    if (spec.pearl) {
-      gr = g.createLinearGradient(0, 0, S, S);
-      gr.addColorStop(0, 'rgba(255,190,220,0.22)'); gr.addColorStop(0.5, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(170,215,255,0.22)');
-      g.fillStyle = gr; g.fillRect(0, 0, S, S);
-    }
-    if (spec.metal) {             // vang khac ranh ngang + cham hoa
-      g.strokeStyle = 'rgba(110,70,10,0.4)'; g.lineWidth = Math.max(1, r * 0.06);
-      for (const k of [-0.42, 0, 0.42]) { g.beginPath(); g.ellipse(r, r + k * r, r * Math.sqrt(1 - k * k), r * 0.22 * Math.sqrt(1 - k * k), 0, 0, Math.PI); g.stroke(); }
-      g.fillStyle = 'rgba(255,248,220,0.6)';
-      for (const [a, k] of [[-2.4, 0.62], [-0.8, 0.62], [0.8, 0.7], [2.3, 0.7]]) { g.beginPath(); g.arc(r + Math.cos(a) * r * k, r + Math.sin(a) * r * k * 0.5 + r * 0.2, r * 0.07, 0, TAU); g.fill(); }
-    }
-    if (spec.enamel) {            // men do + hai dai vang + hoa van
-      g.lineWidth = r * 0.16; g.strokeStyle = '#f1c65a';
-      for (const k of [-0.5, 0.5]) { g.beginPath(); g.ellipse(r + k * r * 0.9, r, r * 0.22, r * 0.98, 0, 0, TAU); g.stroke(); }
-      g.fillStyle = '#ffe08a'; g.beginPath(); g.arc(r, r, r * 0.17, 0, TAU); g.fill();
-    }
-    gr = g.createRadialGradient(r * 0.64, r * 0.54, 0, r * 0.64, r * 0.54, r * 0.52);        // dom sang
-    gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = gr; g.fillRect(0, 0, S, S);
-    gr = g.createRadialGradient(r * 1.3, r * 1.4, r * 0.2, r * 1.3, r * 1.4, r * 0.9);         // anh hong hat len mep duoi
-    gr.addColorStop(0, 'rgba(255,215,228,0.3)'); gr.addColorStop(1, 'rgba(255,215,228,0)');
-    g.fillStyle = gr; g.fillRect(0, 0, S, S);
-    darken(g, S, S, level);
-    g.restore();
-    return { cv: c, w: d, h: d };
-  }
-  /** Mat day treo; front = mat truoc (co da / chu khac), mat sau tron */
-  function dangleSprite(kind, level, front) {
-    const D = DANGLES[kind], w = D.w * u, h = D.h * u, pad = 2 * u;
-    const W = Math.ceil((w + pad * 2) * SP), H = Math.ceil((h + pad * 2) * SP), c = mk(W, H), g = c.getContext('2d');
-    g.scale(SP, SP); g.translate(pad, pad);
-    const cx = w / 2;
-    const shape = () => (kind === 'drop' ? dropPath(g, cx, 0, w, h) : kind === 'disc' ? (g.beginPath(), g.arc(cx, h / 2, w / 2, 0, TAU)) : heartPath(g, cx, 0, w, h));
-    let gr;
-    if (kind === 'drop') {
-      gr = g.createRadialGradient(cx - w * 0.15, h * 0.55, 0, cx, h * 0.62, w * 0.7);
-      gr.addColorStop(0, '#ffd3d9'); gr.addColorStop(0.35, '#ff5a6e'); gr.addColorStop(0.75, '#b8132e'); gr.addColorStop(1, '#4f0510');
-    } else if (kind === 'roseHeart') {
-      gr = g.createLinearGradient(0, 0, w, h);
-      gr.addColorStop(0, '#ffe7dc'); gr.addColorStop(0.3, '#f4b9a3'); gr.addColorStop(0.6, '#c27a64'); gr.addColorStop(0.8, '#f2c2ae'); gr.addColorStop(1, '#8a4a3b');
-    } else gr = silverLin(g, 0, 0, w, h);
-    shape(); g.fillStyle = gr; g.fill();
-    g.save(); shape(); g.clip();
-    if (kind === 'heartGem' && front) {                  // tim bac dinh da hong
-      heartPath(g, cx, h * 0.2, w * 0.58, h * 0.58);
-      const gg = g.createRadialGradient(cx - w * 0.08, h * 0.38, 0, cx, h * 0.5, w * 0.36);
-      gg.addColorStop(0, '#fff0f6'); gg.addColorStop(0.35, '#ff8fb8'); gg.addColorStop(0.8, '#d63b77'); gg.addColorStop(1, '#7a1240');
-      g.fillStyle = gg; g.fill();
-      g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 0.5 * u;
-      for (const [x1, y1] of [[cx - w * 0.2, h * 0.3], [cx + w * 0.2, h * 0.3], [cx, h * 0.72], [cx - w * 0.26, h * 0.45], [cx + w * 0.26, h * 0.45]]) { g.beginPath(); g.moveTo(cx, h * 0.46); g.lineTo(x1, y1); g.stroke(); }
-      heartPath(g, cx, h * 0.2, w * 0.58, h * 0.58); g.strokeStyle = 'rgba(120,124,132,0.9)'; g.lineWidth = 0.9 * u; g.stroke();
-    } else if (kind === 'heartGem' || kind === 'roseHeart') {   // van khac vien trong
-      heartPath(g, cx, h * 0.13, w * 0.74, h * 0.74);
-      g.strokeStyle = kind === 'roseHeart' ? 'rgba(120,58,44,0.45)' : 'rgba(90,96,106,0.45)'; g.lineWidth = 0.8 * u; g.stroke();
-      if (front && kind === 'roseHeart') { heartPath(g, cx + 0.5 * u, h * 0.13 + 0.6 * u, w * 0.74, h * 0.74); g.strokeStyle = 'rgba(255,240,232,0.55)'; g.lineWidth = 0.5 * u; g.stroke(); }
-    } else if (kind === 'drop') {                         // mat cat doc cua giot pha le + chup bac
-      g.strokeStyle = 'rgba(255,255,255,0.3)'; g.lineWidth = 0.5 * u;
-      for (const k of [-0.28, 0, 0.28]) { g.beginPath(); g.moveTo(cx, 0); g.quadraticCurveTo(cx + k * w * 1.4, h * 0.6, cx + k * w * 0.9, h); g.stroke(); }
-      const sg = silverLin(g, cx - w * 0.2, 0, cx + w * 0.2, h * 0.16);
-      g.fillStyle = sg; rr(g, cx - w * 0.2, -1 * u, w * 0.4, h * 0.17, 1.5 * u); g.fill();
-    } else if (kind === 'disc') {                         // the tron khac so 1
-      g.beginPath(); g.arc(cx, h / 2, w * 0.4, 0, TAU); g.strokeStyle = 'rgba(90,96,106,0.4)'; g.lineWidth = 0.7 * u; g.stroke();
-      if (front) {
-        g.font = `700 ${(19 * u).toFixed(2)}px 'Playfair Display', Georgia, serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillStyle = 'rgba(255,255,255,0.75)'; g.fillText('1', cx + 0.5 * u, h * 0.47 + 0.6 * u);
-        g.fillStyle = 'rgba(70,74,84,0.85)'; g.fillText('1', cx, h * 0.47);
-        heartPath(g, cx + w * 0.2, h * 0.62, w * 0.16, h * 0.14); g.fillStyle = '#e8507a'; g.fill();
-      }
-    }
-    // vet sang cheo tren kim loai
-    const sh = g.createLinearGradient(0, 0, w, h);
-    sh.addColorStop(0.2, 'rgba(255,255,255,0)'); sh.addColorStop(0.34, 'rgba(255,255,255,0.45)'); sh.addColorStop(0.46, 'rgba(255,255,255,0)');
-    g.fillStyle = sh; g.fillRect(0, 0, w, h);
-    g.restore();
-    shape(); g.lineWidth = 0.8 * u; g.strokeStyle = kind === 'drop' ? 'rgba(90,8,22,0.7)' : 'rgba(60,64,72,0.55)'; g.stroke();
-    darken(g, W, H, level * (front ? 1 : 0.86));
-    return { cv: c, w: w + pad * 2, h: h + pad * 2, pad };
-  }
   function glintSprite() {
-    const s = 46 * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
-    let gr = g.createRadialGradient(m, m, 0, m, m, m * 0.42);
-    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,250,235,0.55)'); gr.addColorStop(1, 'rgba(255,240,220,0)');
+    const s = 40 * u, S = Math.ceil(s * SP), c = mk(S, S), g = c.getContext('2d'), m = S / 2;
+    const gr = g.createRadialGradient(m, m, 0, m, m, m * 0.42);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(245,248,255,0.55)'); gr.addColorStop(1, 'rgba(235,240,255,0)');
     g.fillStyle = gr; g.fillRect(0, 0, S, S);
     const ray = (len, wid, rot) => {
       g.save(); g.translate(m, m); g.rotate(rot);
@@ -957,48 +893,57 @@
   function makeSprites() {
     SP = DPR * 1.45;
     SPR = {
-      link: LV.map(linkSprite), ring: LV.map(ringSprite), bead: {}, dangle: {},
+      link: LV.map(linkSprite), ball: LV.map(ballSprite),
+      stoneF: LV.map((l) => stoneSprite(l, true)), stoneB: LV.map((l) => stoneSprite(l, false)),
+      slF: LV.map((l) => sliderSprite(l, true)),
       glint: glintSprite(),
-      glow: softSprite([[0, 'rgba(255,214,160,0.75)'], [0.35, 'rgba(255,120,160,0.3)'], [1, 'rgba(255,120,160,0)']], 110 * u),
-      shadow: softSprite([[0, 'rgba(255,150,175,0.26)'], [0.5, 'rgba(255,107,138,0.08)'], [1, 'rgba(255,107,138,0)']], 100 * u),
+      glow: softSprite([[0, 'rgba(255,200,220,0.8)'], [0.35, 'rgba(255,120,160,0.32)'], [1, 'rgba(255,120,160,0)']], 46 * u),
+      shadow: softSprite([[0, 'rgba(255,170,190,0.24)'], [0.5, 'rgba(255,107,138,0.08)'], [1, 'rgba(255,107,138,0)']], 100 * u),
     };
-    for (const k in BEADS) SPR.bead[k] = LV.map((l) => beadSprite(BEADS[k], l));
-    for (const k in DANGLES) SPR.dangle[k] = { f: LV.map((l) => dangleSprite(k, l, true)), b: LV.map((l) => dangleSprite(k, l, false)) };
   }
 
-  // Phan tu ve: N doan day + cac hat. Doan day nam trong hat (xau qua lo) thi an.
-  const chain = Array.from({ length: N }, (_, i) => ({ t: 0, i, th: (i / N) * TAU, x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, ang: 0, lv: 5, hide: false }));
-  const charms = CHARMS.map((c, k) => ({
-    t: 1, k, c, th: (k / CHARMS.length) * TAU, dangle: !!DANGLES[c.kind],
-    x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, lv: 5, phi: 0, om: 0, px: null, pvx: 0, hx: 0, hy: 0, hr: 0,
-    twAt: 0, twNext: performance.now() + 1500 + Math.random() * 5000,
+  // Phan tu ve: day hop + hang da + nut truot + 2 duoi day. Moi ky niem gan mot doan da (trai -> phai theo thoi gian).
+  const M = MEMORIES.length;
+  const links = Array.from({ length: NL }, (_, i) => ({ t: 0, th: TH_C + STONE_ARC / 2 + ((i + 0.5) / NL) * CHAIN_ARC, x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, tx: 1, ty: 0, lv: 5, hide: false }));
+  links.forEach((l) => { l.hide = Math.abs(wrapPi(l.th - TH_S)) < (SL_W * 0.42) / 150; });   // doan day nam trong nut truot
+  const stones = Array.from({ length: NS }, (_, j) => ({
+    t: 1, j, th: TH_C - STONE_ARC / 2 + ((j + 0.5) / NS) * STONE_ARC, mem: Math.min(M - 1, Math.floor(((NS - 1 - j) * M) / NS)),
+    x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, tx: 1, ty: 0, lv: 5, twAt: 0, twNext: performance.now() + Math.random() * 6000,
   }));
-  chain.forEach((s) => { s.hide = charms.some((c) => !c.dangle && Math.abs(wrapPi(s.th - c.th)) < 0.1); });
-  const items = [...chain, ...charms];
+  const memTh = MEMORIES.map((_, k) => { const s = stones.filter((st) => st.mem === k); return s.reduce((a, st) => a + st.th, 0) / s.length; });
+  const slider = { t: 2, th: TH_S, x: 0, y: 0, p: 1, d: 0, sa: 0, a: 0, tx: 1, ty: 0, lv: 5 };
+  const tails = [
+    { t: 3, off: -0.3, n: 9, rest: 0.1, phi: 0.1, om: 0, px: null, pvx: 0, x: 0, y: 0, p: 1, d: 0, lv: 5 },
+    { t: 3, off: 0.3, n: 7, rest: -0.12, phi: -0.12, om: 0, px: null, pvx: 0, x: 0, y: 0, p: 1, d: 0, lv: 5 },
+  ];
+  const items = [...links, ...stones, slider, ...tails];
 
-  function proj(o, a) {
+  function geom(o, a) {
     const ca = Math.cos(a), sa = Math.sin(a);
     const d = R * sa * COS_T, p = FOC / (FOC - d);
     const x = R * ca * p, y = R * sa * SIN_T * p;
     o.x = CX + x * COS_R - y * SIN_R; o.y = CY + x * SIN_R + y * COS_R; o.p = p; o.d = d; o.sa = sa; o.a = a;
+    const tx = -sa, ty = ca * SIN_T;                        // tiep tuyen tren man hinh (chua nhan phoi canh)
+    o.tx = tx * COS_R - ty * SIN_R; o.ty = tx * SIN_R + ty * COS_R;
   }
   const shade = (sa, sp) => Math.min(1, 0.42 + 0.58 * Math.pow((sa + 1) / 2, 0.85) + 0.22 * sp);
+  const shadeMetal = (sa, sp) => Math.min(1, 0.66 + 0.34 * ((sa + 1) / 2) + 0.2 * sp);   // day / nut / duoi: sang ca mat sau
   const spec = (a) => { const x = wrapPi(a - A_SPEC); return Math.exp(-(x * x) / 0.05); };
 
   function layout() {
     const r = scene.getBoundingClientRect();
     BW = r.width; BH = r.height; DPR = Math.min(2, window.devicePixelRatio || 1);
     bv.width = Math.round(BW * DPR); bv.height = Math.round(BH * DPR);
-    R = Math.max(70, Math.min(BW / 2.4, BH / 1.72, 190));
-    u = R / 150; CX = BW / 2; CY = CY0 = BH / 2 - 0.21 * R; FOC = 4.2 * R;
+    R = Math.max(70, Math.min(BW / 2.22, BH / 1.72, 195));
+    u = R / 150; CX = BW / 2; CY = CY0 = BH / 2 - 0.12 * R; FOC = 4.2 * R;
     scene.style.setProperty('--bw', Math.round(Math.max(130, Math.min(190, R * 1.15))) + 'px');
-    scene.style.setProperty('--by', Math.round(CY + 0.12 * R) + 'px');
+    scene.style.setProperty('--by', Math.round(CY0 + 0.12 * R) + 'px');
     makeSprites();
   }
 
   let rot = 0, rotV = 0, target = null, spinIn = null, dragging = false, raf = 0, last = 0, paused = false;
   let selK = -1;
-  const rot0 = Math.PI / 2 - charms[charms.length - 1].th;   // the "1" (tron 1 nam) quay ra truoc
+  const rot0 = 0;                                     // hang da o giua phia truoc, nut truot o dinh (nhu anh san pham)
 
   function startBracelet() {
     if (raf) return;
@@ -1010,12 +955,53 @@
   const easeOut = (q) => 1 - Math.pow(1 - q, 3);
 
   const glints = [];
+  function drawStone(s, now) {
+    const front = s.sa >= 0, base = STONE * u * s.p;
+    const tl = Math.hypot(s.tx, s.ty), an = upright(Math.atan2(s.ty, s.tx)), co = Math.cos(an), sn = Math.sin(an);
+    const w = base * Math.max(0.5, tl) * 1.06, h = base * (0.4 + 0.56 * Math.abs(s.sa));   // cac vien khit nhau ca o doan nghieng
+    if (s.mem === selK) {
+      const gl = SPR.glow, gs = gl.w * s.p * (0.95 + 0.08 * Math.sin(now / 260));
+      g2.setTransform(DPR, 0, 0, DPR, 0, 0); g2.globalAlpha = 0.85;
+      g2.drawImage(gl.cv, s.x - gs / 2, s.y - gs / 2, gs, gs); g2.globalAlpha = 1;
+    }
+    g2.setTransform(DPR * co, DPR * sn, -DPR * sn, DPR * co, DPR * s.x, DPR * s.y);
+    const spr = (front ? SPR.stoneF : SPR.stoneB)[s.lv];
+    g2.drawImage(spr.cv, -w / 2, -h / 2, w, h);
+    if (s.sa > 0.05) {
+      if (now > s.twNext) { s.twAt = now; s.twNext = now + 2500 + Math.random() * 7000; }
+      const tw = clamp01(1 - Math.abs((now - s.twAt) / 260 - 1));
+      const k = Math.max(spec(s.a) * (0.7 + 0.3 * Math.sin(now / 140 + s.j * 1.7)), tw * 0.9, s.mem === selK ? 0.35 + 0.25 * Math.sin(now / 300 + s.j) : 0);
+      if (k > 0.22) glints.push([s.x - base * 0.12, s.y - base * 0.12, k * s.p]);
+    }
+  }
+  function drawSlider(s) {
+    const tl = Math.hypot(s.tx, s.ty), an = upright(Math.atan2(s.ty, s.tx)), co = Math.cos(an), sn = Math.sin(an);
+    const w = SL_W * u * s.p * Math.max(0.35, tl), h = SL_H * u * s.p * (0.4 + 0.6 * Math.abs(s.sa));
+    g2.setTransform(DPR * co, DPR * sn, -DPR * sn, DPR * co, DPR * s.x, DPR * s.y);
+    const spr = SPR.slF[s.lv];                              // nut truot co da o ca hai mat: luon thay
+    g2.drawImage(spr.cv, -w / 2, -h / 2, w, h);
+    const k = Math.max(s.sa > 0.1 ? spec(s.a) : 0, 0.3 + 0.3 * Math.sin(performance.now() / 700));
+    if (k > 0.45) glints.push([s.x, s.y - h * 0.1, k * s.p * 0.8]);
+  }
+  function drawTail(t) {
+    const step = TAIL_STEP * u * t.p, ls = SPR.link[t.lv], w = ls.w * t.p, h = ls.h * t.p;
+    const dx = -Math.sin(t.phi), dy = Math.cos(t.phi);
+    const an = upright(Math.atan2(dy, dx)), co = Math.cos(an), sn = Math.sin(an);
+    for (let i = 1; i <= t.n; i++) {
+      g2.setTransform(DPR * co, DPR * sn, -DPR * sn, DPR * co, DPR * (t.x + dx * step * i), DPR * (t.y + dy * step * i));
+      g2.drawImage(ls.cv, -w / 2, -h / 2, w, h);
+    }
+    const b = SPR.ball[t.lv], bs = b.w * t.p;
+    g2.setTransform(DPR, 0, 0, DPR, 0, 0);
+    g2.drawImage(b.cv, t.x + dx * step * (t.n + 1.1) - bs / 2, t.y + dy * step * (t.n + 1.1) - bs / 2, bs, bs);
+  }
+
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (paused) { last = now; return; }
     const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000)); last = now;
 
-    // ── quay
+    // ── quay: xoay vao -> keo tay -> quay toi ky niem dang xem -> quan tinh sau khi vuot -> dua nhe quanh goc dep
     if (spinIn) {
       const q = clamp01((now - spinIn.t0) / spinIn.dur);
       rot = spinIn.from + (rot0 - spinIn.from) * easeOut(q);
@@ -1023,90 +1009,53 @@
     } else if (dragging) {
       // rot doi trong pointermove
     } else if (target != null) {
-      const diff = wrapPi(target - rot);
-      rot += diff * Math.min(1, dt * 5);
-      rotV = 0;
+      rot += wrapPi(target - rot) * Math.min(1, dt * 5); rotV = 0;
+    } else if (Math.abs(rotV) > 0.12) {
+      rot += rotV * dt; rotV *= Math.exp(-dt * 1.6);
     } else {
-      rotV += (AUTO_V - rotV) * Math.min(1, dt * 0.9);
-      rot += rotV * dt;
+      rotV = 0;
+      const home = rot0 + TAU * Math.round((rot - rot0) / TAU);
+      rot += (home + SWAY * Math.sin(now / 1800) - rot) * Math.min(1, dt * 0.9);
     }
+    CY = CY0 + Math.sin(now / 900) * 3 * u;              // lo lung nhe len xuong
 
-    // vong lo lung: nhun nhe len xuong
-    CY = CY0 + Math.sin(now / 900) * 3.5 * u;
-    // ── chieu day xich
-    for (const s of chain) proj(s, s.th + rot);
-    for (let i = 0; i < N; i++) {
-      const s = chain[i], pv = chain[(i + N - 1) % N], nx = chain[(i + 1) % N];
-      let ang = Math.atan2(nx.y - pv.y, nx.x - pv.x);
-      if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;   // dai sang cua ong luon o phia tren
-      s.ang = ang; s.lv = lvIdx(shade(s.sa, s.sa > 0 ? spec(s.a) : 0));
-    }
-    // ── chieu hat + con lac mat day
-    for (const c of charms) {
-      proj(c, c.th + rot);
-      c.lv = lvIdx(shade(c.sa, c.sa > 0 ? spec(c.a) : 0));
-      if (c.dangle) {
-        const vx = c.px == null ? 0 : (c.x - c.px) / dt;
-        const ax = c.px == null ? 0 : (vx - c.pvx) / dt;
-        c.px = c.x; c.pvx = vx;
-        const L = 18 * u;
-        c.om += (-38 * Math.sin(c.phi) + (Math.max(-4000, Math.min(4000, ax)) / L) * Math.cos(c.phi) * 0.06 - 1.8 * c.om) * dt;
-        c.om = Math.max(-12, Math.min(12, c.om));
-        c.phi = Math.max(-1.2, Math.min(1.2, c.phi + c.om * dt));
-        const D = DANGLES[c.c.kind], l = (RING_L + D.h / 2) * u * c.p;
-        c.hx = c.x - Math.sin(c.phi) * l; c.hy = c.y + Math.cos(c.phi) * l; c.hr = Math.max(D.w, D.h) * 0.5 * u * c.p + 10;
-        c.d += 1;
-      } else { c.hx = c.x; c.hy = c.y; c.hr = BEAD_D * 0.5 * u * c.p + 10; c.d += 0.24 * R; }   // hat luon phu len doan day sat no: day nhu xau qua lo hat
+    for (const l of links) { geom(l, l.th + rot); l.lv = lvIdx(shadeMetal(l.sa, l.sa > 0 ? spec(l.a) * 0.6 : 0)); }
+    for (const s of stones) { geom(s, s.th + rot); s.lv = s.mem === selK ? 5 : lvIdx(shade(s.sa, s.sa > 0 ? spec(s.a) : 0)); }
+    geom(slider, slider.th + rot); slider.lv = lvIdx(shadeMetal(slider.sa, 0.3)); slider.d += 0.07 * R;   // nut phu len doan day sat no
+    for (const t of tails) {                              // duoi day lac nhu con lac khi vong quay
+      t.p = slider.p; t.lv = slider.lv;
+      const off = t.off * SL_W * u * slider.p;
+      t.x = slider.x + slider.tx * off; t.y = slider.y + slider.ty * off;
+      const vx = t.px == null ? 0 : (t.x - t.px) / dt, ax = t.px == null ? 0 : (vx - t.pvx) / dt;
+      t.px = t.x; t.pvx = vx;
+      const L = TAIL_STEP * u * t.n * 0.6;
+      t.om += (-24 * Math.sin(t.phi - t.rest) + (Math.max(-4000, Math.min(4000, ax)) / L) * Math.cos(t.phi) * 0.05 - 1.5 * t.om) * dt;
+      t.om = Math.max(-10, Math.min(10, t.om));
+      t.phi = Math.max(-1.2, Math.min(1.2, t.phi + t.om * dt));
+      t.d = slider.d + 0.3;
     }
     items.sort((A, B) => A.d - B.d);
 
-    // ── ve
     g2.setTransform(1, 0, 0, 1, 0, 0);
     g2.clearRect(0, 0, bv.width, bv.height);
     g2.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const sh = SPR.shadow;
-    g2.drawImage(sh.cv, CX - R * 1.05, CY0 + R * 0.86, R * 2.1, R * 0.32);
+    g2.drawImage(SPR.shadow.cv, CX - R * 1.05, CY0 + R * 0.86, R * 2.1, R * 0.32);
     glints.length = 0;
     for (const it of items) {
       if (it.t === 0) {
         if (it.hide) continue;
-        const s = SPR.link[it.lv], w = s.w * it.p, h = s.h * it.p, co = Math.cos(it.ang), sn = Math.sin(it.ang);
+        const s = SPR.link[it.lv], w = s.w * it.p, h = s.h * it.p, an = upright(Math.atan2(it.ty, it.tx)), co = Math.cos(an), sn = Math.sin(an);
         g2.setTransform(DPR * co, DPR * sn, -DPR * sn, DPR * co, DPR * it.x, DPR * it.y);
         g2.drawImage(s.cv, -w / 2, -h / 2, w, h);
-        if (it.i % 11 === 0 && it.sa > 0.15) { const sp = spec(it.a); if (sp > 0.25) glints.push([it.x, it.y - 1.5 * u * it.p, sp * 0.55 * it.p]); }
-        continue;
-      }
-      const c = it;
-      g2.setTransform(DPR, 0, 0, DPR, 0, 0);
-      if (c.k === selK) {
-        const gl = SPR.glow, s = gl.w * c.p * (0.95 + 0.1 * Math.sin(now / 260));
-        g2.globalAlpha = 0.85; g2.drawImage(gl.cv, c.hx - s / 2, c.hy - s / 2, s, s); g2.globalAlpha = 1;
-      }
-      // lap lanh ngau nhien
-      if (now > c.twNext) { c.twAt = now; c.twNext = now + 2600 + Math.random() * 6000; }
-      const tw = clamp01(1 - Math.abs((now - c.twAt) / 320 - 1));
-      const gs = c.sa > -0.1 ? Math.max(spec(c.a), tw * 0.8) : 0;
-      if (c.dangle) {
-        const D = SPR.dangle[c.c.kind], spr = (c.sa >= 0 ? D.f : D.b)[c.lv], rg = SPR.ring[c.lv];
-        const co = Math.cos(c.phi), sn = Math.sin(c.phi), p = c.p;
-        g2.setTransform(DPR * co * p, DPR * sn * p, -DPR * sn * p, DPR * co * p, DPR * c.x, DPR * c.y);
-        g2.drawImage(rg.cv, -rg.w / 2, -rg.w * 0.25, rg.w, rg.h);
-        const fx = Math.max(0.16, Math.abs(c.sa)) * p;
-        g2.setTransform(DPR * co * fx, DPR * sn * fx, -DPR * sn * p, DPR * co * p, DPR * c.x, DPR * c.y);
-        g2.drawImage(spr.cv, -spr.w / 2, RING_L * u - spr.pad, spr.w, spr.h);
-        if (gs > 0.2) glints.push([c.hx - 3 * u * p, c.hy - 4 * u * p, gs * p]);
-      } else {
-        const s = SPR.bead[c.c.kind][c.lv], w = s.w * c.p;
-        g2.drawImage(s.cv, c.x - w / 2, c.y - w / 2, w, w);
-        if (gs > 0.2) glints.push([c.x - w * 0.18, c.y - w * 0.2, gs * c.p]);
-      }
+      } else if (it.t === 1) drawStone(it, now);
+      else if (it.t === 2) drawSlider(it);
+      else drawTail(it);
     }
-    // tia lap lanh (cong sang)
-    g2.setTransform(DPR, 0, 0, DPR, 0, 0);
+    g2.setTransform(DPR, 0, 0, DPR, 0, 0);               // tia lap lanh (cong sang)
     g2.globalCompositeOperation = 'lighter';
     const gl = SPR.glint;
     for (const [x, y, k] of glints) {
-      const s = gl.w * (0.35 + 0.75 * k);
+      const s = gl.w * (0.3 + 0.6 * k);
       g2.globalAlpha = Math.min(1, k * 1.1);
       g2.drawImage(gl.cv, x - s / 2, y - s / 2, s, s);
     }
@@ -1146,28 +1095,33 @@
   function tapAt(clientX, clientY) {
     const r = bv.getBoundingClientRect(), x = clientX - r.left, y = clientY - r.top;
     let best = null, bestS = Infinity;
-    for (const c of charms) {
-      if (c.sa < -0.45) continue;                          // hat o mat sau vong: bi che
-      const d = Math.hypot(x - c.hx, y - c.hy);
-      if (d > c.hr) continue;
-      const s = d - c.d * 0.05;                            // hai hat chong nhau: uu tien hat gan hon
-      if (s < bestS) { bestS = s; best = c; }
+    for (const s of stones) {
+      if (s.sa < -0.35) continue;                          // da o mat sau vong: bi che
+      const d = Math.hypot(x - s.x, y - s.y);
+      if (d > STONE * u * s.p * 0.75 + 8) continue;
+      const sc = d - s.d * 0.05;                           // hai vien chong nhau: uu tien vien gan hon
+      if (sc < bestS) { bestS = sc; best = s; }
     }
-    if (best) openCard(best.k);
-    else if (selK >= 0) closeCard();
+    if (best) { openCard(best.mem); return; }
+    if (slider.sa > -0.35 && Math.hypot(x - slider.x, y - slider.y) < SL_W * u * slider.p * 0.7 + 8) {
+      chime([SCALE[4], SCALE[6]], { gap: 0.08, vol: 0.045, dur: 1.2 });
+      toast('Kéo nút này là nới hay siết vòng cho vừa tay em 💫', 3000);
+      return;
+    }
+    if (selK >= 0) closeCard();
   }
 
   // ── THE KY NIEM ────────────────────────────────────────────────────────────
   const card = $('card'), seen = new Set();
   let allSeenToast = false;
   function openCard(k) {
-    const c = CHARMS[k], ch = charms[k];
+    const c = MEMORIES[k];
     selK = k;
-    target = rot + wrapPi(Math.PI / 2 - ch.th - rot);          // quay hat do ra chinh giua phia truoc
+    target = rot + wrapPi(TH_C - memTh[k] - rot);          // doan da cua ky niem nay quay ra giua phia truoc
     chime([SCALE[k % SCALE.length], SCALE[(k + 2) % SCALE.length] * 2], { gap: 0.07, vol: 0.05, dur: 1.4 });
     vibrate(10);
     $('cDt').textContent = c.date; $('cTt').textContent = c.title; $('cTx').textContent = c.text;
-    $('cN').textContent = `${k + 1}/${CHARMS.length}`;
+    $('cN').textContent = `${k + 1}/${M} · tiếp ›`;
     const ph = $('cPh');
     ph.innerHTML = '';
     if (c.photo) {
@@ -1177,22 +1131,22 @@
       ph.appendChild(img);
     } else ph.textContent = c.ic;
     card.classList.add('show'); stage.classList.add('card-on');
-    const tip = $('tip'); if (tip.classList.contains('first')) { tip.classList.remove('first'); tip.textContent = 'Mỗi hạt là một kỷ niệm · chạm để xem · kéo để xoay'; }
+    const tip = $('tip'); if (tip.classList.contains('first')) { tip.classList.remove('first'); tip.textContent = 'Mỗi viên đá giữ một kỷ niệm · chạm để xem · kéo để xoay'; }
     seen.add(k);
     $('seenN').textContent = seen.size;
-    if (seen.size === CHARMS.length && !allSeenToast) {
+    if (seen.size === M && !allSeenToast) {
       allSeenToast = true;
-      setTimeout(() => toast(`Đủ ${CHARMS.length} kỷ niệm rồi — anh còn một lời nhắn nữa 💌`, 3400), 900);
+      setTimeout(() => toast(`Đủ ${M} kỷ niệm rồi — anh còn một lời nhắn nữa 💌`, 3400), 900);
       $('letterBtn').classList.add('pulse');
     }
-    // tai truoc anh hat ke tiep cho lan cham sau hien ngay
-    const nx = CHARMS[(k + 1) % CHARMS.length]; if (nx.photo) { const pre = new Image(); pre.src = `images/love/thumbs/${nx.photo}.webp`; }
+    const nx = MEMORIES[(k + 1) % M]; if (nx.photo) { const pre = new Image(); pre.src = `images/love/thumbs/${nx.photo}.webp`; }   // tai truoc anh ky niem ke tiep
   }
   function closeCard() {
     selK = -1; target = null; rotV = 0;
     card.classList.remove('show'); stage.classList.remove('card-on');
   }
   $('cX').addEventListener('click', closeCard);
+  $('cN').addEventListener('click', () => openCard((selK + 1) % M));
 
   // ── LA THU ─────────────────────────────────────────────────────────────────
   const letter = $('letter'), paper = $('paper');
@@ -1263,13 +1217,13 @@
 
   // ── KHOI DONG ──────────────────────────────────────────────────────────────
   layout();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { makeSprites(); });   // so "1" tren the can font Playfair
   let rsT = 0;
   addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(layout, 150); });
 
   // Kiem thu tu dong (khong anh huong nguoi xem): toa do cac hat tren man hinh
   window.vtDebug = {
-    charms: () => { const r = bv.getBoundingClientRect(); return charms.map((c) => ({ k: c.k, x: r.left + c.hx, y: r.top + c.hy, front: c.sa })); },
+    stones: () => { const r = bv.getBoundingClientRect(); return stones.map((st) => ({ j: st.j, k: st.mem, x: r.left + st.x, y: r.top + st.y, front: st.sa })); },
+    slider: () => { const r = bv.getBoundingClientRect(); return { x: r.left + slider.x, y: r.top + slider.y, front: slider.sa }; },
     state: () => ({ revealed: stage.classList.contains('revealed'), settled: stage.classList.contains('settled'), sel: selK, seen: seen.size, rot, paused, locked: !!locked() }),
   };
 })();
