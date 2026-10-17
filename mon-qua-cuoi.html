@@ -581,9 +581,8 @@
   })();
 
   // ── NHAC NEN + CHUONG ───────────────────────────────────────────────────────
-  const FIRST_SONG = 'music/love/yeu-em-hon-moi-ngay.mp3';
-  const PLAYLIST = LoveMusic.SONGS.includes(FIRST_SONG)
-    ? [FIRST_SONG, ...LoveMusic.shuffled().filter((s) => s !== FIRST_SONG)] : LoveMusic.shuffled();
+  // bai rieng cua trang (PAGE_SONG trong js/love-music.js), chua co thi "Yeu em hon moi ngay" truoc
+  const PLAYLIST = LoveMusic.forPage('mon-qua-cuoi', 'music/love/yeu-em-hon-moi-ngay.mp3');
   const musicEl = $('music');
   let track = 0, musicOn = false, userOff = false;
   try { userOff = sessionStorage.getItem('love-music-off') === '1'; } catch {}

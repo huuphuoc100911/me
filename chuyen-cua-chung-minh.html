@@ -257,6 +257,7 @@
   </div>
 </div>
 
+<script src="js/love-music.js"></script>
 <script src="js/chibi.js"></script>
 <script>
 (() => {
@@ -1082,7 +1083,8 @@
 
   // ── XEM TREN WEB ─────────────────────────────────────────────
   renderAt(scenes[0].dur * 0.6);             // khung xem truoc phia sau man bat dau
-  const audio = new Audio(SONG);
+  // xem tren web: bai rieng cua trang (js/love-music.js) neu da co file; ban MP4 van dung SONG o tren
+  const audio = new Audio((window.LoveMusic && LoveMusic.pageSong('chuyen-cua-chung-minh')) || SONG);
   audio.preload = 'auto';
   let musicOn = true;
   const musicEl = $('music');

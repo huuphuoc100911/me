@@ -261,7 +261,7 @@
   $('tcard').addEventListener('click', () => $('tcard').classList.toggle('flip'));
 
   // ── NHAC ─────────────────────────────────────────────────────
-  const PLAYLIST = LoveMusic.shuffled();
+  const PLAYLIST = LoveMusic.forPage('truyen-tranh');   // bai rieng cua trang truoc, roi cac bai khac ngau nhien (js/love-music.js)
   const musicEl = $('music');
   let track = 0, musicOn = false;
   const audio = new Audio(PLAYLIST[0]);
