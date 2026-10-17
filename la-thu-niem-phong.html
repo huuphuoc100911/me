@@ -434,6 +434,8 @@
     .stk.s1 { top: 12px; left: 14px; transform: rotate(-14deg); }
     .w.ink { color: #b3123a; font-weight: 700; }
     .pp-body p.last { margin-top: 0.9em; text-align: center; font-size: 1.12em; font-weight: 600; color: #a8142f; }
+    .pp-body p.closing { margin-top: 1.3em; font-size: 1.28em; line-height: 1.45; }
+    .pp-body p.closing::before { content: '❦'; display: block; margin-bottom: 0.25em; font-size: 0.8em; color: #c8922e; }
     .last-heart { display: inline-block; color: #e11d48; transform: scale(0); }
     .last-heart.in { animation: lastHeart 1.4s ease-out forwards; }
     @keyframes lastHeart { 0% { transform: scale(0); } 35% { transform: scale(1.5); } 50% { transform: scale(0.95); } 65% { transform: scale(1.2); } 100% { transform: scale(1); } }
@@ -630,6 +632,7 @@
         7: ['emhientoclan2-trung ngaykyniem', 'Mái tóc em gửi các chiến binh nhỏ 🎗️'],
       },
       ink: ['thihuywn', 'emiu'],
+      lastN: 2,                                   // 2 doan cuoi canh giua; doan cuoi cung (loi chuc song ngu) to nhat
       deck: true,
       countdownTo: '2026-10-18T00:00:00',
     },
@@ -756,8 +759,8 @@
     paras.forEach((para, pi) => {
       const p = document.createElement('p');
       if (pi > 0) t += PARA_MS;
-      const isLast = ex.whisper && pi === paras.length - 1;
-      if (isLast) p.className = 'last';
+      const fromEnd = paras.length - 1 - pi, isLast = ex.whisper && fromEnd < (ex.lastN || 1);
+      if (isLast) p.className = fromEnd === 0 && (ex.lastN || 1) > 1 ? 'last closing' : 'last';
       para.split('\n').forEach((line, li) => {
         if (li > 0) p.appendChild(document.createElement('br'));
         line.split(/\s+/).filter(Boolean).forEach((word, wi) => {
@@ -770,7 +773,7 @@
           t += WORD_MS + (/[.!?…]$/.test(word) ? STOP_MS : /[,;:—]$/.test(word) ? COMMA_MS : 0);
         });
       });
-      if (isLast) {                                     // trai tim dap o cuoi cau cuoi
+      if (isLast && fromEnd === 0) {                    // trai tim dap o cuoi cau cuoi
         const h = document.createElement('span'); h.className = 'last-heart'; h.textContent = ' ♥';
         p.appendChild(h); pics.push({ el: h, at: t + 300 });
       }
@@ -790,20 +793,26 @@
     });
   }
 
-  // Tu cuon theo dong dang viet — tru khi nguoi doc tu cuon len doc lai
-  let userScrolled = false, lastFollow = 0;
-  ['wheel', 'touchmove'].forEach((ev) => paperEl.addEventListener(ev, () => { userScrolled = true; }, { passive: true }));
-  paperEl.addEventListener('scroll', () => {
-    if (paperEl.scrollTop + paperEl.clientHeight >= paperEl.scrollHeight - 60) userScrolled = false;
-  }, { passive: true });
-
-  // Chi do vi tri moi 450ms: vua ghi class cho chu moi xong ma doc ngay vi tri thi
-  // trinh duyet phai tinh lai bo cuc moi khung hinh
+  // Tu luot theo chu dang viet: moi khung keo cuon muot cho dong dang viet nam o ~60% chieu cao to giay.
+  // Chu da nam san trong bo cuc (chi an bang opacity) nen vi tri tung chu chi do 1 lan roi nho lai.
+  // Em cham / keo giay thi tam dung, tha tay 2,5 giay sau lai luot theo (khong dung han nhu truoc).
+  let touching = false, lastTouch = -1e9, lastFrame = 0, posCache = new WeakMap();
+  const pauseFollow = () => { lastTouch = performance.now(); };
+  paperEl.addEventListener('touchstart', () => { touching = true; pauseFollow(); }, { passive: true });
+  paperEl.addEventListener('touchmove', pauseFollow, { passive: true });
+  ['touchend', 'touchcancel'].forEach((ev) => paperEl.addEventListener(ev, () => { touching = false; pauseFollow(); }, { passive: true }));
+  paperEl.addEventListener('wheel', pauseFollow, { passive: true });
+  addEventListener('resize', () => { posCache = new WeakMap(); });
+  const following = (now) => !touching && now - lastTouch > 2500;
   function follow(now, el) {
-    if (userScrolled || now - lastFollow < 450 || !el) return;
-    lastFollow = now;
-    const pr = paperEl.getBoundingClientRect(), wr = el.getBoundingClientRect();
-    if (wr.bottom > pr.bottom - 70) paperEl.scrollBy({ top: wr.bottom - pr.bottom + 140, behavior: 'smooth' });
+    const dt = Math.min(0.1, Math.max(0, (now - (lastFrame || now)) / 1000)); lastFrame = now;
+    if (!el || !following(now)) return;
+    let bottom = posCache.get(el);
+    if (bottom == null) { bottom = el.offsetTop + el.offsetHeight; posCache.set(el, bottom); }   // day cua chu / anh trong to giay
+    const target = Math.max(0, bottom - paperEl.clientHeight * 0.6);
+    const cur = paperEl.scrollTop;
+    if (target <= cur + 0.5) return;                                  // chi luot xuong, khong keo nguoc
+    paperEl.scrollTop = cur + (target - cur) * (1 - Math.pow(0.05, dt));
   }
 
   function writeTick(now) {
@@ -820,7 +829,7 @@
   function startWriting() {
     words.forEach((w) => w.classList.remove('in', 'now'));
     pics.forEach((p) => p.el.classList.remove('in'));
-    shown = 0; picShown = 0; userScrolled = false;
+    shown = 0; picShown = 0; lastTouch = -1e9; lastFrame = 0;
     endEl.classList.remove('show');
     hidePs();
     paperEl.scrollTop = 0;
@@ -844,7 +853,7 @@
     showPs();
     showExtrasEnd();
     endEl.classList.add('show');
-    if (!userScrolled) setTimeout(() => endEl.scrollIntoView({ behavior: 'smooth', block: 'end' }), 400);
+    if (following(performance.now())) setTimeout(() => endEl.scrollIntoView({ behavior: 'smooth', block: 'end' }), 400);
   }
 
   revealBtn.addEventListener('click', showAll);
@@ -1064,6 +1073,12 @@
   function openLetter() {
     if (opened) return;
     opened = true;
+    try {   // da mo thu: hop qua o trang love mo khoa (MUST_READ) + mon "La thu niem phong" tinh la da xem
+      const rd = JSON.parse(localStorage.getItem('love-letters-read') || '[]');
+      if (letter && Array.isArray(rd) && !rd.includes(letter.id)) { rd.push(letter.id); localStorage.setItem('love-letters-read', JSON.stringify(rd)); }
+      const go = JSON.parse(localStorage.getItem('love-gifts-open') || '[]');
+      if (Array.isArray(go) && !go.includes('la-thu')) { go.push('la-thu'); localStorage.setItem('love-gifts-open', JSON.stringify(go)); }
+    } catch {}
     if (!musicOn || audio.paused) setMusic(true);   // dang hat san (vao tu trang love) thi khong bat lai tu dau
     keepAwake();
     stageEl.classList.add('opened');

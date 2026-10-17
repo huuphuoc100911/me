@@ -381,6 +381,9 @@
       text-align: center;
     }
     .gift-lock[hidden] { display: none; }
+    .gift-need { margin-top: 0; }
+    .gift-need .gn-go { margin-top: 16px; padding: 12px 28px; }
+    .gifts.need-letter, .tg-grid[hidden], #tgLetter[hidden] { display: none !important; }
     .gl-ic { font-size: 1.8rem; line-height: 1; }
     .gl-title { margin-top: 8px; font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--gold2); }
     .gl-sub { margin-top: 2px; font-size: 0.78rem; color: var(--mut); }
@@ -2134,6 +2137,13 @@
     </div>
     <div class="gl-msg" id="giftMsg" aria-live="polite"></div>
   </form>
+    <!-- Chua mo la thu 1 nam: hop qua cho em doc thu truoc (MUST_READ o script cuoi trang) -->
+    <div class="gift-lock gift-need" id="giftNeed" hidden>
+      <div class="gl-ic">💌</div>
+      <div class="gl-title">Đọc thư anh gửi trước đã nha</div>
+      <div class="gl-sub">Mở lá thư xong quay lại đây, cả hộp quà sẽ mở ra cho em 🎁</div>
+      <a class="tc-btn gn-go" id="giftNeedGo" href="la-thu-niem-phong.html">Mở lá thư 💌</a>
+    </div>
     <div class="gifts" id="gifts" hidden></div>
   </section>
   <script>
@@ -2423,6 +2433,7 @@
     <div class="tc-in">
       <div class="tc-q" id="t5Q">Còn một điều nữa…</div>
       <div class="tc-sub" id="t5Sub"></div>
+      <a class="tc-btn" id="tgLetter" href="la-thu-niem-phong.html" hidden>Mở lá thư 💌</a>
       <div class="tg-grid" id="tgGrid"></div>
       <div class="tg-detail" id="tgDetail" hidden>
         <div class="tg-d-ic" id="tgDIc"></div>
@@ -4127,6 +4138,13 @@ const GIFTS = [
 const GIFT_KEY = 'love-gifts-open';           // may nho nhung mon da mo -> hop qua sang mon ke tiep
 // ★ Mon cuoi (final) chi mo khoa khi em da mo it nhat FINAL_NEED mon o tren. mon-qua-cuoi.html cung tu kiem tra.
 const FINAL_NEED = 3;
+// ★ Ca hop qua chi mo sau khi em da mo la thu nay (trang la-thu-niem-phong ghi nho vao 'love-letters-read').
+//   Bat dau ap dung tu ngay 'from'. Muon bo thi de id: ''.
+const MUST_READ = { id: 'thu-mue9pm8a', from: '2026-10-17' };
+const READ_KEY = 'love-letters-read';
+const lettersRead = () => { try { const l = JSON.parse(localStorage.getItem(READ_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } };
+const letterNeed = () => !!(MUST_READ.id && Letters.isOpen(MUST_READ.from) && !lettersRead().includes(MUST_READ.id));
+document.querySelectorAll('#giftNeedGo, #tgLetter').forEach(a => { a.href = 'la-thu-niem-phong.html?thu=' + encodeURIComponent(MUST_READ.id); });
 const finalLeft = (opened) => Math.max(0, FINAL_NEED - GIFTS.filter(g => !g.final && opened.includes(g.id)).length);
 function giftsOpened() { try { const l = JSON.parse(localStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
 function giftMark(id) { const l = giftsOpened(); if (l.includes(id)) return; l.push(id); try { localStorage.setItem(GIFT_KEY, JSON.stringify(l)); } catch {} }
@@ -4144,6 +4162,10 @@ function renderGifts() {
       <span class="gift-txt"><b>${g.title}</b><small>${lock ? `Mở ít nhất ${FINAL_NEED} món ở trên là món này mở khoá · còn ${left} món nữa` : g.sub}</small></span>
       <span class="gift-go">${done ? 'Đã xem ✓' : lock ? '🔒' : '›'}</span></a>`;
   }).join('');
+  const need = letterNeed();
+  $('giftNeed').hidden = !need;
+  $('gifts').classList.toggle('need-letter', need);
+  if (need) { $('giftboxSub').innerHTML = `<b>${GIFTS.length} món quà</b> đang chờ em · nhưng trước hết là một lá thư 💌`; return; }
   $('giftboxSub').innerHTML = !n
     ? `<b>${GIFTS.length} món quà</b> đang chờ em · xem theo thứ tự hay chọn món em thích đều được`
     : n < GIFTS.length ? `Em đã mở <b>${n}/${GIFTS.length}</b> món · còn ${GIFTS.length - n} món đang chờ`
@@ -4174,7 +4196,7 @@ $('gifts').addEventListener('click', (e) => {
       return;
     }
     disarm();
-    ['love-gifts-open', 'love-tour', 'anniv-seen'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    ['love-gifts-open', 'love-tour', 'anniv-seen', 'love-letters-read'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
     renderGifts();
     toast('Đã xoá hết, hộp quà mới tinh 🎁');
   });
@@ -4310,6 +4332,15 @@ function tourStep5() {
   const opened = giftsOpened();
   const nextIdx = GIFTS.findIndex(g => !opened.includes(g.id));
   const n = GIFTS.filter(g => opened.includes(g.id)).length, left = finalLeft(opened);
+  const need = letterNeed();                       // chua doc thu: chi hien nut mo thu, chua cho mo qua
+  $('tgLetter').hidden = !need; $('tgGrid').hidden = need;
+  if (need) {
+    $('tgDetail').hidden = true; tgSel = -1;
+    $('t5Q').textContent = 'Trước khi mở quà…';
+    $('t5Sub').textContent = 'Em đọc lá thư anh gửi đã nha. Đọc xong quay lại đây, hộp quà sẽ mở ra 💌';
+    tourNext.hidden = true;
+    return;
+  }
   $('tgGrid').innerHTML = GIFTS.map((g, i) => {
     // mon cuoi: khoa toi khi mo du FINAL_NEED mon, roi sang luon (khong can doi het cac mon truoc)
     const st = opened.includes(g.id) ? 'open' : g.final ? (left > 0 ? 'locked' : 'next') : i === nextIdx ? 'next' : 'locked';
@@ -4352,6 +4383,7 @@ $('tgGrid').addEventListener('click', (e) => {
   $('tgDetail').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 });
 $('tgDGo').addEventListener('click', () => { if (tgSel >= 0) giftMark(GIFTS[tgSel].id); tourSave({ on: true, step: 5 }); });
+$('tgLetter').addEventListener('click', () => tourSave({ on: true, step: 5 }));   // doc thu xong quay lai la hop qua mo tiep
 
 const TOUR_STEP_FN = [tourStep0, tourStep1, tourStep2, tourStep3, tourStep4, tourStep5];
 
