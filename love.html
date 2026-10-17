@@ -4139,12 +4139,13 @@ const GIFT_KEY = 'love-gifts-open';           // may nho nhung mon da mo -> hop 
 // ★ Mon cuoi (final) chi mo khoa khi em da mo it nhat FINAL_NEED mon o tren. mon-qua-cuoi.html cung tu kiem tra.
 const FINAL_NEED = 3;
 // ★ Ca hop qua chi mo sau khi em da mo la thu nay (trang la-thu-niem-phong ghi nho vao 'love-letters-read').
-//   Bat dau ap dung tu ngay 'from'. Muon bo thi de id: ''.
-const MUST_READ = { id: 'thu-mue9pm8a', from: '2026-10-17' };
+//   Bat dau ap dung tu ngay 'from'. id: '' = TAT (nguoi dung bo dieu kien nay 2026-10-17: hop qua hien du ngay).
+//   Bat lai: id: 'thu-mue9pm8a'.
+const MUST_READ = { id: '', from: '2026-10-17' };
 const READ_KEY = 'love-letters-read';
 const lettersRead = () => { try { const l = JSON.parse(localStorage.getItem(READ_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } };
 const letterNeed = () => !!(MUST_READ.id && Letters.isOpen(MUST_READ.from) && !lettersRead().includes(MUST_READ.id));
-document.querySelectorAll('#giftNeedGo, #tgLetter').forEach(a => { a.href = 'la-thu-niem-phong.html?thu=' + encodeURIComponent(MUST_READ.id); });
+document.querySelectorAll('#giftNeedGo, #tgLetter').forEach(a => { a.href = 'la-thu-niem-phong.html' + (MUST_READ.id ? '?thu=' + encodeURIComponent(MUST_READ.id) : ''); });
 const finalLeft = (opened) => Math.max(0, FINAL_NEED - GIFTS.filter(g => !g.final && opened.includes(g.id)).length);
 function giftsOpened() { try { const l = JSON.parse(localStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
 function giftMark(id) { const l = giftsOpened(); if (l.includes(id)) return; l.push(id); try { localStorage.setItem(GIFT_KEY, JSON.stringify(l)); } catch {} }
