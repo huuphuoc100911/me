@@ -581,8 +581,7 @@
   })();
 
   // ── NHAC NEN + CHUONG ───────────────────────────────────────────────────────
-  // bai rieng cua trang (PAGE_SONG trong js/love-music.js), chua co thi "Yeu em hon moi ngay" truoc
-  const PLAYLIST = LoveMusic.forPage('mon-qua-cuoi', 'music/love/yeu-em-hon-moi-ngay.mp3');
+  const PLAYLIST = LoveMusic.forPage('mon-qua-cuoi');   // ngau nhien trong ca danh sach (js/love-music.js)
   const musicEl = $('music');
   let track = 0, musicOn = false, userOff = false;
   try { userOff = sessionStorage.getItem('love-music-off') === '1'; } catch {}

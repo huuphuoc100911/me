@@ -1,8 +1,7 @@
 /**
  * Danh sach nhac nen dung chung cho love.html va cac trang qua.
- *  - love.html: vao trang phat mot bai NGAU NHIEN trong ca danh sach.
- *  - Trang qua: phat BAI RIENG cua trang truoc (PAGE_SONG), het bai thi sang cac bai khac ngau nhien.
- *    Chua co file bai rieng thi phat ngau nhien nhu cu.
+ *  - Moi trang (love.html, cac trang qua, phim hoat hinh tren web) phat NGAU NHIEN trong ca danh sach.
+ *  - Muon trang nao co bai rieng thi them vao PAGE_SONG ben duoi (bai do phat truoc, roi ngau nhien).
  * Them / xoa bai: tha file nhac (mp3, m4a...) vao music/love roi chay `npm run music`
  * (tools/music.js doi ten file thanh chu thuong khong dau, chuyen mp3 128 kbps, viet lai SONGS).
  */
@@ -19,20 +18,9 @@
     'music/love/you-are-my-crush.mp3',
   ];
 
-  // ★ Bai rieng cua tung trang: trang -> tu khoa co trong ten file (sau khi npm run music doi ten).
-  //   Vd file "Chuyện Đôi Ta - Da LAB.mp3" thanh "chuyen-doi-ta-da-lab.mp3" -> khop 'chuyen-doi-ta'.
-  const PAGE_SONG = {
-    'chuyen-cua-chung-minh': 'chuyen-doi-ta',              // Chuyen Doi Ta - Da LAB, Muoii
-    'truyen-tranh':          'co-em',                      // Co Em - Madihu, Low G
-    'mot-nam-nhin-lai':      'khong-yeu-em-thi-yeu-ai',    // Khong Yeu Em Thi Yeu Ai? - Vu., Low G
-    '365-vi-sao':            'tung-ngay-yeu-em',           // Tung Ngay Yeu Em - buitruonglinh
-    'trai-tim-khoanh-khac':  'mot-nguoi-co-don',           // Va The Gioi Da Mat Di Mot Nguoi Co Don - marzuz, Changg
-    'rap-phim':              'noi-nay-co-anh',             // Noi Nay Co Anh - Son Tung M-TP
-    'la-thu-niem-phong':     'de-danh-cho-em',             // de danh cho em - Dangrangto, DONAL
-    'phieu-yeu-thuong':      'da-lo-yeu-em-nhieu',         // Da Lo Yeu Em Nhieu - JustaTee
-    'qua-nho':               'binh-yen',                   // Binh Yen - Vu., Binz
-    'mon-qua-cuoi':          'mot-doi',                    // mot doi - 14 Casper, Bon Nghiem, buitruonglinh
-  };
+  // ★ Bai rieng cho tung trang (tuy chon): trang -> tu khoa trong ten file, vd 'mon-qua-cuoi': 'mot-doi'.
+  //   De TRONG = moi trang phat ngau nhien trong ca danh sach (nguoi dung chon vay 2026-10-17).
+  const PAGE_SONG = {};
 
   /** Ban sao cua SONGS da tron ngau nhien (Fisher-Yates) */
   function shuffled() {

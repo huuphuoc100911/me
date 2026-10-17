@@ -71,7 +71,7 @@ for (const t of TARGETS) {
 // Trang nao da co bai rieng
 delete require.cache[require.resolve('../js/love-music.js')];
 const LM = require('../js/love-music.js');
-console.log('  Bai rieng tung trang (PAGE_SONG trong js/love-music.js):');
+console.log(Object.keys(LM.PAGE_SONG).length ? '  Bai rieng tung trang (PAGE_SONG trong js/love-music.js):' : '  PAGE_SONG trong: moi trang phat ngau nhien trong ca danh sach');
 for (const [page, key] of Object.entries(LM.PAGE_SONG)) {
   const song = LM.pageSong(page);
   console.log(`     ${page.padEnd(22)} ${song ? song.replace('music/love/', '') : '(chua co file chua "' + key + '" -> phat ngau nhien)'}`);
