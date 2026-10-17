@@ -498,6 +498,8 @@
     // Chi mo duoc khi em da mo it nhat chung nay mon khac trong hop qua (love.html, localStorage 'love-gifts-open').
     // Trong love.html cung la FINAL_NEED. 0 = khong can. Anh xem thu: them ?xem-truoc.
     needOpened: 3,
+    // Va em phai DA DOC la thu nay (mo con dau o la-thu-niem-phong). '' = khong can.
+    needLetter: 'thu-mue9pm8a',
     // Anh that cua chiec vong (tuy chon), vd 'images/love/vong-tay.jpg' — hien tren la thu. '' = khong co.
     photo: '',
   };
@@ -672,7 +674,8 @@
   const openedOthers = () => { try { const l = JSON.parse(localStorage.getItem('love-gifts-open') || '[]'); return Array.isArray(l) ? l.filter((id) => id !== 'mon-qua-cuoi').length : 0; } catch { return 0; } };
   const needLeft = () => (preview ? 0 : Math.max(0, (GIFT.needOpened || 0) - openedOthers()));
   const dateLocked = () => !preview && openAt && Date.now() < openAt;
-  const locked = () => dateLocked() || needLeft() > 0;
+  const letterUnread = () => { if (preview || !GIFT.needLetter) return false; try { const l = JSON.parse(localStorage.getItem('love-letters-read') || '[]'); return !(Array.isArray(l) && l.includes(GIFT.needLetter)); } catch { return true; } };
+  const locked = () => dateLocked() || needLeft() > 0 || letterUnread();
   const pad2 = (n) => String(n).padStart(2, '0');
   const openLabel = openAt ? (() => { const d = new Date(openAt); return `${pad2(d.getDate())} · ${pad2(d.getMonth() + 1)}`; })() : '';
   if (locked()) boxEl.classList.add('locked');
@@ -689,6 +692,10 @@
   }
   function showLock() {
     clearInterval(cdTimer);
+    if (!dateLocked() && letterUnread()) {        // khoa vi chua doc thu
+      hintEl.innerHTML = `Đọc lá thư anh gửi trước đã nha 💌<span class="cd"><a href="la-thu-niem-phong.html?thu=${encodeURIComponent(GIFT.needLetter)}" style="color:inherit">Mở lá thư ›</a> · <a href="love.html#giftbox" style="color:inherit">‹ Về hộp quà</a></span>`;
+      return;
+    }
     if (!dateLocked()) {                          // khoa vi chua mo du so mon khac
       const left = needLeft(), have = (GIFT.needOpened || 0) - left;
       hintEl.innerHTML = `Mở ít nhất ${GIFT.needOpened} món quà khác trước đã nha 🤫<span class="cd">Em mới mở ${have}/${GIFT.needOpened} món · <a href="love.html#giftbox" style="color:inherit">‹ Về hộp quà</a></span>`;

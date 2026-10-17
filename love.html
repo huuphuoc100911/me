@@ -4147,6 +4147,17 @@ const lettersRead = () => { try { const l = JSON.parse(localStorage.getItem(READ
 const letterNeed = () => !!(MUST_READ.id && Letters.isOpen(MUST_READ.from) && !lettersRead().includes(MUST_READ.id));
 document.querySelectorAll('#giftNeedGo, #tgLetter').forEach(a => { a.href = 'la-thu-niem-phong.html' + (MUST_READ.id ? '?thu=' + encodeURIComponent(MUST_READ.id) : ''); });
 const finalLeft = (opened) => Math.max(0, FINAL_NEED - GIFTS.filter(g => !g.final && opened.includes(g.id)).length);
+// ★ Mon cuoi con can em DA DOC la thu nay (mo con dau o la-thu-niem-phong). '' = khong can.
+const FINAL_LETTER = 'thu-mue9pm8a';
+const finalNeedsLetter = () => !!FINAL_LETTER && !lettersRead().includes(FINAL_LETTER);
+/** Ly do mon cuoi con khoa (dung cho dong mo ta + loi nhac), '' = da mo duoc */
+function finalLockMsg(opened, short) {
+  const left = finalLeft(opened), letter = finalNeedsLetter();
+  if (letter && left > 0) return short ? `🔒 Đọc thư + mở thêm ${left} món` : `Đọc lá thư anh gửi và mở thêm ${left} món ở trên là món này mở khoá 💌`;
+  if (letter) return short ? '🔒 Đọc thư anh gửi trước' : 'Đọc lá thư anh gửi trước là món này mở khoá 💌';
+  if (left > 0) return short ? `🔒 Mở thêm ${left} món để mở khoá` : `Mở ít nhất ${FINAL_NEED} món ở trên là món này mở khoá · còn ${left} món nữa`;
+  return '';
+}
 function giftsOpened() { try { const l = JSON.parse(localStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
 function giftMark(id) { const l = giftsOpened(); if (l.includes(id)) return; l.push(id); try { localStorage.setItem(GIFT_KEY, JSON.stringify(l)); } catch {} }
 function giftIcHtml(g, cls) {
@@ -4157,10 +4168,11 @@ function renderGifts() {
   const n = GIFTS.filter(g => opened.includes(g.id)).length;
   const left = finalLeft(opened);
   $('gifts').innerHTML = GIFTS.map((g, i) => {
-    const done = opened.includes(g.id), lock = g.final && !done && left > 0;
+    const lockMsg = g.final && !opened.includes(g.id) ? finalLockMsg(opened) : '';
+    const done = opened.includes(g.id), lock = !!lockMsg;
     return `<a class="gift-btn${done ? ' done' : ''}${g.final ? ' final' : ''}${lock ? ' lockd' : ''}" href="${g.href}" data-id="${g.id}" style="--i:${i}">
       <span class="gift-n">${i + 1}</span>${giftIcHtml(g, 'gift-ic')}
-      <span class="gift-txt"><b>${g.title}</b><small>${lock ? `Mở ít nhất ${FINAL_NEED} món ở trên là món này mở khoá · còn ${left} món nữa` : g.sub}</small></span>
+      <span class="gift-txt"><b>${g.title}</b><small>${lock ? lockMsg : g.sub}</small></span>
       <span class="gift-go">${done ? 'Đã xem ✓' : lock ? '🔒' : '›'}</span></a>`;
   }).join('');
   const need = letterNeed();
@@ -4179,7 +4191,7 @@ $('gifts').addEventListener('click', (e) => {
   if (a.classList.contains('lockd')) {            // mon cuoi con khoa: rung + nhac, khong mo trang
     e.preventDefault();
     a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake');
-    toast(`Mở thêm ${finalLeft(giftsOpened())} món ở trên nữa là món cuối mở khoá nha 💕`);
+    toast(finalNeedsLetter() ? 'Đọc lá thư anh gửi trước nha, rồi món cuối mới mở 💌' : `Mở thêm ${finalLeft(giftsOpened())} món ở trên nữa là món cuối mở khoá nha 💕`);
     return;
   }
   giftMark(a.dataset.id);
@@ -4344,8 +4356,8 @@ function tourStep5() {
   }
   $('tgGrid').innerHTML = GIFTS.map((g, i) => {
     // mon cuoi: khoa toi khi mo du FINAL_NEED mon, roi sang luon (khong can doi het cac mon truoc)
-    const st = opened.includes(g.id) ? 'open' : g.final ? (left > 0 ? 'locked' : 'next') : i === nextIdx ? 'next' : 'locked';
-    const lockTxt = g.final ? `🔒 Mở thêm ${left} món để mở khoá` : 'Chưa tới lượt';
+    const st = opened.includes(g.id) ? 'open' : g.final ? (finalLockMsg(opened) ? 'locked' : 'next') : i === nextIdx ? 'next' : 'locked';
+    const lockTxt = g.final ? finalLockMsg(opened, true) : 'Chưa tới lượt';
     return `<button class="tg ${st}${g.final ? ' final' : ''}" type="button" data-i="${i}"><span class="tg-ic">${st === 'open' ? g.ic : '🎁'}</span><small>${st === 'open' ? g.title : st === 'next' ? 'Chạm để mở' : lockTxt}</small></button>`;
   }).join('');
   $('tgDetail').hidden = true; tgSel = -1;
@@ -4366,7 +4378,7 @@ $('tgGrid').addEventListener('click', (e) => {
   const i = +b.dataset.i, g = GIFTS[i];
   if (b.classList.contains('locked')) {
     b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
-    toast(g.final ? `Mở thêm ${finalLeft(giftsOpened())} món nữa là món cuối mở khoá nha 💕` : 'Mở món đang sáng trước đã nha 💕');
+    toast(g.final ? (finalNeedsLetter() ? 'Đọc lá thư anh gửi trước nha, rồi món cuối mới mở 💌' : `Mở thêm ${finalLeft(giftsOpened())} món nữa là món cuối mở khoá nha 💕`) : 'Mở món đang sáng trước đã nha 💕');
     return;
   }
   if (b.classList.contains('next')) {
