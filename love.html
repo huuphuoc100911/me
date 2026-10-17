@@ -360,6 +360,12 @@
     .gift-btn.final .gift-ic { font-size: 1.9rem; }
     .gift-btn.final .gift-txt b { font-size: 1.14rem; }
     .gifts .gift-btn.final.done { border-color: rgba(245,200,66,0.45); background: rgba(45,21,37,0.6); box-shadow: none; }
+    /* mon cuoi con khoa (chua mo du FINAL_NEED mon o tren) */
+    .gifts .gift-btn.final.lockd { border-style: dashed; border-color: rgba(245,200,66,0.5); background: rgba(45,21,37,0.6); box-shadow: none; }
+    .gift-btn.lockd::after { animation: none; }
+    .gift-btn.lockd .gift-ic { opacity: 0.55; }
+    .gift-btn.lockd .gift-go { font-size: 1.1rem; }
+    .gifts .gift-btn.shake { animation: glShake 0.45s ease; }
     .gifts.gifts-open .gift-btn { animation: giftIn 0.6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 0.07s); }
     @keyframes giftIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
 
@@ -4109,6 +4115,9 @@ const GIFTS = [
     title: 'Món quà cuối cùng',         sub: 'Để dành mở sau cùng nha — anh đang chờ em ở đó 🤍' },
 ];
 const GIFT_KEY = 'love-gifts-open';           // may nho nhung mon da mo -> hop qua sang mon ke tiep
+// ★ Mon cuoi (final) chi mo khoa khi em da mo it nhat FINAL_NEED mon o tren. mon-qua-cuoi.html cung tu kiem tra.
+const FINAL_NEED = 3;
+const finalLeft = (opened) => Math.max(0, FINAL_NEED - GIFTS.filter(g => !g.final && opened.includes(g.id)).length);
 function giftsOpened() { try { const l = JSON.parse(localStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
 function giftMark(id) { const l = giftsOpened(); if (l.includes(id)) return; l.push(id); try { localStorage.setItem(GIFT_KEY, JSON.stringify(l)); } catch {} }
 function giftIcHtml(g, cls) {
@@ -4117,12 +4126,13 @@ function giftIcHtml(g, cls) {
 function renderGifts() {
   const opened = giftsOpened();
   const n = GIFTS.filter(g => opened.includes(g.id)).length;
+  const left = finalLeft(opened);
   $('gifts').innerHTML = GIFTS.map((g, i) => {
-    const done = opened.includes(g.id);
-    return `<a class="gift-btn${done ? ' done' : ''}${g.final ? ' final' : ''}" href="${g.href}" data-id="${g.id}" style="--i:${i}">
+    const done = opened.includes(g.id), lock = g.final && !done && left > 0;
+    return `<a class="gift-btn${done ? ' done' : ''}${g.final ? ' final' : ''}${lock ? ' lockd' : ''}" href="${g.href}" data-id="${g.id}" style="--i:${i}">
       <span class="gift-n">${i + 1}</span>${giftIcHtml(g, 'gift-ic')}
-      <span class="gift-txt"><b>${g.title}</b><small>${g.sub}</small></span>
-      <span class="gift-go">${done ? 'Đã xem ✓' : '›'}</span></a>`;
+      <span class="gift-txt"><b>${g.title}</b><small>${lock ? `Mở ít nhất ${FINAL_NEED} món ở trên là món này mở khoá · còn ${left} món nữa` : g.sub}</small></span>
+      <span class="gift-go">${done ? 'Đã xem ✓' : lock ? '🔒' : '›'}</span></a>`;
   }).join('');
   $('giftboxSub').innerHTML = !n
     ? `<b>${GIFTS.length} món quà</b> đang chờ em · xem theo thứ tự hay chọn món em thích đều được`
@@ -4130,7 +4140,17 @@ function renderGifts() {
     : `Em đã mở <b>hết ${GIFTS.length} món</b> rồi · nhưng anh vẫn còn cả đời để yêu em 💗`;
 }
 renderGifts();
-$('gifts').addEventListener('click', (e) => { const a = e.target.closest('.gift-btn'); if (a) giftMark(a.dataset.id); });
+$('gifts').addEventListener('click', (e) => {
+  const a = e.target.closest('.gift-btn');
+  if (!a) return;
+  if (a.classList.contains('lockd')) {            // mon cuoi con khoa: rung + nhac, khong mo trang
+    e.preventDefault();
+    a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake');
+    toast(`Mở thêm ${finalLeft(giftsOpened())} món ở trên nữa là món cuối mở khoá nha 💕`);
+    return;
+  }
+  giftMark(a.dataset.id);
+});
 
 // Nut "Dat lai" o chan trang: xoa dau "da xem", hop qua dang do, man chao da hien (giu mat khau). Bam 2 lan cho khoi lo tay.
 (() => {
@@ -4279,10 +4299,12 @@ let tgSel = -1;
 function tourStep5() {
   const opened = giftsOpened();
   const nextIdx = GIFTS.findIndex(g => !opened.includes(g.id));
-  const n = GIFTS.filter(g => opened.includes(g.id)).length;
+  const n = GIFTS.filter(g => opened.includes(g.id)).length, left = finalLeft(opened);
   $('tgGrid').innerHTML = GIFTS.map((g, i) => {
-    const st = opened.includes(g.id) ? 'open' : i === nextIdx ? 'next' : 'locked';
-    return `<button class="tg ${st}${g.final ? ' final' : ''}" type="button" data-i="${i}"><span class="tg-ic">${st === 'open' ? g.ic : '🎁'}</span><small>${st === 'open' ? g.title : st === 'next' ? 'Chạm để mở' : 'Chưa tới lượt'}</small></button>`;
+    // mon cuoi: khoa toi khi mo du FINAL_NEED mon, roi sang luon (khong can doi het cac mon truoc)
+    const st = opened.includes(g.id) ? 'open' : g.final ? (left > 0 ? 'locked' : 'next') : i === nextIdx ? 'next' : 'locked';
+    const lockTxt = g.final ? `🔒 Mở thêm ${left} món để mở khoá` : 'Chưa tới lượt';
+    return `<button class="tg ${st}${g.final ? ' final' : ''}" type="button" data-i="${i}"><span class="tg-ic">${st === 'open' ? g.ic : '🎁'}</span><small>${st === 'open' ? g.title : st === 'next' ? 'Chạm để mở' : lockTxt}</small></button>`;
   }).join('');
   $('tgDetail').hidden = true; tgSel = -1;
   if (nextIdx < 0) {
@@ -4302,7 +4324,7 @@ $('tgGrid').addEventListener('click', (e) => {
   const i = +b.dataset.i, g = GIFTS[i];
   if (b.classList.contains('locked')) {
     b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
-    toast('Mở món đang sáng trước đã nha 💕');
+    toast(g.final ? `Mở thêm ${finalLeft(giftsOpened())} món nữa là món cuối mở khoá nha 💕` : 'Mở món đang sáng trước đã nha 💕');
     return;
   }
   if (b.classList.contains('next')) {

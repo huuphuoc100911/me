@@ -495,6 +495,9 @@
     // Khoa hop qua toi mot thoi diem (em cham chi thay "chua toi ngay" + dem nguoc), vd '2026-10-18T00:00:00';
     // xem thu khi dang khoa: them ?xem-truoc. '' = mo luon (nguoi dung bo khoa 2026-10-16).
     openFrom: '',
+    // Chi mo duoc khi em da mo it nhat chung nay mon khac trong hop qua (love.html, localStorage 'love-gifts-open').
+    // Trong love.html cung la FINAL_NEED. 0 = khong can. Anh xem thu: them ?xem-truoc.
+    needOpened: 3,
     // Anh that cua chiec vong (tuy chon), vd 'images/love/vong-tay.jpg' — hien tren la thu. '' = khong co.
     photo: '',
   };
@@ -668,10 +671,15 @@
   // ═══ HOP QUA: cham 3 lan moi mo ═══════════════════════════════════════════
   const preview = /[?&]xem-truoc\b/.test(location.search);
   const openAt = GIFT.openFrom ? new Date(GIFT.openFrom).getTime() : 0;
-  const locked = () => !preview && openAt && Date.now() < openAt;
+  const openedOthers = () => { try { const l = JSON.parse(localStorage.getItem('love-gifts-open') || '[]'); return Array.isArray(l) ? l.filter((id) => id !== 'mon-qua-cuoi').length : 0; } catch { return 0; } };
+  const needLeft = () => (preview ? 0 : Math.max(0, (GIFT.needOpened || 0) - openedOthers()));
+  const dateLocked = () => !preview && openAt && Date.now() < openAt;
+  const locked = () => dateLocked() || needLeft() > 0;
   const pad2 = (n) => String(n).padStart(2, '0');
   const openLabel = openAt ? (() => { const d = new Date(openAt); return `${pad2(d.getDate())} · ${pad2(d.getMonth() + 1)}`; })() : '';
   if (locked()) boxEl.classList.add('locked');
+  // quay lai tu trang khac (nut back, bfcache): so mon da mo co the da doi
+  addEventListener('pageshow', () => { if (opening) return; boxEl.classList.toggle('locked', !!locked()); if (!locked() && taps === 0) hintEl.textContent = 'Chạm vào hộp quà ✨'; });
 
   let taps = 0, opening = false, cdTimer = 0;
   function countdownText() {
@@ -682,6 +690,12 @@
     return d ? `còn ${d} ngày ${h} giờ ${pad2(m)} phút` : h ? `còn ${h} giờ ${pad2(m)} phút ${pad2(s)} giây` : `còn ${m} phút ${pad2(s)} giây`;
   }
   function showLock() {
+    clearInterval(cdTimer);
+    if (!dateLocked()) {                          // khoa vi chua mo du so mon khac
+      const left = needLeft(), have = (GIFT.needOpened || 0) - left;
+      hintEl.innerHTML = `Mở ít nhất ${GIFT.needOpened} món quà khác trước đã nha 🤫<span class="cd">Em mới mở ${have}/${GIFT.needOpened} món · <a href="love.html#giftbox" style="color:inherit">‹ Về hộp quà</a></span>`;
+      return;
+    }
     hintEl.innerHTML = `Hộp này khoá tới ${openLabel} nha 🤫<span class="cd" id="cd">${countdownText()}</span>`;
     clearInterval(cdTimer);
     cdTimer = setInterval(() => {
