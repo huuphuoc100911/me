@@ -663,7 +663,12 @@
     });
     const hundreds = all.filter((m) => m.type === 'days');
     const donations = all.filter((m) => m.tag === 'hien-mau');
-    todayLetter = letters.find((l) => l.openAt === dayKey(TODAY)) || null;
+    // thu mo hom nay; khong co thi thu vua mo trong 2 ngay qua (thu 1 nam mo 17/10 de doc ca dem truoc lan ngay 18/10)
+    const tk = dayKey(TODAY);
+    todayLetter = letters.find((l) => l.openAt === tk)
+      || letters.filter((l) => l.openAt < tk && (TODAY - new Date(l.openAt + 'T00:00:00')) <= 2 * 86400000)
+        .sort((a, b) => a.openAt.localeCompare(b.openAt)).pop()
+      || null;
 
     const defs = [];
 
@@ -1235,7 +1240,7 @@
     const text = Letters.decode(todayLetter.body, todayLetter.openAt);
     $('ltIcon').textContent = todayLetter.icon || '💌';
     $('ltTitle').textContent = todayLetter.title;
-    $('ltMeta').textContent = `Mở ngày ${fmtVN(TODAY)}`;
+    $('ltMeta').textContent = `Mở ngày ${fmtVN(new Date(todayLetter.openAt + 'T00:00:00'))}`;
     const box = $('ltText');
     box.textContent = '';
     text.split(/\n\s*\n/).forEach((para, i) => {
