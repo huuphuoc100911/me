@@ -457,6 +457,16 @@
     .pp-pola .dev { position: absolute; inset: 0; background: #3b3530; opacity: 1; transition: opacity 4.5s ease-in 0.6s; }
     .pp-pola.in img { transform: none; }
     .pp-pola.in .dev { opacity: 0; }
+    .pp-pola.vid { width: min(58%, 220px); }
+    .pp-pola.vid .ph { aspect-ratio: 9 / 16; }
+    .pp-pola video { display: block; width: 100%; height: 100%; object-fit: cover; background: #111; transform: translateZ(0); }
+    .pp-pola.vid .dev { transition: opacity 1.2s ease-in 0.2s; }
+    .v-snd {
+      position: absolute; left: 50%; bottom: 10px; z-index: 2; transform: translateX(-50%);
+      padding: 7px 12px; border: 0; border-radius: 999px; white-space: nowrap; cursor: pointer;
+      background: rgba(20,6,14,0.8); color: #fff; font: 600 0.74rem 'Inter', sans-serif;
+    }
+    .v-snd[hidden] { display: none; }
     .pp-pola figcaption { padding: 8px 4px 10px; text-align: center; font: 600 1.05rem/1.3 'Dancing Script', cursive; color: #8a2a43; }
 
     /* Dem nguoc toi giay phut tron 1 nam */
@@ -618,7 +628,8 @@
 
   // ★ PHAN DAC BIET CHO TUNG LA THU (theo id trong data/letters.json). Thu khong co o day thi mo nhu thuong.
   //   note: dong nho duoi phong thu · whisper(soNgay, truocGio0): cac cau hien truoc khi mo thu
-  //   photos: { doan_thu_i: ['ten anh trong images/love/thumbs', 'chu duoi anh'] } (dem doan tu 0)
+  //   photos: { doan_thu_i: ['ten anh trong images/love/thumbs', 'chu duoi anh', 'video'?] } (dem doan tu 0;
+  //           them 'video' thi chieu images/love/<ten>.mp4 ngay trong thu, chu dung lai toi khi video het)
   //   ink: chu viet muc do · deck: bo bai tinh yeu cuoi thu · countdownTo: dem nguoc toi luc nay
   const EXTRAS = {
     'thu-mue9pm8a': {
@@ -629,7 +640,7 @@
       photos: {
         0: ['24-08-25', '24 · 08 · 2025 · lần đầu mình cùng đi hiến máu 🩸'],
         2: ['valentine2', '14 · 02 · 2026 · Valentine đầu tiên 💝'],
-        7: ['emhientoclan2-trung ngaykyniem', 'Mái tóc em gửi các chiến binh nhỏ 🎗️'],
+        7: ['emhientoclan2-trung ngaykyniem', 'Mái tóc em gửi các chiến binh nhỏ 🎗️', 'video'],   // 'video': chieu images/love/<ten>.mp4, chu dung lai toi khi chieu xong
       },
       ink: ['thihuywn', 'emiu'],
       lastN: 2,                                   // 2 doan cuoi canh giua; doan cuoi cung (loi chuc song ngu) to nhat
@@ -733,7 +744,60 @@
 
   // ── VIET THU: tach tung chu ──────────────────────────────────
   const bodyEl = $('ppBody'), paperEl = $('paper'), endEl = $('ppEnd'), revealBtn = $('revealAll');
-  let words = [], at = [], shown = 0, writing = false, writeStart = 0, pics = [], picShown = 0;
+  let words = [], at = [], shown = 0, writing = false, writeStart = 0, pics = [], picShown = 0, curEl = null, lastTick = 0;
+
+  // ── VIDEO TRONG THU ──────────────────────────────────────────
+  // Viet toi doan co video: khung hien ra, video tu chieu (co tieng, nhac nen tam dung), chu dung lai;
+  // video het thi nhac len lai va chu viet tiep. iPhone chan tieng thi chieu khong tieng + nut "Cham de nghe tieng".
+  const vids = [];
+  let vidHold = false, vidHoldT = 0, musicPausedForVid = false;
+  function wireLetterVideo(v, fig) {
+    vids.push(v);
+    const snd = fig.querySelector('.v-snd');
+    snd.addEventListener('click', (e) => {
+      e.stopPropagation();
+      v.muted = false; snd.hidden = true;
+      if (musicOn && !audio.paused) { audio.pause(); musicPausedForVid = true; }
+      if (v.paused) v.play().catch(() => {});
+    });
+    v.addEventListener('click', () => { if (v.paused) v.play().catch(() => {}); else v.pause(); });
+    v.addEventListener('ended', endLetterVideo);
+  }
+  /** Mo khoa tieng cho video trong lan cham dau (iPhone chi cho phat co tieng khi play() goi trong lan cham) */
+  function primeVideos() {
+    vids.forEach((v) => {
+      if (v.dataset.primed) return;
+      v.dataset.primed = '1'; v.preload = 'auto';
+      try { const p = v.play(); v.pause(); if (p) p.catch(() => {}); } catch {}
+    });
+  }
+  function playLetterVideo(v) {
+    vidHold = true;
+    clearTimeout(vidHoldT);
+    const fig = v.closest('.pp-pola'), snd = fig.querySelector('.v-snd');
+    setTimeout(() => {                                     // cho khung hien len roi moi chieu
+      try { v.currentTime = 0; } catch {}
+      v.muted = false;
+      if (musicOn && !audio.paused) { audio.pause(); musicPausedForVid = true; }
+      v.play().catch(() => {
+        v.muted = true; snd.hidden = false;                // bi chan tieng: chieu khong tieng, nhac nen hat lai
+        if (musicPausedForVid) { musicPausedForVid = false; if (musicOn) audio.play().catch(() => {}); }
+        return v.play();
+      }).catch(endLetterVideo);                            // khong chieu duoc thi viet tiep
+      // phong mang yeu / video dung giua chung: toi da do dai video + 8 giay roi viet tiep
+      vidHoldT = setTimeout(endLetterVideo, ((isFinite(v.duration) && v.duration) || 30) * 1000 + 8000);
+    }, 900);
+  }
+  function endLetterVideo() {
+    clearTimeout(vidHoldT);
+    if (!vidHold) return;
+    vidHold = false;
+    if (musicPausedForVid) { musicPausedForVid = false; if (musicOn) audio.play().catch(() => {}); }
+  }
+  function stopLetterVideos() {
+    endLetterVideo();
+    vids.forEach((v) => { v.pause(); try { v.currentTime = 0; } catch {} });
+  }
 
   function renderLetter() {
     if (!letter) {
@@ -755,7 +819,7 @@
     psText.textContent = psAt >= 0 ? paras.splice(psAt).join('\n\n').trim() : DEFAULT_PS;
     const ex = EXTRAS[letter.id] || {};
     const ink = new Set((ex.ink || []).map((x) => x.toLowerCase()));
-    pics = [];
+    pics = []; vids.length = 0;
     paras.forEach((para, pi) => {
       const p = document.createElement('p');
       if (pi > 0) t += PARA_MS;
@@ -779,16 +843,28 @@
       }
       bodyEl.appendChild(p);
       const ph = ex.photos && ex.photos[pi];
-      if (ph) {                                         // anh polaroid hien dan sau doan nay
+      if (ph) {                                         // anh polaroid (hoac video) hien sau doan nay
+        const isVid = ph[2] === 'video';
         const fig = document.createElement('figure');
-        fig.className = 'pp-pola';
+        fig.className = 'pp-pola' + (isVid ? ' vid' : '');
         fig.style.setProperty('--rot', (pics.length % 2 ? 3 : -3) + 'deg');
-        fig.innerHTML = '<div class="ph"><img alt="" decoding="async"><div class="dev"></div></div><figcaption></figcaption>';
-        fig.querySelector('img').src = encodeURI('images/love/thumbs/' + ph[0] + '.webp');
-        fig.querySelector('img').onerror = () => fig.remove();
-        fig.querySelector('figcaption').textContent = ph[1];
-        bodyEl.appendChild(fig);
-        t += 500; pics.push({ el: fig, at: t }); t += PHOTO_MS;
+        if (isVid) {
+          fig.innerHTML = '<div class="ph"><video playsinline preload="metadata"></video><div class="dev"></div><button class="v-snd" type="button" hidden>🔊 Chạm để nghe tiếng</button></div><figcaption></figcaption>';
+          const v = fig.querySelector('video');
+          v.poster = encodeURI('images/love/thumbs/' + ph[0] + '.webp');
+          v.src = encodeURI('images/love/' + ph[0] + '.mp4');
+          wireLetterVideo(v, fig);
+          fig.querySelector('figcaption').textContent = ph[1];
+          bodyEl.appendChild(fig);
+          t += 500; pics.push({ el: fig, at: t, video: v }); t += 700;   // phan chu sau video doi video chieu xong (vidHold)
+        } else {
+          fig.innerHTML = '<div class="ph"><img alt="" decoding="async"><div class="dev"></div></div><figcaption></figcaption>';
+          fig.querySelector('img').src = encodeURI('images/love/thumbs/' + ph[0] + '.webp');
+          fig.querySelector('img').onerror = () => fig.remove();
+          fig.querySelector('figcaption').textContent = ph[1];
+          bodyEl.appendChild(fig);
+          t += 500; pics.push({ el: fig, at: t }); t += PHOTO_MS;
+        }
       }
     });
   }
@@ -807,9 +883,11 @@
   function follow(now, el) {
     const dt = Math.min(0.1, Math.max(0, (now - (lastFrame || now)) / 1000)); lastFrame = now;
     if (!el || !following(now)) return;
-    let bottom = posCache.get(el);
-    if (bottom == null) { bottom = el.offsetTop + el.offsetHeight; posCache.set(el, bottom); }   // day cua chu / anh trong to giay
-    const target = Math.max(0, bottom - paperEl.clientHeight * 0.6);
+    let box = posCache.get(el);
+    if (box == null) { box = [el.offsetTop, el.offsetHeight, el.classList.contains('pp-pola')]; posCache.set(el, box); }   // vi tri trong to giay
+    const target = Math.max(0, box[2]
+      ? box[0] + box[1] / 2 - paperEl.clientHeight / 2           // anh / video: can giua
+      : box[0] + box[1] - paperEl.clientHeight * 0.6);           // chu dang viet: o ~60% chieu cao
     const cur = paperEl.scrollTop;
     if (target <= cur + 0.5) return;                                  // chi luot xuong, khong keo nguoc
     paperEl.scrollTop = cur + (target - cur) * (1 - Math.pow(0.05, dt));
@@ -817,11 +895,15 @@
 
   function writeTick(now) {
     if (!writing) return;
+    if (vidHold) writeStart += now - lastTick;           // dang chieu video: dong ho viet dung lai
+    lastTick = now;
     const e = now - writeStart;
-    while (shown < words.length && at[shown] <= e) words[shown++].classList.add('in');
-    let last = words[shown - 1];
-    while (picShown < pics.length && pics[picShown].at <= e) { last = pics[picShown].el; last.classList.add('in'); picShown++; }
-    follow(now, last);
+    while (shown < words.length && at[shown] <= e) { curEl = words[shown++]; curEl.classList.add('in'); }
+    while (picShown < pics.length && pics[picShown].at <= e) {
+      const pc = pics[picShown++]; curEl = pc.el; pc.el.classList.add('in');
+      if (pc.video) playLetterVideo(pc.video);
+    }
+    follow(now, curEl);
     if (shown >= words.length && picShown >= pics.length) { finishWriting(); return; }
     requestAnimationFrame(writeTick);
   }
@@ -829,13 +911,14 @@
   function startWriting() {
     words.forEach((w) => w.classList.remove('in', 'now'));
     pics.forEach((p) => p.el.classList.remove('in'));
-    shown = 0; picShown = 0; lastTouch = -1e9; lastFrame = 0;
+    shown = 0; picShown = 0; lastTouch = -1e9; lastFrame = 0; curEl = null;
+    stopLetterVideos();
     endEl.classList.remove('show');
     hidePs();
     paperEl.scrollTop = 0;
     if (reduceMotion || !words.length) { showAll(); return; }
     writing = true;
-    writeStart = performance.now();
+    writeStart = lastTick = performance.now();
     revealBtn.classList.add('show');
     requestAnimationFrame(writeTick);
   }
@@ -844,6 +927,7 @@
     words.forEach((w) => w.classList.add('now'));
     pics.forEach((p) => p.el.classList.add('in'));
     shown = words.length; picShown = pics.length;
+    endLetterVideo();                                      // hien het: khong giu chu cho video nua (video van xem duoc)
     finishWriting();
   }
 
@@ -1130,10 +1214,10 @@
     hintEl.textContent = held < 400 ? 'Giữ ngón tay lâu thêm một chút nha 🤍' : 'Sắp được rồi, giữ thêm chút nữa nhé…';
   }
   envWrap.addEventListener('pointerdown', (e) => { if (e.button > 0) return; try { envWrap.setPointerCapture(e.pointerId); } catch {} holdStart(e); });
-  envWrap.addEventListener('pointerup', () => { holdStop(false); wantMusic(); });   // iPhone chi cho phat tieng khi nhac tay
+  envWrap.addEventListener('pointerup', () => { holdStop(false); wantMusic(); primeVideos(); });   // iPhone chi cho phat tieng khi nhac tay
   envWrap.addEventListener('pointercancel', () => holdStop(false));
   envWrap.addEventListener('contextmenu', (e) => e.preventDefault());              // giu lau khong hien menu
-  envWrap.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wantMusic(); openLetter(); } });
+  envWrap.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wantMusic(); primeVideos(); openLetter(); } });
 
   // Loi thi tham: tung cau hien roi tan, cham de bo qua
   const whisperEl = $('whisper'), whisperLine = $('whisperLine');
@@ -1155,7 +1239,7 @@
     whisperEl.classList.remove('show'); whisperLine.classList.remove('in');
     const d = whisperDone; whisperDone = null; if (d) d();
   }
-  whisperEl.addEventListener('click', () => { wantMusic(); endWhisper(); });
+  whisperEl.addEventListener('click', () => { wantMusic(); primeVideos(); endWhisper(); });
 
   // ── CUOI THU: dem nguoc 0 gio + bo bai tinh yeu ──────────────────
   const debugSec = +(new URLSearchParams(location.search).get('dem') || 0);      // ?dem=8: gia lap con 8 giay toi 0 gio
