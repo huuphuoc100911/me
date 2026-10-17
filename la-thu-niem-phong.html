@@ -388,6 +388,123 @@
       .env-wrap, .env-hint, .seal::after { animation: none; }
       .w.in { animation: none; opacity: 1; }
     }
+
+    /* ══ MO THU DAC BIET ══════════════════════════════════════════════ */
+    /* Giu ngon tay len con dau: vong vang day dan, con dau dap nhu tim, phong thu am len */
+    .env-wrap { touch-action: none; -webkit-touch-callout: none; }
+    .hold-glow {
+      position: absolute; left: 50%; top: 50%; width: 150%; aspect-ratio: 1; z-index: -1; pointer-events: none;
+      transform: translate(-50%, -50%); border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,214,160,0.55), rgba(255,107,138,0.18) 40%, rgba(255,107,138,0) 68%);
+      opacity: var(--hp, 0);
+    }
+    .seal-ring { position: absolute; inset: -14px; width: calc(100% + 28px); height: calc(100% + 28px); transform: rotate(-90deg); pointer-events: none; overflow: visible; }
+    .seal-ring circle { fill: none; stroke: #fde68a; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; transition: opacity 0.3s ease; }
+    .holding .seal-ring circle { opacity: 1; }
+    .holding .seal { animation: sealBeat 0.8s ease-in-out infinite; }
+    .holding .seal::after { animation: none; }
+    /* giu nguyen translate goc cua con dau trong moi khung (thieu la con dau lech cho) */
+    @keyframes sealBeat {
+      0%, 100% { transform: translate(-50%, -62%) scale(1); }
+      15%      { transform: translate(-50%, -62%) scale(1.12); }
+      30%      { transform: translate(-50%, -62%) scale(1); }
+      45%      { transform: translate(-50%, -62%) scale(1.07); }
+    }
+
+    /* Loi thi tham truoc khi thu mo ra */
+    .whisper {
+      position: fixed; inset: 0; z-index: 6;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+      padding: 24px; text-align: center;
+      background: radial-gradient(circle at 50% 50%, rgba(28,8,18,0.8), rgba(5,1,4,0.94));
+      opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s;
+    }
+    .whisper.show { opacity: 1; visibility: visible; }
+    .whisper p {
+      max-width: 520px; min-height: 2.8em;
+      font: 600 clamp(1.7rem, 7.6vw, 2.4rem)/1.35 'Dancing Script', cursive; color: #ffe3ea;
+      text-shadow: 0 0 22px rgba(255,107,138,0.45);
+      opacity: 0; transform: translateY(10px); transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .whisper p.in { opacity: 1; transform: none; }
+    .whisper small { font: 500 0.72rem 'Inter', sans-serif; color: rgba(255,255,255,0.38); letter-spacing: 0.06em; }
+
+    /* Hinh dan tren giay + chu muc do + cau cuoi */
+    .stk { position: absolute; font-size: 1.7rem; line-height: 1; pointer-events: none; }
+    .stk.s1 { top: 12px; left: 14px; transform: rotate(-14deg); }
+    .w.ink { color: #b3123a; font-weight: 700; }
+    .pp-body p.last { margin-top: 0.9em; text-align: center; font-size: 1.12em; font-weight: 600; color: #a8142f; }
+    .last-heart { display: inline-block; color: #e11d48; transform: scale(0); }
+    .last-heart.in { animation: lastHeart 1.4s ease-out forwards; }
+    @keyframes lastHeart { 0% { transform: scale(0); } 35% { transform: scale(1.5); } 50% { transform: scale(0.95); } 65% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+    /* Anh polaroid hien dan nhu phim chup lay lien */
+    .pp-pola {
+      position: relative; display: block; width: min(64%, 250px); margin: 0.5em auto 1.2em; padding: 9px 9px 0;
+      background: #fff; box-shadow: 0 10px 24px rgba(61,22,34,0.22);
+      opacity: 0; transform: rotate(var(--rot, -3deg)) translateY(16px);
+      transition: opacity 0.9s ease, transform 1s cubic-bezier(.2,.8,.2,1);
+    }
+    .pp-pola.in { opacity: 1; transform: rotate(var(--rot, -3deg)); }
+    .pp-pola::before {              /* mieng bang dinh */
+      content: ''; position: absolute; top: -11px; left: 50%; width: 76px; height: 22px; z-index: 2;
+      transform: translateX(-50%) rotate(-4deg); background: rgba(255,205,220,0.85); box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .pp-pola .ph { position: relative; aspect-ratio: 1; overflow: hidden; background: #3b3530; }
+    .pp-pola img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.07); transition: transform 7s ease-out; }
+    .pp-pola .dev { position: absolute; inset: 0; background: #3b3530; opacity: 1; transition: opacity 4.5s ease-in 0.6s; }
+    .pp-pola.in img { transform: none; }
+    .pp-pola.in .dev { opacity: 0; }
+    .pp-pola figcaption { padding: 8px 4px 10px; text-align: center; font: 600 1.05rem/1.3 'Dancing Script', cursive; color: #8a2a43; }
+
+    /* Dem nguoc toi giay phut tron 1 nam */
+    .cdown { text-align: center; font: 600 1.3rem/1.4 'Dancing Script', cursive; color: #8a2a43; }
+    .cdown b { display: block; margin: 2px 0; font: 700 2rem/1.1 'Playfair Display', serif; color: #a8142f; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+    .cdown[hidden] { display: none; }
+
+    /* Bo bai tinh yeu */
+    .deck { width: 100%; text-align: center; }
+    .deck[hidden] { display: none; }
+    .dk-title { font: 700 1.6rem/1.2 'Dancing Script', cursive; color: #8a2a43; }
+    .dk-sub { margin-top: 2px; font: 400 0.82rem/1.45 'Inter', sans-serif; color: #9a6b75; }
+    .dk-stack { position: relative; width: 186px; height: 246px; margin: 18px auto 8px; perspective: 1000px; cursor: pointer; outline: none; }
+    .dk-card { position: absolute; inset: 0; border-radius: 14px; }
+    .dk-card.back { background: linear-gradient(135deg, #b0144a, #7a0f33); box-shadow: 0 6px 14px rgba(61,22,34,0.25); }
+    .dk-card.b2 { transform: rotate(-5deg) translate(-7px, 4px); }
+    .dk-card.b3 { transform: rotate(6deg) translate(8px, 6px); }
+    .dk-card.top { transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(.3,.7,.2,1); }
+    .dk-card.top.flip { transform: rotateY(180deg); }
+    .dk-face {
+      position: absolute; inset: 0; border-radius: 14px; padding: 18px 16px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    }
+    .dk-front {
+      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0 8px, transparent 8px 16px), linear-gradient(135deg, #e11d48, #9d1239);
+      border: 3px solid #fde68a; color: #ffe3ea; font-size: 2.8rem; box-shadow: 0 10px 22px rgba(61,22,34,0.3);
+    }
+    .dk-front small { margin-top: 10px; font: 600 0.74rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+    .dk-back { transform: rotateY(180deg); background: #fffaf2; border: 3px solid #e8b4c0; color: #3d1622; box-shadow: 0 10px 22px rgba(61,22,34,0.2); }
+    .dk-back small { font: 600 0.66rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #b0144a; }
+    .dk-back p { margin-top: 10px; font: 600 1.28rem/1.35 'Dancing Script', cursive; }
+    .dk-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+    .dk-acts[hidden] { display: none; }
+
+    /* 0 gio: tron 1 nam */
+    .midnight {
+      position: fixed; inset: 0; z-index: 11; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      padding: 24px; text-align: center;
+      background: radial-gradient(circle at 50% 45%, #3a0d22 0%, #12040b 62%, #050103 100%);
+      opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s;
+    }
+    .midnight.show { opacity: 1; visibility: visible; }
+    .midnight .mn-clock { font: 700 clamp(3.4rem, 18vw, 5.6rem)/1 'Playfair Display', serif; color: #fde68a; letter-spacing: 0.04em; text-shadow: 0 0 30px rgba(245,200,66,0.55); }
+    .midnight .mn-big { font: 700 clamp(2rem, 9vw, 2.8rem)/1.25 'Dancing Script', cursive; color: #ffe3ea; }
+    .midnight .mn-small { font: 500 0.86rem 'Inter', sans-serif; color: rgba(255,230,236,0.75); letter-spacing: 0.06em; }
+    .midnight .mn-tap { margin-top: 18px; font: 500 0.72rem 'Inter', sans-serif; color: rgba(255,255,255,0.4); }
+    .mn-heart { position: absolute; bottom: -40px; font-size: var(--fs, 22px); animation: mnUp var(--t, 5s) ease-out forwards; animation-delay: var(--dl, 0s); opacity: 0; }
+    @keyframes mnUp { 0% { transform: translate(0, 0) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translate(var(--dx, 0px), -115vh) rotate(var(--r, 20deg)); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -400,7 +517,8 @@
 </header>
 
 <main class="stage" id="stage">
-  <div class="env-wrap" id="envWrap" role="button" tabindex="0" aria-label="Mở thư">
+  <div class="env-wrap" id="envWrap" role="button" tabindex="0" aria-label="Giữ ngón tay lên con dấu để mở thư">
+    <div class="hold-glow" aria-hidden="true"></div>
     <div class="env" id="env">
       <div class="env-back"></div>
       <div class="peek"><b>Gửi em 💌</b></div>
@@ -408,19 +526,21 @@
       <div class="flap"></div>
       <button class="seal" id="seal" aria-label="Mở con dấu">
         <span class="seal-l"></span><span class="seal-r"></span><span class="seal-h">♥</span>
+        <svg class="seal-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" pathLength="100"/></svg>
       </button>
     </div>
   </div>
   <div class="env-label">
     <div class="env-to">Gửi Thị Huyền 💌</div>
     <div class="env-when" id="envWhen"></div>
-    <div class="env-hint">Chạm vào con dấu để mở thư</div>
+    <div class="env-hint" id="envHint">Đặt ngón tay lên con dấu và giữ một chút…</div>
   </div>
 </main>
 
 <div class="petals" id="petals"></div>
 
 <article class="paper" id="paper" aria-live="polite">
+  <span class="stk s1" aria-hidden="true">💌</span>
   <div class="pp-date" id="ppDate"></div>
   <h1 class="pp-title" id="ppTitle"></h1>
   <div class="pp-body" id="ppBody"></div>
@@ -429,6 +549,22 @@
     <canvas class="ps-cover" id="psCover" aria-label="Hơ nhẹ tay lên đây để đọc dòng bí mật"></canvas>
   </div>
   <div class="pp-end" id="ppEnd">
+    <div class="cdown" id="cdown" hidden></div>
+    <div class="deck" id="deck" hidden>
+      <div class="dk-title">Bộ bài tình yêu 🃏</div>
+      <div class="dk-sub" id="dkSub">Anh để sẵn ở đây rồi. Mình bốc lá đầu tiên nhé?</div>
+      <div class="dk-stack" id="dkStack" role="button" tabindex="0" aria-label="Bốc một lá bài">
+        <div class="dk-card back b3"></div><div class="dk-card back b2"></div>
+        <div class="dk-card top" id="dkCard">
+          <div class="dk-face dk-front">♥<small>Chạm để bốc</small></div>
+          <div class="dk-face dk-back"><small id="dkNo">Lá số 1</small><p id="dkQ"></p></div>
+        </div>
+      </div>
+      <div class="dk-acts" id="dkActs" hidden>
+        <button class="pp-btn gold" id="dkAnswer" type="button">💌 Trả lời anh</button>
+        <button class="pp-btn" id="dkNext" type="button">🃏 Bốc lá khác</button>
+      </div>
+    </div>
     <div class="stamp"><b id="stampN">0</b><span>ngày bên nhau</span></div>
     <div class="pp-actions">
       <button class="pp-btn gold" id="replyBtn">✍️ Viết thư trả lời</button>
@@ -439,6 +575,14 @@
 </article>
 
 <button class="reveal-all" id="revealAll">Chạm để hiện hết ›</button>
+
+<div class="whisper" id="whisper" aria-live="polite"><p id="whisperLine"></p><small>Chạm để đọc thư ngay</small></div>
+<div class="midnight" id="midnight" role="dialog" aria-live="polite">
+  <div class="mn-clock">00:00</div>
+  <div class="mn-big">Tròn 1 năm rồi em ơi 💗</div>
+  <div class="mn-small">18 · 10 · 2026 · Chúc mừng ngày kỷ niệm của chúng mình</div>
+  <div class="mn-tap">Chạm để đọc tiếp thư</div>
+</div>
 
 <div class="reply" id="reply" role="dialog" aria-modal="true" aria-labelledby="replyTitle">
   <form class="reply-paper" id="replyForm" autocomplete="off">
@@ -468,6 +612,51 @@
   const COMMA_MS = 140;          // nghi them sau dau phay
   const STOP_MS = 320;           // nghi them sau dau cham / cham than / hoi
   const PARA_MS = 650;           // nghi them truoc moi doan moi
+  const PHOTO_MS = 2600;         // nghi them sau moi tam anh polaroid (cho kip hien hinh)
+
+  // ★ PHAN DAC BIET CHO TUNG LA THU (theo id trong data/letters.json). Thu khong co o day thi mo nhu thuong.
+  //   note: dong nho duoi phong thu · whisper(soNgay, truocGio0): cac cau hien truoc khi mo thu
+  //   photos: { doan_thu_i: ['ten anh trong images/love/thumbs', 'chu duoi anh'] } (dem doan tu 0)
+  //   ink: chu viet muc do · deck: bo bai tinh yeu cuoi thu · countdownTo: dem nguoc toi luc nay
+  const EXTRAS = {
+    'thu-mue9pm8a': {
+      note: 'Đêm trước ngày kỷ niệm 🌙',
+      whisper: (n, before) => before
+        ? [`Mình đã bên nhau ${n} ngày rồi…`, 'Đêm nay là đêm cuối cùng của năm đầu tiên 🌙', 'Anh có vài lời muốn nói với em…']
+        : [`Mình đã bên nhau ${n} ngày rồi…`, 'Hôm nay mình tròn 1 năm 💗', 'Anh có vài lời muốn nói với em…'],
+      photos: {
+        0: ['24-08-25', '24 · 08 · 2025 · lần đầu mình cùng đi hiến máu 🩸'],
+        2: ['valentine2', '14 · 02 · 2026 · Valentine đầu tiên 💝'],
+        7: ['emhientoclan2-trung ngaykyniem', 'Mái tóc em gửi các chiến binh nhỏ 🎗️'],
+      },
+      ink: ['thihuywn', 'emiu'],
+      deck: true,
+      countdownTo: '2026-10-18T00:00:00',
+    },
+  };
+  // Bo bai tinh yeu: moi la mot cau hoi de hieu nhau hon (boc lan luot, may nho da boc toi la nao)
+  const DECK = [
+    'Khoảnh khắc nào trong năm qua làm em thấy được yêu nhất?',
+    'Lần đầu gặp anh, em đã nghĩ gì về anh?',
+    'Có điều gì anh làm khiến em buồn mà em chưa nói ra không?',
+    'Em muốn anh hiểu điều gì ở em nhiều hơn?',
+    'Một thói quen nhỏ của anh mà em thầm thích?',
+    'Nếu được sống lại một ngày trong năm qua, em chọn ngày nào?',
+    'Điều gì làm em thấy an toàn nhất khi ở bên anh?',
+    'Năm thứ hai, em muốn hai đứa cùng làm điều gì?',
+    'Những hôm em mệt, em muốn anh làm gì cho em nhất?',
+    'Trong chuyện tình cảm, em sợ điều gì nhất?',
+    'Điều gì khiến em quyết định gật đầu với anh?',
+    'Câu nói nào của anh làm em nhớ nhất?',
+    'Lúc giận anh, thật ra em đang mong anh làm gì?',
+    'Em thích được yêu bằng cách nào nhất: lời nói, cái ôm, món quà, thời gian hay sự chăm sóc?',
+    'Một nơi em muốn hai đứa cùng đi một lần?',
+    'Bài hát nào làm em nhớ tới anh?',
+    'Nếu chỉ dùng 3 từ để tả năm đầu tiên của mình, em chọn từ gì?',
+    'Có một điều nhỏ nào em mong anh thay đổi không?',
+    'Em hình dung hai đứa mình 5 năm nữa sẽ thế nào?',
+    'Em muốn nhắn gì cho anh của một năm sau?',
+  ];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (id) => document.getElementById(id);
   const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -527,6 +716,9 @@
   // la thu dau tien (giong "loi di rieng" o trang love).
   let letter = null;
   function pickLetter(list) {
+    const want = new URLSearchParams(location.search).get('thu');          // mo tu danh sach thu o trang love
+    const byId = want && list.find((l) => l.id === want && Letters.isOpen(l.openAt));
+    if (byId) return byId;
     const key = dayKey(TODAY);
     const sorted = list.slice().sort((a, b) => a.openAt.localeCompare(b.openAt));
     return sorted.find((l) => l.openAt === key)
@@ -538,7 +730,7 @@
 
   // ── VIET THU: tach tung chu ──────────────────────────────────
   const bodyEl = $('ppBody'), paperEl = $('paper'), endEl = $('ppEnd'), revealBtn = $('revealAll');
-  let words = [], at = [], shown = 0, writing = false, writeStart = 0;
+  let words = [], at = [], shown = 0, writing = false, writeStart = 0, pics = [], picShown = 0;
 
   function renderLetter() {
     if (!letter) {
@@ -558,22 +750,43 @@
     const paras = text.split(/\n\s*\n/);
     const psAt = paras.findIndex((pa) => /^\s*p\.?\s*s\b/i.test(pa));
     psText.textContent = psAt >= 0 ? paras.splice(psAt).join('\n\n').trim() : DEFAULT_PS;
+    const ex = EXTRAS[letter.id] || {};
+    const ink = new Set((ex.ink || []).map((x) => x.toLowerCase()));
+    pics = [];
     paras.forEach((para, pi) => {
       const p = document.createElement('p');
       if (pi > 0) t += PARA_MS;
+      const isLast = ex.whisper && pi === paras.length - 1;
+      if (isLast) p.className = 'last';
       para.split('\n').forEach((line, li) => {
         if (li > 0) p.appendChild(document.createElement('br'));
         line.split(/\s+/).filter(Boolean).forEach((word, wi) => {
           if (wi > 0) p.appendChild(document.createTextNode(' '));
           const s = document.createElement('span');
-          s.className = 'w';
+          s.className = ink.has(word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')) ? 'w ink' : 'w';
           s.textContent = word;
           p.appendChild(s);
           words.push(s); at.push(t);
           t += WORD_MS + (/[.!?…]$/.test(word) ? STOP_MS : /[,;:—]$/.test(word) ? COMMA_MS : 0);
         });
       });
+      if (isLast) {                                     // trai tim dap o cuoi cau cuoi
+        const h = document.createElement('span'); h.className = 'last-heart'; h.textContent = ' ♥';
+        p.appendChild(h); pics.push({ el: h, at: t + 300 });
+      }
       bodyEl.appendChild(p);
+      const ph = ex.photos && ex.photos[pi];
+      if (ph) {                                         // anh polaroid hien dan sau doan nay
+        const fig = document.createElement('figure');
+        fig.className = 'pp-pola';
+        fig.style.setProperty('--rot', (pics.length % 2 ? 3 : -3) + 'deg');
+        fig.innerHTML = '<div class="ph"><img alt="" decoding="async"><div class="dev"></div></div><figcaption></figcaption>';
+        fig.querySelector('img').src = encodeURI('images/love/thumbs/' + ph[0] + '.webp');
+        fig.querySelector('img').onerror = () => fig.remove();
+        fig.querySelector('figcaption').textContent = ph[1];
+        bodyEl.appendChild(fig);
+        t += 500; pics.push({ el: fig, at: t }); t += PHOTO_MS;
+      }
     });
   }
 
@@ -597,14 +810,17 @@
     if (!writing) return;
     const e = now - writeStart;
     while (shown < words.length && at[shown] <= e) words[shown++].classList.add('in');
-    follow(now, words[shown - 1]);
-    if (shown >= words.length) { finishWriting(); return; }
+    let last = words[shown - 1];
+    while (picShown < pics.length && pics[picShown].at <= e) { last = pics[picShown].el; last.classList.add('in'); picShown++; }
+    follow(now, last);
+    if (shown >= words.length && picShown >= pics.length) { finishWriting(); return; }
     requestAnimationFrame(writeTick);
   }
 
   function startWriting() {
     words.forEach((w) => w.classList.remove('in', 'now'));
-    shown = 0; userScrolled = false;
+    pics.forEach((p) => p.el.classList.remove('in'));
+    shown = 0; picShown = 0; userScrolled = false;
     endEl.classList.remove('show');
     hidePs();
     paperEl.scrollTop = 0;
@@ -617,7 +833,8 @@
 
   function showAll() {
     words.forEach((w) => w.classList.add('now'));
-    shown = words.length;
+    pics.forEach((p) => p.el.classList.add('in'));
+    shown = words.length; picShown = pics.length;
     finishWriting();
   }
 
@@ -625,6 +842,7 @@
     writing = false;
     revealBtn.classList.remove('show');
     showPs();
+    showExtrasEnd();
     endEl.classList.add('show');
     if (!userScrolled) setTimeout(() => endEl.scrollIntoView({ behavior: 'smooth', block: 'end' }), 400);
   }
@@ -718,8 +936,10 @@
     toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
   }
 
-  function openReply() {
-    replyText.value = ls.get(DRAFT_KEY);
+  function openReply(prefill) {
+    const draft = ls.get(DRAFT_KEY);
+    replyText.value = typeof prefill === 'string' && prefill && !draft.includes(prefill.trim()) ? prefill + draft : draft;
+    ls.set(DRAFT_KEY, replyText.value);
     replyMsg.textContent = '';
     replyEl.classList.add('show');
     setTimeout(() => replyText.focus(), 400);
@@ -729,7 +949,7 @@
     replyText.blur();
   }
   replyText.addEventListener('input', () => ls.set(DRAFT_KEY, replyText.value));
-  $('replyBtn').addEventListener('click', openReply);
+  $('replyBtn').addEventListener('click', () => openReply());
   $('replyLater').addEventListener('click', closeReply);
   replyEl.addEventListener('click', (e) => { if (e.target === replyEl) closeReply(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && replyEl.classList.contains('show')) closeReply(); });
@@ -798,7 +1018,9 @@
     };
     requestAnimationFrame(fade);
   }
-  musicEl.addEventListener('click', () => setMusic(!musicOn));
+  let musicUserOff = false;
+  musicEl.addEventListener('click', () => { musicUserOff = musicOn; setMusic(!musicOn); });
+  const wantMusic = () => { if (!musicUserOff && (!musicOn || audio.paused)) setMusic(true); };
   // Bam the qua tren trang love (cung web) -> Chrome cho phat tieng ngay: hat luon tu
   // luc vao trang, khong doi cham "bat dau". Bi chan (iPhone, mo thang link) thi nhac
   // bat o lan cham dau nhu cu.
@@ -851,16 +1073,143 @@
       startWriting();
       return;
     }
-    // Sap vo -> nap mo -> thu truot len -> phong bi lui xuong, to thu mo ra
+    // Sap vo -> nap mo -> thu truot len -> phong bi lui xuong -> (loi thi tham) -> to thu mo ra
     const steps = [[0, 's1'], [380, 's2'], [800, 's3'], [1100, 's4']];
     steps.forEach(([ms, cls]) => setTimeout(() => envEl.classList.add(cls), ms));
     setTimeout(startPetals, 1100);
     setTimeout(() => envWrap.classList.add('gone'), 2400);
-    setTimeout(() => paperEl.classList.add('show'), 2650);
-    setTimeout(startWriting, 3400);
+    const ex = (letter && EXTRAS[letter.id]) || {};
+    const showPaper = () => { paperEl.classList.add('show'); setTimeout(startWriting, 750); };
+    if (ex.whisper) setTimeout(() => playWhisper(ex.whisper(N, beforeCountdown(ex)), showPaper), 2300);
+    else setTimeout(showPaper, 2650);
   }
-  envWrap.addEventListener('click', openLetter);
-  envWrap.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLetter(); } });
+
+  // Giu ngon tay len con dau ~1,7 giay moi mo (cham nhanh thi nhac giu lau hon)
+  const HOLD_MS = 1700, hintEl = $('envHint'), ringC = document.querySelector('.seal-ring circle');
+  let holding = false, holdT0 = 0, holdRaf = 0, beatT = 0;
+  function holdStart(e) {
+    if (opened || holding) return;
+    holding = true; holdT0 = performance.now();
+    envWrap.classList.add('holding');
+    navigator.vibrate?.([25, 140, 25]);
+    beatT = setInterval(() => navigator.vibrate?.([25, 140, 25]), 800);
+    const step = (now) => {
+      if (!holding) return;
+      const p = clamp01((now - holdT0) / HOLD_MS);
+      ringC.style.strokeDashoffset = (100 * (1 - p)).toFixed(1);
+      envWrap.style.setProperty('--hp', p.toFixed(3));
+      if (p >= 1) { holdStop(true); openLetter(); return; }
+      holdRaf = requestAnimationFrame(step);
+    };
+    holdRaf = requestAnimationFrame(step);
+  }
+  function holdStop(done) {
+    if (!holding) return;
+    holding = false; cancelAnimationFrame(holdRaf); clearInterval(beatT);
+    envWrap.classList.remove('holding');
+    if (done) return;
+    const held = performance.now() - holdT0;
+    ringC.style.transition = 'stroke-dashoffset 0.4s ease'; ringC.style.strokeDashoffset = '100';
+    setTimeout(() => { ringC.style.transition = ''; }, 450);
+    envWrap.style.setProperty('--hp', '0');
+    hintEl.textContent = held < 400 ? 'Giữ ngón tay lâu thêm một chút nha 🤍' : 'Sắp được rồi, giữ thêm chút nữa nhé…';
+  }
+  envWrap.addEventListener('pointerdown', (e) => { if (e.button > 0) return; try { envWrap.setPointerCapture(e.pointerId); } catch {} holdStart(e); });
+  envWrap.addEventListener('pointerup', () => { holdStop(false); wantMusic(); });   // iPhone chi cho phat tieng khi nhac tay
+  envWrap.addEventListener('pointercancel', () => holdStop(false));
+  envWrap.addEventListener('contextmenu', (e) => e.preventDefault());              // giu lau khong hien menu
+  envWrap.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wantMusic(); openLetter(); } });
+
+  // Loi thi tham: tung cau hien roi tan, cham de bo qua
+  const whisperEl = $('whisper'), whisperLine = $('whisperLine');
+  let whisperT = [], whisperDone = null;
+  function playWhisper(lines, done) {
+    whisperDone = done;
+    whisperEl.classList.add('show');
+    let t = 700;
+    lines.forEach((txt) => {
+      whisperT.push(setTimeout(() => { whisperLine.textContent = txt; whisperLine.classList.add('in'); }, t));
+      t += 2300;
+      whisperT.push(setTimeout(() => whisperLine.classList.remove('in'), t));
+      t += 800;
+    });
+    whisperT.push(setTimeout(endWhisper, t));
+  }
+  function endWhisper() {
+    whisperT.forEach(clearTimeout); whisperT = [];
+    whisperEl.classList.remove('show'); whisperLine.classList.remove('in');
+    const d = whisperDone; whisperDone = null; if (d) d();
+  }
+  whisperEl.addEventListener('click', () => { wantMusic(); endWhisper(); });
+
+  // ── CUOI THU: dem nguoc 0 gio + bo bai tinh yeu ──────────────────
+  const debugSec = +(new URLSearchParams(location.search).get('dem') || 0);      // ?dem=8: gia lap con 8 giay toi 0 gio
+  const pageT0 = Date.now();
+  const targetOf = (ex) => (debugSec ? pageT0 + debugSec * 1000 : new Date(ex.countdownTo).getTime());
+  function beforeCountdown(ex) { return !!ex.countdownTo && Date.now() < targetOf(ex); }
+  let cdTimer = 0, celebrated = false;
+  function showExtrasEnd() {
+    const ex = (letter && EXTRAS[letter.id]) || {};
+    const cd = $('cdown');
+    clearInterval(cdTimer);
+    if (ex.countdownTo) {
+      const target = targetOf(ex), tday = new Date(target);
+      const tick = () => {
+        const left = target - Date.now();
+        if (left <= 0) {
+          clearInterval(cdTimer);
+          cd.innerHTML = 'Hôm nay mình tròn 1 năm rồi em ơi 💗';
+          if (!celebrated && Date.now() - target < 60 * 60 * 1000 && opened) celebrate();   // dang doc dung luc 0 gio
+          return;
+        }
+        const s = Math.floor(left / 1000), hh = Math.floor(s / 3600), mm = Math.floor((s % 3600) / 60), ss = s % 60;
+        cd.innerHTML = `Còn<b>${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}</b>nữa là mình tròn 1 năm 💗`;
+      };
+      const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+      if (Date.now() < target || sameDay(new Date(), tday)) { cd.hidden = false; tick(); if (Date.now() < target) cdTimer = setInterval(tick, 1000); }
+      else cd.hidden = true;
+    } else cd.hidden = true;
+    $('deck').hidden = !ex.deck;
+  }
+  const midEl = $('midnight');
+  function celebrate() {
+    celebrated = true;
+    $('stampN').textContent = (N + 1).toLocaleString('vi-VN');
+    midEl.querySelectorAll('.mn-heart').forEach((h) => h.remove());
+    const glyphs = ['💗', '💖', '✨', '💕', '❤️', '🌹'];
+    for (let i = 0; i < (reduceMotion ? 0 : 36); i++) {
+      const h = document.createElement('span'); h.className = 'mn-heart'; h.textContent = glyphs[i % glyphs.length];
+      h.style.cssText = `left:${(Math.random() * 100).toFixed(1)}%;--fs:${(16 + Math.random() * 22).toFixed(0)}px;--t:${(4 + Math.random() * 3).toFixed(1)}s;--dl:${(Math.random() * 2.5).toFixed(2)}s;--dx:${((Math.random() - 0.5) * 120).toFixed(0)}px;--r:${((Math.random() - 0.5) * 80).toFixed(0)}deg`;
+      midEl.appendChild(h);
+    }
+    midEl.classList.add('show');
+    navigator.vibrate?.([40, 80, 40, 80, 120]);
+  }
+  midEl.addEventListener('click', () => { midEl.classList.remove('show'); wantMusic(); });
+
+  const DECK_KEY = 'love-deck-i';
+  const dkCard = $('dkCard'), dkStack = $('dkStack');
+  let dkBusy = false, dkQ = '';
+  const deckIdx = () => { try { return +(localStorage.getItem(DECK_KEY) || 0) || 0; } catch { return 0; } };
+  function drawCard() {
+    if (dkBusy) return;
+    dkBusy = true;
+    const flipBack = dkCard.classList.contains('flip');
+    if (flipBack) dkCard.classList.remove('flip');
+    setTimeout(() => {
+      const i = deckIdx();
+      dkQ = DECK[i % DECK.length];
+      $('dkQ').textContent = dkQ; $('dkNo').textContent = `Lá số ${i + 1}`;
+      try { localStorage.setItem(DECK_KEY, String(i + 1)); } catch {}
+      dkCard.classList.add('flip');
+      navigator.vibrate?.(15);
+      setTimeout(() => { $('dkActs').hidden = false; $('dkSub').textContent = 'Em trả lời thật lòng nha, anh đọc hết đó 🥰'; dkBusy = false; }, 800);
+    }, flipBack ? 450 : 0);
+  }
+  dkStack.addEventListener('click', drawCard);
+  dkStack.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); drawCard(); } });
+  $('dkNext').addEventListener('click', drawCard);
+  $('dkAnswer').addEventListener('click', () => openReply(dkQ ? `🃏 ${dkQ}\n` : ''));
 
   // ── TAI THU ──────────────────────────────────────────────────
   fetch('data/letters.json')
@@ -868,7 +1217,8 @@
     .catch(() => [])
     .then((list) => {
       letter = pickLetter(Array.isArray(list) ? list : []);
-      $('envWhen').textContent = letter ? `Thư của ngày ${fmtVN(dateOf(letter.openAt))}` : 'Chưa có lá thư nào';
+      const note = letter && EXTRAS[letter.id] && EXTRAS[letter.id].note;
+      $('envWhen').textContent = letter ? `${note ? note + ' · ' : 'Thư của ngày '}${fmtVN(dateOf(letter.openAt))}` : 'Chưa có lá thư nào';
       renderLetter();
     });
 

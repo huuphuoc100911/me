@@ -2146,7 +2146,11 @@
   //                      vao trang; 4 mon qua mo san.
   //   LOCK_PAGE = false: nhu truoc — trang mo, chi khoa 4 mon qua.
   // window.loveUnlocked: Promise xong khi da vao duoc trang (man ky niem doi cai nay).
+  //
+  // ★ NEED_PASS = false: BO MAT KHAU hoan toan (nguoi dung yeu cau 2026-10-17) — vao trang la thay het,
+  //   hop qua mo san. Muon khoa lai thi doi thanh true (LOCK_PAGE ben duoi quyet dinh khoa ca trang hay chi hop qua).
   (() => {
+    const NEED_PASS = false;
     const LOCK_PAGE = true;
     const GIFT_HASH = 'cmqzm1mwhu';
     const KEY = LOCK_PAGE ? 'love-key' : 'gifts-key';
@@ -2187,7 +2191,11 @@
     let saved = false;
     try { saved = localStorage.getItem(KEY) === GIFT_HASH; } catch (e) {}
 
-    if (LOCK_PAGE) {
+    if (!NEED_PASS) {                                   // khong mat khau: khong cong, hop qua mo san
+      gate.hidden = true;
+      show(false);
+      unlock(false);
+    } else if (LOCK_PAGE) {
       show(false);                                      // 4 mon qua mo san
       if (saved) openPage(false);
       else {
@@ -3991,7 +3999,9 @@ letterGridEl.addEventListener('click', (e) => {
   const card = e.target.closest('.ltr');
   if (!card) return;
   const i = +card.dataset.i;
-  if (i === 0 || Letters.isOpen(letterList[i].openAt)) ltrOpen(letterList[i]);
+  // thu da mo: sang phong thu niem phong (giu con dau, loi thi tham, anh, bo bai...) thay vi khung doc don gian
+  if (Letters.isOpen(letterList[i].openAt)) { location.href = 'la-thu-niem-phong.html?thu=' + encodeURIComponent(letterList[i].id); return; }
+  if (i === 0) ltrOpen(letterList[i]);
 });
 
 fetch('data/letters.json')

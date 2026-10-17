@@ -1237,6 +1237,8 @@
   const letterEl = $('letter');
   function openLetter() {
     if (!todayLetter) return;
+    // mo trong phong thu niem phong (hieu ung mo thu day du); khung doc ben duoi chi la phong khi thieu id
+    if (todayLetter.id) { location.href = 'la-thu-niem-phong.html?thu=' + encodeURIComponent(todayLetter.id); return; }
     const text = Letters.decode(todayLetter.body, todayLetter.openAt);
     $('ltIcon').textContent = todayLetter.icon || '💌';
     $('ltTitle').textContent = todayLetter.title;
